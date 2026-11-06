@@ -221,7 +221,7 @@
       <div class="brand">Bwat Sekrèm Talks <small id="who"></small></div>
       <div class="actions">
         <select class="t" id="edition" aria-label="Édition"></select>
-        <button class="btn" id="refresh" type="button">Actualiser</button>
+        <button class="btn" id="refresh" type="button" style="min-width:150px;justify-content:center;font-variant-numeric:tabular-nums">Actualiser</button>
         <label class="sub" style="display:inline-flex;align-items:center;gap:6px" title="Recharge la liste toutes les 2 minutes"><input type="checkbox" id="autoRef" checked /> Auto (2 min) <span id="lastRef"></span></label>
         <button class="btn" id="printList" type="button">Imprimer la liste</button>
         <button class="btn" id="printStats" type="button">Imprimer les stats</button>
@@ -1172,8 +1172,27 @@ function busy() {
 }
 try { $('autoRef').checked = localStorage.getItem('bst_autoref') !== '0'; } catch {}
 $('autoRef').addEventListener('change', () => { try { localStorage.setItem('bst_autoref', $('autoRef').checked ? '1' : '0'); } catch {} });
-setInterval(() => { if ($('autoRef').checked && !busy()) load({ silent: true }); }, 120000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden && $('autoRef').checked && !busy()) load({ silent: true }); });
+const PERIOD = 120;              // secondes
+let nextAt = Date.now() + PERIOD * 1000;
+const resetTimer = () => { nextAt = Date.now() + PERIOD * 1000; tick(); };
+function tick() {
+  const btn = $('refresh');
+  if (!$('autoRef').checked) { btn.textContent = 'Actualiser'; btn.title = ''; return; }
+  const left = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
+  if (left === 0) {
+    if (busy()) { btn.textContent = 'Actualiser (en pause)'; btn.title = 'Reprendra dès que vous aurez fini de saisir ou d’envoyer'; return; }
+    btn.textContent = 'Actualisation…';
+    resetTimer();
+    load({ silent: true });
+    return;
+  }
+  btn.textContent = `Actualiser (${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')})`;
+  btn.title = `Prochaine actualisation automatique dans ${left} s`;
+}
+setInterval(tick, 1000);
+$('refresh').addEventListener('click', resetTimer);
+$('autoRef').addEventListener('change', resetTimer);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && $('autoRef').checked && !busy()) { resetTimer(); load({ silent: true }); } });
 
 sb.auth.getSession().then(({ data }) => showApp(data.session));
 </script>

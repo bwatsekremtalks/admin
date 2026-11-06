@@ -1186,7 +1186,7 @@ function tick() {
     load({ silent: true });
     return;
   }
-  btn.textContent = `Actualiser (${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')})`;
+  btn.textContent = `Actualiser · ${left} s`;
   btn.title = `Prochaine actualisation automatique dans ${left} s`;
 }
 setInterval(tick, 1000);

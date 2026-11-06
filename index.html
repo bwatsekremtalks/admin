@@ -105,6 +105,24 @@
   .note-in { width: 100%; min-width: 140px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; }
   .count-line { font-size: 13px; color: var(--muted); margin: 8px 2px 40px; }
   .print-head { display: none; }
+  dialog.ed { width: min(760px, calc(100% - 24px)); max-height: calc(100dvh - 24px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
+  dialog.ed::backdrop { background: rgba(8, 20, 36, .55); }
+  .ed form { padding: 22px 24px 0; }
+  .ed h2 { font-size: 20px; margin: 0 0 4px; }
+  .ed .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .ed .full { grid-column: 1 / -1; }
+  .ed fieldset { border: 1px solid var(--line); border-radius: 14px; padding: 10px 14px 14px; margin: 14px 0 0; }
+  .ed legend { font-weight: 700; font-size: 14px; padding: 0 6px; }
+  .ed .checks { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 14px; }
+  .ed .checks label { display: inline-flex; gap: 6px; align-items: center; }
+  .ed .sub-block { border-left: 3px solid var(--brand-strong); padding: 2px 0 6px 12px; margin-top: 10px; }
+  .ed .acc { border: 1px dashed var(--line); border-radius: 12px; padding: 4px 12px 12px; margin-top: 10px; }
+  .ed .acc-head { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-weight: 700; font-size: 14px; }
+  .ed .err { color: var(--err); font-size: 12px; margin-top: 4px; }
+  .ed .bar { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 24px; display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+  .ed textarea.t { display: block; width: 100%; margin-top: 6px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); min-height: 60px; }
+  .editlink { background: none; border: 0; padding: 0; color: var(--bar); font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+  @media (max-width: 640px) { .ed .grid { grid-template-columns: 1fr; } .ed form { padding: 18px 16px 0; } .ed .bar { padding: 12px 16px; } }
   .print-only { display: none; }
   .walink { color: #1a8f4c; font-weight: 700; text-decoration: none; font-size: 13px; }
   :root[data-theme="dark"] .walink { color: #5fd38d; }
@@ -208,6 +226,7 @@
         <button class="btn" id="printStats" type="button">Imprimer les stats</button>
         <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
         <button class="btn" id="csv" type="button">Exporter (Excel)</button>
+        <button class="btn" id="newResa" type="button">+ Nouvelle inscription</button>
         <button class="btn" id="logout" type="button">Déconnexion</button>
       </div>
     </div>
@@ -298,6 +317,59 @@
 </div>
 
 <div id="serie" class="hidden" role="region" aria-label="Envoi en série"></div>
+
+<dialog class="ed" id="ed" aria-labelledby="edTitle">
+  <form id="edForm" novalidate>
+    <h2 id="edTitle">Modifier l’inscription</h2>
+    <p class="sub" id="edSub" style="margin:0"></p>
+    <div class="grid">
+      <div class="full"><label class="f" for="e_nom">Nom complet *</label><input class="t" id="e_nom" autocomplete="off" /><div class="err" data-err="nom"></div></div>
+      <div><label class="f" for="e_sexe">Sexe</label><select class="t" id="e_sexe"><option value="">—</option><option value="femme">Femme</option><option value="homme">Homme</option></select></div>
+      <div><label class="f" for="e_tel">Téléphone / WhatsApp *</label><input class="t" id="e_tel" type="tel" inputmode="tel" /><div class="err" data-err="tel"></div></div>
+      <div><label class="f" for="e_email">E-mail</label><input class="t" id="e_email" type="email" /><div class="err" data-err="email"></div></div>
+      <div><label class="f" for="e_ville">Ville</label><input class="t" id="e_ville" /></div>
+      <div class="full"><label class="f" for="e_source">Comment a-t-il / elle connu l’événement ?</label><select class="t" id="e_source"></select></div>
+    </div>
+
+    <fieldset>
+      <legend>Profil (plusieurs choix possibles)</legend>
+      <div class="checks" id="e_profils"></div>
+      <div class="sub-block hidden" data-show="etudiant">
+        <div class="grid">
+          <div class="full"><label class="f" for="e_uni">Université</label><select class="t" id="e_uni"></select></div>
+          <div class="full hidden" id="e_uniAutreWrap"><label class="f" for="e_uniAutre">Nom de l’université</label><input class="t" id="e_uniAutre" /></div>
+          <div><label class="f" for="e_niv">Niveau d’études</label><select class="t" id="e_niv"><option value="">—</option><option value="cycle_court">Cycle court</option><option value="licence">Licence</option><option value="maitrise">Maîtrise</option><option value="doctorat">Doctorat</option></select></div>
+          <div class="hidden" id="e_anneeWrap"><label class="f" for="e_annee">Année (Licence)</label><select class="t" id="e_annee"><option value="">—</option><option value="1">1re année</option><option value="2">2e année</option><option value="3">3e année</option><option value="4">4e année</option></select></div>
+        </div>
+      </div>
+      <div class="sub-block hidden" data-show="employe"><div class="grid">
+        <div><label class="f" for="e_empPoste">Employé(e) — poste</label><input class="t" id="e_empPoste" /></div>
+        <div><label class="f" for="e_empEnt">Entreprise / institution</label><input class="t" id="e_empEnt" /></div></div></div>
+      <div class="sub-block hidden" data-show="cadre"><div class="grid">
+        <div><label class="f" for="e_cadPoste">Cadre — poste</label><input class="t" id="e_cadPoste" /></div>
+        <div><label class="f" for="e_cadEnt">Entreprise</label><input class="t" id="e_cadEnt" /></div></div></div>
+      <div class="sub-block hidden" data-show="proprietaire"><div class="grid">
+        <div><label class="f" for="e_proEnt">Propriétaire — entreprise</label><input class="t" id="e_proEnt" /></div>
+        <div><label class="f" for="e_proAct">Activité de l’entreprise</label><input class="t" id="e_proAct" /></div></div></div>
+      <div class="sub-block hidden" data-show="autre">
+        <label class="f" for="e_autre">Autre — précision</label><input class="t" id="e_autre" /></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Autres personnes de la réservation</legend>
+      <div id="e_accs"></div>
+      <button class="btn" type="button" id="e_addAcc" style="margin-top:10px">+ Ajouter une personne</button>
+      <p class="sub" style="margin:8px 0 0">Places : <strong id="e_places">1</strong> (calculé automatiquement, 5 au maximum).</p>
+    </fieldset>
+
+    <label class="f" for="e_notes">Notes internes</label><textarea class="t" id="e_notes"></textarea>
+    <p class="msg" id="edMsg" role="alert"></p>
+    <div class="bar">
+      <button class="btn" type="button" id="edCancel">Annuler</button>
+      <button class="btn primary" type="submit" id="edSave">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
 
 <script>
 const SUPABASE_URL = 'https://nltlgytehikguydcdhyy.supabase.co';
@@ -631,7 +703,7 @@ function renderLists(rows) {
   $('rowsP').innerHTML = ppl.map((p, i) => `<tr>
     <td class="num">${i + 1}</td>
     <td class="sub" style="white-space:nowrap">${esc(fmtDate(p.resa.created_at))}</td>
-    <td><strong>${esc(p.nom)}</strong>${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}</td>
+    <td><strong>${esc(p.nom)}</strong>${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}<div class="no-print"><button type="button" class="editlink" data-edit="${p.resa.id}">✎ Modifier</button></div></td>
     <td>${esc(SEXES[p.sexe] || '—')}</td>
     <td>${p.profils.map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('') || '—'}</td>
     <td>${esc(p.tel || '')}${p.tel ? `<div>${persWa(p)}</div>` : ''}${pcontact(p) ? `<div class="sub no-print">${p.kind === 'a' && !waNumber(p.tel) ? 'Prévenu(e) via ' + esc(p.by) : 'Envoyé le ' + esc(fmtDate(pcontact(p)))}</div>` : ''}</td>
@@ -645,7 +717,7 @@ function renderLists(rows) {
   $('rowsR').innerHTML = res.map((r, i) => `<tr>
     <td class="num">${i + 1}</td>
     <td class="sub">${esc(fmtDate(r.created_at))}</td>
-    <td><strong>${esc(r.nom)}</strong> <span class="sub">${esc(SEXES[r.sexe] || '')}</span>
+    <td><strong>${esc(r.nom)}</strong> <span class="sub">${esc(SEXES[r.sexe] || '')}</span> <button type="button" class="editlink no-print" data-edit="${r.id}">✎ Modifier</button>
       <div class="sub">${esc(r.telephone)}${r.email ? ' · ' + esc(r.email) : ''}${r.ville ? ' · ' + esc(r.ville) : ''}</div>
       ${r.source ? `<div class="sub">Source : ${esc(r.source)}</div>` : ''}</td>
     <td>${profilsOf(r).map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('')}<div class="sub">${esc(details(r))}</div></td>
@@ -811,7 +883,7 @@ function renderAnswers() {
     const group = p.kind === 'p' && others.length
       ? `<button class="btn ok" type="button" data-setgroup="c" data-id="${r.id}" title="Confirmer ${esc(r.nom)} et les ${others.length} autre(s) personne(s)">✓ Tout le groupe (${others.length + 1})</button>` : '';
     return `<div class="rcard" style="${p.kind === 'a' && q ? 'margin-left:28px;border-style:dashed' : ''}">
-      <div><strong style="font-size:16px">${esc(p.nom)}</strong> ${ppill(p)}
+      <div><strong style="font-size:16px">${esc(p.nom)}</strong> ${ppill(p)} <button type="button" class="editlink" data-edit="${r.id}">✎ Modifier</button>
         <div class="sub">${p.tel ? esc(p.tel) : 'Pas de numéro'} · ${p.kind === 'p' ? `a réservé ${r.places || 1} place${(r.places || 1) > 1 ? 's' : ''}${others.length ? ' (avec ' + esc(others.map((x) => x.nom).join(', ')) + ')' : ''}` : `inscrit(e) par ${esc(r.nom)}`}</div>
         <div class="sub">${pcontact(p) ? 'Message envoyé le ' + esc(fmtDate(pcontact(p))) : (reachable(p) ? 'Pas encore contacté(e)' : 'Sans numéro : suit le statut de ' + esc(r.nom))} ${p.tel ? persWa(p) : ''}</div>
         ${p.kind === 'p' ? `<input class="note-in" style="margin-top:8px" data-note="${r.id}" value="${esc(r.notes || '')}" placeholder="Note (ex. arrivera en retard)…" />` : ''}</div>
@@ -920,6 +992,160 @@ $('csv').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob);
   a.download = `inscriptions-${$('edition').value || 'bst'}${$('fFrom').value || $('fTo').value ? `_${$('fFrom').value || 'debut'}_${$('fTo').value || 'fin'}` : ''}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* ---------- Modifier / ajouter une inscription ---------- */
+const SOURCES = ['Facebook', 'Instagram', 'WhatsApp', 'Un ami / un collègue', 'Affiche', 'Autre'];
+let EDIT = null;   // { id | null, accs: [{ oldIdx, nom, sexe, profil, telephone, universite }] }
+const val = (id) => $(id).value.trim();
+const orNull = (v) => (v === '' || v === undefined ? null : v);
+function uniOptions(sel, current) {
+  const known = Object.keys(UNIVERSITES);
+  const isOther = current && !known.includes(current);
+  sel.innerHTML = '<option value="">—</option>' + known.map((k) => `<option value="${esc(k)}">${esc(UNIVERSITES[k])} (${esc(k)})</option>`).join('') + '<option value="__autre">Autre université…</option>';
+  sel.value = isOther ? '__autre' : (current || '');
+  return isOther;
+}
+function syncProfils() {
+  const checked = [...document.querySelectorAll('#e_profils input:checked')].map((x) => x.value);
+  document.querySelectorAll('.ed .sub-block[data-show]').forEach((b) => b.classList.toggle('hidden', !checked.includes(b.dataset.show)));
+  $('e_uniAutreWrap').classList.toggle('hidden', $('e_uni').value !== '__autre');
+  $('e_anneeWrap').classList.toggle('hidden', $('e_niv').value !== 'licence');
+}
+function renderAccs() {
+  $('e_accs').innerHTML = EDIT.accs.map((a, i) => {
+    const known = Object.keys(UNIVERSITES), other = a.universite && !known.includes(a.universite);
+    return `<div class="acc" data-i="${i}">
+      <div class="acc-head">Personne ${i + 2} <button type="button" class="editlink" data-delacc="${i}" style="color:var(--err)">Retirer</button></div>
+      <div class="grid">
+        <div class="full"><label class="f" for="a_nom_${i}">Nom complet *</label><input class="t" id="a_nom_${i}" data-a="nom" value="${esc(a.nom || '')}" /><div class="err" data-err="acc${i}"></div></div>
+        <div><label class="f" for="a_sexe_${i}">Sexe</label><select class="t" id="a_sexe_${i}" data-a="sexe"><option value="">—</option><option value="femme" ${a.sexe === 'femme' ? 'selected' : ''}>Femme</option><option value="homme" ${a.sexe === 'homme' ? 'selected' : ''}>Homme</option></select></div>
+        <div><label class="f" for="a_tel_${i}">Numéro WhatsApp</label><input class="t" id="a_tel_${i}" data-a="telephone" type="tel" value="${esc(a.telephone || '')}" /></div>
+        <div><label class="f" for="a_prof_${i}">Occupation</label><select class="t" id="a_prof_${i}" data-a="profil"><option value="">—</option>${Object.entries(PROFILS).map(([k, v]) => `<option value="${k}" ${a.profil === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>
+        <div class="${a.profil === 'etudiant' ? '' : 'hidden'}"><label class="f" for="a_uni_${i}">Université</label><select class="t" id="a_uni_${i}" data-a="uni"><option value="">—</option>${known.map((k) => `<option value="${esc(k)}" ${a.universite === k ? 'selected' : ''}>${esc(k)}</option>`).join('')}<option value="__autre" ${other ? 'selected' : ''}>Autre…</option></select></div>
+        <div class="full ${a.profil === 'etudiant' && other ? '' : 'hidden'}"><label class="f" for="a_uniA_${i}">Nom de l’université</label><input class="t" id="a_uniA_${i}" data-a="uniAutre" value="${esc(other ? a.universite : '')}" /></div>
+      </div></div>`;
+  }).join('');
+  $('e_places').textContent = 1 + EDIT.accs.length;
+  $('e_addAcc').disabled = EDIT.accs.length >= 4;
+}
+function readAccs() {
+  document.querySelectorAll('#e_accs .acc').forEach((box) => {
+    const a = EDIT.accs[Number(box.dataset.i)];
+    const g = (k) => box.querySelector(`[data-a="${k}"]`).value.trim();
+    a.nom = g('nom'); a.sexe = g('sexe'); a.telephone = g('telephone'); a.profil = g('profil');
+    const u = g('uni');
+    a.universite = a.profil === 'etudiant' ? (u === '__autre' ? g('uniAutre') : u) : '';
+  });
+}
+function openEdit(id) {
+  const r = id ? ALL.find((x) => x.id === id) : null;
+  EDIT = { id: r ? r.id : null, accs: (r?.accompagnants || []).map((a, i) => ({ oldIdx: i, ...a })) };
+  $('edTitle').textContent = r ? 'Modifier l’inscription' : 'Nouvelle inscription';
+  $('edSub').textContent = r ? `Inscrit(e) le ${fmtDate(r.created_at)}` : 'Pour une réservation reçue par téléphone ou WhatsApp.';
+  $('e_nom').value = r?.nom || ''; $('e_sexe').value = r?.sexe || ''; $('e_tel').value = r?.telephone || '';
+  $('e_email').value = r?.email || ''; $('e_ville').value = r?.ville || '';
+  const src = r?.source || '';
+  $('e_source').innerHTML = '<option value="">—</option>' + [...new Set([...SOURCES, ...(src ? [src] : [])])].map((x) => `<option ${x === src ? 'selected' : ''}>${esc(x)}</option>`).join('');
+  const pr = r?.profils || [];
+  $('e_profils').innerHTML = Object.entries(PROFILS).map(([k, v]) => `<label><input type="checkbox" value="${k}" ${pr.includes(k) ? 'checked' : ''}/> ${esc(v)}</label>`).join('');
+  const other = uniOptions($('e_uni'), r?.universite || '');
+  $('e_uniAutre').value = other ? r.universite : '';
+  $('e_niv').value = r?.niveau_etude || ''; $('e_annee').value = r?.annee_etude ? String(r.annee_etude) : '';
+  $('e_empPoste').value = r?.employe_poste || ''; $('e_empEnt').value = r?.employe_entreprise || '';
+  $('e_cadPoste').value = r?.cadre_poste || ''; $('e_cadEnt').value = r?.cadre_entreprise || '';
+  $('e_proEnt').value = r?.proprietaire_entreprise || ''; $('e_proAct').value = r?.proprietaire_activite || '';
+  $('e_autre').value = r?.autre_precision || ''; $('e_notes').value = r?.notes || '';
+  $('edMsg').textContent = ''; document.querySelectorAll('.ed .err').forEach((e) => (e.textContent = ''));
+  renderAccs(); syncProfils();
+  $('ed').showModal();
+  $('e_nom').focus();
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-edit]'); if (b) { openEdit(Number(b.dataset.edit)); return; }
+  const d = e.target.closest('[data-delacc]');
+  if (d) { readAccs(); EDIT.accs.splice(Number(d.dataset.delacc), 1); renderAccs(); }
+});
+$('newResa').addEventListener('click', () => openEdit(null));
+$('edCancel').addEventListener('click', () => $('ed').close());
+$('e_addAcc').addEventListener('click', () => { readAccs(); if (EDIT.accs.length < 4) EDIT.accs.push({ oldIdx: null, nom: '', sexe: '', profil: '', telephone: '', universite: '' }); renderAccs(); $(`a_nom_${EDIT.accs.length - 1}`).focus(); });
+$('e_profils').addEventListener('change', syncProfils);
+$('e_uni').addEventListener('change', syncProfils);
+$('e_niv').addEventListener('change', () => { if ($('e_niv').value !== 'licence') $('e_annee').value = ''; syncProfils(); });
+$('e_accs').addEventListener('change', (e) => { if (e.target.dataset.a === 'profil' || e.target.dataset.a === 'uni') { readAccs(); renderAccs(); } });
+
+$('edForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  readAccs();
+  const errs = {};
+  const setErr = (k, m) => { errs[k] = m; const el = document.querySelector(`.ed [data-err="${k}"]`); if (el) el.textContent = m; };
+  document.querySelectorAll('.ed .err').forEach((x) => (x.textContent = ''));
+  if (val('e_nom').length < 2) setErr('nom', 'Nom obligatoire.');
+  const d = digits(val('e_tel')); if (d.length < 8 || d.length > 15) setErr('tel', 'Numéro invalide (8 à 15 chiffres).');
+  if (val('e_email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('e_email'))) setErr('email', 'E-mail invalide.');
+  EDIT.accs.forEach((a, i) => {
+    if (!a.nom || a.nom.length < 2) setErr(`acc${i}`, 'Nom obligatoire.');
+    else if (a.telephone && (digits(a.telephone).length < 8 || digits(a.telephone).length > 15)) setErr(`acc${i}`, 'Numéro WhatsApp invalide.');
+  });
+  if (Object.keys(errs).length) { $('edMsg').textContent = 'Corrigez les champs en rouge.'; return; }
+
+  const profils = [...document.querySelectorAll('#e_profils input:checked')].map((x) => x.value);
+  const has = (k) => profils.includes(k);
+  const uni = $('e_uni').value === '__autre' ? val('e_uniAutre') : val('e_uni');
+  const niv = has('etudiant') ? orNull(val('e_niv')) : null;
+  const row = {
+    nom: val('e_nom'), sexe: orNull(val('e_sexe')), telephone: val('e_tel'), email: orNull(val('e_email')),
+    ville: orNull(val('e_ville')), source: orNull(val('e_source')), profils: profils.length ? profils : null,
+    universite: has('etudiant') ? orNull(uni) : null, niveau_etude: niv,
+    annee_etude: niv === 'licence' && val('e_annee') ? Number(val('e_annee')) : null,
+    employe_poste: has('employe') ? orNull(val('e_empPoste')) : null, employe_entreprise: has('employe') ? orNull(val('e_empEnt')) : null,
+    cadre_poste: has('cadre') ? orNull(val('e_cadPoste')) : null, cadre_entreprise: has('cadre') ? orNull(val('e_cadEnt')) : null,
+    proprietaire_entreprise: has('proprietaire') ? orNull(val('e_proEnt')) : null, proprietaire_activite: has('proprietaire') ? orNull(val('e_proAct')) : null,
+    autre_precision: has('autre') ? orNull(val('e_autre')) : null,
+    places: 1 + EDIT.accs.length,
+    accompagnants: EDIT.accs.map((a) => {
+      const o = { nom: a.nom };
+      if (a.sexe) o.sexe = a.sexe; if (a.profil) o.profil = a.profil; if (a.telephone) o.telephone = a.telephone; if (a.universite) o.universite = a.universite;
+      return o;
+    }),
+  };
+  $('edSave').disabled = true; $('edMsg').textContent = '';
+  let saved, error;
+  if (EDIT.id) {
+    ({ data: saved, error } = await sb.from('talks_inscriptions').update(row).eq('id', EDIT.id).select().single());
+    if (!error && saved) {
+      // Notes (colonne séparée)
+      const notes = orNull(val('e_notes'));
+      if (notes !== (saved.notes || null)) { const r2 = await sb.from('talks_inscriptions').update({ notes }).eq('id', EDIT.id); if (!r2.error) saved.notes = notes; }
+      // Réaligner le suivi des accompagnants si des personnes ont été retirées / déplacées
+      const moved = EDIT.accs.some((a, i) => a.oldIdx !== null && a.oldIdx !== i) || EDIT.accs.filter((a) => a.oldIdx !== null).length !== (ALL.find((x) => x.id === EDIT.id).accompagnants || []).length;
+      if (moved) {
+        const old = Object.entries(SUIVI).filter(([k]) => k.startsWith(EDIT.id + ':'));
+        const keep = EDIT.accs.map((a, i) => (a.oldIdx !== null && SUIVI[`${EDIT.id}:${a.oldIdx}`] ? { ...SUIVI[`${EDIT.id}:${a.oldIdx}`], idx: i } : null)).filter(Boolean);
+        const del = await sb.from('talks_suivi_accompagnants').delete().eq('inscription_id', EDIT.id);
+        if (!del.error) {
+          old.forEach(([k]) => delete SUIVI[k]);
+          if (keep.length) {
+            const ins = keep.map((x) => ({ inscription_id: EDIT.id, idx: x.idx, statut: x.statut, contacte_le: x.contacte_le, updated_at: new Date().toISOString() }));
+            const r3 = await sb.from('talks_suivi_accompagnants').insert(ins);
+            if (!r3.error) ins.forEach((x) => (SUIVI[`${EDIT.id}:${x.idx}`] = x));
+          }
+        }
+      }
+    }
+  } else {
+    row.edition = $('edition').value || '2026-11-22-cap-haitien';
+    ({ data: saved, error } = await sb.from('talks_inscriptions').insert(row).select().single());
+    if (!error && saved && orNull(val('e_notes'))) { const r2 = await sb.from('talks_inscriptions').update({ notes: val('e_notes') }).eq('id', saved.id); if (!r2.error) saved.notes = val('e_notes'); }
+  }
+  $('edSave').disabled = false;
+  if (error || !saved) { $('edMsg').textContent = 'Enregistrement impossible : ' + (error?.message || 'réponse vide'); return; }
+  const i = ALL.findIndex((x) => x.id === saved.id);
+  if (i >= 0) ALL[i] = saved; else ALL.push(saved);
+  $('ed').close();
+  LOG.unshift(`${hhmm()} — inscription de ${saved.nom} ${EDIT.id ? 'modifiée' : 'ajoutée'} ✎`);
+  if (!EDIT.id && !$('edition').value) { await load(); return; }
+  render();
 });
 
 sb.auth.getSession().then(({ data }) => showApp(data.session));

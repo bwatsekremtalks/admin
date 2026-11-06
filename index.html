@@ -105,6 +105,15 @@
   .note-in { width: 100%; min-width: 140px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; }
   .count-line { font-size: 13px; color: var(--muted); margin: 8px 2px 40px; }
   .print-head { display: none; }
+  #appMsg:empty { display: none; }
+  #appMsg.notice { display: flex; gap: 10px; align-items: flex-start; margin: 14px 0 0; padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.4; border: 1px solid transparent; }
+  #appMsg.notice .ic { font-size: 16px; line-height: 1.2; }
+  #appMsg.notice .x { margin-left: auto; background: none; border: 0; cursor: pointer; font-size: 18px; line-height: 1; color: inherit; opacity: .6; }
+  #appMsg.n-err  { background: #fdecea; color: #8a1c12; border-color: #f5c6c0; }
+  #appMsg.n-warn { background: #fff6e0; color: #6b4a00; border-color: #f3dfa8; }
+  #appMsg.n-ok   { background: var(--ok-bg); color: var(--ok-ink); }
+  #appMsg.n-info { background: var(--surface); color: var(--ink-2); border-color: var(--line); }
+  #lastRef.off { color: #9a6700; font-weight: 600; }
   dialog.ed { width: min(760px, calc(100% - 24px)); max-height: calc(100dvh - 24px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
   dialog.ed::backdrop { background: rgba(8, 20, 36, .55); }
   .ed form { padding: 22px 24px 0; }
@@ -381,6 +390,28 @@ const PROFILS = { etudiant: 'Étudiant(e)', employe: 'Employé(e)', cadre: 'Cadr
 const SEXES = { femme: 'Femme', homme: 'Homme' };
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* ---------- Messages lisibles ---------- */
+function friendly(err) {
+  const m = String(err?.message || err || '');
+  if (err) console.warn('[détail technique]', err);
+  if (/failed to fetch|networkerror|load failed|network request failed|fetch/i.test(m) || (typeof navigator !== 'undefined' && navigator.onLine === false))
+    return 'Connexion momentanément indisponible. Vérifiez votre accès à internet — nous réessayons automatiquement.';
+  if (/jwt|token|expired|session/i.test(m)) return 'Votre session a expiré. Déconnectez-vous puis reconnectez-vous.';
+  if (/permission denied|row-level security|not allowed|42501/i.test(m)) return 'Votre compte n’a pas l’autorisation de faire cette action.';
+  if (/déjà inscrit|propre numéro|une seule réservation/i.test(m)) return m;            // messages déjà rédigés pour l'utilisateur
+  if (/violates check constraint|invalid input/i.test(m)) return 'Certaines informations ne sont pas au bon format. Vérifiez les champs et réessayez.';
+  return 'Une erreur inattendue est survenue. Réessayez dans un instant ; si cela continue, actualisez la page.';
+}
+let NOTE_T = null;
+function notify(text, kind = 'err', ms = 0) {
+  const el = document.getElementById('appMsg');
+  clearTimeout(NOTE_T);
+  if (!text) { el.className = 'msg no-print'; el.textContent = ''; return; }
+  const ic = { err: '⚠️', warn: '⏳', ok: '✓', info: 'ℹ️' }[kind] || '';
+  el.className = `msg no-print notice n-${kind}`;
+  el.innerHTML = `<span class="ic" aria-hidden="true">${ic}</span><span>${esc(text)}</span><button type="button" class="x" aria-label="Fermer" onclick="notify('')">×</button>`;
+  if (ms) NOTE_T = setTimeout(() => notify(''), ms);
+}
 const fmtDate = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const editionLabel = (e) => {
   const m = /^(\d{4})-(\d{2})-(\d{2})-?(.*)$/.exec(e || '');
@@ -425,14 +456,14 @@ function ppill(p) {
 async function upsertSuivi(p, patch) {
   const row = { inscription_id: p.resa.id, idx: p.idx, ...patch, updated_at: new Date().toISOString() };
   const { error } = await sb.from('talks_suivi_accompagnants').upsert(row, { onConflict: 'inscription_id,idx' });
-  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return false; }
+  if (error) { notify('Modification non enregistrée. ' + friendly(error)); return false; }
   const k = `${p.resa.id}:${p.idx}`;
   SUIVI[k] = { statut: 'a', contacte_le: null, ...(SUIVI[k] || {}), ...patch };
   return true;
 }
 async function setPersStatut(p, s) {
   if (p.kind === 'p') return setStatut(p.resa.id, s);
-  if (s !== 'x' && p.resa.annule) { $('appMsg').textContent = 'Cette réservation est annulée : remettez d’abord la personne qui a réservé « En attente » ou « Confirmée ».'; render(); return false; }
+  if (s !== 'x' && p.resa.annule) { notify('Cette réservation est annulée : remettez d’abord la personne qui a réservé « En attente » ou « Confirmée ».', 'info', 8000); render(); return false; }
   const ok = await upsertSuivi(p, { statut: s });
   render();
   return ok;
@@ -441,7 +472,7 @@ async function markContact(p) {
   const now = new Date().toISOString();
   if (p.kind === 'a') return upsertSuivi(p, { contacte_le: now });
   const { error } = await sb.from('talks_inscriptions').update({ contacte_le: now }).eq('id', p.resa.id);
-  if (error) { $('appMsg').textContent = 'Envoi non enregistré : ' + error.message; return false; }
+  if (error) { notify('Le message est parti, mais son envoi n’a pas pu être noté. ' + friendly(error), 'warn'); return false; }
   p.resa.contacte_le = now;
   return true;
 }
@@ -450,7 +481,7 @@ function findPerson(key) { return people(rowsForEdition()).find((p) => pkey(p) =
 async function setStatut(id, s) {
   const patch = { confirme: s === 'c', annule: s === 'x' };
   const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', id);
-  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return false; }
+  if (error) { notify('Modification non enregistrée. ' + friendly(error)); return false; }
   Object.assign(ALL.find((r) => r.id === id), patch);
   render();
   return true;
@@ -521,18 +552,27 @@ $('logout').addEventListener('click', async () => { await sb.auth.signOut(); ALL
 /* ---------- Data ---------- */
 let LAST_IDS = null;
 async function load(opts = {}) {
-  if (!opts.silent) $('appMsg').textContent = '';
+  if (!opts.silent) notify('');
   $('refresh').disabled = true;
   const [{ data, error }, suivi] = await Promise.all([
     sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
   ]);
   $('refresh').disabled = false;
-  if (error) { $('appMsg').textContent = 'Erreur de chargement : ' + error.message; return; }
+  if (error) {
+    // On garde la liste affichée ; on réessaie bientôt sans alarmer.
+    $('lastRef').textContent = '· hors ligne, nouvel essai dans 30 s';
+    $('lastRef').classList.add('off');
+    if (typeof nextAt !== 'undefined') nextAt = Date.now() + 30000;
+    if (!opts.silent || !ALL.length) notify(friendly(error), 'warn');
+    return;
+  }
+  $('lastRef').classList.remove('off');
+  if (opts.silent && document.getElementById('appMsg').classList.contains('n-warn')) notify('Connexion rétablie — la liste est à jour.', 'ok', 5000);
   ALL = data || [];
   SUIVI = {};
   (suivi.data || []).forEach((x) => { SUIVI[`${x.inscription_id}:${x.idx}`] = x; });
-  if (!ALL.length) $('appMsg').textContent = 'Aucune inscription visible. Si vous savez qu’il y en a, ce compte n’a probablement pas l’accès administrateur.';
+  if (!ALL.length) notify('Aucune inscription visible pour le moment. Si vous savez qu’il y en a, ce compte n’a probablement pas l’accès administrateur.', 'info');
   const eds = [...new Set(ALL.map((r) => r.edition))].sort().reverse();
   const cur = $('edition').value;
   $('edition').innerHTML = eds.map((e) => `<option value="${esc(e)}">${esc(editionLabel(e))}</option>`).join('') || '<option value="">—</option>';
@@ -542,7 +582,7 @@ async function load(opts = {}) {
   $('lastRef').textContent = '· ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   if (newIds) LOG.unshift(`${hhmm()} — ${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} ✦`);
   render();
-  if (newIds) { $('appMsg').style.color = 'var(--ok-ink)'; $('appMsg').textContent = `✦ ${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} depuis la dernière actualisation.`; setTimeout(() => { $('appMsg').textContent = ''; $('appMsg').style.color = ''; }, 15000); }
+  if (newIds) notify(`${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} depuis la dernière actualisation.`, 'ok', 15000);
 }
 
 function rowsForEdition() { return ALL.filter((r) => r.edition === $('edition').value); }
@@ -803,7 +843,7 @@ document.addEventListener('click', async (e) => {
   if (a.dataset.serieGo && SERIE) { SERIE.sent++; SERIE.i++; setTimeout(renderSerie, 0); }
   const patch = { contacte_le: new Date().toISOString() };
   const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', key);
-  if (error) { $('appMsg').textContent = 'Envoi non enregistré : ' + error.message; return; }
+  if (error) { notify('Le message est parti, mais son envoi n’a pas pu être noté. ' + friendly(error), 'warn'); return; }
   Object.assign(ALL.find((r) => r.id === key), patch);
   renderLists(rowsForEdition());
   renderAnswers();
@@ -821,8 +861,8 @@ let SERIE = null;
 function startSerie() {
   const list = sortBy(filteredPeople(rowsForEdition()), 'P', { ordre: (p) => p.ordre })
     .filter((p) => !pcontact(p) && pst(p) === 'a' && waNumber(p.tel));
-  if (!list.length) { $('appMsg').textContent = 'Personne à contacter : toutes les personnes de cette liste ont déjà reçu le message (ou n’ont pas de numéro valide).'; return; }
-  $('appMsg').textContent = '';
+  if (!list.length) { notify('Personne à contacter : toutes les personnes de cette liste ont déjà reçu le message (ou n’ont pas de numéro valide).', 'info', 8000); return; }
+  notify('');
   const keep = SORT.P; SORT.P = { k: 'ordre', dir: 1 };
   const ordered = sortBy(list, 'P', GET_P); SORT.P = keep;
   SERIE = { queue: ordered.map(pkey), i: 0, sent: 0 };
@@ -958,7 +998,7 @@ document.addEventListener('change', async (e) => {
   const patch = { notes: e.target.value.trim() || null };
   const key = Number(nid);
   const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', key);
-  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return; }
+  if (error) { notify('Modification non enregistrée. ' + friendly(error)); return; }
   Object.assign(ALL.find((r) => r.id === key), patch);
   render();
 });
@@ -1155,7 +1195,7 @@ $('edForm').addEventListener('submit', async (e) => {
     if (!error && saved && orNull(val('e_notes'))) { const r2 = await sb.from('talks_inscriptions').update({ notes: val('e_notes') }).eq('id', saved.id); if (!r2.error) saved.notes = val('e_notes'); }
   }
   $('edSave').disabled = false;
-  if (error || !saved) { $('edMsg').textContent = 'Enregistrement impossible : ' + (error?.message || 'réponse vide'); return; }
+  if (error || !saved) { $('edMsg').textContent = 'Enregistrement impossible. ' + friendly(error || 'vide'); return; }
   const i = ALL.findIndex((x) => x.id === saved.id);
   if (i >= 0) ALL[i] = saved; else ALL.push(saved);
   $('ed').close();
@@ -1193,6 +1233,9 @@ setInterval(tick, 1000);
 $('refresh').addEventListener('click', resetTimer);
 $('autoRef').addEventListener('change', resetTimer);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && $('autoRef').checked && !busy()) { resetTimer(); load({ silent: true }); } });
+
+window.addEventListener('offline', () => { notify('Vous êtes hors ligne. La liste affichée reste consultable ; elle se mettra à jour dès le retour de la connexion.', 'warn'); $('lastRef').textContent = '· hors ligne'; $('lastRef').classList.add('off'); });
+window.addEventListener('online', () => { if (!$('app').classList.contains('hidden')) load({ silent: true }); });
 
 sb.auth.getSession().then(({ data }) => showApp(data.session));
 </script>

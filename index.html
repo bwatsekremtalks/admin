@@ -222,6 +222,7 @@
       <div class="actions">
         <select class="t" id="edition" aria-label="Édition"></select>
         <button class="btn" id="refresh" type="button">Actualiser</button>
+        <label class="sub" style="display:inline-flex;align-items:center;gap:6px" title="Recharge la liste toutes les 2 minutes"><input type="checkbox" id="autoRef" checked /> Auto (2 min) <span id="lastRef"></span></label>
         <button class="btn" id="printList" type="button">Imprimer la liste</button>
         <button class="btn" id="printStats" type="button">Imprimer les stats</button>
         <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
@@ -518,8 +519,9 @@ $('loginForm').addEventListener('submit', async (e) => {
 $('logout').addEventListener('click', async () => { await sb.auth.signOut(); ALL = []; showApp(null); });
 
 /* ---------- Data ---------- */
-async function load() {
-  $('appMsg').textContent = '';
+let LAST_IDS = null;
+async function load(opts = {}) {
+  if (!opts.silent) $('appMsg').textContent = '';
   $('refresh').disabled = true;
   const [{ data, error }, suivi] = await Promise.all([
     sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
@@ -535,7 +537,12 @@ async function load() {
   const cur = $('edition').value;
   $('edition').innerHTML = eds.map((e) => `<option value="${esc(e)}">${esc(editionLabel(e))}</option>`).join('') || '<option value="">—</option>';
   if (eds.includes(cur)) $('edition').value = cur;
+  const newIds = LAST_IDS ? ALL.filter((r) => !LAST_IDS.has(r.id)).length : 0;
+  LAST_IDS = new Set(ALL.map((r) => r.id));
+  $('lastRef').textContent = '· ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  if (newIds) LOG.unshift(`${hhmm()} — ${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} ✦`);
   render();
+  if (newIds) { $('appMsg').style.color = 'var(--ok-ink)'; $('appMsg').textContent = `✦ ${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} depuis la dernière actualisation.`; setTimeout(() => { $('appMsg').textContent = ''; $('appMsg').style.color = ''; }, 15000); }
 }
 
 function rowsForEdition() { return ALL.filter((r) => r.edition === $('edition').value); }
@@ -1156,6 +1163,17 @@ $('edForm').addEventListener('submit', async (e) => {
   if (!EDIT.id && !$('edition').value) { await load(); return; }
   render();
 });
+
+/* ---------- Actualisation automatique (toutes les 2 min) ---------- */
+function busy() {
+  const a = document.activeElement;
+  return $('ed').open || !!SERIE || $('app').classList.contains('hidden') || document.hidden ||
+    (a && ['INPUT', 'TEXTAREA', 'SELECT'].includes(a.tagName) && a.id !== 'autoRef');
+}
+try { $('autoRef').checked = localStorage.getItem('bst_autoref') !== '0'; } catch {}
+$('autoRef').addEventListener('change', () => { try { localStorage.setItem('bst_autoref', $('autoRef').checked ? '1' : '0'); } catch {} });
+setInterval(() => { if ($('autoRef').checked && !busy()) load({ silent: true }); }, 120000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && $('autoRef').checked && !busy()) load({ silent: true }); });
 
 sb.auth.getSession().then(({ data }) => showApp(data.session));
 </script>

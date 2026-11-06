@@ -82,6 +82,9 @@
   .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
   .filters .t { margin: 0; width: auto; padding: 8px 12px; border-radius: 999px; }
   .filters input.t { min-width: 200px; }
+  .filters .dates { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+  .filters .dates input.t { min-width: 0; width: 150px; }
+  .date-pill { display: inline-block; margin: 6px 2px 0; font-size: 13px; color: var(--ink-2); }
 
   .table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -255,12 +258,18 @@
           <select class="t" id="fConf" aria-label="Filtrer par confirmation">
             <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option>
           </select>
-        </div>
+          <span class="dates">
+            <label for="fFrom">Du</label><input class="t" id="fFrom" type="date" />
+            <label for="fTo">au</label><input class="t" id="fTo" type="date" />
+            <select class="t" id="fQuick" aria-label="Période rapide">
+              <option value="">Toutes les dates</option><option value="today">Aujourd’hui</option><option value="yesterday">Hier</option><option value="7">7 derniers jours</option><option value="30">30 derniers jours</option>
+            </select>
+          </span>
       </div>
 
       <div id="panelP">
         <div class="table-wrap"><table>
-          <thead id="headP"><tr><th data-k="ordre">#</th><th data-k="nom">Nom</th><th data-k="sexe">Sexe</th><th data-k="profil">Catégorie</th><th data-k="tel">Téléphone</th><th data-k="by">Réservé par</th><th data-k="conf">Statut</th><th>Présent</th></tr></thead>
+          <thead id="headP"><tr><th data-k="ordre">#</th><th data-k="date">Date</th><th data-k="nom">Nom</th><th data-k="sexe">Sexe</th><th data-k="profil">Catégorie</th><th data-k="tel">Téléphone</th><th data-k="by">Réservé par</th><th data-k="conf">Statut</th><th>Présent</th></tr></thead>
           <tbody id="rowsP"></tbody>
         </table></div>
         <p class="count-line" id="countP"></p>
@@ -390,6 +399,7 @@ function sortBy(list, which, getters) {
 }
 const GET_P = {
   ordre: (p) => p.ordre,
+  date: (p) => p.resa.created_at,
   nom: (p) => p.nom,
   sexe: (p) => SEXES[p.sexe] || '',
   profil: (p) => p.profils.map((k) => PROFILS[k] || k).join(', '),
@@ -572,9 +582,22 @@ function keepFn(fc) {
     nc: !r.contacte_le && !r.annule, cn: !!r.contacte_le && !r.confirme && !r.annule, x: r.annule,
   })[fc] ?? true;
 }
+const localDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+function inDates(r) {
+  const f = $('fFrom').value, t = $('fTo').value, d = localDay(r.created_at);
+  return (!f || d >= f) && (!t || d <= t);
+}
+function dateLabel() {
+  const f = $('fFrom').value, t = $('fTo').value;
+  if (!f && !t) return '';
+  const fr = (v) => new Date(v + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+  if (f && t && f === t) return `Inscriptions du ${fr(f)}`;
+  if (f && t) return `Inscriptions du ${fr(f)} au ${fr(t)}`;
+  return f ? `Inscriptions depuis le ${fr(f)}` : `Inscriptions jusqu’au ${fr(t)}`;
+}
 function filteredResa(rows) {
   const fp = $('fProfil').value;
-  const res0 = rows.filter(keepFn($('fConf').value))
+  const res0 = rows.filter(inDates).filter(keepFn($('fConf').value))
     .filter((r) => !fp || profilsOf(r).includes(fp) || (r.accompagnants || []).some((a) => a.profil === fp))
     .filter((r) => matches([r.nom, r.telephone, r.email, r.ville, details(r), (r.accompagnants || []).map((a) => a.nom).join(' ')].join(' '), r.telephone));
   return sortBy(res0, 'R', GET_R);
@@ -587,7 +610,7 @@ function keepPers(fc) {
 }
 function filteredPeople(rows) {
   const fp = $('fProfil').value;
-  const ppl0 = people(rows).filter(keepPers($('fConf').value))
+  const ppl0 = people(rows.filter(inDates)).filter(keepPers($('fConf').value))
     .filter((p) => !fp || p.profils.includes(fp))
     .filter((p) => matches([p.nom, p.tel, p.by, p.details].join(' '), p.tel || p.resa.telephone));
   return sortBy(ppl0, 'P', GET_P);
@@ -606,14 +629,15 @@ function renderLists(rows) {
   const ppl = filteredPeople(rows);
   $('rowsP').innerHTML = ppl.map((p, i) => `<tr>
     <td class="num">${i + 1}</td>
+    <td class="sub" style="white-space:nowrap">${esc(fmtDate(p.resa.created_at))}</td>
     <td><strong>${esc(p.nom)}</strong>${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}</td>
     <td>${esc(SEXES[p.sexe] || '—')}</td>
     <td>${p.profils.map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('') || '—'}</td>
     <td>${esc(p.tel || '')}${p.tel ? `<div>${persWa(p)}</div>` : ''}${pcontact(p) ? `<div class="sub no-print">${p.kind === 'a' && !waNumber(p.tel) ? 'Prévenu(e) via ' + esc(p.by) : 'Envoyé le ' + esc(fmtDate(pcontact(p)))}</div>` : ''}</td>
     <td>${p.by ? esc(p.by) : '<span class="sub">—</span>'}</td>
     <td>${stSelect(p)}${p.kind === 'a' && !waNumber(p.tel) && !sv(p) ? '<div class="sub no-print">suit la réservation</div>' : ''}</td>
-    <td><span class="box" aria-label="Case présence"></span></td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucun participant.</td></tr>';
-  $('countP').textContent = `${ppl.length} personne${ppl.length > 1 ? 's' : ''} dans la liste.`;
+    <td><span class="box" aria-label="Case présence"></span></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucun participant.</td></tr>';
+  $('countP').textContent = `${ppl.length} personne${ppl.length > 1 ? 's' : ''} dans la liste.${dateLabel() ? ' ' + dateLabel() + '.' : ''}`;
 
   const res = filteredResa(rows);
   paintSort();
@@ -835,7 +859,7 @@ function render() {
   renderLists(rows);
   const label = editionLabel($('edition').value);
   $('printTitle').textContent = `Bwat Sekrèm Talks — ${label}`;
-  $('printSub').textContent = `Imprimé le ${new Date().toLocaleString('fr-FR')}`;
+  $('printSub').textContent = `${dateLabel() ? dateLabel() + ' · ' : ''}Imprimé le ${new Date().toLocaleString('fr-FR')}`;
 }
 
 /* ---------- Updates (confirmé / notes) ---------- */
@@ -854,7 +878,14 @@ document.addEventListener('change', async (e) => {
 
 /* ---------- UI ---------- */
 $('fProfil').innerHTML = '<option value="">Toutes catégories</option>' + Object.entries(PROFILS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
-['q', 'fProfil', 'fConf'].forEach((id) => $(id).addEventListener('input', () => renderLists(rowsForEdition())));
+['q', 'fProfil', 'fConf', 'fFrom', 'fTo'].forEach((id) => $(id).addEventListener('input', () => { if (id === 'fFrom' || id === 'fTo') $('fQuick').value = ''; renderLists(rowsForEdition()); }));
+$('fQuick').addEventListener('change', () => {
+  const v = $('fQuick').value, today = localDay(new Date());
+  const ago = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return localDay(d); };
+  const [f, t] = ({ '': ['', ''], today: [today, today], yesterday: [ago(1), ago(1)], 7: [ago(6), today], 30: [ago(29), today] })[v];
+  $('fFrom').value = f; $('fTo').value = t;
+  renderLists(rowsForEdition());
+});
 $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', load);
 function setTab(t) {
@@ -874,19 +905,19 @@ for (const w of ['P', 'R']) {
   });
 }
 $('tabR').addEventListener('click', () => setTab('R'));
-$('printList').addEventListener('click', () => { document.body.classList.remove('print-stats'); window.print(); });
+$('printList').addEventListener('click', () => { $('printSub').textContent = `${dateLabel() ? dateLabel() + ' · ' : ''}Imprimé le ${new Date().toLocaleString('fr-FR')}`; document.body.classList.remove('print-stats'); window.print(); });
 $('printStats').addEventListener('click', () => { document.body.classList.add('print-stats'); window.print(); document.body.classList.remove('print-stats'); });
 
 $('csv').addEventListener('click', () => {
   const rows = rowsForEdition();
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
   const head = ['Nom', 'Sexe', 'Catégories', 'Détails', 'Téléphone', 'E-mail', 'Ville', 'Réservé par', 'Places (réservation)', 'Source', 'WhatsApp envoyé le', 'Statut', 'Notes', 'Date inscription'];
-  const lines = people(rows).map((p) => [p.nom, SEXES[p.sexe] || '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.details, p.tel, p.by ? '' : p.resa.email, p.by ? '' : p.resa.ville,
+  const lines = filteredPeople(rows).map((p) => [p.nom, SEXES[p.sexe] || '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.details, p.tel, p.by ? '' : p.resa.email, p.by ? '' : p.resa.ville,
     p.by || '', p.resa.places || 1, p.resa.source || '', pcontact(p) ? fmtDate(pcontact(p)) : '', STATUT[pst(p)], p.resa.notes || '', fmtDate(p.resa.created_at)].map(cell).join(';'));
   const blob = new Blob(['﻿' + [head.map(cell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `inscriptions-${$('edition').value || 'bst'}.csv`;
+  a.download = `inscriptions-${$('edition').value || 'bst'}${$('fFrom').value || $('fTo').value ? `_${$('fFrom').value || 'debut'}_${$('fTo').value || 'fin'}` : ''}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
 });
 

@@ -547,7 +547,7 @@ function people(rows) {
   const sorted = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
   for (const r of sorted) {
     out.push({ kind: 'p', idx: null, ordre: out.length, resa: r, nom: r.nom, sexe: r.sexe, profils: profilsOf(r), tel: r.telephone, by: null, details: details(r), universite: r.universite || '' });
-    (r.accompagnants || []).forEach((a, idx) => out.push({ kind: 'a', idx, acc: a, ordre: out.length, resa: r, nom: a.nom, sexe: a.sexe, profils: a.profil ? [a.profil] : [], tel: a.telephone || '', by: r.nom, details: a.universite ? `Étudiant(e) : ${a.universite}` : '', universite: a.universite || '' }));
+    (r.accompagnants || []).forEach((a, idx) => out.push({ kind: 'a', idx, acc: a, ordre: out.length, resa: r, nom: a.nom, sexe: a.sexe, profils: a.profil ? [a.profil] : [], tel: a.telephone || '', by: r.nom, details: accDetails(a), universite: a.universite || '' }));
   }
   return out;
 }
@@ -567,6 +567,13 @@ function etudes(r) {
   if (!r.universite && !r.niveau_etude) return '';
   const niv = r.niveau_etude ? (NIVEAUX[r.niveau_etude] || r.niveau_etude) + (r.annee_etude ? ` ${r.annee_etude}${r.annee_etude === 1 ? 're' : 'e'} année` : '') : '';
   return [r.universite, niv].filter(Boolean).join(', ');
+}
+const ENT_PROFILS = ['employe', 'cadre', 'proprietaire'];
+function accDetails(a) {
+  const parts = [];
+  if (a.universite) parts.push(`Étudiant(e) : ${a.universite}`);
+  if (a.entreprise) parts.push(`${{ employe: 'Employé(e)', cadre: 'Cadre', proprietaire: 'Propriétaire' }[a.profil] || 'Entreprise'} : ${a.entreprise}`);
+  return parts.join(' · ');
 }
 function details(r) {
   const parts = [];
@@ -1024,6 +1031,7 @@ function renderAccs() {
         <div><label class="f" for="a_prof_${i}">Occupation</label><select class="t" id="a_prof_${i}" data-a="profil"><option value="">—</option>${Object.entries(PROFILS).map(([k, v]) => `<option value="${k}" ${a.profil === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>
         <div class="${a.profil === 'etudiant' ? '' : 'hidden'}"><label class="f" for="a_uni_${i}">Université</label><select class="t" id="a_uni_${i}" data-a="uni"><option value="">—</option>${known.map((k) => `<option value="${esc(k)}" ${a.universite === k ? 'selected' : ''}>${esc(k)}</option>`).join('')}<option value="__autre" ${other ? 'selected' : ''}>Autre…</option></select></div>
         <div class="full ${a.profil === 'etudiant' && other ? '' : 'hidden'}"><label class="f" for="a_uniA_${i}">Nom de l’université</label><input class="t" id="a_uniA_${i}" data-a="uniAutre" value="${esc(other ? a.universite : '')}" /></div>
+        <div class="full ${ENT_PROFILS.includes(a.profil) ? '' : 'hidden'}"><label class="f" for="a_ent_${i}">Entreprise / institution</label><input class="t" id="a_ent_${i}" data-a="entreprise" value="${esc(a.entreprise || '')}" /></div>
       </div></div>`;
   }).join('');
   $('e_places').textContent = 1 + EDIT.accs.length;
@@ -1036,6 +1044,7 @@ function readAccs() {
     a.nom = g('nom'); a.sexe = g('sexe'); a.telephone = g('telephone'); a.profil = g('profil');
     const u = g('uni');
     a.universite = a.profil === 'etudiant' ? (u === '__autre' ? g('uniAutre') : u) : '';
+    a.entreprise = ENT_PROFILS.includes(a.profil) ? g('entreprise') : '';
   });
 }
 function openEdit(id) {
@@ -1068,7 +1077,7 @@ document.addEventListener('click', (e) => {
 });
 $('newResa').addEventListener('click', () => openEdit(null));
 $('edCancel').addEventListener('click', () => $('ed').close());
-$('e_addAcc').addEventListener('click', () => { readAccs(); if (EDIT.accs.length < 4) EDIT.accs.push({ oldIdx: null, nom: '', sexe: '', profil: '', telephone: '', universite: '' }); renderAccs(); $(`a_nom_${EDIT.accs.length - 1}`).focus(); });
+$('e_addAcc').addEventListener('click', () => { readAccs(); if (EDIT.accs.length < 4) EDIT.accs.push({ oldIdx: null, nom: '', sexe: '', profil: '', telephone: '', universite: '', entreprise: '' }); renderAccs(); $(`a_nom_${EDIT.accs.length - 1}`).focus(); });
 $('e_profils').addEventListener('change', syncProfils);
 $('e_uni').addEventListener('change', syncProfils);
 $('e_niv').addEventListener('change', () => { if ($('e_niv').value !== 'licence') $('e_annee').value = ''; syncProfils(); });
@@ -1105,7 +1114,7 @@ $('edForm').addEventListener('submit', async (e) => {
     places: 1 + EDIT.accs.length,
     accompagnants: EDIT.accs.map((a) => {
       const o = { nom: a.nom };
-      if (a.sexe) o.sexe = a.sexe; if (a.profil) o.profil = a.profil; if (a.telephone) o.telephone = a.telephone; if (a.universite) o.universite = a.universite;
+      if (a.sexe) o.sexe = a.sexe; if (a.profil) o.profil = a.profil; if (a.telephone) o.telephone = a.telephone; if (a.universite) o.universite = a.universite; if (a.entreprise) o.entreprise = a.entreprise;
       return o;
     }),
   };

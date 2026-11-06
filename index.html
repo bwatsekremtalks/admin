@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Inscriptions BST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --bg: #eef3f8; --surface: #ffffff; --surface-2: #f6f9fc;
+    --ink: #123056; --ink-2: #3d5577; --muted: #6b7f99; --line: #d9e2ec;
+    --brand: #4f8f28; --brand-strong: #7AC142; --brand-ink: #0E2A4A;
+    --bar: #2f6aa8; --bar-track: #e6edf5;
+    --ok-bg: #e8f5df; --ok-ink: #2f6a14; --err: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b1726; --surface: #12233a; --surface-2: #172b45;
+      --ink: #e8eff8; --ink-2: #b9c8db; --muted: #8aa0bb; --line: #26405f;
+      --bar: #79aee6; --bar-track: #1d3452; --ok-bg: #1f3a16; --ok-ink: #a6e07f; --err: #ff8a7a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b1726; --surface: #12233a; --surface-2: #172b45;
+    --ink: #e8eff8; --ink-2: #b9c8db; --muted: #8aa0bb; --line: #26405f;
+    --bar: #79aee6; --bar-track: #1d3452; --ok-bg: #1f3a16; --ok-ink: #a6e07f; --err: #ff8a7a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "DM Sans", system-ui, sans-serif; }
+  button, input, select { font: inherit; color: inherit; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .hidden { display: none !important; }
+
+  /* Login */
+  .login { min-height: 100dvh; display: grid; place-items: center; padding: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px; }
+  .login .card { width: 100%; max-width: 400px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--brand); margin: 0; }
+  h1 { font-size: 26px; line-height: 1.1; margin: 6px 0 18px; font-weight: 800; }
+  h2 { font-size: 17px; margin: 0 0 14px; font-weight: 800; }
+  label.f { display: block; font-weight: 600; font-size: 14px; margin-top: 12px; }
+  input.t, select.t { display: block; width: 100%; margin-top: 6px; padding: 11px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  input.t:focus, select.t:focus { outline: 2px solid var(--brand-strong); outline-offset: 1px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: var(--surface-2); }
+  .btn.primary { background: var(--brand-strong); border-color: var(--brand-strong); color: var(--brand-ink); font-weight: 700; }
+  .btn.primary:hover { filter: brightness(.95); }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .msg { margin-top: 12px; font-size: 14px; color: var(--err); min-height: 1em; }
+
+  /* App */
+  header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header.top .wrap { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between; padding-top: 12px; padding-bottom: 12px; }
+  .brand { font-weight: 800; font-size: 17px; line-height: 1.1; }
+  .brand small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .actions select.t { margin: 0; width: auto; padding: 8px 12px; border-radius: 999px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+  .tile .k { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+  .tile .v { font-size: 34px; font-weight: 800; line-height: 1.1; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .s { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+  .bars { display: grid; gap: 10px; }
+  .bar-row { display: grid; grid-template-columns: minmax(120px, 48%) 1fr auto; gap: 10px; align-items: center; font-size: 14px; }
+  .bar-row .lab { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bar-track { height: 14px; background: var(--bar-track); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--bar); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .bar-row .val { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 64px; text-align: right; }
+  .bar-row .val span { color: var(--muted); font-weight: 500; font-size: 12px; margin-left: 4px; }
+  .note { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+  .empty { color: var(--muted); font-size: 14px; }
+
+  .tabs { display: flex; gap: 6px; margin: 28px 0 12px; flex-wrap: wrap; align-items: center; }
+  .tab { border: 1px solid var(--line); background: var(--surface); padding: 8px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; }
+  .tab[aria-selected="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+  .filters .t { margin: 0; width: auto; padding: 8px 12px; border-radius: 999px; }
+  .filters input.t { min-width: 200px; }
+
+  .table-wrap { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--surface-2); position: sticky; top: 0; }
+  tr:last-child td { border-bottom: 0; }
+  th[data-k] { cursor: pointer; user-select: none; white-space: nowrap; }
+  th[data-k]:hover { color: var(--ink); }
+  th[data-k]::after { content: '↕'; margin-left: 4px; opacity: .35; font-size: 11px; }
+  th[data-k][aria-sort="ascending"]::after { content: '▲'; opacity: 1; }
+  th[data-k][aria-sort="descending"]::after { content: '▼'; opacity: 1; }
+  th[aria-sort] { color: var(--ink); }
+  td.num { color: var(--muted); font-variant-numeric: tabular-nums; width: 36px; }
+  .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); margin: 0 4px 4px 0; white-space: nowrap; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok-ink); border-color: transparent; }
+  .sub { color: var(--muted); font-size: 12px; }
+  .box { display: inline-block; width: 18px; height: 18px; border: 1.5px solid var(--ink-2); border-radius: 4px; }
+  .note-in { width: 100%; min-width: 140px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; }
+  .count-line { font-size: 13px; color: var(--muted); margin: 8px 2px 40px; }
+  .print-head { display: none; }
+  .print-only { display: none; }
+  .walink { color: #1a8f4c; font-weight: 700; text-decoration: none; font-size: 13px; }
+  :root[data-theme="dark"] .walink { color: #5fd38d; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .walink { color: #5fd38d; } }
+  .pill.x { background: #fde8e6; color: #9b1c12; border-color: transparent; }
+  .pill.w { background: #fff4d6; color: #7a5200; border-color: transparent; }
+  :root[data-theme="dark"] .pill.x { background: #4a1d19; color: #ffb4a8; }
+  :root[data-theme="dark"] .pill.w { background: #3d3214; color: #f5d27a; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pill.x { background: #4a1d19; color: #ffb4a8; } :root:not([data-theme="light"]) .pill.w { background: #3d3214; color: #f5d27a; } }
+  select.st { padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); font-size: 13px; }
+  .tab.action { background: #25D366; color: #06381b; border-color: #25D366; }
+  #serie { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); width: min(720px, calc(100% - 32px)); z-index: 20;
+    background: var(--surface); border: 2px solid #25D366; border-radius: 20px; box-shadow: 0 18px 50px rgba(14,42,74,.25); padding: 16px 18px;
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  #serie .who { min-width: 0; }
+  #serie .who strong { font-size: 18px; display: block; }
+  #serie .wa { font-size: 16px; padding: 12px 20px; }
+  #serie .wa.pulse { animation: pulse 1.2s ease-in-out 3; }
+  @keyframes pulse { 50% { transform: scale(1.06); box-shadow: 0 0 0 6px rgba(37,211,102,.25); } }
+  .sbar { height: 6px; background: var(--bar-track); border-radius: 4px; overflow: hidden; margin-top: 6px; width: 220px; max-width: 100%; }
+  .sbar div { height: 100%; background: #25D366; }
+  .ans-search { font-size: 18px !important; padding: 14px 18px !important; border-radius: 14px !important; }
+  .rcards { display: grid; gap: 10px; margin-top: 14px; }
+  .rcard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; align-items: start; }
+  .rcard .btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .rcard .btn { min-height: 38px; }
+  .btn.ok { background: var(--ok-bg); color: var(--ok-ink); border-color: transparent; }
+  .btn.ko { background: #fde8e6; color: #9b1c12; border-color: transparent; }
+  .btn.on { outline: 2px solid currentColor; outline-offset: 1px; }
+  .log { margin: 12px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
+  .log li { padding: 4px 0; }
+  .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .counters button { text-align: left; cursor: pointer; }
+  @media (max-width: 640px) { .rcard { grid-template-columns: 1fr; } .rcard .btns { justify-content: flex-start; } }
+  .wa { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #25D366; color: #06381b; font-weight: 700; font-size: 13px; text-decoration: none; white-space: nowrap; }
+  .wa:hover { filter: brightness(.95); }
+  .wa.again { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); }
+  .wa svg { width: 16px; height: 16px; }
+  .tpl textarea { width: 100%; min-height: 260px; margin-top: 8px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); font: 14px/1.5 "DM Sans", system-ui, sans-serif; resize: vertical; }
+  .tpl code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+  .tpl .preview { white-space: pre-wrap; background: var(--surface-2); border-radius: 12px; padding: 12px 14px; font-size: 14px; margin-top: 8px; border-left: 4px solid #25D366; }
+  .tpl .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+  @media (max-width: 640px) {
+    header.top { position: static; }
+    .tiles { grid-template-columns: 1fr 1fr; }
+    .tile .v { font-size: 28px; }
+    .bar-row { grid-template-columns: 1fr auto; }
+    .bar-row .bar-track { grid-column: 1 / -1; grid-row: 2; }
+    .filters { margin-left: 0; width: 100%; }
+    .filters input.t { min-width: 0; flex: 1; }
+  }
+
+  @media print {
+    @page { margin: 12mm; }
+    :root { --bg: #fff; --surface: #fff; --surface-2: #f3f5f8; --ink: #000; --ink-2: #222; --muted: #555; --line: #bbb; --bar: #333; --bar-track: #e5e5e5; }
+    body { font-size: 11pt; background: #fff; }
+    header.top, .tabs, .no-print, .login, #serie, #panelA { display: none !important; }
+    .print-head { display: block; margin-bottom: 10px; }
+    .print-only { display: inline; }
+    .print-head h1 { font-size: 18pt; margin: 0 0 2px; }
+    .tile, .card, .table-wrap { border-color: #bbb; break-inside: avoid; }
+    .tile .v { font-size: 20pt; }
+    body:not(.print-stats) #stats { display: none; }
+    body.print-stats #lists { display: none; }
+    th[data-k]::after { display: none; }
+    th { position: static; background: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    tr { break-inside: avoid; }
+    .bar-fill, .bar-track { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .note-in { border: 0; background: none; padding: 0; }
+    .note-in::placeholder { color: transparent; }
+    .wrap { max-width: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Connexion -->
+<section id="login" class="login">
+  <form id="loginForm" class="card">
+    <p class="eyebrow">Bwat Sekrèm Talks</p>
+    <h1>Espace inscriptions</h1>
+    <label class="f" for="email">E-mail</label>
+    <input class="t" id="email" type="email" autocomplete="username" required />
+    <label class="f" for="password">Mot de passe</label>
+    <input class="t" id="password" type="password" autocomplete="current-password" required />
+    <div style="margin-top:18px"><button class="btn primary" id="loginBtn" type="submit">Se connecter</button></div>
+    <p class="msg" id="loginMsg" role="alert"></p>
+  </form>
+</section>
+
+<!-- Application -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="wrap">
+      <div class="brand">Bwat Sekrèm Talks <small id="who"></small></div>
+      <div class="actions">
+        <select class="t" id="edition" aria-label="Édition"></select>
+        <button class="btn" id="refresh" type="button">Actualiser</button>
+        <button class="btn" id="printList" type="button">Imprimer la liste</button>
+        <button class="btn" id="printStats" type="button">Imprimer les stats</button>
+        <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
+        <button class="btn" id="csv" type="button">Exporter (Excel)</button>
+        <button class="btn" id="logout" type="button">Déconnexion</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="print-head">
+      <h1 id="printTitle">Bwat Sekrèm Talks</h1>
+      <div class="sub" id="printSub"></div>
+    </div>
+
+    <p class="msg no-print" id="appMsg" role="alert"></p>
+
+    <section id="tplPanel" class="card tpl no-print hidden" style="margin-top:20px">
+      <h2>Message de confirmation WhatsApp</h2>
+      <p class="sub" style="margin:0">Ce texte est utilisé par les boutons « Envoyer » de l’onglet Réservations. Les mots entre accolades sont remplacés automatiquement pour chaque personne :
+        <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code>. Les modifications sont gardées sur cet ordinateur.</p>
+      <div class="cols">
+        <div><label class="f" for="tpl">Modèle</label><textarea id="tpl"></textarea>
+          <div style="margin-top:8px"><button class="btn" id="tplReset" type="button">Revenir au message par défaut</button></div></div>
+        <div><span class="f" style="display:block;font-weight:600;font-size:14px;margin-top:12px">Aperçu (exemple : Marie, 3 places)</span><div class="preview" id="tplPreview"></div></div>
+      </div>
+    </section>
+
+    <section id="stats">
+      <div class="tiles" id="tiles"></div>
+      <div class="grid2">
+        <div class="card"><h2>Personnes par catégorie</h2><div class="bars" id="byProfil"></div>
+          <p class="note">Une personne peut cocher plusieurs catégories : le total peut dépasser le nombre de personnes.</p></div>
+        <div class="card"><h2>Femmes / Hommes</h2><div class="bars" id="bySexe"></div></div>
+        <div class="card"><h2>Taille des réservations</h2><div class="bars" id="byPlaces"></div></div>
+        <div class="card"><h2>Comment ils ont connu l’événement</h2><div class="bars" id="bySource"></div></div>
+        <div class="card"><h2>Universités (étudiants)</h2><div class="bars" id="byUni"></div></div>
+        <div class="card"><h2>Niveau d’études (étudiants)</h2><div class="bars" id="byNiveau"></div></div>
+        <div class="card"><h2>Inscriptions par jour</h2><div class="bars" id="byDay"></div></div>
+      </div>
+    </section>
+
+    <section id="lists">
+      <div class="tabs no-print" role="tablist">
+        <button class="tab" role="tab" id="tabP" aria-selected="true" type="button">Liste des participants</button>
+        <button class="tab" role="tab" id="tabR" aria-selected="false" type="button">Réservations (détails)</button>
+        <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
+        <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
+        <div class="filters">
+          <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
+          <select class="t" id="fProfil" aria-label="Filtrer par catégorie"></select>
+          <select class="t" id="fConf" aria-label="Filtrer par confirmation">
+            <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="panelP">
+        <div class="table-wrap"><table>
+          <thead id="headP"><tr><th data-k="ordre">#</th><th data-k="nom">Nom</th><th data-k="sexe">Sexe</th><th data-k="profil">Catégorie</th><th data-k="tel">Téléphone</th><th data-k="by">Réservé par</th><th data-k="conf">Statut</th><th>Présent</th></tr></thead>
+          <tbody id="rowsP"></tbody>
+        </table></div>
+        <p class="count-line" id="countP"></p>
+      </div>
+
+      <div id="panelR" class="hidden">
+        <div class="table-wrap"><table>
+          <thead id="headR"><tr><th data-k="ordre">#</th><th data-k="date">Date</th><th data-k="nom">Nom / contact</th><th data-k="profil">Profil</th><th data-k="places">Places</th><th data-k="acc">Accompagnants</th><th data-k="contact" class="no-print">WhatsApp</th><th data-k="conf">Statut</th><th data-k="notes">Notes</th></tr></thead>
+          <tbody id="rowsR"></tbody>
+        </table></div>
+        <p class="count-line" id="countR"></p>
+      </div>
+
+      <div id="panelA" class="hidden">
+        <div class="counters" id="ansCounters"></div>
+        <div class="card">
+          <label class="f" for="aq" style="margin-top:0">Qui a répondu ? Tapez son numéro WhatsApp ou son nom</label>
+          <input class="t ans-search" id="aq" type="search" inputmode="search" autocomplete="off" placeholder="ex. 4901 2257 ou Marie" />
+          <p class="sub" id="ansHint" style="margin:8px 0 0"></p>
+          <div class="rcards" id="ansResults"></div>
+          <ul class="log" id="ansLog"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="serie" class="hidden" role="region" aria-label="Envoi en série"></div>
+
+<script>
+const SUPABASE_URL = 'https://nltlgytehikguydcdhyy.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const PROFILS = { etudiant: 'Étudiant(e)', employe: 'Employé(e)', cadre: 'Cadre / Dirigeant(e)', proprietaire: 'Propriétaire d’entreprise', autre: 'Autre' };
+const SEXES = { femme: 'Femme', homme: 'Homme' };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const editionLabel = (e) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})-?(.*)$/.exec(e || '');
+  if (!m) return e || '—';
+  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T12:00:00`);
+  const place = m[4].replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  return `${d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}${place ? ' · ' + place : ''}`;
+};
+
+let ALL = [];
+let SUIVI = {};   // 'ID:IDX' -> { statut, contacte_le } pour les accompagnants
+const STATUT = { c: 'Confirmée', a: 'En attente', x: 'Annulée' };
+const st = (r) => (r.annule ? 'x' : r.confirme ? 'c' : 'a');
+const stOrder = { c: 0, a: 1, x: 2 };
+function stPill(r) {
+  const s = st(r);
+  if (s === 'c') return '<span class="pill ok">Confirmée</span>';
+  if (s === 'x') return '<span class="pill x">Annulée</span>';
+  return r.contacte_le ? '<span class="pill w">Sans réponse</span>' : '<span class="sub">À contacter</span>';
+}
+const digits = (v) => String(v || '').replace(/\D/g, '');
+const localDigits = (v) => { let d = digits(v); if (d.startsWith('00')) d = d.slice(2); if (d.length > 8 && d.startsWith('509')) d = d.slice(3); return d; };
+function phoneMatch(tel, q) { const qd = localDigits(q); return qd.length >= 4 && localDigits(tel).includes(qd); }
+/* ----- Statut et contact PAR PERSONNE ----- */
+const pkey = (p) => (p.kind === 'p' ? `r:${p.resa.id}` : `a:${p.resa.id}:${p.idx}`);
+const sv = (p) => SUIVI[`${p.resa.id}:${p.idx}`];
+const reachable = (p) => p.kind === 'p' || !!waNumber(p.tel);
+function pst(p) {
+  if (p.resa.annule) return 'x';
+  if (p.kind === 'p') return st(p.resa);
+  const s = sv(p);
+  if (s) return s.statut;
+  return waNumber(p.tel) ? 'a' : st(p.resa);   // sans numéro : suit la personne qui a réservé
+}
+const pcontact = (p) => (p.kind === 'p' ? p.resa.contacte_le : sv(p)?.contacte_le || (waNumber(p.tel) ? null : p.resa.contacte_le));
+function ppill(p) {
+  const s = pst(p);
+  if (s === 'c') return '<span class="pill ok">Confirmée</span>';
+  if (s === 'x') return '<span class="pill x">Annulée</span>';
+  return pcontact(p) ? '<span class="pill w">Sans réponse</span>' : '<span class="sub">À contacter</span>';
+}
+async function upsertSuivi(p, patch) {
+  const row = { inscription_id: p.resa.id, idx: p.idx, ...patch, updated_at: new Date().toISOString() };
+  const { error } = await sb.from('talks_suivi_accompagnants').upsert(row, { onConflict: 'inscription_id,idx' });
+  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return false; }
+  const k = `${p.resa.id}:${p.idx}`;
+  SUIVI[k] = { statut: 'a', contacte_le: null, ...(SUIVI[k] || {}), ...patch };
+  return true;
+}
+async function setPersStatut(p, s) {
+  if (p.kind === 'p') return setStatut(p.resa.id, s);
+  if (s !== 'x' && p.resa.annule) { $('appMsg').textContent = 'Cette réservation est annulée : remettez d’abord la personne qui a réservé « En attente » ou « Confirmée ».'; render(); return false; }
+  const ok = await upsertSuivi(p, { statut: s });
+  render();
+  return ok;
+}
+async function markContact(p) {
+  const now = new Date().toISOString();
+  if (p.kind === 'a') return upsertSuivi(p, { contacte_le: now });
+  const { error } = await sb.from('talks_inscriptions').update({ contacte_le: now }).eq('id', p.resa.id);
+  if (error) { $('appMsg').textContent = 'Envoi non enregistré : ' + error.message; return false; }
+  p.resa.contacte_le = now;
+  return true;
+}
+function findPerson(key) { return people(rowsForEdition()).find((p) => pkey(p) === key); }
+
+async function setStatut(id, s) {
+  const patch = { confirme: s === 'c', annule: s === 'x' };
+  const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', id);
+  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return false; }
+  Object.assign(ALL.find((r) => r.id === id), patch);
+  render();
+  return true;
+}
+let tab = 'P';
+const SORT = { P: { k: 'nom', dir: 1 }, R: { k: 'ordre', dir: 1 } };
+const isEmpty = (v) => v === null || v === undefined || v === '';
+function cmp(a, b, dir) {
+  if (isEmpty(a) && isEmpty(b)) return 0;
+  if (isEmpty(a)) return 1;            // valeurs vides toujours en bas
+  if (isEmpty(b)) return -1;
+  const r = typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'fr', { numeric: true, sensitivity: 'base' });
+  return r * dir;
+}
+function sortBy(list, which, getters) {
+  const { k, dir } = SORT[which];
+  const g = getters[k] || getters.ordre;
+  return list.map((x, i) => [x, i]).sort(([a, i], [b, j]) => cmp(g(a), g(b), dir) || i - j).map(([x]) => x);
+}
+const GET_P = {
+  ordre: (p) => p.ordre,
+  nom: (p) => p.nom,
+  sexe: (p) => SEXES[p.sexe] || '',
+  profil: (p) => p.profils.map((k) => PROFILS[k] || k).join(', '),
+  tel: (p) => p.tel,
+  by: (p) => p.by || '',
+  conf: (p) => stOrder[pst(p)],
+};
+const GET_R = {
+  ordre: (r) => r.created_at,
+  date: (r) => r.created_at,
+  nom: (r) => r.nom,
+  profil: (r) => profilsOf(r).map((k) => PROFILS[k] || k).join(', '),
+  places: (r) => r.places || 1,
+  acc: (r) => (r.accompagnants || []).length,
+  conf: (r) => stOrder[st(r)],
+  notes: (r) => r.notes || '',
+  contact: (r) => r.contacte_le || '',
+};
+function paintSort() {
+  for (const w of ['P', 'R']) {
+    document.querySelectorAll(`#head${w} th[data-k]`).forEach((th) => {
+      if (th.dataset.k === SORT[w].k) th.setAttribute('aria-sort', SORT[w].dir === 1 ? 'ascending' : 'descending');
+      else th.removeAttribute('aria-sort');
+      th.title = 'Cliquer pour trier';
+    });
+  }
+}
+
+/* ---------- Auth ---------- */
+async function showApp(session) {
+  if (!session) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); return; }
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden');
+  $('who').textContent = session.user.email;
+  await load();
+}
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('loginMsg').textContent = ''; $('loginBtn').disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  $('loginBtn').disabled = false;
+  if (error) { $('loginMsg').textContent = 'Connexion impossible : e-mail ou mot de passe incorrect.'; return; }
+  showApp(data.session);
+});
+$('logout').addEventListener('click', async () => { await sb.auth.signOut(); ALL = []; showApp(null); });
+
+/* ---------- Data ---------- */
+async function load() {
+  $('appMsg').textContent = '';
+  $('refresh').disabled = true;
+  const [{ data, error }, suivi] = await Promise.all([
+    sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
+    sb.from('talks_suivi_accompagnants').select('*'),
+  ]);
+  $('refresh').disabled = false;
+  if (error) { $('appMsg').textContent = 'Erreur de chargement : ' + error.message; return; }
+  ALL = data || [];
+  SUIVI = {};
+  (suivi.data || []).forEach((x) => { SUIVI[`${x.inscription_id}:${x.idx}`] = x; });
+  if (!ALL.length) $('appMsg').textContent = 'Aucune inscription visible. Si vous savez qu’il y en a, ce compte n’a probablement pas l’accès administrateur.';
+  const eds = [...new Set(ALL.map((r) => r.edition))].sort().reverse();
+  const cur = $('edition').value;
+  $('edition').innerHTML = eds.map((e) => `<option value="${esc(e)}">${esc(editionLabel(e))}</option>`).join('') || '<option value="">—</option>';
+  if (eds.includes(cur)) $('edition').value = cur;
+  render();
+}
+
+function rowsForEdition() { return ALL.filter((r) => r.edition === $('edition').value); }
+
+function profilsOf(r) { return r.profils && r.profils.length ? r.profils : []; }
+
+function people(rows) {
+  const out = [];
+  const sorted = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
+  for (const r of sorted) {
+    out.push({ kind: 'p', idx: null, ordre: out.length, resa: r, nom: r.nom, sexe: r.sexe, profils: profilsOf(r), tel: r.telephone, by: null, details: details(r) });
+    (r.accompagnants || []).forEach((a, idx) => out.push({ kind: 'a', idx, acc: a, ordre: out.length, resa: r, nom: a.nom, sexe: a.sexe, profils: a.profil ? [a.profil] : [], tel: a.telephone || '', by: r.nom, details: '' }));
+  }
+  return out;
+}
+
+const UNIVERSITES = {
+  'UPNCH': 'Université Publique du Nord au Cap-Haïtien',
+  'URHC': 'Université Roi Henri Christophe',
+  'UNDH': 'Université Notre Dame d’Haïti',
+  'UCNH': 'Université Chrétienne du Nord d’Haïti',
+  'CHCL/UEH': 'Campus Henry Christophe de l’UEH',
+  'UNAF': 'Université Anténor Firmin',
+  'FDSEG/UEH': 'Faculté de Droit, des Sciences Économiques et de Gestion du Cap-Haïtien',
+  'UNATH': 'Université des Atlantes',
+};
+const NIVEAUX = { cycle_court: 'Cycle court', licence: 'Licence', maitrise: 'Maîtrise', doctorat: 'Doctorat' };
+function etudes(r) {
+  if (!r.universite && !r.niveau_etude) return '';
+  const niv = r.niveau_etude ? (NIVEAUX[r.niveau_etude] || r.niveau_etude) + (r.annee_etude ? ` ${r.annee_etude}${r.annee_etude === 1 ? 're' : 'e'} année` : '') : '';
+  return [r.universite, niv].filter(Boolean).join(', ');
+}
+function details(r) {
+  const parts = [];
+  if (r.universite || r.niveau_etude) parts.push(`Étudiant(e) : ${etudes(r)}`);
+  if (r.employe_poste || r.employe_entreprise) parts.push(`Employé(e) : ${[r.employe_poste, r.employe_entreprise].filter(Boolean).join(' — ')}`);
+  if (r.cadre_poste || r.cadre_entreprise) parts.push(`Cadre : ${[r.cadre_poste, r.cadre_entreprise].filter(Boolean).join(' — ')}`);
+  if (r.proprietaire_entreprise) parts.push(`Propriétaire : ${r.proprietaire_entreprise}${r.proprietaire_activite ? ' (' + r.proprietaire_activite + ')' : ''}`);
+  if (r.autre_precision) parts.push(`Autre : ${r.autre_precision}`);
+  if (r.organisation) parts.push(r.organisation);
+  return parts.join(' · ');
+}
+
+/* ---------- Stats ---------- */
+function bars(el, entries, total, unit) {
+  const list = entries.filter(([, n]) => n > 0);
+  if (!list.length) { el.innerHTML = '<p class="empty">Pas encore de données.</p>'; return; }
+  const max = Math.max(...list.map(([, n]) => n));
+  el.innerHTML = list.map(([label, n]) => {
+    const pct = total ? Math.round((n / total) * 100) : 0;
+    return `<div class="bar-row" title="${esc(label)} : ${n} ${unit} (${pct} %)">
+      <div class="lab">${esc(label)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(n / max) * 100}%"></div></div>
+      <div class="val">${n}<span>${pct} %</span></div></div>`;
+  }).join('');
+}
+const countBy = (arr, fn) => { const m = new Map(); arr.forEach((x) => { const k = fn(x); m.set(k, (m.get(k) || 0) + 1); }); return m; };
+
+function renderStats(rows, ppl, nAnnul = 0) {
+  const nP = ppl.length;
+  const confP = ppl.filter((p) => pst(p) === 'c').length;
+  const attP = ppl.filter((p) => pst(p) === 'a').length;
+  const f = ppl.filter((p) => p.sexe === 'femme').length, h = ppl.filter((p) => p.sexe === 'homme').length;
+  const groups = rows.filter((r) => (r.places || 1) > 1).length;
+  $('tiles').innerHTML = [
+    ['Réservations', rows.length, `${groups} pour plusieurs personnes${nAnnul ? ` · ${nAnnul} annulée${nAnnul > 1 ? 's' : ''}` : ''}`],
+    ['Personnes attendues', nP, `${(nP / Math.max(rows.length, 1)).toFixed(1).replace('.', ',')} par réservation`],
+    ['Personnes confirmées', confP, `${attP} en attente de réponse`],
+    ['Femmes', f, nP ? `${Math.round((f / nP) * 100)} % des personnes` : ''],
+    ['Hommes', h, nP ? `${Math.round((h / nP) * 100)} % des personnes` : ''],
+  ].map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+
+  const pc = Object.keys(PROFILS).map((k) => [PROFILS[k], ppl.filter((p) => p.profils.includes(k)).length]);
+  const np = ppl.filter((p) => !p.profils.length).length;
+  if (np) pc.push(['Non précisé', np]);
+  bars($('byProfil'), pc, nP, 'personnes');
+
+  const sx = [['Femmes', f], ['Hommes', h]];
+  const ns = nP - f - h; if (ns) sx.push(['Non précisé', ns]);
+  bars($('bySexe'), sx, nP, 'personnes');
+
+  const pl = countBy(rows, (r) => r.places || 1);
+  bars($('byPlaces'), [...pl.entries()].sort((a, b) => a[0] - b[0]).map(([k, n]) => [`${k} place${k > 1 ? 's' : ''}`, n]), rows.length, 'réservations');
+
+  const src = countBy(rows, (r) => r.source || 'Non précisé');
+  bars($('bySource'), [...src.entries()].sort((a, b) => b[1] - a[1]), rows.length, 'réservations');
+
+  const uni = countBy(rows.filter((r) => r.universite), (r) => r.universite.trim().toUpperCase());
+  const uniList = [...uni.entries()].sort((a, b) => b[1] - a[1]);
+  const top = uniList.slice(0, 8); const rest = uniList.slice(8).reduce((s, [, n]) => s + n, 0);
+  if (rest) top.push(['Autres', rest]);
+  bars($('byUni'), top, rows.filter((r) => r.universite).length, 'étudiants');
+
+  const etu = rows.filter((r) => r.niveau_etude);
+  const niv = [];
+  for (const [k, v] of Object.entries(NIVEAUX)) {
+    if (k === 'licence') {
+      const lic = etu.filter((r) => r.niveau_etude === 'licence');
+      for (const y of [1, 2, 3, 4]) niv.push([`Licence ${y}${y === 1 ? 're' : 'e'} année`, lic.filter((r) => r.annee_etude === y).length]);
+      niv.push(['Licence (année non précisée)', lic.filter((r) => !r.annee_etude).length]);
+    } else niv.push([v, etu.filter((r) => r.niveau_etude === k).length]);
+  }
+  bars($('byNiveau'), niv, etu.length, 'étudiants');
+
+  const day = countBy(rows, (r) => new Date(r.created_at).toISOString().slice(0, 10));
+  bars($('byDay'), [...day.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14)
+    .map(([d, n]) => [new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }), n]), rows.length, 'réservations');
+}
+
+/* ---------- Lists ---------- */
+function matches(text, tel) { const q = $('q').value.trim().toLowerCase(); return !q || text.toLowerCase().includes(q) || (tel !== undefined && phoneMatch(tel, q)); }
+
+function keepFn(fc) {
+  return (r) => ({
+    '': !r.annule, all: true, 1: r.confirme, 0: !r.confirme && !r.annule,
+    nc: !r.contacte_le && !r.annule, cn: !!r.contacte_le && !r.confirme && !r.annule, x: r.annule,
+  })[fc] ?? true;
+}
+function filteredResa(rows) {
+  const fp = $('fProfil').value;
+  const res0 = rows.filter(keepFn($('fConf').value))
+    .filter((r) => !fp || profilsOf(r).includes(fp) || (r.accompagnants || []).some((a) => a.profil === fp))
+    .filter((r) => matches([r.nom, r.telephone, r.email, r.ville, details(r), (r.accompagnants || []).map((a) => a.nom).join(' ')].join(' '), r.telephone));
+  return sortBy(res0, 'R', GET_R);
+}
+function keepPers(fc) {
+  return (p) => {
+    const s = pst(p), c = !!pcontact(p);
+    return ({ '': s !== 'x', all: true, 1: s === 'c', 0: s === 'a', nc: s === 'a' && !c && reachable(p), cn: s === 'a' && c, x: s === 'x' })[fc] ?? true;
+  };
+}
+function filteredPeople(rows) {
+  const fp = $('fProfil').value;
+  const ppl0 = people(rows).filter(keepPers($('fConf').value))
+    .filter((p) => !fp || p.profils.includes(fp))
+    .filter((p) => matches([p.nom, p.tel, p.by, p.details].join(' '), p.tel || p.resa.telephone));
+  return sortBy(ppl0, 'P', GET_P);
+}
+function persWa(p, label) {
+  const num = waNumber(p.tel);
+  if (!num) return '';
+  const href = `https://wa.me/${num}?text=${encodeURIComponent(p.kind === 'p' ? fillTpl(getTpl(), p.resa) : accText(p.resa, p.acc))}`;
+  const c = pcontact(p);
+  return `<a class="no-print walink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wap="${esc(pkey(p))}" title="${c ? 'Message déjà envoyé le ' + esc(fmtDate(c)) : 'Écrire sur WhatsApp'}">${label || (c ? 'Renvoyer ↗' : 'WhatsApp ↗')}</a>`;
+}
+function stSelect(p) {
+  return `<select class="st no-print" data-pstatut="${esc(pkey(p))}" aria-label="Statut de ${esc(p.nom)}">${Object.entries(STATUT).map(([k, v]) => `<option value="${k}" ${pst(p) === k ? 'selected' : ''}>${v}</option>`).join('')}</select><span class="print-only">${STATUT[pst(p)]}</span>`;
+}
+function renderLists(rows) {
+  const ppl = filteredPeople(rows);
+  $('rowsP').innerHTML = ppl.map((p, i) => `<tr>
+    <td class="num">${i + 1}</td>
+    <td><strong>${esc(p.nom)}</strong>${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}</td>
+    <td>${esc(SEXES[p.sexe] || '—')}</td>
+    <td>${p.profils.map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('') || '—'}</td>
+    <td>${esc(p.tel || '')}${p.tel ? `<div>${persWa(p)}</div>` : ''}${pcontact(p) ? `<div class="sub no-print">${p.kind === 'a' && !waNumber(p.tel) ? 'Prévenu(e) via ' + esc(p.by) : 'Envoyé le ' + esc(fmtDate(pcontact(p)))}</div>` : ''}</td>
+    <td>${p.by ? esc(p.by) : '<span class="sub">—</span>'}</td>
+    <td>${stSelect(p)}${p.kind === 'a' && !waNumber(p.tel) && !sv(p) ? '<div class="sub no-print">suit la réservation</div>' : ''}</td>
+    <td><span class="box" aria-label="Case présence"></span></td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucun participant.</td></tr>';
+  $('countP').textContent = `${ppl.length} personne${ppl.length > 1 ? 's' : ''} dans la liste.`;
+
+  const res = filteredResa(rows);
+  paintSort();
+  $('rowsR').innerHTML = res.map((r, i) => `<tr>
+    <td class="num">${i + 1}</td>
+    <td class="sub">${esc(fmtDate(r.created_at))}</td>
+    <td><strong>${esc(r.nom)}</strong> <span class="sub">${esc(SEXES[r.sexe] || '')}</span>
+      <div class="sub">${esc(r.telephone)}${r.email ? ' · ' + esc(r.email) : ''}${r.ville ? ' · ' + esc(r.ville) : ''}</div>
+      ${r.source ? `<div class="sub">Source : ${esc(r.source)}</div>` : ''}</td>
+    <td>${profilsOf(r).map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('')}<div class="sub">${esc(details(r))}</div></td>
+    <td>${r.places || 1}</td>
+    <td>${people([r]).filter((p) => p.kind === 'a').map((p) => `<div style="margin-bottom:8px">${esc(p.nom)} ${ppill(p)} <span class="sub">${esc(SEXES[p.sexe] || '')}${p.acc.profil ? ' · ' + esc(PROFILS[p.acc.profil] || p.acc.profil) : ''}</span>${p.tel ? `<div class="sub">${esc(p.tel)} ${persWa(p)}</div>` : ''}</div>`).join('') || '<span class="sub">—</span>'}</td>
+    <td class="no-print">${waCell(r)}</td>
+    <td><select class="st no-print" data-statut="${r.id}" aria-label="Statut">${Object.entries(STATUT).map(([k, v]) => `<option value="${k}" ${st(r) === k ? 'selected' : ''}>${v}</option>`).join('')}</select><span class="print-only">${STATUT[st(r)]}</span></td>
+    <td><input class="note-in" data-note="${r.id}" value="${esc(r.notes || '')}" placeholder="Ajouter une note…" /></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucune réservation.</td></tr>';
+  const nRes = res.reduce((s, r) => s + 1 + (r.accompagnants || []).length, 0);
+  $('countR').textContent = `${res.length} réservation${res.length > 1 ? 's' : ''} · ${nRes} personne${nRes > 1 ? 's' : ''}.`;
+}
+
+/* ---------- WhatsApp ---------- */
+const TPL_KEY = 'bst_tpl_confirmation_v1';
+const DEFAULT_TPL = `Bonjour {prenom} 👋
+
+C’est l’équipe de Bwat Sekrèm Talks. Nous avons bien reçu votre réservation pour {places} à notre rencontre :
+
+📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30
+📍 Auditorium Oswald Durand, 31, Rue 18 L, Cap-Haïtien (Collège Bell Angelot)
+{accompagnants}
+Merci de nous confirmer votre présence en répondant « OUI » à ce message. En cas d’empêchement, prévenez-nous afin que nous puissions libérer votre place.
+
+À très bientôt !
+L’équipe Bwat Sekrèm Talks`;
+const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>';
+function getTpl() { try { return localStorage.getItem(TPL_KEY) || DEFAULT_TPL; } catch { return DEFAULT_TPL; } }
+function setTpl(v) { try { if (v === DEFAULT_TPL) localStorage.removeItem(TPL_KEY); else localStorage.setItem(TPL_KEY, v); } catch {} }
+function waNumber(tel) {
+  let d = String(tel || '').replace(/\D/g, '');
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.length === 8) d = '509' + d;            // numéro haïtien sans indicatif
+  return d.length >= 10 && d.length <= 15 ? d : '';
+}
+function fillTpl(tpl, r) {
+  const acc = (r.accompagnants || []).map((a) => a.nom).filter(Boolean);
+  const n = r.places || 1 + acc.length;
+  const prenom = String(r.nom || '').trim().split(/\s+/)[0] || '';
+  const accTxt = acc.length ? `\n👥 Personnes inscrites avec vous : ${acc.join(', ')}\n` : '';
+  return tpl.replaceAll('{prenom}', prenom).replaceAll('{nom}', String(r.nom || '').trim())
+    .replaceAll('{places}', n > 1 ? `${n} places` : '1 place').replaceAll('{accompagnants}', accTxt)
+    .replace(/\n{3,}/g, '\n\n');
+}
+function accText(r, a) {
+  const prenom = String(a.nom || '').trim().split(/\s+/)[0];
+  return `Bonjour ${prenom} 👋\n\n${String(r.nom || '').trim()} vous a inscrit(e) à Bwat Sekrèm Talks :\n\n📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 L, Cap-Haïtien (Collège Bell Angelot)\n\nMerci de nous confirmer votre présence en répondant « OUI » à ce message.\n\nÀ très bientôt !\nL’équipe Bwat Sekrèm Talks`;
+}
+function waCell(r) {
+  const num = waNumber(r.telephone);
+  if (!num) return '<span class="sub">Numéro invalide</span>';
+  const href = `https://wa.me/${num}?text=${encodeURIComponent(fillTpl(getTpl(), r))}`;
+  const sent = r.contacte_le ? `<div class="sub" style="margin-top:4px">Envoyé le ${esc(fmtDate(r.contacte_le))}</div>` : '';
+  return `<a class="wa${r.contacte_le ? ' again' : ''}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wa="${r.id}">${WA_ICON}${r.contacte_le ? 'Renvoyer' : 'Envoyer'}</a>${sent}`;
+}
+function previewTpl() {
+  $('tplPreview').textContent = fillTpl($('tpl').value, { nom: 'Marie Joseph', places: 3, accompagnants: [{ nom: 'Paul Joseph' }, { nom: 'Ana Louis' }] });
+}
+$('tpl').value = getTpl(); previewTpl();
+$('tpl').addEventListener('input', () => { setTpl($('tpl').value); previewTpl(); renderLists(rowsForEdition()); });
+$('tplReset').addEventListener('click', () => { $('tpl').value = DEFAULT_TPL; setTpl(DEFAULT_TPL); previewTpl(); renderLists(rowsForEdition()); });
+$('tplBtn').addEventListener('click', () => {
+  const open = $('tplPanel').classList.toggle('hidden') === false;
+  $('tplBtn').setAttribute('aria-expanded', open);
+  if (open) $('tplPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+document.addEventListener('click', async (e) => {
+  const a = e.target.closest('a[data-wa]'); if (!a) return;
+  const key = Number(a.dataset.wa);
+  if (a.dataset.serieGo && SERIE) { SERIE.sent++; SERIE.i++; setTimeout(renderSerie, 0); }
+  const patch = { contacte_le: new Date().toISOString() };
+  const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', key);
+  if (error) { $('appMsg').textContent = 'Envoi non enregistré : ' + error.message; return; }
+  Object.assign(ALL.find((r) => r.id === key), patch);
+  renderLists(rowsForEdition());
+  renderAnswers();
+});
+
+document.addEventListener('click', async (e) => {
+  const a = e.target.closest('a[data-wap]'); if (!a) return;
+  const p = findPerson(a.dataset.wap); if (!p) return;
+  if (a.dataset.serieGo && SERIE) { SERIE.sent++; SERIE.i++; setTimeout(renderSerie, 0); }
+  if (await markContact(p)) { renderLists(rowsForEdition()); renderAnswers(); }
+});
+
+/* ---------- Envoi en série ---------- */
+let SERIE = null;
+function startSerie() {
+  const list = sortBy(filteredPeople(rowsForEdition()), 'P', { ordre: (p) => p.ordre })
+    .filter((p) => !pcontact(p) && pst(p) === 'a' && waNumber(p.tel));
+  if (!list.length) { $('appMsg').textContent = 'Personne à contacter : toutes les personnes de cette liste ont déjà reçu le message (ou n’ont pas de numéro valide).'; return; }
+  $('appMsg').textContent = '';
+  const keep = SORT.P; SORT.P = { k: 'ordre', dir: 1 };
+  const ordered = sortBy(list, 'P', GET_P); SORT.P = keep;
+  SERIE = { queue: ordered.map(pkey), i: 0, sent: 0 };
+  renderSerie();
+}
+function renderSerie() {
+  const el = $('serie');
+  if (!SERIE) { el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  while (SERIE.i < SERIE.queue.length) {
+    const p = findPerson(SERIE.queue[SERIE.i]);
+    if (p && !pcontact(p) && pst(p) === 'a') break;
+    SERIE.i++;
+  }
+  const total = SERIE.queue.length;
+  if (SERIE.i >= total) {
+    el.innerHTML = `<div class="who"><strong>Terminé ✓</strong><span class="sub">${SERIE.sent} message${SERIE.sent > 1 ? 's' : ''} ouvert${SERIE.sent > 1 ? 's' : ''} dans WhatsApp. Allez maintenant dans « Traiter les réponses » au fur et à mesure des réponses.</span></div>
+      <button class="btn" type="button" data-serie="close">Fermer</button>`;
+    return;
+  }
+  const p = findPerson(SERIE.queue[SERIE.i]);
+  const r = p.resa;
+  const href = `https://wa.me/${waNumber(p.tel)}?text=${encodeURIComponent(p.kind === 'p' ? fillTpl(getTpl(), r) : accText(r, p.acc))}`;
+  const prenom = String(p.nom).trim().split(/\s+/)[0];
+  el.innerHTML = `<div class="who"><span class="sub">Envoi en série · ${SERIE.i + 1} sur ${total}</span>
+      <strong>${esc(p.nom)}</strong><span class="sub">${esc(p.tel)} · ${p.kind === 'p' ? `${r.places || 1} place${(r.places || 1) > 1 ? 's' : ''}` : `inscrit(e) par ${esc(r.nom)}`}</span>
+      <div class="sbar"><div style="width:${(SERIE.i / total) * 100}%"></div></div></div>
+    <div class="actions">
+      <a class="wa" id="serieGo" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wap="${esc(pkey(p))}" data-serie-go="1">${WA_ICON}Envoyer à ${esc(prenom)}</a>
+      <button class="btn" type="button" data-serie="skip">Passer</button>
+      <button class="btn" type="button" data-serie="stop">Arrêter</button>
+    </div>`;
+}
+$('serieBtn').addEventListener('click', startSerie);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-serie]'); if (!b || !SERIE) return;
+  if (b.dataset.serie === 'skip') { SERIE.i++; renderSerie(); }
+  else { SERIE = null; renderSerie(); }
+});
+window.addEventListener('focus', () => { const g = $('serieGo'); if (g) { g.classList.remove('pulse'); void g.offsetWidth; g.classList.add('pulse'); } });
+
+/* ---------- Traiter les réponses ---------- */
+const LOG = [];
+const plural = (n, one, many) => `${n} ${n > 1 ? (many || one + 's') : one}`;
+function renderAnswers() {
+  const rows = rowsForEdition();
+  const all = people(rows);
+  const n = (f) => all.filter(f).length;
+  $('ansCounters').innerHTML = [
+    ['cn', 'Sans réponse', n((p) => pst(p) === 'a' && pcontact(p)), 'ont reçu le message'],
+    ['1', 'Confirmées', n((p) => pst(p) === 'c'), 'personnes'],
+    ['nc', 'À contacter', n((p) => pst(p) === 'a' && !pcontact(p) && reachable(p)), 'pas encore de message'],
+    ['x', 'Annulées', n((p) => pst(p) === 'x'), 'places libérées'],
+  ].map(([f, k, v, s]) => `<button type="button" class="tile" data-goto="${f}" title="Voir la liste"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></button>`).join('');
+
+  const q = $('aq').value.trim();
+  let list, hint;
+  if (q) {
+    const ql = q.toLowerCase();
+    const hit = all.filter((p) => String(p.nom || '').toLowerCase().includes(ql) || phoneMatch(p.tel, q));
+    const resIds = [...new Set(hit.map((p) => p.resa.id))].slice(0, 6);
+    list = all.filter((p) => resIds.includes(p.resa.id)).sort((a, b) => resIds.indexOf(a.resa.id) - resIds.indexOf(b.resa.id) || a.ordre - b.ordre);
+    hint = resIds.length ? `${resIds.length} réservation${resIds.length > 1 ? 's' : ''} trouvée${resIds.length > 1 ? 's' : ''} — chaque personne a son propre statut :` : 'Aucune personne trouvée. Essayez les 4 derniers chiffres du numéro, ou une partie du nom.';
+  } else {
+    list = all.filter((p) => pst(p) === 'a' && pcontact(p)).sort((a, b) => String(pcontact(a)).localeCompare(String(pcontact(b))));
+    hint = list.length ? 'En attente de réponse (les plus anciens messages en premier) :' : 'Personne en attente de réponse pour le moment.';
+  }
+  $('ansHint').textContent = hint;
+  $('ansResults').innerHTML = list.map((p) => {
+    const s = pst(p), k = esc(pkey(p)), r = p.resa;
+    const others = people([r]).filter((x) => x.kind === 'a');
+    const group = p.kind === 'p' && others.length
+      ? `<button class="btn ok" type="button" data-setgroup="c" data-id="${r.id}" title="Confirmer ${esc(r.nom)} et les ${others.length} autre(s) personne(s)">✓ Tout le groupe (${others.length + 1})</button>` : '';
+    return `<div class="rcard" style="${p.kind === 'a' && q ? 'margin-left:28px;border-style:dashed' : ''}">
+      <div><strong style="font-size:16px">${esc(p.nom)}</strong> ${ppill(p)}
+        <div class="sub">${p.tel ? esc(p.tel) : 'Pas de numéro'} · ${p.kind === 'p' ? `a réservé ${r.places || 1} place${(r.places || 1) > 1 ? 's' : ''}${others.length ? ' (avec ' + esc(others.map((x) => x.nom).join(', ')) + ')' : ''}` : `inscrit(e) par ${esc(r.nom)}`}</div>
+        <div class="sub">${pcontact(p) ? 'Message envoyé le ' + esc(fmtDate(pcontact(p))) : (reachable(p) ? 'Pas encore contacté(e)' : 'Sans numéro : suit le statut de ' + esc(r.nom))} ${p.tel ? persWa(p) : ''}</div>
+        ${p.kind === 'p' ? `<input class="note-in" style="margin-top:8px" data-note="${r.id}" value="${esc(r.notes || '')}" placeholder="Note (ex. arrivera en retard)…" />` : ''}</div>
+      <div class="btns">
+        <button class="btn ok ${s === 'c' ? 'on' : ''}" type="button" data-pset="c" data-key="${k}">✓ Confirmer</button>
+        <button class="btn ko ${s === 'x' ? 'on' : ''}" type="button" data-pset="x" data-key="${k}">✗ Annuler</button>
+        ${s !== 'a' ? `<button class="btn" type="button" data-pset="a" data-key="${k}">↺ En attente</button>` : ''}
+        ${group}
+      </div></div>`;
+  }).join('');
+  $('ansLog').innerHTML = LOG.slice(0, 6).map((l) => `<li>${esc(l)}</li>`).join('');
+}
+$('aq').addEventListener('input', renderAnswers);
+const hhmm = () => new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+const VERB = { c: 'confirmé(e) ✓', x: 'annulé(e) ✗', a: 'remis(e) en attente' };
+document.addEventListener('click', async (e) => {
+  const g = e.target.closest('[data-goto]');
+  if (g) { $('fConf').value = g.dataset.goto; $('q').value = ''; setTab('P'); renderLists(rowsForEdition()); return; }
+  const gb = e.target.closest('[data-setgroup]');
+  if (gb) {
+    gb.disabled = true;
+    const r = ALL.find((x) => x.id === Number(gb.dataset.id));
+    const grp = people([r]);
+    let ok = await setStatut(r.id, 'c');
+    for (const p of grp.filter((x) => x.kind === 'a')) ok = (await upsertSuivi(p, { statut: 'c' })) && ok;
+    render();
+    if (ok) LOG.unshift(`${hhmm()} — ${r.nom} et son groupe confirmés ✓ (${grp.length} personnes)`);
+    renderAnswers();
+    return;
+  }
+  const b = e.target.closest('[data-pset]'); if (!b) return;
+  const p = findPerson(b.dataset.key); if (!p) return;
+  b.disabled = true;
+  if (await setPersStatut(p, b.dataset.pset)) {
+    LOG.unshift(`${hhmm()} — ${p.nom}${p.kind === 'a' ? ` (avec ${p.resa.nom})` : ''} ${VERB[b.dataset.pset]}`);
+    renderAnswers();
+    $('aq').focus();
+  } else b.disabled = false;
+});
+
+function render() {
+  const rows = rowsForEdition();
+  const active = rows.filter((r) => !r.annule);
+  renderStats(active, people(active).filter((p) => pst(p) !== 'x'), rows.length - active.length);
+  renderAnswers();
+  renderLists(rows);
+  const label = editionLabel($('edition').value);
+  $('printTitle').textContent = `Bwat Sekrèm Talks — ${label}`;
+  $('printSub').textContent = `Imprimé le ${new Date().toLocaleString('fr-FR')}`;
+}
+
+/* ---------- Updates (confirmé / notes) ---------- */
+document.addEventListener('change', async (e) => {
+  if (e.target.dataset.statut) { await setStatut(Number(e.target.dataset.statut), e.target.value); return; }
+  if (e.target.dataset.pstatut) { const p = findPerson(e.target.dataset.pstatut); if (p) await setPersStatut(p, e.target.value); return; }
+  const nid = e.target.dataset.note;
+  if (!nid) return;
+  const patch = { notes: e.target.value.trim() || null };
+  const key = Number(nid);
+  const { error } = await sb.from('talks_inscriptions').update(patch).eq('id', key);
+  if (error) { $('appMsg').textContent = 'Modification non enregistrée : ' + error.message; return; }
+  Object.assign(ALL.find((r) => r.id === key), patch);
+  render();
+});
+
+/* ---------- UI ---------- */
+$('fProfil').innerHTML = '<option value="">Toutes catégories</option>' + Object.entries(PROFILS).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+['q', 'fProfil', 'fConf'].forEach((id) => $(id).addEventListener('input', () => renderLists(rowsForEdition())));
+$('edition').addEventListener('change', render);
+$('refresh').addEventListener('click', load);
+function setTab(t) {
+  tab = t;
+  for (const k of ['P', 'R', 'A']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A');
+  if (t === 'A') { renderAnswers(); $('aq').focus(); }
+}
+$('tabA').addEventListener('click', () => setTab('A'));
+$('tabP').addEventListener('click', () => setTab('P'));
+for (const w of ['P', 'R']) {
+  $('head' + w).addEventListener('click', (e) => {
+    const th = e.target.closest('th[data-k]'); if (!th) return;
+    const k = th.dataset.k;
+    SORT[w] = { k, dir: SORT[w].k === k ? -SORT[w].dir : 1 };
+    renderLists(rowsForEdition());
+  });
+}
+$('tabR').addEventListener('click', () => setTab('R'));
+$('printList').addEventListener('click', () => { document.body.classList.remove('print-stats'); window.print(); });
+$('printStats').addEventListener('click', () => { document.body.classList.add('print-stats'); window.print(); document.body.classList.remove('print-stats'); });
+
+$('csv').addEventListener('click', () => {
+  const rows = rowsForEdition();
+  const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const head = ['Nom', 'Sexe', 'Catégories', 'Détails', 'Téléphone', 'E-mail', 'Ville', 'Réservé par', 'Places (réservation)', 'Source', 'WhatsApp envoyé le', 'Statut', 'Notes', 'Date inscription'];
+  const lines = people(rows).map((p) => [p.nom, SEXES[p.sexe] || '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.details, p.tel, p.by ? '' : p.resa.email, p.by ? '' : p.resa.ville,
+    p.by || '', p.resa.places || 1, p.resa.source || '', pcontact(p) ? fmtDate(pcontact(p)) : '', STATUT[pst(p)], p.resa.notes || '', fmtDate(p.resa.created_at)].map(cell).join(';'));
+  const blob = new Blob(['﻿' + [head.map(cell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `inscriptions-${$('edition').value || 'bst'}.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
+});
+
+sb.auth.getSession().then(({ data }) => showApp(data.session));
+</script>
+</body>
+</html>

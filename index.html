@@ -240,7 +240,7 @@
         <div class="card"><h2>Femmes / Hommes</h2><div class="bars" id="bySexe"></div></div>
         <div class="card"><h2>Taille des réservations</h2><div class="bars" id="byPlaces"></div></div>
         <div class="card"><h2>Comment ils ont connu l’événement</h2><div class="bars" id="bySource"></div></div>
-        <div class="card"><h2>Universités (étudiants)</h2><div class="bars" id="byUni"></div></div>
+        <div class="card"><h2>Universités (étudiants, accompagnants inclus)</h2><div class="bars" id="byUni"></div></div>
         <div class="card"><h2>Niveau d’études (étudiants)</h2><div class="bars" id="byNiveau"></div></div>
         <div class="card"><h2>Inscriptions par jour</h2><div class="bars" id="byDay"></div></div>
       </div>
@@ -474,8 +474,8 @@ function people(rows) {
   const out = [];
   const sorted = [...rows].sort((a, b) => a.created_at.localeCompare(b.created_at));
   for (const r of sorted) {
-    out.push({ kind: 'p', idx: null, ordre: out.length, resa: r, nom: r.nom, sexe: r.sexe, profils: profilsOf(r), tel: r.telephone, by: null, details: details(r) });
-    (r.accompagnants || []).forEach((a, idx) => out.push({ kind: 'a', idx, acc: a, ordre: out.length, resa: r, nom: a.nom, sexe: a.sexe, profils: a.profil ? [a.profil] : [], tel: a.telephone || '', by: r.nom, details: '' }));
+    out.push({ kind: 'p', idx: null, ordre: out.length, resa: r, nom: r.nom, sexe: r.sexe, profils: profilsOf(r), tel: r.telephone, by: null, details: details(r), universite: r.universite || '' });
+    (r.accompagnants || []).forEach((a, idx) => out.push({ kind: 'a', idx, acc: a, ordre: out.length, resa: r, nom: a.nom, sexe: a.sexe, profils: a.profil ? [a.profil] : [], tel: a.telephone || '', by: r.nom, details: a.universite ? `Étudiant(e) : ${a.universite}` : '', universite: a.universite || '' }));
   }
   return out;
 }
@@ -551,11 +551,12 @@ function renderStats(rows, ppl, nAnnul = 0) {
   const src = countBy(rows, (r) => r.source || 'Non précisé');
   bars($('bySource'), [...src.entries()].sort((a, b) => b[1] - a[1]), rows.length, 'réservations');
 
-  const uni = countBy(rows.filter((r) => r.universite), (r) => r.universite.trim().toUpperCase());
+  const etuP = ppl.filter((p) => p.universite);
+  const uni = countBy(etuP, (p) => p.universite.trim().toUpperCase());
   const uniList = [...uni.entries()].sort((a, b) => b[1] - a[1]);
   const top = uniList.slice(0, 8); const rest = uniList.slice(8).reduce((s, [, n]) => s + n, 0);
   if (rest) top.push(['Autres', rest]);
-  bars($('byUni'), top, rows.filter((r) => r.universite).length, 'étudiants');
+  bars($('byUni'), top, etuP.length, 'étudiants');
 
   const etu = rows.filter((r) => r.niveau_etude);
   const niv = [];

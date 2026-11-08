@@ -35,6 +35,8 @@
   .date { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 6px; }
   .teambar { margin-top: 14px; background: rgba(122,193,66,.14); border: 1px solid rgba(122,193,66,.45); border-radius: 14px; padding: 10px 14px; font-size: 14px; display: none; }
   .teambar.on { display: block; }
+  .welcome { margin-top: 14px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 16px; padding: 12px 14px; font-size: 15px; }
+  .welcome b { color: var(--green); }
   .screen { display: none; animation: in .35s ease both; }
   .screen.on { display: block; }
   @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -126,6 +128,7 @@
   </div>
   <div class="date" data-t="date"></div>
   <div class="teambar" id="teambar"></div>
+  <div class="welcome" id="welcome" style="display:none"></div>
 
   <!-- 1. Accueil -->
   <section class="screen on" id="s-intro">
@@ -247,7 +250,7 @@ async function sbRpc(fn, args) {
 }
 function record() {   // résultat ANONYME : profil, tendance, langue, équipe, université
   fetch(`${SB_URL}/rest/v1/quiz_resultats`, { method: 'POST', headers: { ...sbHeaders, Prefer: 'return=minimal' }, keepalive: true,
-    body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null }) })
+    body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null, source: st.source }) })
     .then(() => { st.recorded = true; }).catch(() => {});
 }
 const ORDER = ['L', 'M', 'I', 'D', 'B'];                 // départage en cas d'égalité
@@ -261,6 +264,7 @@ const UNIS = ['UPNCH', 'URHC', 'UNDH', 'UCNH', 'CHCL/UEH', 'UNAF', 'FDSEG/UEH', 
 /* =================== TEXTES — 3 LANGUES =================== */
 const T = {
   fr: {
+    welcome: (p) => `🎉 <b>Bienvenue${p ? ' ' + p.replace(/[<>&]/g, '') : ''} !</b> Ta réservation est bien reçue — on te contacte très vite pour la confirmer. En attendant, découvre ton ADN Pro 👇`,
     htmlLang: 'fr', date: '22 nov. 2026 · Cap-Haïtien',
     title: 'Découvre ton <em>ADN Pro</em>',
     lead: '6 questions, 1 minute. Manager, Leader, Innovateur… découvre le professionnel que tu es vraiment — et partage ta carte avec ton réseau.',
@@ -323,6 +327,7 @@ const T = {
   },
 
   ht: {
+    welcome: (p) => `🎉 <b>Byenvini${p ? ' ' + p.replace(/[<>&]/g, '') : ''}!</b> Nou resevwa rezèvasyon w lan — n ap kontakte w byento pou n konfime l. Pandan w ap tann, dekouvri ADN Pwo w 👇`,
     htmlLang: 'ht', date: '22 nov. 2026 · Okap',
     title: 'Dekouvri <em>ADN Pwo</em> w',
     lead: '6 kesyon, 1 minit. Manadjè, Lidè, Inovatè… dekouvri ki kalite pwofesyonèl ou ye vre — epi pataje kat ou ak rezo w.',
@@ -385,6 +390,7 @@ const T = {
   },
 
   en: {
+    welcome: (p) => `🎉 <b>Welcome${p ? ' ' + p.replace(/[<>&]/g, '') : ''}!</b> We’ve received your booking — we’ll contact you soon to confirm it. Meanwhile, discover your Pro DNA 👇`,
     htmlLang: 'en', date: 'Nov. 22, 2026 · Cap-Haïtien',
     title: 'Discover your <em>Pro DNA</em>',
     lead: '6 questions, 1 minute. Manager, Leader, Innovator… discover the professional you really are — and share your card with your network.',
@@ -450,7 +456,9 @@ const T = {
 /* =================== ÉTAT & OUTILS =================== */
 const $ = (id) => document.getElementById(id);
 const params = new URLSearchParams(location.search);
-const st = { lang: 'fr', i: 0, picks: [], order: [], prenom: '', uni: '', fmt: 'story', team: params.get('equipe') || '' };
+const st = { lang: 'fr', i: 0, picks: [], order: [], prenom: '', uni: '', fmt: 'story', team: params.get('equipe') || '',
+  source: params.get('source') === 'inscription' ? 'inscription' : (params.get('equipe') ? 'equipe' : 'direct'),
+  uniPre: (params.get('universite') || '').trim().slice(0, 80) };
 const L = () => T[st.lang];
 const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 function show(id) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -474,11 +482,14 @@ function setLang(lang) {
   if ($('s-result').classList.contains('on')) result(true);
   if ($('s-team').classList.contains('on')) renderDash();
   if (st.total) showSocial();
+  if (st.source === 'inscription') renderWelcome();
 }
+function renderWelcome() { const p = ($('prenom').value || '').trim(); $('welcome').innerHTML = L().welcome(p); }
 const SOCIAL_MIN = 30;   // le compteur (réel) n'apparaît qu'à partir de 30 tests
 function showSocial() { const el = $('social'); if (st.total >= SOCIAL_MIN) { el.textContent = L().social(st.total); el.style.display = 'block'; } }
 sbRpc('quiz_total').then((n) => { st.total = Number(n) || 0; showSocial(); }).catch(() => {});
 document.querySelectorAll('.langs button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+$('prenom').addEventListener('input', () => { if (st.source === 'inscription') renderWelcome(); });
 
 /* =================== TEST D'ÉQUIPE =================== */
 $('toTeam').addEventListener('click', () => show('s-team-create'));
@@ -514,6 +525,7 @@ $('answers').addEventListener('click', (e) => {
   document.querySelectorAll('.ans').forEach((x) => x.classList.toggle('sel', x === b));
   setTimeout(() => {
     if (st.i < L().questions.length - 1) { st.i++; renderQ(); }
+    else if (st.uniPre) { st.uni = st.uniPre; finish(); }
     else { renderUnis(); show('s-uni'); }
   }, 260);
 });
@@ -689,6 +701,9 @@ function confetti() {
   let saved = null; try { saved = localStorage.getItem('bst_quiz_lang'); } catch (e) {}
   const nav = (navigator.language || 'fr').slice(0, 2);
   setLang(q || saved || (nav === 'en' ? 'en' : nav === 'ht' ? 'ht' : 'fr'));
+  const pre = (params.get('prenom') || '').trim().replace(/\s+/g, ' ').slice(0, 20);
+  if (pre) $('prenom').value = pre;
+  if (st.source === 'inscription') { $('welcome').style.display = 'block'; renderWelcome(); }
 })();
 </script>
 </body>

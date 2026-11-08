@@ -1050,7 +1050,7 @@ $('tabQ').addEventListener('click', () => setTab('Q'));
 const QP = { M: '🧭 Manager', L: '🔥 Leader', I: '💡 Innovateur', D: '🤖 Stratège digital', B: '🧱 Bâtisseur' };
 const QL = { fr: 'Français', ht: 'Kreyòl', en: 'English' };
 async function loadQuiz() {
-  const { data, error } = await sb.from('quiz_resultats').select('created_at, lang, profil, tendance, equipe, universite').order('created_at', { ascending: false }).limit(5000);
+  const { data, error } = await sb.from('quiz_resultats').select('created_at, lang, profil, tendance, equipe, universite, source').order('created_at', { ascending: false }).limit(5000);
   if (error) { notify('Impossible de charger les résultats du test. ' + friendly(error), 'warn'); return; }
   const rows = data || [], n = rows.length;
   const teams = new Map(); rows.filter((r) => r.equipe).forEach((r) => { const k = r.equipe.trim().toLowerCase(); if (!teams.has(k)) teams.set(k, { nom: r.equipe.trim(), rows: [] }); teams.get(k).rows.push(r); });
@@ -1059,6 +1059,7 @@ async function loadQuiz() {
   $('qTiles').innerHTML = [
     ['Tests réalisés', n, n >= 30 ? 'Compteur public affiché' : `Compteur public dès 30 (encore ${30 - n})`],
     ['Aujourd’hui', today, 'tests'],
+    ['Après inscription', rows.filter((r) => r.source === 'inscription').length, `sur ${rowsForEdition().filter((r) => !r.annule).length} réservations`],
     ['Équipes', teams.size, 'ont utilisé le mode équipe'],
     ['Universités', unis.size, `${rows.filter((r) => r.universite).length} étudiants`],
   ].map(([k, v, sub]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(sub)}</div></div>`).join('');

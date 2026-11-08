@@ -167,6 +167,18 @@
   .log li { padding: 4px 0; }
   .counters { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
   .counters button { text-align: left; cursor: pointer; }
+  .tab.pt { border-color: #1a8f4c; color: #1a8f4c; }
+  .tab.pt[aria-selected="true"] { background: #1a8f4c; color: #fff; }
+  .btn.pres { background: #1a8f4c; color: #fff; border-color: #1a8f4c; font-size: 16px; min-height: 48px !important; padding: 0 22px; font-weight: 800; }
+  .btn.pres:hover { filter: brightness(1.06); }
+  .rcard.is-in { border-color: #1a8f4c; background: color-mix(in srgb, var(--ok-bg) 45%, var(--surface)); }
+  .rcard.just { animation: flashin 1.4s ease-out; }
+  @keyframes flashin { 0% { box-shadow: 0 0 0 0 rgba(26,143,76,.55); } 100% { box-shadow: 0 0 0 14px rgba(26,143,76,0); } }
+  .pill.in { background: #1a8f4c; color: #fff; border-color: transparent; }
+  .presbar { height: 10px; background: var(--bar-track); border-radius: 6px; overflow: hidden; margin: 2px 0 14px; }
+  .presbar div { height: 100%; background: #1a8f4c; transition: width .4s; }
+  input.chk { width: 20px; height: 20px; accent-color: #1a8f4c; cursor: pointer; vertical-align: middle; }
+  .pt-time { font-size: 12px; color: #1a8f4c; font-weight: 700; display: block; }
   @media (max-width: 640px) { .rcard { grid-template-columns: 1fr; } .rcard .btns { justify-content: flex-start; } }
   .wa { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #25D366; color: #06381b; font-weight: 700; font-size: 13px; text-decoration: none; white-space: nowrap; }
   .wa:hover { filter: brightness(.95); }
@@ -283,13 +295,14 @@
         <button class="tab" role="tab" id="tabP" aria-selected="true" type="button">Liste des participants</button>
         <button class="tab" role="tab" id="tabR" aria-selected="false" type="button">Réservations (détails)</button>
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
+        <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
         <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
         <div class="filters">
           <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
           <select class="t" id="fProfil" aria-label="Filtrer par catégorie"></select>
           <select class="t" id="fConf" aria-label="Filtrer par confirmation">
-            <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option>
+            <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option><option value="pr">Présentes (pointées)</option><option value="ab">Absentes (inscrites, pas venues)</option>
           </select>
           <span class="dates">
             <label for="fFrom">Du</label><input class="t" id="fFrom" type="date" />
@@ -302,7 +315,7 @@
 
       <div id="panelP">
         <div class="table-wrap"><table>
-          <thead id="headP"><tr><th data-k="ordre">#</th><th data-k="date">Date</th><th data-k="nom">Nom</th><th data-k="sexe">Sexe</th><th data-k="profil">Catégorie</th><th data-k="tel">Téléphone</th><th data-k="by">Réservé par</th><th data-k="conf">Statut</th><th>Présent</th></tr></thead>
+          <thead id="headP"><tr><th data-k="ordre">#</th><th data-k="date">Date</th><th data-k="nom">Nom</th><th data-k="sexe">Sexe</th><th data-k="profil">Catégorie</th><th data-k="tel">Téléphone</th><th data-k="by">Réservé par</th><th data-k="conf">Statut</th><th data-k="pres">Présent</th></tr></thead>
           <tbody id="rowsP"></tbody>
         </table></div>
         <p class="count-line" id="countP"></p>
@@ -328,6 +341,22 @@
           <div class="table-wrap" style="border:0"><table><thead><tr><th>Équipe</th><th>Membres</th><th>Profil dominant</th><th>Composition</th><th>Dernier test</th></tr></thead><tbody id="qTeams"></tbody></table></div>
         </div>
         <p class="note">Résultats anonymes de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : aucun nom ni numéro n’est enregistré. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
+      </div>
+
+      <div id="panelC" class="hidden">
+        <div class="counters" id="ptCounters"></div>
+        <div class="presbar" aria-hidden="true"><div id="ptBar" style="width:0"></div></div>
+        <div class="card">
+          <label class="f" for="cq" style="margin-top:0">Qui arrive ? Tapez son nom ou son numéro WhatsApp</label>
+          <input class="t ans-search" id="cq" type="search" inputmode="search" autocomplete="off" placeholder="ex. Marie ou 4901 2257" />
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px">
+            <p class="sub" id="ptHint" style="margin:0;flex:1 1 240px"></p>
+            <button class="btn" type="button" id="ptNew" title="Pour une personne qui n’était pas inscrite : l’inscrire et la marquer présente">+ Inscription sur place</button>
+          </div>
+          <div class="rcards" id="ptResults"></div>
+          <ul class="log" id="ptLog"></ul>
+        </div>
+        <p class="note">Plusieurs personnes peuvent pointer en même temps (sur plusieurs téléphones) : la liste se met à jour toute seule toutes les 15 secondes sur cet onglet. La présence sert aussi à savoir qui recevra le certificat de participation.</p>
       </div>
 
       <div id="panelA" class="hidden">
@@ -442,6 +471,10 @@ const editionLabel = (e) => {
 
 let ALL = [];
 let SUIVI = {};   // 'ID:IDX' -> { statut, contacte_le } pour les accompagnants
+let PRES = {};    // 'ID:IDX' -> { present_le, par } — IDX = -1 pour la personne qui a réservé
+const prKey = (p) => `${p.resa.id}:${p.kind === 'p' ? -1 : p.idx}`;
+const isPres = (p) => PRES[prKey(p)];
+const hm = (d) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 const STATUT = { c: 'Confirmée', a: 'En attente', x: 'Annulée' };
 const st = (r) => (r.annule ? 'x' : r.confirme ? 'c' : 'a');
 const stOrder = { c: 0, a: 1, x: 2 };
@@ -495,6 +528,28 @@ async function markContact(p) {
   p.resa.contacte_le = now;
   return true;
 }
+async function setPresent(p, on) {
+  const row = { inscription_id: p.resa.id, idx: p.kind === 'p' ? -1 : p.idx };
+  if (on) {
+    if (isPres(p)) return true;
+    const { data, error } = await sb.from('talks_presences').upsert(row, { onConflict: 'inscription_id,idx', ignoreDuplicates: true }).select();
+    if (error) { notify('Présence non enregistrée. ' + friendly(error)); return false; }
+    PRES[prKey(p)] = (data && data[0]) || { ...row, present_le: new Date().toISOString() };
+  } else {
+    const { error } = await sb.from('talks_presences').delete().eq('inscription_id', row.inscription_id).eq('idx', row.idx);
+    if (error) { notify('Modification non enregistrée. ' + friendly(error)); return false; }
+    delete PRES[prKey(p)];
+  }
+  return true;
+}
+async function loadPresences() {
+  const { data, error } = await sb.from('talks_presences').select('*');
+  if (error) return false;
+  const next = {}; (data || []).forEach((x) => { next[`${x.inscription_id}:${x.idx}`] = x; });
+  const changed = JSON.stringify(Object.keys(next).sort()) !== JSON.stringify(Object.keys(PRES).sort());
+  PRES = next;
+  return changed;
+}
 function findPerson(key) { return people(rowsForEdition()).find((p) => pkey(p) === key); }
 
 async function setStatut(id, s) {
@@ -529,6 +584,7 @@ const GET_P = {
   tel: (p) => p.tel,
   by: (p) => p.by || '',
   conf: (p) => stOrder[pst(p)],
+  pres: (p) => (isPres(p) ? isPres(p).present_le : ''),
 };
 const GET_R = {
   ordre: (r) => r.created_at,
@@ -573,9 +629,10 @@ let LAST_IDS = null;
 async function load(opts = {}) {
   if (!opts.silent) notify('');
   $('refresh').disabled = true;
-  const [{ data, error }, suivi] = await Promise.all([
+  const [{ data, error }, suivi, pres] = await Promise.all([
     sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
+    sb.from('talks_presences').select('*'),
   ]);
   $('refresh').disabled = false;
   if (error) {
@@ -591,6 +648,7 @@ async function load(opts = {}) {
   ALL = data || [];
   SUIVI = {};
   (suivi.data || []).forEach((x) => { SUIVI[`${x.inscription_id}:${x.idx}`] = x; });
+  if (!pres.error) { PRES = {}; (pres.data || []).forEach((x) => { PRES[`${x.inscription_id}:${x.idx}`] = x; }); }
   if (!ALL.length) notify('Aucune inscription visible pour le moment. Si vous savez qu’il y en a, ce compte n’a probablement pas l’accès administrateur.', 'info');
   const eds = [...new Set(ALL.map((r) => r.edition))].sort().reverse();
   const cur = $('edition').value;
@@ -674,12 +732,14 @@ function renderStats(rows, ppl, nAnnul = 0) {
   const attP = ppl.filter((p) => pst(p) === 'a').length;
   const f = ppl.filter((p) => p.sexe === 'femme').length, h = ppl.filter((p) => p.sexe === 'homme').length;
   const groups = rows.filter((r) => (r.places || 1) > 1).length;
+  const nIn = people(rowsForEdition()).filter(isPres).length;
   $('tiles').innerHTML = [
     ['Réservations', rows.length, `${groups} pour plusieurs personnes${nAnnul ? ` · ${nAnnul} annulée${nAnnul > 1 ? 's' : ''}` : ''}`],
     ['Personnes attendues', nP, `${(nP / Math.max(rows.length, 1)).toFixed(1).replace('.', ',')} par réservation`],
     ['Personnes confirmées', confP, `${attP} en attente de réponse`],
     ['Femmes', f, nP ? `${Math.round((f / nP) * 100)} % des personnes` : ''],
     ['Hommes', h, nP ? `${Math.round((h / nP) * 100)} % des personnes` : ''],
+    ...(nIn ? [['Présents (pointés)', nIn, nP ? `${Math.round((nIn / nP) * 100)} % des personnes attendues` : '']] : []),
   ].map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
 
   const pc = Object.keys(PROFILS).map((k) => [PROFILS[k], ppl.filter((p) => p.profils.includes(k)).length]);
@@ -727,6 +787,7 @@ function keepFn(fc) {
   return (r) => ({
     '': !r.annule, all: true, 1: r.confirme, 0: !r.confirme && !r.annule,
     nc: !r.contacte_le && !r.annule, cn: !!r.contacte_le && !r.confirme && !r.annule, x: r.annule,
+    pr: people([r]).some(isPres), ab: !r.annule && !people([r]).some(isPres),
   })[fc] ?? true;
 }
 const localDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
@@ -752,7 +813,7 @@ function filteredResa(rows) {
 function keepPers(fc) {
   return (p) => {
     const s = pst(p), c = !!pcontact(p);
-    return ({ '': s !== 'x', all: true, 1: s === 'c', 0: s === 'a', nc: s === 'a' && !c && reachable(p), cn: s === 'a' && c, x: s === 'x' })[fc] ?? true;
+    return ({ '': s !== 'x', all: true, 1: s === 'c', 0: s === 'a', nc: s === 'a' && !c && reachable(p), cn: s === 'a' && c, x: s === 'x', pr: !!isPres(p), ab: s !== 'x' && !isPres(p) })[fc] ?? true;
   };
 }
 function filteredPeople(rows) {
@@ -783,8 +844,9 @@ function renderLists(rows) {
     <td>${esc(p.tel || '')}${p.tel ? `<div>${persWa(p)}</div>` : ''}${pcontact(p) ? `<div class="sub no-print">${p.kind === 'a' && !waNumber(p.tel) ? 'Prévenu(e) via ' + esc(p.by) : 'Envoyé le ' + esc(fmtDate(pcontact(p)))}</div>` : ''}</td>
     <td>${p.by ? esc(p.by) : '<span class="sub">—</span>'}</td>
     <td>${stSelect(p)}${p.kind === 'a' && !waNumber(p.tel) && !sv(p) ? '<div class="sub no-print">suit la réservation</div>' : ''}</td>
-    <td><span class="box" aria-label="Case présence"></span></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucun participant.</td></tr>';
-  $('countP').textContent = `${ppl.length} personne${ppl.length > 1 ? 's' : ''} dans la liste.${dateLabel() ? ' ' + dateLabel() + '.' : ''}`;
+    <td><label class="no-print" title="${isPres(p) ? 'Arrivé(e) à ' + esc(hm(isPres(p).present_le)) : 'Marquer présent(e)'}"><input type="checkbox" class="chk" data-pres="${esc(pkey(p))}" ${isPres(p) ? 'checked' : ''} aria-label="Présence de ${esc(p.nom)}" />${isPres(p) ? `<span class="pt-time">${esc(hm(isPres(p).present_le))}</span>` : ''}</label><span class="print-only">${isPres(p) ? '✓ ' + esc(hm(isPres(p).present_le)) : '<span class="box"></span>'}</span></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucun participant.</td></tr>';
+  const nInL = ppl.filter(isPres).length;
+  $('countP').textContent = `${ppl.length} personne${ppl.length > 1 ? 's' : ''} dans la liste${nInL ? ` · ${nInL} présente${nInL > 1 ? 's' : ''}` : ''}.${dateLabel() ? ' ' + dateLabel() + '.' : ''}`;
 
   const res = filteredResa(rows);
   paintSort();
@@ -999,11 +1061,95 @@ document.addEventListener('click', async (e) => {
   } else b.disabled = false;
 });
 
+/* ---------- Pointage (jour J) ---------- */
+const PLOG = [];
+let JUST = null;
+function renderPointage() {
+  const all = people(rowsForEdition());
+  const exp = all.filter((p) => pst(p) !== 'x');
+  const inn = all.filter(isPres);
+  const conf = exp.filter((p) => pst(p) === 'c');
+  const confIn = conf.filter(isPres).length;
+  const pct = exp.length ? Math.round((inn.length / exp.length) * 100) : 0;
+  $('ptCounters').innerHTML = [
+    ['Présents', inn.length, `sur ${plural(exp.length, 'personne attendue', 'personnes attendues')} · ${pct} %`],
+    ['Confirmés arrivés', `${confIn} / ${conf.length}`, conf.length ? `${conf.length - confIn} pas encore là` : 'aucune confirmation'],
+    ['Encore attendus', exp.length - exp.filter(isPres).length, 'inscrits non pointés'],
+    ['Femmes / Hommes', `${inn.filter((p) => p.sexe === 'femme').length} / ${inn.filter((p) => p.sexe === 'homme').length}`, 'parmi les présents'],
+  ].map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  $('ptBar').style.width = pct + '%';
+
+  const q = $('cq').value.trim();
+  let list, hint;
+  if (q) {
+    const ql = q.toLowerCase();
+    const hit = all.filter((p) => String(p.nom || '').toLowerCase().includes(ql) || phoneMatch(p.tel, q) || (p.kind === 'a' && phoneMatch(p.resa.telephone, q)));
+    const resIds = [...new Set(hit.map((p) => p.resa.id))].slice(0, 8);
+    list = all.filter((p) => resIds.includes(p.resa.id)).sort((a, b) => resIds.indexOf(a.resa.id) - resIds.indexOf(b.resa.id) || a.ordre - b.ordre);
+    hint = resIds.length ? `${plural(resIds.length, 'réservation trouvée', 'réservations trouvées')} — touchez « Présent » pour chaque personne qui entre :` : 'Personne trouvée. Essayez une autre partie du nom ou les 4 derniers chiffres du numéro — ou faites une « Inscription sur place ».';
+  } else {
+    list = inn.sort((a, b) => String(isPres(b).present_le).localeCompare(String(isPres(a).present_le))).slice(0, 8);
+    hint = list.length ? 'Dernières arrivées :' : 'Personne n’est encore pointé. Tapez un nom ou un numéro pour commencer.';
+  }
+  $('ptHint').textContent = hint;
+  $('ptResults').innerHTML = list.map((p) => {
+    const r = p.resa, k = esc(pkey(p)), pr = isPres(p), s = pst(p);
+    const grp = people([r]);
+    const missing = grp.filter((x) => !isPres(x));
+    const groupBtn = q && p.kind === 'p' && grp.length > 1 && missing.length
+      ? `<button class="btn ok" type="button" data-ptgroup="${r.id}">✓ Tout le groupe (${missing.length})</button>` : '';
+    const warn = s === 'x' ? ' <span class="pill x">Annulée</span>' : s === 'a' ? ' <span class="pill w">Non confirmée</span>' : ' <span class="pill ok">Confirmée</span>';
+    return `<div class="rcard${pr ? ' is-in' : ''}${JUST === pkey(p) ? ' just' : ''}" style="${p.kind === 'a' && q ? 'margin-left:28px;border-style:dashed' : ''}">
+      <div><strong style="font-size:17px">${esc(p.nom)}</strong>${pr ? ` <span class="pill in">✓ Présent(e) · ${esc(hm(pr.present_le))}</span>` : warn}
+        <div class="sub">${esc(SEXES[p.sexe] || '')}${p.profils.length ? ' · ' + esc(p.profils.map((x) => PROFILS[x] || x).join(', ')) : ''}${p.tel ? ' · ' + esc(p.tel) : ''}</div>
+        <div class="sub">${p.kind === 'p' ? (grp.length > 1 ? `a réservé ${grp.length} places (avec ${esc(grp.filter((x) => x.kind === 'a').map((x) => x.nom).join(', '))})` : 'réservation individuelle') : `inscrit(e) par ${esc(r.nom)}`}${pr && pr.par ? ` · pointé par ${esc(String(pr.par).split('@')[0])}` : ''}</div>
+        ${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}</div>
+      <div class="btns">
+        ${pr ? `<button class="btn" type="button" data-ptset="0" data-key="${k}">↺ Retirer</button>` : `<button class="btn pres" type="button" data-ptset="1" data-key="${k}">✓ Présent</button>`}
+        ${groupBtn}
+      </div></div>`;
+  }).join('');
+  JUST = null;
+  $('ptLog').innerHTML = PLOG.slice(0, 6).map((l) => `<li>${esc(l)}</li>`).join('');
+}
+$('cq').addEventListener('input', renderPointage);
+document.addEventListener('click', async (e) => {
+  const g = e.target.closest('[data-ptgroup]');
+  if (g) {
+    g.disabled = true;
+    const r = ALL.find((x) => x.id === Number(g.dataset.ptgroup));
+    const grp = people([r]).filter((x) => !isPres(x));
+    let n = 0;
+    for (const p of grp) if (await setPresent(p, true)) n++;
+    if (n) PLOG.unshift(`${hhmm()} — ${r.nom} et son groupe présents ✓ (${n})`);
+    render(); return;
+  }
+  const b = e.target.closest('[data-ptset]'); if (!b) return;
+  const p = findPerson(b.dataset.key); if (!p) return;
+  const on = b.dataset.ptset === '1';
+  b.disabled = true;
+  if (await setPresent(p, on)) {
+    PLOG.unshift(`${hhmm()} — ${p.nom}${p.kind === 'a' ? ` (avec ${p.resa.nom})` : ''} ${on ? 'présent(e) ✓' : ': présence retirée'}`);
+    if (on) JUST = pkey(p);
+    render();
+    // Personne seule trouvée et pointée : on vide la recherche pour la suivante
+    if (on && people([p.resa]).every(isPres)) { setTimeout(() => { if (tab === 'C') { $('cq').select(); } }, 50); }
+  } else b.disabled = false;
+});
+let ONSITE = false;
+$('ptNew').addEventListener('click', () => { ONSITE = true; openEdit(null); });
+// Synchronisation rapide entre plusieurs téléphones de pointage
+setInterval(async () => {
+  if (tab !== 'C' || document.hidden || $('app').classList.contains('hidden') || $('ed').open) return;
+  if (await loadPresences()) render();
+}, 15000);
+
 function render() {
   const rows = rowsForEdition();
   const active = rows.filter((r) => !r.annule);
   renderStats(active, people(active).filter((p) => pst(p) !== 'x'), rows.length - active.length);
   renderAnswers();
+  renderPointage();
   renderLists(rows);
   const label = editionLabel($('edition').value);
   $('printTitle').textContent = `Bwat Sekrèm Talks — ${label}`;
@@ -1014,6 +1160,12 @@ function render() {
 document.addEventListener('change', async (e) => {
   if (e.target.dataset.statut) { await setStatut(Number(e.target.dataset.statut), e.target.value); return; }
   if (e.target.dataset.pstatut) { const p = findPerson(e.target.dataset.pstatut); if (p) await setPersStatut(p, e.target.value); return; }
+  if (e.target.dataset.pres) {
+    const p = findPerson(e.target.dataset.pres); if (!p) return;
+    e.target.disabled = true;
+    if (await setPresent(p, e.target.checked)) PLOG.unshift(`${hhmm()} — ${p.nom} ${e.target.checked ? 'présent(e) ✓' : ': présence retirée'}`);
+    render(); return;
+  }
   const nid = e.target.dataset.note;
   if (!nid) return;
   const patch = { notes: e.target.value.trim() || null };
@@ -1038,13 +1190,15 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'Q']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q');
+  for (const k of ['P', 'R', 'A', 'C', 'Q']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C');
   if (t === 'Q') loadQuiz();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
+  if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
 $('tabQ').addEventListener('click', () => setTab('Q'));
+$('tabC').addEventListener('click', () => setTab('C'));
 
 /* ---------- Tès profil (résultats anonymes) ---------- */
 const QP = { M: '🧭 Manager', L: '🔥 Leader', I: '💡 Innovateur', D: '🤖 Stratège digital', B: '🧱 Bâtisseur' };
@@ -1090,9 +1244,9 @@ $('printStats').addEventListener('click', () => { document.body.classList.add('p
 $('csv').addEventListener('click', () => {
   const rows = rowsForEdition();
   const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const head = ['Nom', 'Sexe', 'Catégories', 'Détails', 'Téléphone', 'E-mail', 'Ville', 'Réservé par', 'Places (réservation)', 'Source', 'WhatsApp envoyé le', 'Statut', 'Notes', 'Date inscription'];
+  const head = ['Nom', 'Sexe', 'Catégories', 'Détails', 'Téléphone', 'E-mail', 'Ville', 'Réservé par', 'Places (réservation)', 'Source', 'WhatsApp envoyé le', 'Statut', 'Présent', 'Notes', 'Date inscription'];
   const lines = filteredPeople(rows).map((p) => [p.nom, SEXES[p.sexe] || '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.details, p.tel, p.by ? '' : p.resa.email, p.by ? '' : p.resa.ville,
-    p.by || '', p.resa.places || 1, p.resa.source || '', pcontact(p) ? fmtDate(pcontact(p)) : '', STATUT[pst(p)], p.resa.notes || '', fmtDate(p.resa.created_at)].map(cell).join(';'));
+    p.by || '', p.resa.places || 1, p.resa.source || '', pcontact(p) ? fmtDate(pcontact(p)) : '', STATUT[pst(p)], isPres(p) ? 'Oui (' + fmtDate(isPres(p).present_le) + ')' : '', p.resa.notes || '', fmtDate(p.resa.created_at)].map(cell).join(';'));
   const blob = new Blob(['﻿' + [head.map(cell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1174,7 +1328,7 @@ document.addEventListener('click', (e) => {
   const d = e.target.closest('[data-delacc]');
   if (d) { readAccs(); EDIT.accs.splice(Number(d.dataset.delacc), 1); renderAccs(); }
 });
-$('newResa').addEventListener('click', () => openEdit(null));
+$('newResa').addEventListener('click', () => { ONSITE = false; openEdit(null); });
 $('edCancel').addEventListener('click', () => $('ed').close());
 $('e_addAcc').addEventListener('click', () => { readAccs(); if (EDIT.accs.length < 4) EDIT.accs.push({ oldIdx: null, nom: '', sexe: '', profil: '', telephone: '', universite: '', entreprise: '' }); renderAccs(); $(`a_nom_${EDIT.accs.length - 1}`).focus(); });
 $('e_profils').addEventListener('change', syncProfils);
@@ -1228,6 +1382,20 @@ $('edForm').addEventListener('submit', async (e) => {
       // Réaligner le suivi des accompagnants si des personnes ont été retirées / déplacées
       const moved = EDIT.accs.some((a, i) => a.oldIdx !== null && a.oldIdx !== i) || EDIT.accs.filter((a) => a.oldIdx !== null).length !== (ALL.find((x) => x.id === EDIT.id).accompagnants || []).length;
       if (moved) {
+        // Présences des accompagnants : suivre les personnes déplacées / retirées
+        const oldP = Object.entries(PRES).filter(([k]) => k.startsWith(EDIT.id + ':') && !k.endsWith(':-1'));
+        if (oldP.length) {
+          const keepP = EDIT.accs.map((a, i) => (a.oldIdx !== null && PRES[`${EDIT.id}:${a.oldIdx}`] ? { ...PRES[`${EDIT.id}:${a.oldIdx}`], idx: i } : null)).filter(Boolean);
+          const dp = await sb.from('talks_presences').delete().eq('inscription_id', EDIT.id).gte('idx', 0);
+          if (!dp.error) {
+            oldP.forEach(([k]) => delete PRES[k]);
+            if (keepP.length) {
+              const insP = keepP.map((x) => ({ inscription_id: EDIT.id, idx: x.idx, present_le: x.present_le, par: x.par }));
+              const rp = await sb.from('talks_presences').insert(insP);
+              if (!rp.error) insP.forEach((x) => (PRES[`${EDIT.id}:${x.idx}`] = x));
+            }
+          }
+        }
         const old = Object.entries(SUIVI).filter(([k]) => k.startsWith(EDIT.id + ':'));
         const keep = EDIT.accs.map((a, i) => (a.oldIdx !== null && SUIVI[`${EDIT.id}:${a.oldIdx}`] ? { ...SUIVI[`${EDIT.id}:${a.oldIdx}`], idx: i } : null)).filter(Boolean);
         const del = await sb.from('talks_suivi_accompagnants').delete().eq('inscription_id', EDIT.id);
@@ -1252,6 +1420,11 @@ $('edForm').addEventListener('submit', async (e) => {
   if (i >= 0) ALL[i] = saved; else ALL.push(saved);
   $('ed').close();
   LOG.unshift(`${hhmm()} — inscription de ${saved.nom} ${EDIT.id ? 'modifiée' : 'ajoutée'} ✎`);
+  if (!EDIT.id && ONSITE) {
+    for (const p of people([saved])) await setPresent(p, true);
+    PLOG.unshift(`${hhmm()} — ${saved.nom} inscrit(e) sur place et présent(e) ✓${saved.places > 1 ? ` (${saved.places} personnes)` : ''}`);
+  }
+  ONSITE = false;
   if (!EDIT.id && !$('edition').value) { await load(); return; }
   render();
 });

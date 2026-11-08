@@ -304,7 +304,7 @@ const T = {
     card: {
       kicker: (p) => (p ? `L’ADN PRO DE ${p.toUpperCase()}` : 'MON ADN PRO'), trend: (s) => `TENDANCE ${s.toUpperCase()}`, pure: (s) => `100 % ${s.toUpperCase()}`,
       duo: (e, s) => `Mon coéquipier idéal : ${e} ${s} — tague-le !`, speaker: (n) => `Je ne raterai pas : ${n}`,
-      cta: 'Et toi ? Découvre ton ADN Pro →', date: '22 novembre 2026 · Cap-Haïtien',
+      cta: 'Et toi ? Découvre ton ADN Pro →', date: '22 novembre 2026 · Cap-Haïtien', support: 'AVEC LE SOUTIEN DE',
     },
     shareText: (name, emo, url) => `Mon ADN Pro : « ${name} » ${emo} Et toi, c’est quoi ton ADN Pro ? Fais le test en 1 minute : ${url} — Bwat Sekrèm Talks, 22 novembre 2026, Cap-Haïtien.`,
     file: 'mon-adn-pro-bwat-sekrem-talks.jpg',
@@ -367,7 +367,7 @@ const T = {
     card: {
       kicker: (p) => (p ? `ADN PWO ${p.toUpperCase()}` : 'ADN PWO MWEN'), trend: (s) => `TANDANS ${s.toUpperCase()}`, pure: (s) => `100 % ${s.toUpperCase()}`,
       duo: (e, s) => `Kowoken ideyal mwen: ${e} ${s} — tag li!`, speaker: (n) => `M p ap rate: ${n}`,
-      cta: 'E ou menm? Dekouvri ADN Pwo w →', date: '22 novanm 2026 · Okap',
+      cta: 'E ou menm? Dekouvri ADN Pwo w →', date: '22 novanm 2026 · Okap', support: 'AK SIPÒ',
     },
     shareText: (name, emo, url) => `ADN Pwo mwen: « ${name} » ${emo} E ou menm, ki ADN Pwo w? Fè tès la nan 1 minit: ${url} — Bwat Sekrèm Talks, 22 novanm 2026, Okap.`,
     file: 'adn-pwo-mwen-bwat-sekrem-talks.jpg',
@@ -430,7 +430,7 @@ const T = {
     card: {
       kicker: (p) => (p ? `${p.toUpperCase()}’S PRO DNA` : 'MY PRO DNA'), trend: (s) => `WITH ${/^[AEIOU]/i.test(s) ? 'AN' : 'A'} ${s.toUpperCase()} STREAK`, pure: (s) => `100 % ${s.toUpperCase()}`,
       duo: (e, s) => `My ideal teammate: ${e} ${s} — tag them!`, speaker: (n) => `I won’t miss: ${n}`,
-      cta: 'And you? Discover your Pro DNA →', date: 'November 22, 2026 · Cap-Haïtien',
+      cta: 'And you? Discover your Pro DNA →', date: 'November 22, 2026 · Cap-Haïtien', support: 'SUPPORTED BY',
     },
     shareText: (name, emo, url) => `My Pro DNA: “${name}” ${emo} What’s yours? Take the 1-minute test: ${url} — Bwat Sekrèm Talks, November 22, 2026, Cap-Haïtien.`,
     file: 'my-pro-dna-bwat-sekrem-talks.jpg',
@@ -592,6 +592,14 @@ async function uniRank() {
 }
 function showUniRank() { $('uniCardNote').textContent = L().uniRank(st.uni, st.uniRank.n, st.uniRank.pos); }
 
+/* =================== LOGOS (fichiers dans logos/, même origine) =================== */
+const LOGOS = { bst: null, partners: [] };
+function loadImg(src) { return new Promise((res) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; }); }
+Promise.all([loadImg('logos/bst.png'), loadImg('logos/zero-loss.png'), loadImg('logos/mache-lokal-no.png')]).then(([b, z, m]) => {
+  LOGOS.bst = b; LOGOS.partners = [z, m].filter(Boolean);
+  if ($('s-result').classList.contains('on')) drawCard();
+});
+
 /* =================== CARTES (Story 1080×1920 · Publication 1080×1350) =================== */
 function rr(c, x, y, w, h, r) { c.beginPath(); if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h); }
 function fit(c, text, weight, size, family, maxW, min) { let s = size; c.font = `${weight} ${s}px ${family}`; while (c.measureText(text).width > maxW && s > min) { s -= 2; c.font = `${weight} ${s}px ${family}`; } return s; }
@@ -608,12 +616,17 @@ function drawCard() {
     c.globalAlpha = .18; c.fillStyle = '#7AC142'; c.beginPath(); c.arc(x + 46 * q, y + 22 * q, 4 * q, 0, Math.PI * 2); c.fill();
   }
   c.restore();
-  const Y = story ? { brand: 150, kick: 300, emo: 560, name: 740, trend: 815, chips: 880, bars: 1040, duo: 1320, spk: 1490, uni: 1560, cta: 1660, url: 1800, date: 1850 }
-                  : { brand: 110, kick: 210, emo: 420, name: 580, trend: 645, chips: 690, bars: 820, duo: 1045, spk: null, uni: null, cta: 1120, url: 1275, date: 1316 };
+  const withP = LOGOS.partners.length > 0;   // mise en page plus compacte quand il y a des logos partenaires
+  const Y = story
+    ? (withP ? { brand: 160, kick: 300, emo: 545, name: 715, trend: 790, chips: 850, bars: 1000, duo: 1270, spk: 1420, uni: 1480, cta: 1530, url: 1685, date: 1723, sup: 1790, logos: 1810 }
+             : { brand: 150, kick: 300, emo: 560, name: 740, trend: 815, chips: 880, bars: 1040, duo: 1320, spk: 1490, uni: 1560, cta: 1660, url: 1800, date: 1850 })
+    : (withP ? { brand: 115, kick: 195, emo: 385, name: 535, trend: 595, chips: 635, bars: 760, duo: 995, spk: null, uni: null, cta: 1045, url: 1180, date: 1212, sup: 1250, logos: 1264 }
+             : { brand: 110, kick: 210, emo: 420, name: 580, trend: 645, chips: 690, bars: 820, duo: 1045, spk: null, uni: null, cta: 1120, url: 1275, date: 1316 });
   const hg = c.createRadialGradient(W / 2, Y.emo - 60, 10, W / 2, Y.emo - 60, 400); hg.addColorStop(0, COLOR[k] + '66'); hg.addColorStop(1, COLOR[k] + '00');
   c.fillStyle = hg; c.fillRect(0, 0, W, H);
   c.textAlign = 'center'; c.textBaseline = 'alphabetic';
-  c.fillStyle = '#fff'; c.globalAlpha = .9; c.font = `800 34px ${BR}`; c.fillText('BWAT SEKRÈM TALKS', W / 2, Y.brand); c.globalAlpha = 1;
+  if (LOGOS.bst) { const lh = story ? 120 : 96, lw = LOGOS.bst.width * lh / LOGOS.bst.height; c.drawImage(LOGOS.bst, W / 2 - lw / 2, Y.brand - lh * 0.72, lw, lh); }
+  else { c.fillStyle = '#fff'; c.globalAlpha = .9; c.font = `800 34px ${BR}`; c.fillText('BWAT SEKRÈM TALKS', W / 2, Y.brand); c.globalAlpha = 1; }
   c.fillStyle = '#7AC142'; c.font = `700 30px ${DM}`; c.fillText(C.kicker(st.prenom), W / 2, Y.kick);
   c.font = `${story ? 200 : 170}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; c.fillText(EMO[k], W / 2, Y.emo);
   c.fillStyle = '#fff'; const nm = P.name.toUpperCase(); fit(c, nm, 800, story ? 130 : 120, BR, W - 120, 56); c.fillText(nm, W / 2, Y.name);
@@ -649,6 +662,13 @@ function drawCard() {
   c.fillStyle = '#0E2A4A'; fit(c, C.cta, 800, 40, BR, 760, 28); c.fillText(C.cta, W / 2, Y.cta + 62);
   c.fillStyle = '#fff'; c.font = `700 30px ${DM}`; c.fillText(SITE, W / 2, Y.url);
   c.globalAlpha = .7; c.font = `500 24px ${DM}`; c.fillText(C.date, W / 2, Y.date); c.globalAlpha = 1;
+  if (LOGOS.partners.length) {
+    c.fillStyle = 'rgba(255,255,255,.6)'; c.font = `700 ${story ? 20 : 18}px ${DM}`; c.fillText(C.support, W / 2, Y.sup);
+    const bh = story ? 84 : 62, pad = story ? 16 : 12, gap = 18;
+    const boxes = LOGOS.partners.map((im) => { const h = bh - pad * 2, w = Math.min(im.width * h / im.height, story ? 260 : 220); return { im, w: w + pad * 2, iw: w, ih: h }; });
+    let x = W / 2 - (boxes.reduce((a, b) => a + b.w, 0) + gap * (boxes.length - 1)) / 2;
+    boxes.forEach((b) => { c.fillStyle = '#ffffff'; rr(c, x, Y.logos, b.w, bh, bh / 2.6); c.fill(); c.drawImage(b.im, x + pad, Y.logos + pad, b.iw, b.ih); x += b.w + gap; });
+  }
   $('shareimg').src = cv.toDataURL('image/jpeg', .92);
   $('shareimg').classList.toggle('story', story);
 }

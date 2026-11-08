@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Quel profil pro êtes-vous ? — Bwat Sekrèm Talks</title>
+<meta name="description" content="6 questions, 1 minute : découvrez votre profil professionnel et partagez votre carte. Par Bwat Sekrèm Talks." />
+<meta property="og:title" content="Quel profil pro êtes-vous ? · Ki pwofil pwo ou genyen? · What’s your pro profile?" />
+<meta property="og:description" content="Manager, Leader, Innovateur, Stratège digital ou Bâtisseur ? Faites le test en 1 minute." />
+<meta name="theme-color" content="#0E2A4A" />
+<meta property="og:image" content="https://bwatsekremtalks.github.io/admin/profil/og.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://bwatsekremtalks.com/profil" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="canonical" href="https://bwatsekremtalks.com/profil" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root { --navy: #123056; --navy2: #0E2A4A; --navy3: #0a1f38; --green: #7AC142; --ink: #123056; --muted: #5b6f8a; --line: #dfe7f0; --panel: #fff; --soft: #f3f7fb; }
+  * { box-sizing: border-box; }
+  html { background: #0a1f38; }
+  body { margin: 0; min-height: 100dvh; font: 16px/1.5 "DM Sans", system-ui, sans-serif; color: #fff;
+    background: radial-gradient(900px 500px at 50% -10%, #24578f 0%, var(--navy2) 55%, var(--navy3) 100%) fixed; }
+  body::before { content: ""; position: fixed; inset: 0; opacity: .06; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72' fill='none'><path d='M28 18h10a12 12 0 0 1 0 24H30v8' stroke='white' stroke-width='3' stroke-linecap='round'/><circle cx='46' cy='22' r='4' fill='%237AC142'/></svg>"); }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 40px; position: relative; }
+  .top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .brand { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; letter-spacing: .04em; display: inline-flex; gap: 8px; align-items: center; }
+  .brand i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(122,193,66,.25); }
+  .langs { display: inline-flex; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 3px; gap: 2px; }
+  .langs button { border: 0; background: none; color: #fff; font: inherit; font-weight: 800; font-size: 13px; padding: 6px 12px; border-radius: 999px; cursor: pointer; opacity: .75; }
+  .langs button[aria-pressed="true"] { background: var(--green); color: var(--navy2); opacity: 1; }
+  .date { font-size: 13px; color: rgba(255,255,255,.7); margin-top: 6px; }
+  .teambar { margin-top: 14px; background: rgba(122,193,66,.14); border: 1px solid rgba(122,193,66,.45); border-radius: 14px; padding: 10px 14px; font-size: 14px; display: none; }
+  .teambar.on { display: block; }
+  .screen { display: none; animation: in .35s ease both; }
+  .screen.on { display: block; }
+  @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(36px, 10vw, 54px); line-height: 1; letter-spacing: -.02em; margin: 30px 0 14px; }
+  h1 em { font-style: normal; color: var(--green); }
+  h2.t2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(26px, 7vw, 34px); line-height: 1.1; margin: 28px 0 10px; }
+  .lead { color: rgba(255,255,255,.82); font-size: 17px; margin: 0 0 22px; }
+  .types { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px 0; }
+  .type { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 12px 4px; text-align: center; font-size: 11px; font-weight: 700; }
+  .type span { display: block; font-size: 26px; margin-bottom: 4px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 56px; border-radius: 999px; border: 0; font: inherit; font-weight: 800; font-size: 17px; cursor: pointer; text-decoration: none; text-align: center; padding: 0 18px; }
+  .btn.go { background: var(--green); color: var(--navy2); box-shadow: 0 14px 30px rgba(122,193,66,.35); }
+  .btn.ghost { background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.2); }
+  .btn.white { background: #fff; color: var(--navy); }
+  .btn.sm { min-height: 46px; font-size: 15px; }
+  .link { background: none; border: 0; color: #fff; text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 14px; cursor: pointer; opacity: .85; display: block; margin: 16px auto 0; }
+  .meta { text-align: center; font-size: 13px; color: rgba(255,255,255,.65); margin-top: 12px; }
+  label.f { display: block; font-size: 14px; font-weight: 600; margin: 0 0 6px; color: rgba(255,255,255,.85); }
+  input[type="text"], select.s { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font: inherit; margin-bottom: 14px; }
+  select.s option { color: #123056; }
+  input::placeholder { color: rgba(255,255,255,.45); }
+  .progress { height: 6px; background: rgba(255,255,255,.14); border-radius: 99px; overflow: hidden; margin: 22px 0 8px; }
+  .progress div { height: 100%; background: var(--green); border-radius: 99px; transition: width .35s ease; }
+  .qrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .qn { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .cheer { font-size: 13px; font-weight: 700; color: var(--green); opacity: 0; transition: opacity .3s; }
+  .cheer.on { opacity: 1; }
+  .q { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(24px, 6.5vw, 32px); line-height: 1.12; margin: 10px 0 20px; }
+  .answers { display: grid; gap: 10px; }
+  .ans { text-align: left; background: #fff; color: var(--ink); border: 2px solid transparent; border-radius: 18px; padding: 15px 16px; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; gap: 12px; align-items: center; transition: transform .12s, border-color .12s, background .12s; }
+  .ans:hover { transform: translateY(-1px); }
+  .ans b { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--soft); color: var(--navy); font-size: 13px; }
+  .ans.sel { border-color: var(--green); background: #f2fbea; }
+  .ans.sel b { background: var(--green); }
+  .back { background: none; border: 0; color: rgba(255,255,255,.75); font: inherit; font-size: 14px; cursor: pointer; margin-top: 16px; padding: 8px 0; }
+  .reveal { text-align: center; margin-top: 22px; }
+  .reveal .k { font-size: 13px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--green); }
+  .reveal .emo { font-size: 72px; line-height: 1; margin: 12px 0 4px; display: inline-block; }
+  .reveal .emo.pop { animation: pop .8s cubic-bezier(.2,1.6,.4,1) both; }
+  @keyframes pop { 0% { transform: scale(0) rotate(-20deg); } 100% { transform: scale(1) rotate(0); } }
+  .reveal h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(38px, 11vw, 56px); line-height: 1; margin: 6px 0 6px; }
+  .reveal .trend { font-weight: 700; color: var(--green); margin-bottom: 10px; }
+  .reveal p.tag { font-size: 18px; color: rgba(255,255,255,.88); margin: 0 auto; max-width: 440px; }
+  .card { background: var(--panel); color: var(--ink); border-radius: 24px; padding: 18px; margin-top: 16px; }
+  .card h3 { margin: 0 0 10px; font-size: 15px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: var(--soft); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 700; }
+  .bars { display: grid; gap: 8px; }
+  .bar { display: grid; grid-template-columns: 150px 1fr 44px; gap: 10px; align-items: center; font-size: 14px; }
+  .bar .t { height: 10px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+  .bar .t div { height: 100%; background: var(--navy); border-radius: 99px; }
+  .bar.me .t div { background: var(--green); }
+  .bar .v { text-align: right; font-weight: 700; }
+  .duo { display: flex; gap: 14px; align-items: center; }
+  .duo .e { font-size: 40px; }
+  .duo p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .speaker { display: flex; gap: 14px; align-items: center; }
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #24578f, #123056); color: #fff; display: grid; place-items: center; font-weight: 800; font-family: "Bricolage Grotesque", sans-serif; flex: none; }
+  .speaker p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  .fmt { display: flex; gap: 6px; justify-content: center; margin-top: 18px; }
+  .fmt button { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.06); color: #fff; font: inherit; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 999px; cursor: pointer; }
+  .fmt button[aria-pressed="true"] { background: #fff; color: var(--navy); }
+  .shareimg { width: 100%; border-radius: 18px; display: block; margin: 12px auto 0; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+  .shareimg.story { width: 72%; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .cta { margin-top: 16px; background: rgba(122,193,66,.12); border: 1px solid rgba(122,193,66,.4); border-radius: 22px; padding: 18px; text-align: center; }
+  .cta p { margin: 0 0 12px; }
+  .unis { display: grid; gap: 8px; margin: 10px 0 14px; }
+  .uni { text-align: left; background: rgba(255,255,255,.08); color: #fff; border: 1px solid rgba(255,255,255,.18); border-radius: 14px; padding: 12px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+  .uni[aria-pressed="true"] { background: #fff; color: var(--navy); border-color: var(--green); box-shadow: 0 0 0 3px rgba(122,193,66,.35); }
+  .demo { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: .08em; background: #FFB547; color: #3b2600; border-radius: 6px; padding: 2px 6px; vertical-align: middle; }
+  .copy { display: flex; gap: 8px; }
+  .copy input { margin: 0; flex: 1; font-size: 14px; }
+  .card .copy input { color: var(--ink); background: var(--soft); border-color: var(--line); }
+  .copy button { flex: none; width: auto; padding: 0 16px; min-height: 50px; }
+  .insight { background: #fff6e0; color: #6b4a00; border-radius: 14px; padding: 12px 14px; font-weight: 600; margin-top: 12px; }
+  .foot { text-align: center; font-size: 13px; color: rgba(255,255,255,.55); margin-top: 26px; }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 20; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="wrap">
+  <div class="top">
+    <span class="brand"><i></i>BWAT SEKRÈM TALKS</span>
+    <div class="langs" role="group" aria-label="Langue / Lang / Language">
+      <button type="button" data-lang="fr">FR</button><button type="button" data-lang="ht">KR</button><button type="button" data-lang="en">EN</button>
+    </div>
+  </div>
+  <div class="date" data-t="date"></div>
+  <div class="teambar" id="teambar"></div>
+
+  <!-- 1. Accueil -->
+  <section class="screen on" id="s-intro">
+    <h1 data-th="title"></h1>
+    <p class="lead" data-t="lead"></p>
+    <div class="types" id="types"></div>
+    <label class="f" for="prenom" data-t="nameLabel"></label>
+    <input type="text" id="prenom" maxlength="20" autocomplete="given-name" />
+    <button class="btn go" id="start" type="button" data-t="start"></button>
+    <p class="meta" data-t="meta"></p>
+    <button class="link" id="toTeam" type="button" data-t="teamLink"></button>
+  </section>
+
+  <!-- 1b. Créer un test d'équipe -->
+  <section class="screen" id="s-team-create">
+    <h2 class="t2" data-t="teamCreateTitle"></h2>
+    <p class="lead" data-t="teamCreateLead"></p>
+    <label class="f" for="teamName" data-t="teamNameLabel"></label>
+    <input type="text" id="teamName" maxlength="40" />
+    <button class="btn go" id="makeTeam" type="button" data-t="teamCreateBtn"></button>
+    <div id="teamOut" style="display:none;margin-top:18px">
+      <label class="f" data-t="teamLinkLabel"></label>
+      <div class="copy"><input type="text" id="teamUrl" readonly /><button class="btn white sm" id="copyTeam" type="button" data-t="copy"></button></div>
+      <div class="row"><button class="btn go sm" id="shareTeam" type="button" data-t="shareTeam"></button><button class="btn ghost sm" id="openTeam" type="button" data-t="takeTeamTest"></button></div>
+    </div>
+    <button class="link" id="teamBack" type="button" data-t="backHome"></button>
+  </section>
+
+  <!-- 2. Questions -->
+  <section class="screen" id="s-quiz">
+    <div class="progress"><div id="bar" style="width:0%"></div></div>
+    <div class="qrow"><div class="qn" id="qn"></div><div class="cheer" id="cheer"></div></div>
+    <div class="q" id="q"></div>
+    <div class="answers" id="answers"></div>
+    <button class="back" id="back" type="button" data-t="back"></button>
+  </section>
+
+  <!-- 3. Université (facultatif) -->
+  <section class="screen" id="s-uni">
+    <div class="progress"><div style="width:100%"></div></div>
+    <div class="qn" data-t="uniKicker"></div>
+    <div class="q" data-t="uniQ"></div>
+    <div class="unis" id="unis"></div>
+    <input type="text" id="uniOther" style="display:none" />
+    <button class="btn go" id="uniGo" type="button" data-t="seeResult"></button>
+    <button class="link" id="uniSkip" type="button" data-t="notStudent"></button>
+  </section>
+
+  <!-- 4. Calcul -->
+  <section class="screen" id="s-wait">
+    <div class="reveal" style="margin-top:120px"><div class="emo">⏳</div><h2 style="font-size:28px" data-t="analyzing"></h2></div>
+  </section>
+
+  <!-- 5. Résultat -->
+  <section class="screen" id="s-result">
+    <div class="reveal">
+      <div class="k" id="rk"></div>
+      <div class="emo" id="remo"></div>
+      <h2 id="rname"></h2>
+      <div class="trend" id="rtrend"></div>
+      <p class="tag" id="rtag"></p>
+    </div>
+    <div class="fmt" role="group"><button type="button" data-fmt="story"></button><button type="button" data-fmt="post"></button></div>
+    <canvas id="cv" hidden></canvas>
+    <img class="shareimg" id="shareimg" alt="" />
+    <div class="row">
+      <button class="btn go" id="share" type="button" data-t="share"></button>
+      <button class="btn white" id="dl" type="button" data-t="download"></button>
+    </div>
+
+    <div class="card">
+      <h3 data-t="duoTitle"></h3>
+      <div class="duo"><span class="e" id="duoEmo"></span><div><b id="duoName"></b><p id="duoWhy"></p></div></div>
+      <button class="btn go sm" id="challenge" type="button" style="margin-top:12px"></button>
+    </div>
+    <div class="card" id="uniCard" style="display:none">
+      <h3 data-t="uniCardTitle"></h3>
+      <div id="uniLine"></div>
+      <p class="meta" id="uniCardNote" style="color:var(--muted);text-align:left;margin:8px 0 0" data-t="uniCardNote"></p>
+    </div>
+    <div class="card">
+      <h3 data-t="speakerTitle"></h3>
+      <div class="speaker"><div class="avatar" id="spkIni"></div><div><b id="spkName"></b><p id="spkWhy"></p></div></div>
+    </div>
+    <div class="card"><h3 data-t="forcesTitle"></h3><div class="chips" id="rforces"></div></div>
+    <div class="card"><h3 data-t="detailTitle"></h3><div class="bars" id="rbars"></div></div>
+    <div class="card" id="teamCard" style="display:none">
+      <h3 id="teamCardTitle"></h3>
+      <p style="margin:0 0 12px;color:var(--muted)" data-t="teamCardText"></p>
+      <button class="btn go sm" id="toDash" type="button" data-t="seeTeam"></button>
+    </div>
+    <div class="cta">
+      <p data-th="ctaText"></p>
+      <a class="btn go" href="https://bwatsekremtalks.com/reserver" target="_top" data-t="reserve"></a>
+    </div>
+    <button class="btn ghost" id="again" type="button" style="margin-top:12px" data-t="again"></button>
+  </section>
+
+  <!-- 6. Tableau d'équipe -->
+  <section class="screen" id="s-team">
+    <h2 class="t2" id="dashTitle"></h2>
+    <p class="lead" id="dashLead"></p>
+    <div class="card"><h3 data-t="dashComp"></h3><div class="bars" id="dashBars"></div><div class="insight" id="dashInsight"></div></div>
+    <div class="card"><h3 data-t="dashInvite"></h3><div class="copy"><input type="text" id="dashUrl" readonly /><button class="btn white sm" id="dashCopy" type="button" data-t="copy" style="background:var(--soft)"></button></div></div>
+    <button class="btn ghost" id="dashBack" type="button" style="margin-top:12px" data-t="backResult"></button>
+  </section>
+
+  <p class="foot">Bwat Sekrèm Talks · <span data-t="motto"></span></p>
+</div>
+
+<script>
+const SITE = 'bwatsekremtalks.com/profil';
+const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const sbHeaders = { apikey: SB_KEY, 'Content-Type': 'application/json' };
+async function sbRpc(fn, args) {
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: sbHeaders, body: JSON.stringify(args || {}) });
+  if (!r.ok) throw new Error('rpc ' + r.status); return r.json();
+}
+function record() {   // résultat ANONYME : profil, tendance, langue, équipe, université
+  fetch(`${SB_URL}/rest/v1/quiz_resultats`, { method: 'POST', headers: { ...sbHeaders, Prefer: 'return=minimal' }, keepalive: true,
+    body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null }) })
+    .then(() => { st.recorded = true; }).catch(() => {});
+}
+const ORDER = ['L', 'M', 'I', 'D', 'B'];                 // départage en cas d'égalité
+const EMO = { M: '🧭', L: '🔥', I: '💡', D: '🤖', B: '🧱' };
+const COLOR = { M: '#7AC142', L: '#FFB547', I: '#5EC8F2', D: '#B79CFF', B: '#FF8A7A' };
+const DUO = { M: 'I', L: 'M', I: 'D', D: 'L', B: 'L' };     // coéquipier idéal
+const SPEAKER = { M: 'W', B: 'W', I: 'W', L: 'S', D: 'S' };  // intervenant à suivre
+const SPEAKERS = { W: { name: 'Woodmy Jean-Baptiste', ini: 'WJ' }, S: { name: 'Sebastien Douyon', ini: 'SD' } };
+const UNIS = ['UPNCH', 'URHC', 'UNDH', 'UCNH', 'CHCL/UEH', 'UNAF', 'FDSEG/UEH', 'UNATH'];
+
+/* =================== TEXTES — 3 LANGUES =================== */
+const T = {
+  fr: {
+    htmlLang: 'fr', date: '22 nov. 2026 · Cap-Haïtien',
+    title: 'Quel profil <em>pro</em> êtes-vous ?',
+    lead: '6 questions, 1 minute. Découvrez votre profil professionnel — et partagez votre carte avec votre réseau.',
+    nameLabel: 'Votre prénom (pour votre carte)', namePh: 'ex. Marie',
+    start: 'Commencer le test →', meta: 'Gratuit · aucune inscription nécessaire pour le test',
+    teamLink: 'Faire le test en équipe (entreprise, classe, association) →',
+    teamCreateTitle: 'Test d’équipe', teamCreateLead: 'Créez un lien pour votre équipe : chaque membre fait le test, et vous découvrez la composition de votre équipe.',
+    teamNameLabel: 'Nom de l’équipe', teamNamePh: 'ex. Équipe Marketing', teamCreateBtn: 'Créer le lien de mon équipe', teamLinkLabel: 'Lien à envoyer à votre équipe',
+    copy: 'Copier', copied: 'Copié ✓', shareTeam: 'Envoyer sur WhatsApp', takeTeamTest: 'Faire le test moi-même', backHome: '← Retour',
+    teamBanner: (n) => `👥 Test de l’équipe « ${n} » — votre résultat s’ajoutera au tableau de l’équipe.`,
+    teamShareText: (n, url) => `Équipe « ${n} » : faisons le test « Quel profil pro êtes-vous ? » (1 minute) et découvrons la composition de notre équipe ! ${url}`,
+    qn: (n, t) => `Question ${n} / ${t}`, back: '← Question précédente', cheers: { 2: 'Bien parti ! 💪', 3: 'À mi-chemin !', 5: 'Plus qu’une question !' },
+    uniKicker: 'Dernière question · facultative', uniQ: 'Êtes-vous étudiant(e) ? Quelle est votre université ?', uniOther: 'Autre université…', uniOtherPh: 'Nom de votre université',
+    seeResult: 'Voir mon résultat →', notStudent: 'Je ne suis pas étudiant(e) — voir mon résultat',
+    analyzing: 'Analyse de votre profil…',
+    yourProfile: (p) => (p ? `${p}, votre profil` : 'Votre profil'),
+    trend: (s) => `tendance ${s}`, pure: (s) => `100 % ${s}`,
+    fmtStory: 'Statut / Story', fmtPost: 'Publication',
+    share: 'Partager ma carte', download: 'Télécharger',
+    duoTitle: 'Votre coéquipier idéal', challenge: (s) => `Défier mon ${s} 👉`,
+    duoShare: (me, duo, url, full) => `Je suis ${me} et mon coéquipier idéal, c’est ${full}. Toi, tu es mon ${duo} ? Fais le test : ${url}`,
+    uniCardTitle: 'Votre université compte !', uniLine: (u) => `🎓 <b>${u}</b> — chaque test compte pour le classement des universités.`,
+    uniCardNote: 'Classement des universités en direct.',
+    uniRank: (u, n, pos) => `${u} : ${n} test${n > 1 ? 's' : ''} · ${pos === 1 ? '🥇 1re place' : pos + 'e place'} du classement.`,
+    speakerTitle: 'L’intervenant à suivre pour vous',
+    forcesTitle: 'Vos forces', detailTitle: 'Votre profil en détail',
+    teamCardTitle: (n) => `👥 Équipe « ${n} »`, teamCardText: 'Votre résultat est ajouté. Découvrez la composition de votre équipe.', seeTeam: 'Voir mon équipe →',
+    ctaText: '<b>Le 22 novembre 2026, venez développer votre profil</b> avec nos intervenants à l’Auditorium Oswald Durand, Cap-Haïtien.',
+    reserve: 'Réserver ma place', again: 'Refaire le test', motto: 'Apprendre. Inspirer. Se démarquer.',
+    imgAlt: 'Votre carte de profil Bwat Sekrèm Talks',
+    dashTitle: (n) => `Équipe « ${n} »`, dashLead: (c) => `${c} membres ont fait le test.`, dashComp: 'Composition de l’équipe', dashInvite: 'Invitez le reste de l’équipe',
+    dashMissing: (l) => `💡 ${l.length > 1 ? 'Il manque les profils ' + l.slice(0, -1).join(', ') + ' et ' + l[l.length - 1] : 'Il manque un profil ' + l[0]} dans votre équipe. Pensez-y pour votre prochain recrutement !`,
+    dashBalanced: '✅ Votre équipe est bien équilibrée : tous les profils sont représentés.',
+    backResult: '← Revenir à mon résultat',
+    dashError: 'Impossible de charger l’équipe pour le moment. Réessayez dans un instant.',
+    dashFew: '👋 Invitez au moins 3 membres pour découvrir l’équilibre de votre équipe.',
+    card: {
+      kicker: (p) => (p ? `${p.toUpperCase()} EST…` : 'MON PROFIL PRO'), trend: (s) => `TENDANCE ${s.toUpperCase()}`, pure: (s) => `100 % ${s.toUpperCase()}`,
+      duo: (e, s) => `Mon coéquipier idéal : ${e} ${s} — tague-le !`, speaker: (n) => `Je ne raterai pas : ${n}`,
+      cta: 'Et vous ? Faites le test →', date: '22 novembre 2026 · Cap-Haïtien',
+    },
+    shareText: (name, emo, url) => `Je suis « ${name} » ${emo} Et vous, quel profil pro êtes-vous ? Faites le test en 1 minute : ${url} — Bwat Sekrèm Talks, 22 novembre 2026, Cap-Haïtien.`,
+    file: 'mon-profil-pro-bwat-sekrem-talks.jpg',
+    profils: {
+      M: { short: 'Manager', name: 'Le Manager', tag: 'Vous transformez le chaos en organisation. Avec vous, les choses avancent — et dans les temps.', forces: ['Organisation', 'Prise de décision', 'Sens des résultats'], duoWhy: 'Il apporte les idées neuves, vous les rendez réelles.' },
+      L: { short: 'Leader', name: 'Le Leader', tag: 'Les autres avancent quand vous êtes là. Vous donnez un cap et l’envie de se dépasser.', forces: ['Influence', 'Écoute', 'Vision'], duoWhy: 'Vous donnez le cap, il organise la route pour y arriver.' },
+      I: { short: 'Innovateur', name: 'L’Innovateur', tag: 'Vous voyez des solutions là où d’autres voient des problèmes. Le statu quo vous ennuie.', forces: ['Créativité', 'Curiosité', 'Audace'], duoWhy: 'Vos idées + ses outils = des solutions qui changent tout.' },
+      D: { short: 'Stratège digital', name: 'Le Stratège digital', tag: 'Vous faites travailler la technologie pour vous. Données, outils, IA : vous gagnez du temps là où les autres en perdent.', forces: ['Analyse', 'Adaptabilité', 'Efficacité'], duoWhy: 'Vous apportez les outils, il donne le sens et embarque l’équipe.' },
+      B: { short: 'Bâtisseur', name: 'Le Bâtisseur', tag: 'Vous construisez votre carrière brique par brique. Chaque expérience est une leçon, chaque étape compte.', forces: ['Persévérance', 'Discipline', 'Soif d’apprendre'], duoWhy: 'Il vous inspire et vous ouvre des portes ; vous apportez la constance.' },
+    },
+    speakerWhy: { W: 'Spécialiste de la performance opérationnelle et de la structuration des organisations : exactement ce qui fait grandir votre profil.', S: 'Dirigeant commercial expérimenté en leadership et en stratégie de marché : il parle votre langage.' },
+    questions: [
+      { q: 'Lundi matin, une nouvelle mission tombe. Votre premier réflexe ?', a: { M: 'Je fais un plan et je répartis les tâches.', L: 'Je réunis l’équipe pour donner le cap.', I: 'Je cherche une façon de faire jamais essayée.', D: 'Je cherche l’outil qui va nous faire gagner du temps.', B: 'Je me demande ce que cette mission va m’apprendre.' } },
+      { q: 'Au travail, on vous appelle surtout pour…', a: { M: '…remettre de l’ordre quand tout déborde.', L: '…remotiver l’équipe dans les moments durs.', I: '…trouver une idée nouvelle.', D: '…régler un problème de logiciel ou de chiffres.', B: '…des conseils pour évoluer.' } },
+      { q: 'Un projet échoue. Vous…', a: { M: '…analysez ce qui n’a pas marché dans l’organisation.', L: '…rassurez l’équipe et remobilisez tout le monde.', I: '…y voyez l’occasion de tester autre chose.', D: '…regardez les données pour comprendre.', B: '…notez la leçon pour la prochaine fois.' } },
+      { q: 'Le contenu que vous dévorez parle surtout de…', a: { M: 'productivité et organisation.', L: 'grands leaders et histoires inspirantes.', I: 'startups et idées nouvelles.', D: 'technologie et intelligence artificielle.', B: 'carrière et développement personnel.' } },
+      { q: 'Dans 5 ans, vous vous voyez…', a: { M: 'diriger un service qui tourne comme une horloge.', L: 'inspirer et faire grandir une équipe.', I: 'lancer votre propre projet innovant.', D: 'expert(e) des outils de demain.', B: 'à un poste que vous aurez construit pas à pas.' } },
+      { q: 'Le compliment qui vous fait le plus plaisir ?', a: { M: '« Avec toi, tout est carré. »', L: '« Tu m’as donné envie de me dépasser. »', I: '« Je n’y aurais jamais pensé ! »', D: '« Tu as trouvé la solution en deux minutes. »', B: '« Tu as fait un sacré chemin. »' } },
+    ],
+  },
+
+  ht: {
+    htmlLang: 'ht', date: '22 nov. 2026 · Okap',
+    title: 'Ki pwofil <em>pwo</em> ou genyen?',
+    lead: '6 kesyon, 1 minit. Dekouvri pwofil pwofesyonèl ou — epi pataje kat ou ak rezo w.',
+    nameLabel: 'Prenon w (pou kat ou)', namePh: 'egz. Marie',
+    start: 'Kòmanse tès la →', meta: 'Gratis · pa bezwen enskri pou fè tès la',
+    teamLink: 'Fè tès la an ekip (antrepriz, klas, asosyasyon) →',
+    teamCreateTitle: 'Tès an ekip', teamCreateLead: 'Kreye yon lyen pou ekip ou: chak manm fè tès la, epi nou dekouvri konpozisyon ekip la.',
+    teamNameLabel: 'Non ekip la', teamNamePh: 'egz. Ekip Maketing', teamCreateBtn: 'Kreye lyen ekip mwen', teamLinkLabel: 'Lyen pou voye bay ekip ou',
+    copy: 'Kopye', copied: 'Kopye ✓', shareTeam: 'Voye sou WhatsApp', takeTeamTest: 'Fè tès la mwen menm', backHome: '← Retounen',
+    teamBanner: (n) => `👥 Tès ekip « ${n} » — rezilta w ap ajoute nan tablo ekip la.`,
+    teamShareText: (n, url) => `Ekip « ${n} »: ann fè tès « Ki pwofil pwo ou genyen? » la (1 minit) pou nou dekouvri konpozisyon ekip nou! ${url}`,
+    qn: (n, t) => `Kesyon ${n} / ${t}`, back: '← Kesyon anvan an', cheers: { 2: 'Bon depa! 💪', 3: 'Nou nan mitan chemen!', 5: 'Yon sèl kesyon ki rete!' },
+    uniKicker: 'Dènye kesyon · si w vle', uniQ: 'Èske w se etidyan? Nan ki inivèsite?', uniOther: 'Lòt inivèsite…', uniOtherPh: 'Non inivèsite w',
+    seeResult: 'Wè rezilta mwen →', notStudent: 'Mwen pa etidyan — wè rezilta mwen',
+    analyzing: 'N ap analize pwofil ou…',
+    yourProfile: (p) => (p ? `${p}, men pwofil ou` : 'Pwofil ou'),
+    trend: (s) => `ak yon tandans ${s}`, pure: (s) => `100 % ${s}`,
+    fmtStory: 'Estati / Story', fmtPost: 'Piblikasyon',
+    share: 'Pataje kat mwen', download: 'Telechaje',
+    duoTitle: 'Kowoken ideyal ou', challenge: (s) => `Defye ${s} mwen 👉`,
+    duoShare: (me, duo, url, full) => `Mwen se ${me}, epi kowoken ideyal mwen se ${duo}. Ou menm, se ou ki ${duo} mwen? Fè tès la: ${url}`,
+    uniCardTitle: 'Inivèsite w konte!', uniLine: (u) => `🎓 <b>${u}</b> — chak tès konte pou klasman inivèsite yo.`,
+    uniCardNote: 'Klasman inivèsite yo an dirèk.',
+    uniRank: (u, n, pos) => `${u}: ${n} tès · ${pos === 1 ? '🥇 1ye plas' : pos + 'yèm plas'} nan klasman an.`,
+    speakerTitle: 'Entèvenan pou w swiv',
+    forcesTitle: 'Fòs ou yo', detailTitle: 'Pwofil ou an detay',
+    teamCardTitle: (n) => `👥 Ekip « ${n} »`, teamCardText: 'Rezilta w ajoute. Dekouvri konpozisyon ekip ou.', seeTeam: 'Wè ekip mwen →',
+    ctaText: '<b>22 novanm 2026, vin devlope pwofil ou</b> ak entèvenan nou yo nan Oditoryòm Oswald Durand, Okap.',
+    reserve: 'Rezève plas mwen', again: 'Refè tès la', motto: 'Aprann. Enspire. Demake tèt ou.',
+    imgAlt: 'Kat pwofil Bwat Sekrèm Talks ou',
+    dashTitle: (n) => `Ekip « ${n} »`, dashLead: (c) => `${c} manm fè tès la.`, dashComp: 'Konpozisyon ekip la', dashInvite: 'Envite rès ekip la',
+    dashMissing: (l) => `💡 Pa gen okenn ${l.length > 1 ? l.slice(0, -1).join(', ') + ' ni ' + l[l.length - 1] : l[0]} nan ekip ou. Panse a sa pou pwochen rekritman an!`,
+    dashBalanced: '✅ Ekip ou byen balanse: tout pwofil yo la.',
+    backResult: '← Retounen sou rezilta mwen',
+    dashError: 'Nou pa ka chaje ekip la kounye a. Eseye ankò nan yon ti moman.',
+    dashFew: '👋 Envite omwen 3 manm pou w dekouvri balans ekip ou.',
+    card: {
+      kicker: (p) => (p ? `${p.toUpperCase()} SE…` : 'PWOFIL PWO MWEN'), trend: (s) => `TANDANS ${s.toUpperCase()}`, pure: (s) => `100 % ${s.toUpperCase()}`,
+      duo: (e, s) => `Kowoken ideyal mwen: ${e} ${s} — tag li!`, speaker: (n) => `M p ap rate: ${n}`,
+      cta: 'E ou menm? Fè tès la →', date: '22 novanm 2026 · Okap',
+    },
+    shareText: (name, emo, url) => `Mwen se « ${name} » ${emo} E ou menm, ki pwofil pwo ou genyen? Fè tès la nan 1 minit: ${url} — Bwat Sekrèm Talks, 22 novanm 2026, Okap.`,
+    file: 'pwofil-pwo-mwen-bwat-sekrem-talks.jpg',
+    profils: {
+      M: { short: 'Manadjè', name: 'Manadjè', tag: 'Ou transfòme dezòd an òganizasyon. Avè w, bagay yo avanse — epi alè.', forces: ['Òganizasyon', 'Pran desizyon', 'Rezilta'], duoWhy: 'Li pote nouvo lide yo, ou menm ou fè yo vin reyèl.' },
+      L: { short: 'Lidè', name: 'Lidè', tag: 'Lòt moun avanse lè ou la. Ou bay direksyon ak anvi pou yo depase tèt yo.', forces: ['Enfliyans', 'Koute', 'Vizyon'], duoWhy: 'Ou bay direksyon an, li òganize wout la pou rive.' },
+      I: { short: 'Inovatè', name: 'Inovatè', tag: 'Ou wè solisyon kote lòt moun wè pwoblèm. Bagay ki pa janm chanje fè w anniye.', forces: ['Kreyativite', 'Kiryozite', 'Odas'], duoWhy: 'Lide w + zouti l = solisyon ki chanje tout bagay.' },
+      D: { short: 'Estratèj dijital', name: 'Estratèj dijital', tag: 'Ou fè teknoloji travay pou ou. Done, zouti, IA: ou genyen tan kote lòt moun pèdi l.', forces: ['Analiz', 'Adaptasyon', 'Efikasite'], duoWhy: 'Ou pote zouti yo, li bay sans epi li mache ak ekip la.' },
+      B: { short: 'Batisè', name: 'Batisè', tag: 'Ou bati karyè w brik pa brik. Chak eksperyans se yon leson, chak etap konte.', forces: ['Pèseverans', 'Disiplin', 'Swaf pou aprann'], duoWhy: 'Li enspire w epi l louvri pòt pou ou; ou menm ou pote konstans.' },
+    },
+    speakerWhy: { W: 'Espesyalis pèfòmans operasyonèl ak estriktirasyon òganizasyon: egzakteman sa ki fè pwofil ou grandi.', S: 'Dirijan komèsyal ki gen eksperyans nan lidèchip ak estrateji mache: li pale menm langaj ak ou.' },
+    questions: [
+      { q: 'Lendi maten, yon nouvo misyon tonbe. Premye reflèks ou?', a: { M: 'Mwen fè yon plan epi mwen separe travay yo.', L: 'Mwen reyini ekip la pou m bay direksyon an.', I: 'Mwen chèche yon fason pèsonn poko janm eseye.', D: 'Mwen chèche zouti ki pral fè nou genyen tan.', B: 'Mwen mande tèt mwen sa misyon sa a pral aprann mwen.' } },
+      { q: 'Nan travay, moun rele w sitou pou…', a: { M: '…remete lòd lè tout bagay ap debòde.', L: '…remotive ekip la nan moman difisil yo.', I: '…jwenn yon nouvo lide.', D: '…regle yon pwoblèm lojisyèl oswa chif.', B: '…konsèy pou yo evolye.' } },
+      { q: 'Yon pwojè echwe. Ou…', a: { M: '…analize sa ki pa t mache nan òganizasyon an.', L: '…rasire ekip la epi remobilize tout moun.', I: '…wè l kòm yon okazyon pou eseye yon lòt bagay.', D: '…gade done yo pou konprann.', B: '…note leson an pou pwochen fwa.' } },
+      { q: 'Kontni ou renmen anpil yo pale sitou de…', a: { M: 'pwodiktivite ak òganizasyon.', L: 'gwo lidè ak istwa ki enspire.', I: 'startup ak nouvo lide.', D: 'teknoloji ak entèlijans atifisyèl.', B: 'karyè ak devlopman pèsonèl.' } },
+      { q: 'Nan 5 an, ou wè tèt ou…', a: { M: 'ap dirije yon sèvis ki mache tankou yon revèy.', L: 'ap enspire epi fè yon ekip grandi.', I: 'ap lanse pwòp pwojè inovan pa w.', D: 'ekspè nan zouti demen yo.', B: 'nan yon pòs ou bati etap pa etap.' } },
+      { q: 'Ki konpliman ki fè w plis plezi?', a: { M: '« Avè w, tout bagay an lòd. »', L: '« Ou ban m anvi depase tèt mwen. »', I: '« Mwen pa t ap janm panse a sa! »', D: '« Ou jwenn solisyon an nan de minit. »', B: '« Ou fè yon bèl chemen. »' } },
+    ],
+  },
+
+  en: {
+    htmlLang: 'en', date: 'Nov. 22, 2026 · Cap-Haïtien',
+    title: 'What’s your <em>pro</em> profile?',
+    lead: '6 questions, 1 minute. Discover your professional profile — and share your card with your network.',
+    nameLabel: 'Your first name (for your card)', namePh: 'e.g. Marie',
+    start: 'Start the test →', meta: 'Free · no sign-up needed to take the test',
+    teamLink: 'Take the test as a team (company, class, club) →',
+    teamCreateTitle: 'Team test', teamCreateLead: 'Create a link for your team: each member takes the test, and you discover your team’s make-up.',
+    teamNameLabel: 'Team name', teamNamePh: 'e.g. Marketing Team', teamCreateBtn: 'Create my team link', teamLinkLabel: 'Link to send to your team',
+    copy: 'Copy', copied: 'Copied ✓', shareTeam: 'Send on WhatsApp', takeTeamTest: 'Take the test myself', backHome: '← Back',
+    teamBanner: (n) => `👥 “${n}” team test — your result will be added to the team board.`,
+    teamShareText: (n, url) => `Team “${n}”: let’s take the “What’s your pro profile?” test (1 minute) and discover our team’s make-up! ${url}`,
+    qn: (n, t) => `Question ${n} / ${t}`, back: '← Previous question', cheers: { 2: 'Great start! 💪', 3: 'Halfway there!', 5: 'One question left!' },
+    uniKicker: 'Last question · optional', uniQ: 'Are you a student? Which university?', uniOther: 'Other university…', uniOtherPh: 'Your university’s name',
+    seeResult: 'See my result →', notStudent: 'I’m not a student — see my result',
+    analyzing: 'Analyzing your profile…',
+    yourProfile: (p) => (p ? `${p}, your profile` : 'Your profile'),
+    trend: (s) => `with ${/^[AEIOU]/i.test(s) ? 'an' : 'a'} ${s} streak`, pure: (s) => `100 % ${s}`,
+    fmtStory: 'Status / Story', fmtPost: 'Post',
+    share: 'Share my card', download: 'Download',
+    duoTitle: 'Your ideal teammate', challenge: (s) => `Challenge my ${s} 👉`,
+    duoShare: (me, duo, url, full) => `I’m ${me} and my ideal teammate is ${full}. Are you my ${duo}? Take the test: ${url}`,
+    uniCardTitle: 'Your university counts!', uniLine: (u) => `🎓 <b>${u}</b> — every test counts toward the university ranking.`,
+    uniCardNote: 'Live university ranking.',
+    uniRank: (u, n, pos) => `${u}: ${n} test${n > 1 ? 's' : ''} · ${pos === 1 ? '🥇 1st place' : pos + (pos === 2 ? 'nd' : pos === 3 ? 'rd' : 'th') + ' place'} in the ranking.`,
+    speakerTitle: 'The speaker to follow for you',
+    forcesTitle: 'Your strengths', detailTitle: 'Your profile in detail',
+    teamCardTitle: (n) => `👥 “${n}” team`, teamCardText: 'Your result has been added. Discover your team’s make-up.', seeTeam: 'See my team →',
+    ctaText: '<b>On November 22, 2026, come and grow your profile</b> with our speakers at the Oswald Durand Auditorium, Cap-Haïtien.',
+    reserve: 'Save my seat', again: 'Retake the test', motto: 'Learn. Inspire. Stand out.',
+    imgAlt: 'Your Bwat Sekrèm Talks profile card',
+    dashTitle: (n) => `“${n}” team`, dashLead: (c) => `${c} members have taken the test.`, dashComp: 'Team make-up', dashInvite: 'Invite the rest of the team',
+    dashMissing: (l) => `💡 Your team has no ${l.length > 1 ? l.slice(0, -1).join(', ') + ' or ' + l[l.length - 1] : l[0]}. Keep it in mind for your next hire!`,
+    dashBalanced: '✅ Your team is well balanced: every profile is represented.',
+    backResult: '← Back to my result',
+    dashError: 'We can’t load the team right now. Please try again in a moment.',
+    dashFew: '👋 Invite at least 3 members to see how balanced your team is.',
+    card: {
+      kicker: (p) => (p ? `${p.toUpperCase()} IS…` : 'MY PRO PROFILE'), trend: (s) => `WITH ${/^[AEIOU]/i.test(s) ? 'AN' : 'A'} ${s.toUpperCase()} STREAK`, pure: (s) => `100 % ${s.toUpperCase()}`,
+      duo: (e, s) => `My ideal teammate: ${e} ${s} — tag them!`, speaker: (n) => `I won’t miss: ${n}`,
+      cta: 'What about you? Take the test →', date: 'November 22, 2026 · Cap-Haïtien',
+    },
+    shareText: (name, emo, url) => `I’m “${name}” ${emo} What’s your pro profile? Take the 1-minute test: ${url} — Bwat Sekrèm Talks, November 22, 2026, Cap-Haïtien.`,
+    file: 'my-pro-profile-bwat-sekrem-talks.jpg',
+    profils: {
+      M: { short: 'Manager', name: 'The Manager', tag: 'You turn chaos into order. With you, things move forward — and on time.', forces: ['Organization', 'Decision-making', 'Results-driven'], duoWhy: 'They bring fresh ideas, you make them real.' },
+      L: { short: 'Leader', name: 'The Leader', tag: 'People move forward when you’re around. You set the direction and make others want to push themselves.', forces: ['Influence', 'Listening', 'Vision'], duoWhy: 'You set the direction, they organize the road to get there.' },
+      I: { short: 'Innovator', name: 'The Innovator', tag: 'You see solutions where others see problems. The status quo bores you.', forces: ['Creativity', 'Curiosity', 'Boldness'], duoWhy: 'Your ideas + their tools = solutions that change everything.' },
+      D: { short: 'Digital Strategist', name: 'The Digital Strategist', tag: 'You make technology work for you. Data, tools, AI: you save time where others lose it.', forces: ['Analysis', 'Adaptability', 'Efficiency'], duoWhy: 'You bring the tools, they bring the purpose and rally the team.' },
+      B: { short: 'Builder', name: 'The Builder', tag: 'You build your career brick by brick. Every experience is a lesson, every step counts.', forces: ['Perseverance', 'Discipline', 'Eagerness to learn'], duoWhy: 'They inspire you and open doors; you bring consistency.' },
+    },
+    speakerWhy: { W: 'An expert in operational performance and organizational structure: exactly what helps your profile grow.', S: 'A seasoned sales executive in leadership and market strategy: he speaks your language.' },
+    questions: [
+      { q: 'Monday morning, a new assignment lands on your desk. Your first move?', a: { M: 'I make a plan and split the tasks.', L: 'I bring the team together to set the direction.', I: 'I look for a way no one has tried before.', D: 'I look for the tool that will save us time.', B: 'I ask myself what this assignment will teach me.' } },
+      { q: 'At work, people mostly come to you to…', a: { M: '…restore order when everything is overflowing.', L: '…lift the team’s spirits in tough times.', I: '…come up with a fresh idea.', D: '…fix a software or numbers problem.', B: '…get advice on how to grow.' } },
+      { q: 'A project fails. You…', a: { M: '…analyze what went wrong in the organization.', L: '…reassure the team and rally everyone.', I: '…see it as a chance to try something else.', D: '…look at the data to understand.', B: '…note the lesson for next time.' } },
+      { q: 'The content you devour is mostly about…', a: { M: 'productivity and organization.', L: 'great leaders and inspiring stories.', I: 'startups and new ideas.', D: 'technology and artificial intelligence.', B: 'careers and personal growth.' } },
+      { q: 'In 5 years, you see yourself…', a: { M: 'running a department like clockwork.', L: 'inspiring and growing a team.', I: 'launching your own innovative project.', D: 'as an expert in tomorrow’s tools.', B: 'in a role you built step by step.' } },
+      { q: 'Which compliment makes you happiest?', a: { M: '“With you, everything is in order.”', L: '“You made me want to push myself.”', I: '“I would never have thought of that!”', D: '“You found the solution in two minutes.”', B: '“You’ve come a long way.”' } },
+    ],
+  },
+};
+
+/* =================== ÉTAT & OUTILS =================== */
+const $ = (id) => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const st = { lang: 'fr', i: 0, picks: [], order: [], prenom: '', uni: '', fmt: 'story', team: params.get('equipe') || '' };
+const L = () => T[st.lang];
+const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+function show(id) { document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('on', s.id === id)); scrollTo({ top: 0, behavior: 'smooth' }); }
+const shareUrl = (extra = {}) => { const u = new URL(`https://${SITE}`); u.searchParams.set('lang', st.lang); Object.entries(extra).forEach(([k, v]) => v && u.searchParams.set(k, v)); return u.toString(); };
+
+function setLang(lang) {
+  if (!T[lang]) lang = 'fr';
+  st.lang = lang;
+  document.documentElement.lang = L().htmlLang;
+  document.querySelectorAll('[data-t]').forEach((el) => { const v = L()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
+  document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = L()[el.dataset.th]; });
+  $('prenom').placeholder = L().namePh; $('teamName').placeholder = L().teamNamePh; $('uniOther').placeholder = L().uniOtherPh;
+  $('types').innerHTML = ['M', 'L', 'I', 'D', 'B'].map((k) => `<div class="type"><span>${EMO[k]}</span>${L().profils[k].short}</div>`).join('');
+  document.querySelector('[data-fmt="story"]').textContent = L().fmtStory; document.querySelector('[data-fmt="post"]').textContent = L().fmtPost;
+  document.querySelectorAll('.langs button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
+  renderUnis();
+  $('teambar').classList.toggle('on', !!st.team); if (st.team) $('teambar').textContent = L().teamBanner(st.team);
+  try { localStorage.setItem('bst_quiz_lang', lang); } catch (e) {}
+  const u = new URL(location.href); u.searchParams.set('lang', lang); history.replaceState(null, '', u);
+  if ($('s-quiz').classList.contains('on')) renderQ();
+  if ($('s-result').classList.contains('on')) result(true);
+  if ($('s-team').classList.contains('on')) renderDash();
+}
+document.querySelectorAll('.langs button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+/* =================== TEST D'ÉQUIPE =================== */
+$('toTeam').addEventListener('click', () => show('s-team-create'));
+$('teamBack').addEventListener('click', () => show('s-intro'));
+$('makeTeam').addEventListener('click', () => {
+  const n = $('teamName').value.trim().replace(/\s+/g, ' '); if (!n) { $('teamName').focus(); return; }
+  $('teamUrl').value = shareUrl({ equipe: n }); $('teamOut').style.display = 'block'; st.pendingTeam = n;
+});
+async function copy(input, btn) { try { await navigator.clipboard.writeText(input.value); } catch (e) { input.select(); document.execCommand && document.execCommand('copy'); } const o = btn.textContent; btn.textContent = L().copied; setTimeout(() => (btn.textContent = o), 1500); }
+$('copyTeam').addEventListener('click', () => copy($('teamUrl'), $('copyTeam')));
+$('dashCopy').addEventListener('click', () => copy($('dashUrl'), $('dashCopy')));
+$('shareTeam').addEventListener('click', () => open(`https://wa.me/?text=${encodeURIComponent(L().teamShareText(st.pendingTeam, $('teamUrl').value))}`, '_blank', 'noopener'));
+$('openTeam').addEventListener('click', () => { st.team = st.pendingTeam; setLang(st.lang); show('s-intro'); });
+
+/* =================== QUESTIONS =================== */
+$('start').addEventListener('click', () => {
+  st.prenom = $('prenom').value.trim().replace(/\s+/g, ' ');
+  st.i = 0; st.picks = []; st.uni = ''; st.order = L().questions.map(() => shuffle(ORDER));
+  renderQ(); show('s-quiz');
+});
+function renderQ() {
+  const Q = L().questions[st.i], n = L().questions.length;
+  $('qn').textContent = L().qn(st.i + 1, n);
+  $('bar').style.width = `${(st.i / n) * 100}%`;
+  const ch = L().cheers[st.i]; $('cheer').textContent = ch || ''; $('cheer').classList.toggle('on', !!ch);
+  $('q').textContent = Q.q;
+  $('answers').innerHTML = st.order[st.i].map((k, j) => `<button class="ans ${st.picks[st.i] === k ? 'sel' : ''}" type="button" data-k="${k}"><b>${'ABCDE'[j]}</b>${Q.a[k]}</button>`).join('');
+  $('back').style.visibility = st.i ? 'visible' : 'hidden';
+}
+$('answers').addEventListener('click', (e) => {
+  const b = e.target.closest('.ans'); if (!b) return;
+  st.picks[st.i] = b.dataset.k;
+  document.querySelectorAll('.ans').forEach((x) => x.classList.toggle('sel', x === b));
+  setTimeout(() => {
+    if (st.i < L().questions.length - 1) { st.i++; renderQ(); }
+    else { renderUnis(); show('s-uni'); }
+  }, 260);
+});
+$('back').addEventListener('click', () => { if (st.i) { st.i--; renderQ(); } });
+
+/* =================== UNIVERSITÉ (facultatif) =================== */
+function renderUnis() {
+  $('unis').innerHTML = [...UNIS, '__autre'].map((u) => `<button class="uni" type="button" data-u="${u}" aria-pressed="${st.uniSel === u}">${u === '__autre' ? L().uniOther : '🎓 ' + u}</button>`).join('');
+  $('uniOther').style.display = st.uniSel === '__autre' ? 'block' : 'none';
+}
+$('unis').addEventListener('click', (e) => { const b = e.target.closest('.uni'); if (!b) return; st.uniSel = b.dataset.u; renderUnis(); if (st.uniSel === '__autre') $('uniOther').focus(); });
+$('uniGo').addEventListener('click', () => { st.uni = st.uniSel === '__autre' ? $('uniOther').value.trim() : (st.uniSel || ''); finish(); });
+$('uniSkip').addEventListener('click', () => { st.uni = ''; st.uniSel = ''; finish(); });
+function finish() { show('s-wait'); setTimeout(() => { result(); confetti(); }, 1200); }
+
+/* =================== RÉSULTAT =================== */
+function scores() { const sc = Object.fromEntries(ORDER.map((k) => [k, 0])); st.picks.forEach((k) => sc[k]++); return sc; }
+function ranking(sc) { return [...ORDER].sort((a, b) => sc[b] - sc[a] || ORDER.indexOf(a) - ORDER.indexOf(b)); }
+function result(stay) {
+  const sc = scores(), rk = ranking(sc), best = rk[0], second = sc[rk[1]] > 0 ? rk[1] : null;
+  const P = L().profils[best];
+  st.best = best; st.second = second; st.sc = sc;
+  $('rk').textContent = L().yourProfile(st.prenom);
+  $('remo').textContent = EMO[best]; $('remo').classList.remove('pop'); void $('remo').offsetWidth; if (!stay) $('remo').classList.add('pop');
+  $('rname').textContent = P.name;
+  $('rtrend').textContent = second ? L().trend(`${L().profils[second].short} ${EMO[second]}`) : L().pure(L().profils[best].short);
+  $('rtag').textContent = P.tag;
+  // coéquipier idéal
+  const d = DUO[best];
+  $('duoEmo').textContent = EMO[d]; $('duoName').textContent = L().profils[d].name; $('duoWhy').textContent = P.duoWhy;
+  $('challenge').textContent = L().challenge(L().profils[d].short);
+  // université
+  $('uniCard').style.display = st.uni ? 'block' : 'none'; if (st.uni) $('uniLine').innerHTML = L().uniLine(st.uni.replace(/[<>&]/g, ''));
+  if (stay && st.uniRank) showUniRank();
+  // intervenant
+  const s = SPEAKERS[SPEAKER[best]]; $('spkIni').textContent = s.ini; $('spkName').textContent = s.name; $('spkWhy').textContent = L().speakerWhy[SPEAKER[best]];
+  $('rforces').innerHTML = P.forces.map((f) => `<span class="chip">${f}</span>`).join('');
+  const tot = st.picks.length;
+  $('rbars').innerHTML = rk.map((k) => `<div class="bar ${k === best ? 'me' : ''}"><span>${EMO[k]} ${L().profils[k].short}</span><div class="t"><div style="width:${(sc[k] / tot) * 100}%"></div></div><span class="v">${Math.round((sc[k] / tot) * 100)} %</span></div>`).join('');
+  // équipe
+  $('teamCard').style.display = st.team ? 'block' : 'none';
+  if (st.team) $('teamCardTitle').textContent = L().teamCardTitle(st.team);
+  if (!stay) { record(); uniRank(); }
+  $('shareimg').alt = L().imgAlt;
+  document.querySelectorAll('[data-fmt]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.fmt === st.fmt));
+  drawCard(); if (!stay) show('s-result');
+}
+$('again').addEventListener('click', () => show('s-intro'));
+document.querySelectorAll('[data-fmt]').forEach((b) => b.addEventListener('click', () => { st.fmt = b.dataset.fmt; document.querySelectorAll('[data-fmt]').forEach((x) => x.setAttribute('aria-pressed', x === b)); drawCard(); }));
+$('challenge').addEventListener('click', () => {
+  const low = (n) => n.replace(/^Le /, 'le ').replace(/^L’/, 'l’').replace(/^The /, 'the ');
+  const me = low(L().profils[st.best].name), duoFull = low(L().profils[DUO[st.best]].name), duo = L().profils[DUO[st.best]].short;
+  open(`https://wa.me/?text=${encodeURIComponent(L().duoShare(me, duo, shareUrl(), duoFull))}`, '_blank', 'noopener');
+});
+
+async function uniRank() {
+  if (!st.uni) return;
+  try {
+    await new Promise((r) => setTimeout(r, 800));          // laisse le temps d'enregistrer ce résultat
+    const rows = await sbRpc('quiz_stats_universites');
+    const i = rows.findIndex((x) => x.universite === st.uni);
+    if (i >= 0) { st.uniRank = { pos: i + 1, n: rows[i].n }; showUniRank(); }
+  } catch (e) { /* pas grave */ }
+}
+function showUniRank() { $('uniCardNote').textContent = L().uniRank(st.uni, st.uniRank.n, st.uniRank.pos); }
+
+/* =================== CARTES (Story 1080×1920 · Publication 1080×1350) =================== */
+function rr(c, x, y, w, h, r) { c.beginPath(); if (c.roundRect) c.roundRect(x, y, w, h, r); else c.rect(x, y, w, h); }
+function fit(c, text, weight, size, family, maxW, min) { let s = size; c.font = `${weight} ${s}px ${family}`; while (c.measureText(text).width > maxW && s > min) { s -= 2; c.font = `${weight} ${s}px ${family}`; } return s; }
+function drawCard() {
+  const story = st.fmt === 'story', W = 1080, H = story ? 1920 : 1350;
+  const cv = $('cv'); cv.width = W; cv.height = H;
+  const c = cv.getContext('2d'), k = st.best, P = L().profils[k], C = L().card, BR = '"Bricolage Grotesque", sans-serif', DM = '"DM Sans", sans-serif';
+  const g = c.createRadialGradient(W / 2, H * 0.2, 40, W / 2, H * 0.4, H * 0.85); g.addColorStop(0, '#2e6aa8'); g.addColorStop(.5, '#123056'); g.addColorStop(1, '#0a1f38');
+  c.fillStyle = g; c.fillRect(0, 0, W, H);
+  c.save(); c.lineCap = 'round';
+  for (let y = 0; y < H; y += 108) for (let x = 0; x < W; x += 108) {
+    const q = 1.5; c.globalAlpha = .06; c.strokeStyle = '#fff'; c.lineWidth = 3 * q;
+    c.beginPath(); c.moveTo(x + 28 * q, y + 18 * q); c.lineTo(x + 38 * q, y + 18 * q); c.arc(x + 38 * q, y + 30 * q, 12 * q, -Math.PI / 2, Math.PI / 2); c.lineTo(x + 30 * q, y + 42 * q); c.lineTo(x + 30 * q, y + 50 * q); c.stroke();
+    c.globalAlpha = .18; c.fillStyle = '#7AC142'; c.beginPath(); c.arc(x + 46 * q, y + 22 * q, 4 * q, 0, Math.PI * 2); c.fill();
+  }
+  c.restore();
+  const Y = story ? { brand: 150, kick: 300, emo: 560, name: 740, trend: 815, chips: 880, bars: 1040, duo: 1320, spk: 1490, uni: 1560, cta: 1660, url: 1800, date: 1850 }
+                  : { brand: 110, kick: 210, emo: 420, name: 580, trend: 645, chips: 690, bars: 820, duo: 1045, spk: null, uni: null, cta: 1120, url: 1275, date: 1316 };
+  const hg = c.createRadialGradient(W / 2, Y.emo - 60, 10, W / 2, Y.emo - 60, 400); hg.addColorStop(0, COLOR[k] + '66'); hg.addColorStop(1, COLOR[k] + '00');
+  c.fillStyle = hg; c.fillRect(0, 0, W, H);
+  c.textAlign = 'center'; c.textBaseline = 'alphabetic';
+  c.fillStyle = '#fff'; c.globalAlpha = .9; c.font = `800 34px ${BR}`; c.fillText('BWAT SEKRÈM TALKS', W / 2, Y.brand); c.globalAlpha = 1;
+  c.fillStyle = '#7AC142'; c.font = `700 30px ${DM}`; c.fillText(C.kicker(st.prenom), W / 2, Y.kick);
+  c.font = `${story ? 200 : 170}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; c.fillText(EMO[k], W / 2, Y.emo);
+  c.fillStyle = '#fff'; const nm = P.name.toUpperCase(); fit(c, nm, 800, story ? 130 : 120, BR, W - 120, 56); c.fillText(nm, W / 2, Y.name);
+  const tr = st.second ? C.trend(L().profils[st.second].short) + ' ' + EMO[st.second] : C.pure(L().profils[k].short);
+  c.fillStyle = '#7AC142'; fit(c, tr, 700, 34, DM, W - 160, 22); c.fillText(tr, W / 2, Y.trend);
+  // forces
+  let cfs = 32; c.font = `700 ${cfs}px ${DM}`; const gap = 14, pad = 26;
+  let ws = P.forces.map((t) => c.measureText(t).width + pad * 2), tw = ws.reduce((a, b) => a + b, 0) + gap * 2;
+  while (tw > W - 80 && cfs > 22) { cfs -= 2; c.font = `700 ${cfs}px ${DM}`; ws = P.forces.map((t) => c.measureText(t).width + pad * 2); tw = ws.reduce((a, b) => a + b, 0) + gap * 2; }
+  let x = (W - tw) / 2;
+  P.forces.forEach((t, i) => { c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, x, Y.chips, ws[i], 60, 30); c.fill(); c.fillStyle = '#fff'; c.textAlign = 'left'; c.fillText(t, x + pad, Y.chips + 41); x += ws[i] + gap; });
+  c.textAlign = 'center';
+  // barres
+  const sc = st.sc, tot = st.picks.length, bx = 220, bw = 640; let by = Y.bars;
+  ranking(sc).slice(0, 3).forEach((kk) => {
+    const pct = sc[kk] / tot; c.textAlign = 'left'; c.fillStyle = 'rgba(255,255,255,.85)'; c.font = `700 28px ${DM}`; c.fillText(`${EMO[kk]}  ${L().profils[kk].short}`, bx, by);
+    c.textAlign = 'right'; c.fillText(`${Math.round(pct * 100)} %`, bx + bw, by);
+    c.fillStyle = 'rgba(255,255,255,.14)'; rr(c, bx, by + 14, bw, 14, 7); c.fill();
+    c.fillStyle = kk === k ? '#7AC142' : 'rgba(255,255,255,.55)'; rr(c, bx, by + 14, Math.max(14, bw * pct), 14, 7); c.fill();
+    by += story ? 84 : 72;
+  });
+  c.textAlign = 'center';
+  // coéquipier idéal
+  const d = DUO[k], duoTxt = C.duo(EMO[d], L().profils[d].short);
+  c.fillStyle = 'rgba(255,255,255,.1)'; rr(c, 90, Y.duo - 52, W - 180, 84, 42); c.fill();
+  c.fillStyle = '#fff'; fit(c, duoTxt, 700, 32, DM, W - 240, 22); c.fillText(duoTxt, W / 2, Y.duo + 2);
+  if (story) {
+    const s = SPEAKERS[SPEAKER[k]]; c.fillStyle = 'rgba(255,255,255,.8)'; fit(c, C.speaker(s.name), 500, 30, DM, W - 160, 22); c.fillText(C.speaker(s.name), W / 2, Y.spk);
+    if (st.uni) { const ut = `🎓 ${st.uni}`; c.fillStyle = '#7AC142'; fit(c, ut, 800, 34, DM, W - 200, 22); c.fillText(ut, W / 2, Y.uni); }
+  }
+  // appel à l'action
+  c.fillStyle = '#7AC142'; rr(c, 130, Y.cta, 820, 96, 48); c.fill();
+  c.fillStyle = '#0E2A4A'; fit(c, C.cta, 800, 40, BR, 760, 28); c.fillText(C.cta, W / 2, Y.cta + 62);
+  c.fillStyle = '#fff'; c.font = `700 30px ${DM}`; c.fillText(SITE, W / 2, Y.url);
+  c.globalAlpha = .7; c.font = `500 24px ${DM}`; c.fillText(C.date, W / 2, Y.date); c.globalAlpha = 1;
+  $('shareimg').src = cv.toDataURL('image/jpeg', .92);
+  $('shareimg').classList.toggle('story', story);
+}
+const blob = () => new Promise((r) => $('cv').toBlob(r, 'image/jpeg', .92));
+$('share').addEventListener('click', async () => {
+  const text = L().shareText(L().profils[st.best].name, EMO[st.best], shareUrl());
+  const f = new File([await blob()], L().file, { type: 'image/jpeg' });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], text }); } catch (e) {} }
+  else open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+});
+$('dl').addEventListener('click', async () => {
+  const u = URL.createObjectURL(await blob()); const a = document.createElement('a'); a.href = u; a.download = L().file; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+});
+
+/* =================== TABLEAU D'ÉQUIPE (données réelles, totaux anonymes) =================== */
+async function renderDash() {
+  $('dashTitle').textContent = L().dashTitle(st.team); $('dashLead').textContent = '…';
+  $('dashUrl').value = shareUrl({ equipe: st.team });
+  $('dashBars').innerHTML = ''; $('dashInsight').textContent = '';
+  let rows = [];
+  try { await new Promise((r) => setTimeout(r, st.recorded ? 0 : 900)); rows = await sbRpc('quiz_stats_equipe', { p_equipe: st.team }); }
+  catch (e) { $('dashLead').textContent = L().dashError; return; }
+  const counts = Object.fromEntries(ORDER.map((k) => [k, 0])); rows.forEach((r) => { counts[r.profil] = r.n; });
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  $('dashLead').textContent = L().dashLead(total);
+  $('dashBars').innerHTML = ranking(counts).map((k) => `<div class="bar ${k === st.best ? 'me' : ''}"><span>${EMO[k]} ${L().profils[k].short}</span><div class="t"><div style="width:${total ? (counts[k] / total) * 100 : 0}%"></div></div><span class="v">${counts[k]}</span></div>`).join('');
+  const missing = ORDER.filter((k) => !counts[k]);
+  $('dashInsight').textContent = total < 3 ? L().dashFew : missing.length ? L().dashMissing(missing.map((k) => L().profils[k].short)) : L().dashBalanced;
+}
+$('toDash').addEventListener('click', () => { renderDash(); show('s-team'); });
+$('dashBack').addEventListener('click', () => show('s-result'));
+
+/* =================== CONFETTIS =================== */
+function confetti() {
+  const cv = $('confetti'), c = cv.getContext('2d'); cv.width = innerWidth; cv.height = innerHeight;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cols = ['#7AC142', '#FFB547', '#5EC8F2', '#ffffff', '#B79CFF', COLOR[st.best]];
+  const ps = Array.from({ length: 140 }, () => ({ x: innerWidth / 2 + (Math.random() - .5) * 80, y: innerHeight * .3, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, s: Math.random() * 8 + 4, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[(Math.random() * cols.length) | 0] }));
+  let t = 0;
+  (function f() {
+    c.clearRect(0, 0, cv.width, cv.height);
+    ps.forEach((p) => { p.vy += .35; p.x += p.vx; p.y += p.vy; p.r += p.vr; c.save(); c.translate(p.x, p.y); c.rotate(p.r); c.fillStyle = p.c; c.globalAlpha = Math.max(0, 1 - t / 140); c.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); c.restore(); });
+    if (++t < 140) requestAnimationFrame(f); else c.clearRect(0, 0, cv.width, cv.height);
+  })();
+}
+
+/* =================== DÉMARRAGE =================== */
+(() => {
+  const q = params.get('lang');
+  let saved = null; try { saved = localStorage.getItem('bst_quiz_lang'); } catch (e) {}
+  const nav = (navigator.language || 'fr').slice(0, 2);
+  setLang(q || saved || (nav === 'en' ? 'en' : nav === 'ht' ? 'ht' : 'fr'));
+})();
+</script>
+</body>
+</html>

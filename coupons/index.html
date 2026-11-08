@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Coupons portraits IA · BST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+  :root { --navy: #0a1f38; --gold: #d8b25a; --ink: #0e2a4a; --muted: #5d6f86; --line: #dfe6ef; --bg: #f4f6fa; --ok: #1a7a3c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 "DM Sans", system-ui, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--navy); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  header h1 { font-size: 18px; margin: 0; }
+  header .sub { color: #b9c8db; }
+  main { max-width: 980px; margin: 0 auto; padding: 18px 16px 40px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .tile { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 14px; }
+  .tile .k { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .tile .v { font-size: 28px; font-weight: 800; }
+  .packs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pack { border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 12px 6px; cursor: pointer; font: 700 15px "DM Sans", system-ui, sans-serif; color: var(--ink); }
+  .pack span { display: block; font-weight: 500; color: var(--muted); font-size: 13px; }
+  .pack[aria-pressed="true"] { border-color: var(--navy); background: #eef3fa; box-shadow: inset 0 0 0 1px var(--navy); }
+  label { display: block; font-weight: 700; font-size: 13px; margin: 12px 0 5px; }
+  input.t { width: 100%; padding: 11px 13px; border: 1.5px solid var(--line); border-radius: 12px; font: 15px "DM Sans", system-ui, sans-serif; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn { border: 1.5px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px; padding: 10px 16px; font: 700 14px "DM Sans", system-ui, sans-serif; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn.main { background: var(--gold); border-color: var(--gold); color: var(--navy); width: 100%; justify-content: center; margin-top: 14px; padding: 13px; font-size: 16px; }
+  .btn.wa { background: #25D366; border-color: #25D366; color: #06381b; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .done { border: 2px solid var(--ok); background: #f1faf3; border-radius: 16px; padding: 16px; margin-top: 14px; text-align: center; }
+  .done .code { font: 800 30px/1.2 ui-monospace, Menlo, monospace; letter-spacing: .06em; margin: 6px 0 12px; }
+  .done .acts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  td.mono { font-family: ui-monospace, Menlo, monospace; font-weight: 700; white-space: nowrap; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pill.ok { background: #e2f4e7; color: var(--ok); } .pill.w { background: #fff4d6; color: #7a5200; }
+  .msg { min-height: 1em; font-size: 14px; color: #b3261e; margin: 10px 0 0; }
+  .login { max-width: 380px; margin: 60px auto; }
+  .hidden { display: none !important; }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div><h1>🖼️ Portraits IA — coupons</h1><span class="sub">Bwat Sekrèm Talks · ventes MonCash</span></div>
+  <div class="hidden" id="who"><span class="sub" id="email"></span> <button class="btn" id="logout" type="button">Déconnexion</button></div>
+</header>
+
+<section class="card login" id="login">
+  <h2>Connexion administrateur</h2>
+  <form id="loginForm">
+    <label for="le">E-mail</label><input class="t" id="le" type="email" autocomplete="username" required />
+    <label for="lp">Mot de passe</label><input class="t" id="lp" type="password" autocomplete="current-password" required />
+    <button class="btn main" type="submit">Se connecter</button>
+    <p class="msg" id="loginMsg"></p>
+  </form>
+</section>
+
+<main class="hidden" id="app">
+  <div class="tiles" id="tiles"></div>
+
+  <section class="card">
+    <h2>Nouveau coupon (après réception du paiement MonCash)</h2>
+    <div class="packs" id="packs"></div>
+    <div class="grid2">
+      <div><label for="cTel">Numéro d’inscription de la personne (facultatif)</label><input class="t" id="cTel" inputmode="tel" placeholder="ex. 3727 4672" />
+        <p class="sub" style="margin:4px 0 0">Le numéro écrit dans son message WhatsApp — pas forcément celui qui a payé MonCash. Rempli : seul ce numéro peut utiliser le code (protège si le code circule). Vide : tout numéro inscrit peut l’utiliser.</p></div>
+      <div><label for="cNote">N° de transaction MonCash (note)</label><input class="t" id="cNote" maxlength="200" placeholder="ex. 1234567890" /></div>
+    </div>
+    <button class="btn main" id="create" type="button" disabled>Créer le coupon</button>
+    <p class="msg" id="cMsg"></p>
+    <div class="done hidden" id="done"></div>
+  </section>
+
+  <section class="card">
+    <h2>Coupons</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Créé le</th><th>Code</th><th>Pack</th><th>Acheteur</th><th>Note</th><th>Statut</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Métiers demandés</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Métier</th><th>WhatsApp</th><th>Langue</th><th>Ajouté ?</th></tr></thead>
+      <tbody id="dem"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.co', 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly');
+const PACKS = { 1: 100, 3: 250, 5: 350 };
+const SITE = 'https://bwatsekremtalks.com/portrait';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmt = (d) => d ? new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+const wa = (tel) => { let d = String(tel || '').replace(/\D/g, ''); if (d.length === 8) d = '509' + d; return d.length >= 10 ? d : ''; };
+const friendly = (e) => /failed to fetch|network/i.test(e?.message || '') ? 'Connexion indisponible. Réessayez.' : /42501|administrateur|permission/i.test(e?.message || '') ? 'Ce compte n’a pas l’accès administrateur.' : 'Une erreur est survenue. Réessayez.';
+let PACK = null, COUPONS = [];
+
+function waText(c) {
+  const link = `${SITE}?code=${encodeURIComponent(c.code)}${c.tel_acheteur ? '&tel=' + c.tel_acheteur : ''}`;
+  return `Merci pour ton paiement ! 🙏\nVoici ton code pour ${c.photos} portrait${c.photos > 1 ? 's' : ''} IA : *${c.code}*\n\nOuvre ce lien pour les débloquer :\n${link}\n\nBwat Sekrèm Talks · Apprendre. Inspirer. Se démarquer.`;
+}
+function renderPacks() {
+  $('packs').innerHTML = Object.entries(PACKS).map(([n, p]) => `<button type="button" class="pack" data-pack="${n}" aria-pressed="${PACK === Number(n)}">${n} portrait${n > 1 ? 's' : ''}<span>${p} G</span></button>`).join('');
+  $('create').disabled = !PACK;
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-pack]'); if (b) { PACK = Number(b.dataset.pack); renderPacks(); } });
+
+$('create').addEventListener('click', async () => {
+  $('create').disabled = true; $('cMsg').textContent = '';
+  const { data: code, error } = await sb.rpc('portrait_creer_coupon', { p_photos: PACK, p_tel: $('cTel').value.trim() || null, p_note: $('cNote').value.trim() || null });
+  $('create').disabled = false;
+  if (error) { $('cMsg').textContent = friendly(error); return; }
+  await load();
+  const c = COUPONS.find((x) => x.code === code) || { code, photos: PACK, tel_acheteur: $('cTel').value.replace(/\D/g, '').slice(-8) || null };
+  const num = wa(c.tel_acheteur);
+  $('done').classList.remove('hidden');
+  $('done').innerHTML = `<div class="sub">Coupon créé · ${c.photos} portrait${c.photos > 1 ? 's' : ''} · ${PACKS[c.photos]} G</div><div class="code">${esc(code)}</div>
+    <div class="acts">${num ? `<a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/${num}?text=${encodeURIComponent(waText(c))}">Envoyer sur WhatsApp</a>` : ''}
+    <button class="btn" type="button" data-copy="${esc(code)}">Copier le code</button></div>`;
+  $('cTel').value = ''; $('cNote').value = ''; PACK = null; renderPacks();
+});
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-copy]'); if (b) { try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'Copié ✓'; } catch {} return; }
+  const r = e.target.closest('[data-traite]');
+  if (r) {
+    const id = Number(r.dataset.traite), v = r.checked;
+    const { error } = await sb.from('portrait_demandes').update({ traite: v }).eq('id', id);
+    if (error) { r.checked = !v; alert(friendly(error)); }
+  }
+});
+
+async function load() {
+  const [c, d, u] = await Promise.all([
+    sb.from('portrait_coupons').select('*').order('cree_le', { ascending: false }),
+    sb.from('portrait_demandes').select('*').order('created_at', { ascending: false }).limit(200),
+    sb.from('portrait_ia_usage').select('n, bonus'),
+  ]);
+  if (c.error) { $('cMsg').textContent = friendly(c.error); return; }
+  COUPONS = c.data || [];
+  const used = COUPONS.filter((x) => x.utilise_le);
+  const usage = u.data || [];
+  const tiles = [
+    ['Coupons vendus', COUPONS.length, `${used.length} utilisé${used.length > 1 ? 's' : ''}`],
+    ['Encaissé (MonCash)', COUPONS.reduce((s, x) => s + x.prix_htg, 0).toLocaleString('fr-FR') + ' G', ''],
+    ['Portraits vendus', COUPONS.reduce((s, x) => s + x.photos, 0), ''],
+    ['Portraits créés', usage.reduce((s, x) => s + x.n, 0), `${usage.length} personne${usage.length > 1 ? 's' : ''}`],
+  ];
+  $('tiles').innerHTML = tiles.map(([k, v, s]) => `<div class="tile"><div class="k">${k}</div><div class="v">${esc(v)}</div><div class="sub">${esc(s)}</div></div>`).join('');
+  $('rows').innerHTML = COUPONS.map((x) => `<tr><td class="sub">${fmt(x.cree_le)}</td><td class="mono">${esc(x.code)}</td><td>${x.photos} · ${x.prix_htg} G</td>
+    <td>${esc(x.tel_acheteur || '—')}</td><td class="sub">${esc(x.note || '')}</td>
+    <td>${x.utilise_le ? `<span class="pill ok">Utilisé</span><div class="sub">${fmt(x.utilise_le)}</div>` : '<span class="pill w">Pas encore utilisé</span>'}</td>
+    <td>${!x.utilise_le && wa(x.tel_acheteur) ? `<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${wa(x.tel_acheteur)}?text=${encodeURIComponent(waText(x))}">Renvoyer</a>` : ''}</td></tr>`).join('') || '<tr><td colspan="7" class="sub">Aucun coupon pour le moment.</td></tr>';
+  $('dem').innerHTML = (d.data || []).map((x) => `<tr><td class="sub">${fmt(x.created_at)}</td><td><strong>${esc(x.metier)}</strong></td><td>${esc(x.telephone || '—')}</td><td>${esc((x.lang || '').toUpperCase())}</td>
+    <td><input type="checkbox" data-traite="${x.id}" ${x.traite ? 'checked' : ''} aria-label="Métier ajouté" /></td></tr>`).join('') || '<tr><td colspan="5" class="sub">Aucune demande.</td></tr>';
+}
+
+async function showApp(session) {
+  $('login').classList.toggle('hidden', !!session); $('app').classList.toggle('hidden', !session); $('who').classList.toggle('hidden', !session);
+  if (session) { $('email').textContent = session.user.email; renderPacks(); await load(); }
+}
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('loginMsg').textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email: $('le').value.trim(), password: $('lp').value });
+  if (error) { $('loginMsg').textContent = 'Connexion impossible : e-mail ou mot de passe incorrect.'; return; }
+  showApp(data.session);
+});
+$('logout').addEventListener('click', async () => { await sb.auth.signOut(); showApp(null); });
+sb.auth.getSession().then(({ data }) => showApp(data.session));
+</script>
+</body>
+</html>

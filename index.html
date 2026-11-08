@@ -795,7 +795,7 @@ const DEFAULT_TPL = `Bonjour {prenom} 👋
 C’est l’équipe de Bwat Sekrèm Talks. Nous avons bien reçu votre réservation pour {places} à notre rencontre :
 
 📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30
-📍 Auditorium Oswald Durand, 31, Rue 18 L, Cap-Haïtien (Collège Bell Angelot)
+📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)
 {accompagnants}
 Merci de nous confirmer votre présence en répondant « OUI » à ce message. En cas d’empêchement, prévenez-nous afin que nous puissions libérer votre place.
 
@@ -822,7 +822,7 @@ function fillTpl(tpl, r) {
 }
 function accText(r, a) {
   const prenom = String(a.nom || '').trim().split(/\s+/)[0];
-  return `Bonjour ${prenom} 👋\n\n${String(r.nom || '').trim()} vous a inscrit(e) à Bwat Sekrèm Talks :\n\n📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 L, Cap-Haïtien (Collège Bell Angelot)\n\nMerci de nous confirmer votre présence en répondant « OUI » à ce message.\n\nÀ très bientôt !\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Se démarquer.`;
+  return `Bonjour ${prenom} 👋\n\n${String(r.nom || '').trim()} vous a inscrit(e) à Bwat Sekrèm Talks :\n\n📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)\n\nMerci de nous confirmer votre présence en répondant « OUI » à ce message.\n\nÀ très bientôt !\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Se démarquer.`;
 }
 function waCell(r) {
   const num = waNumber(r.telephone);

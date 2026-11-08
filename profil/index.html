@@ -136,6 +136,7 @@
     <input type="text" id="prenom" maxlength="20" autocomplete="given-name" />
     <button class="btn go" id="start" type="button" data-t="start"></button>
     <p class="meta" data-t="meta"></p>
+    <p class="meta" id="social" style="display:none;color:#fff;font-weight:700"></p>
     <button class="link" id="toTeam" type="button" data-t="teamLink"></button>
   </section>
 
@@ -264,7 +265,7 @@ const T = {
     title: 'Quel profil <em>pro</em> êtes-vous ?',
     lead: '6 questions, 1 minute. Découvrez votre profil professionnel — et partagez votre carte avec votre réseau.',
     nameLabel: 'Votre prénom (pour votre carte)', namePh: 'ex. Marie',
-    start: 'Commencer le test →', meta: 'Gratuit · aucune inscription nécessaire pour le test',
+    social: (n) => `🔥 Déjà ${n} personnes ont fait le test`, start: 'Commencer le test →', meta: 'Gratuit · aucune inscription nécessaire pour le test',
     teamLink: 'Faire le test en équipe (entreprise, classe, association) →',
     teamCreateTitle: 'Test d’équipe', teamCreateLead: 'Créez un lien pour votre équipe : chaque membre fait le test, et vous découvrez la composition de votre équipe.',
     teamNameLabel: 'Nom de l’équipe', teamNamePh: 'ex. Équipe Marketing', teamCreateBtn: 'Créer le lien de mon équipe', teamLinkLabel: 'Lien à envoyer à votre équipe',
@@ -326,7 +327,7 @@ const T = {
     title: 'Ki pwofil <em>pwo</em> ou genyen?',
     lead: '6 kesyon, 1 minit. Dekouvri pwofil pwofesyonèl ou — epi pataje kat ou ak rezo w.',
     nameLabel: 'Prenon w (pou kat ou)', namePh: 'egz. Marie',
-    start: 'Kòmanse tès la →', meta: 'Gratis · pa bezwen enskri pou fè tès la',
+    social: (n) => `🔥 Deja ${n} moun fè tès la`, start: 'Kòmanse tès la →', meta: 'Gratis · pa bezwen enskri pou fè tès la',
     teamLink: 'Fè tès la an ekip (antrepriz, klas, asosyasyon) →',
     teamCreateTitle: 'Tès an ekip', teamCreateLead: 'Kreye yon lyen pou ekip ou: chak manm fè tès la, epi nou dekouvri konpozisyon ekip la.',
     teamNameLabel: 'Non ekip la', teamNamePh: 'egz. Ekip Maketing', teamCreateBtn: 'Kreye lyen ekip mwen', teamLinkLabel: 'Lyen pou voye bay ekip ou',
@@ -388,7 +389,7 @@ const T = {
     title: 'What’s your <em>pro</em> profile?',
     lead: '6 questions, 1 minute. Discover your professional profile — and share your card with your network.',
     nameLabel: 'Your first name (for your card)', namePh: 'e.g. Marie',
-    start: 'Start the test →', meta: 'Free · no sign-up needed to take the test',
+    social: (n) => `🔥 ${n} people have already taken the test`, start: 'Start the test →', meta: 'Free · no sign-up needed to take the test',
     teamLink: 'Take the test as a team (company, class, club) →',
     teamCreateTitle: 'Team test', teamCreateLead: 'Create a link for your team: each member takes the test, and you discover your team’s make-up.',
     teamNameLabel: 'Team name', teamNamePh: 'e.g. Marketing Team', teamCreateBtn: 'Create my team link', teamLinkLabel: 'Link to send to your team',
@@ -472,7 +473,11 @@ function setLang(lang) {
   if ($('s-quiz').classList.contains('on')) renderQ();
   if ($('s-result').classList.contains('on')) result(true);
   if ($('s-team').classList.contains('on')) renderDash();
+  if (st.total) showSocial();
 }
+const SOCIAL_MIN = 30;   // le compteur (réel) n'apparaît qu'à partir de 30 tests
+function showSocial() { const el = $('social'); if (st.total >= SOCIAL_MIN) { el.textContent = L().social(st.total); el.style.display = 'block'; } }
+sbRpc('quiz_total').then((n) => { st.total = Number(n) || 0; showSocial(); }).catch(() => {});
 document.querySelectorAll('.langs button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
 /* =================== TEST D'ÉQUIPE =================== */

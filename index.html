@@ -283,6 +283,7 @@
         <button class="tab" role="tab" id="tabP" aria-selected="true" type="button">Liste des participants</button>
         <button class="tab" role="tab" id="tabR" aria-selected="false" type="button">Réservations (détails)</button>
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
+        <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">Tès profil</button>
         <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
         <div class="filters">
           <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
@@ -313,6 +314,20 @@
           <tbody id="rowsR"></tbody>
         </table></div>
         <p class="count-line" id="countR"></p>
+      </div>
+
+      <div id="panelQ" class="hidden">
+        <div class="tiles" id="qTiles"></div>
+        <div class="grid2">
+          <div class="card"><h2>Profils obtenus</h2><div class="bars" id="qProfils"></div></div>
+          <div class="card"><h2>Langue utilisée</h2><div class="bars" id="qLangs"></div></div>
+          <div class="card"><h2>Universités</h2><div class="bars" id="qUnis"></div></div>
+          <div class="card"><h2>Tests par jour</h2><div class="bars" id="qDays"></div></div>
+        </div>
+        <div class="card" style="margin-top:12px"><h2>Équipes</h2>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Équipe</th><th>Membres</th><th>Profil dominant</th><th>Composition</th><th>Dernier test</th></tr></thead><tbody id="qTeams"></tbody></table></div>
+        </div>
+        <p class="note">Résultats anonymes du test <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : aucun nom ni numéro n’est enregistré. Le compteur public « Déjà N personnes ont fait le test » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
       <div id="panelA" class="hidden">
@@ -586,6 +601,7 @@ async function load(opts = {}) {
   $('lastRef').textContent = '· ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   if (newIds) LOG.unshift(`${hhmm()} — ${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} ✦`);
   render();
+  if (tab === 'Q') loadQuiz();
   if (newIds) notify(`${newIds} nouvelle${newIds > 1 ? 's' : ''} inscription${newIds > 1 ? 's' : ''} depuis la dernière actualisation.`, 'ok', 15000);
 }
 
@@ -1019,14 +1035,44 @@ $('fQuick').addEventListener('change', () => {
   renderLists(rowsForEdition());
 });
 $('edition').addEventListener('change', render);
-$('refresh').addEventListener('click', load);
+$('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A');
+  for (const k of ['P', 'R', 'A', 'Q']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q');
+  if (t === 'Q') loadQuiz();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
+$('tabQ').addEventListener('click', () => setTab('Q'));
+
+/* ---------- Tès profil (résultats anonymes) ---------- */
+const QP = { M: '🧭 Manager', L: '🔥 Leader', I: '💡 Innovateur', D: '🤖 Stratège digital', B: '🧱 Bâtisseur' };
+const QL = { fr: 'Français', ht: 'Kreyòl', en: 'English' };
+async function loadQuiz() {
+  const { data, error } = await sb.from('quiz_resultats').select('created_at, lang, profil, tendance, equipe, universite').order('created_at', { ascending: false }).limit(5000);
+  if (error) { notify('Impossible de charger les résultats du test. ' + friendly(error), 'warn'); return; }
+  const rows = data || [], n = rows.length;
+  const teams = new Map(); rows.filter((r) => r.equipe).forEach((r) => { const k = r.equipe.trim().toLowerCase(); if (!teams.has(k)) teams.set(k, { nom: r.equipe.trim(), rows: [] }); teams.get(k).rows.push(r); });
+  const unis = new Set(rows.filter((r) => r.universite).map((r) => r.universite));
+  const today = rows.filter((r) => localDay(r.created_at) === localDay(new Date())).length;
+  $('qTiles').innerHTML = [
+    ['Tests réalisés', n, n >= 30 ? 'Compteur public affiché' : `Compteur public dès 30 (encore ${30 - n})`],
+    ['Aujourd’hui', today, 'tests'],
+    ['Équipes', teams.size, 'ont utilisé le mode équipe'],
+    ['Universités', unis.size, `${rows.filter((r) => r.universite).length} étudiants`],
+  ].map(([k, v, sub]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(sub)}</div></div>`).join('');
+  const cnt = (f) => { const m = new Map(); rows.forEach((r) => { const k = f(r); if (k) m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].sort((a, b) => b[1] - a[1]); };
+  bars($('qProfils'), Object.keys(QP).map((k) => [QP[k], rows.filter((r) => r.profil === k).length]).sort((a, b) => b[1] - a[1]), n, 'tests');
+  bars($('qLangs'), cnt((r) => QL[r.lang] || r.lang), n, 'tests');
+  bars($('qUnis'), cnt((r) => r.universite), rows.filter((r) => r.universite).length, 'étudiants');
+  bars($('qDays'), cnt((r) => localDay(r.created_at)).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14).map(([d, v]) => [new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }), v]), n, 'tests');
+  $('qTeams').innerHTML = [...teams.values()].sort((a, b) => b.rows.length - a.rows.length).map((t) => {
+    const c = {}; t.rows.forEach((r) => (c[r.profil] = (c[r.profil] || 0) + 1));
+    const dom = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0];
+    return `<tr><td><strong>${esc(t.nom)}</strong></td><td>${t.rows.length}</td><td>${esc(QP[dom])}</td><td class="sub">${Object.entries(c).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${QP[k].split(' ')[0]} ${v}`).join(' · ')}</td><td class="sub">${esc(fmtDate(t.rows[0].created_at))}</td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">Aucune équipe pour le moment.</td></tr>';
+}
 $('tabP').addEventListener('click', () => setTab('P'));
 for (const w of ['P', 'R']) {
   $('head' + w).addEventListener('click', (e) => {

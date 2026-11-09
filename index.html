@@ -880,7 +880,7 @@ function drawChart(c, type, D, X, Y, Wd, Hd, dark, showN) {
       c.fillStyle = col; c.beginPath(); c.arc(lx + 12, y - 9, 12, 0, 7); c.fill(); if (col === '#FFFFFF' && !dark) { c.strokeStyle = NAVY; c.stroke(); }
       c.font = `700 ${Math.min(34, lh * .6)}px ${LX}`; const pw2 = c.measureText('100 %').width + 14;
       c.font = `400 ${Math.min(22, lh * .4)}px ${LX}`; const nTxt = showN ? ` (${v})` : '', nw = c.measureText(nTxt).width;
-      c.fillStyle = ink; c.font = `400 ${Math.min(28, lh * .5)}px ${LX}`; const lab = fitText(c, s, lw - 38 - pw2 - nw); c.fillText(lab, lx + 38, y);
+      c.fillStyle = ink; let sz = Math.min(28, lh * .5); const av = lw - 38 - pw2 - nw; c.font = `400 ${sz}px ${LX}`; while (c.measureText(s).width > av && sz > 19) { sz--; c.font = `400 ${sz}px ${LX}`; } const lab = fitText(c, s, av); c.fillText(lab, lx + 38, y);
       if (showN) { const x2 = lx + 38 + c.measureText(lab).width; c.fillStyle = mute; c.font = `400 ${Math.min(22, lh * .4)}px ${LX}`; c.fillText(nTxt, x2, y); }
       c.textAlign = 'right'; c.font = `700 ${Math.min(34, lh * .6)}px ${LX}`; c.fillStyle = col === '#FFFFFF' || col === NAVY ? ink : col; c.fillText(pct(v), lx + lw, y);
       c.textAlign = 'left'; });
@@ -904,7 +904,7 @@ async function drawVis() {
   y += lh + 46 * k; c.textAlign = 'center'; c.font = `400 ${21 * k}px ${LX}`; c.letterSpacing = '3px'; c.fillStyle = NAVY; c.fillText('APPRENDRE. INSPIRER. CONSTRUIRE ENSEMBLE', W / 2, y); c.letterSpacing = '0px'; c.textAlign = 'left';
   y += 82 * k; y += richTitle(c, $('vTit').value, W / 2, y, W - 170, 54 * k, false, fmt === 'carre' ? 2 : 3);
   // Panneau
-  const footH = (fmt === 'story' ? 340 : 232) * (fmt === 'carre' ? .88 : 1), px = 58, pt = y + 10, pb = H - footH, pw = W - 2 * px;
+  const footH = (fmt === 'story' ? 400 : 290) * (fmt === 'carre' ? .86 : 1), px = 58, pt = y + 10, pb = H - footH, pw = W - 2 * px;
   if (dark) { const g = c.createLinearGradient(px, pt, px + pw, pb); g.addColorStop(0, '#1d5a2c'); g.addColorStop(.35, '#0D2D4A'); g.addColorStop(1, '#0a2238'); c.fillStyle = g; }
   else c.fillStyle = 'rgba(214,233,255,.88)';
   rr(c, px, pt, pw, pb - pt, 48); c.fill();
@@ -912,12 +912,17 @@ async function drawVis() {
   drawChart(c, VTYPE, visData(VSEL), px + 52, pt + 100 * k, pw - 104, pb - pt - 140 * k, dark, showN);
   // Pied : date · réservation · site · devise
   const ed = ($('edition').selectedOptions[0] || {}).textContent || '', m = /(\d{1,2})\s+(\S+)\s+(\d{4})/.exec(ed), dte = m ? `${m[1]} ${m[2].slice(0, 3).toUpperCase()}. ${m[3]}` : '';
-  let fy = pb + (fmt === 'story' ? 110 : 70) * (fmt === 'carre' ? .85 : 1);
-  const parts = [[dte, `400 ${40 * k}px ${LX}`, BLUE], ['  •  ', `700 ${34 * k}px ${LX}`, NAVY], [T.book + ' ', `300 ${32 * k}px ${LX}`, BLUE], ['+509 48 72 2671', `700 ${32 * k}px ${LX}`, BLUE]];
-  const tw = parts.reduce((a, [s, f]) => { c.font = f; return a + c.measureText(s).width; }, 0); let fx = W / 2 - tw / 2;
-  parts.forEach(([s, f, col]) => { c.font = f; c.fillStyle = col; c.fillText(s, fx, fy); fx += c.measureText(s).width; });
-  c.textAlign = 'center'; fy += 54 * k; c.fillStyle = NAVY; c.font = `400 ${34 * k}px ${LX}`; c.fillText('www.bwatsekremtalks.com', W / 2, fy);
-  fy += 42 * k; c.fillStyle = BLUE; c.font = `italic 300 ${26 * k}px ${LX}`; c.fillText(T.motto, W / 2, fy); c.textAlign = 'left';
+  // Pied plus grand, mis à l'échelle pour remplir ~84 % de la largeur (comme sur les affiches)
+  const fz = (n) => n * k;
+  let fs = 1; const parts = () => [[dte, `500 ${fz(58) * fs}px ${LX}`, BLUE], ['  •  ', `700 ${fz(44) * fs}px ${LX}`, BLUE], [T.book + ' ', `300 ${fz(42) * fs}px ${LX}`, BLUE], ['+509 48 72 2671', `700 ${fz(42) * fs}px ${LX}`, BLUE]];
+  const meas = () => parts().reduce((a, [s, f]) => { c.font = f; return a + c.measureText(s).width; }, 0);
+  fs = Math.min(1.25, (W - 150) / meas());
+  const m1 = Math.min(1, fs), blockH = fz(58) * fs * .75 + fz(72) * m1 + fz(54) * m1 + fz(8);
+  let fy = pb + (H - 30 - pb - blockH) / 2 + fz(58) * fs * .75;
+  let fx = W / 2 - meas() / 2;
+  parts().forEach(([s, f, col]) => { c.font = f; c.fillStyle = col; c.fillText(s, fx, fy); fx += c.measureText(s).width; });
+  c.textAlign = 'center'; fy += fz(72) * Math.min(1, fs); c.fillStyle = NAVY; c.font = `400 ${fz(50) * Math.min(1.1, fs)}px ${LX}`; c.fillText('www.bwatsekremtalks.com', W / 2, fy);
+  fy += fz(54) * Math.min(1, fs); c.fillStyle = BLUE; c.font = `italic 300 ${fz(36) * Math.min(1.1, fs)}px ${LX}`; c.fillText(T.motto, W / 2, fy); c.textAlign = 'left';
 }
 function visUI() {
   $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join('');

@@ -94,6 +94,7 @@
 <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EPBK3XEPPW', { cookie_flags: 'SameSite=None;Secure' });</script>
 </head>
 <body>
+<div id="tesBar" class="hidden" style="background:#5b2bb5;color:#fff;padding:10px 16px;text-align:center;font:600 14px 'DM Sans',sans-serif"></div>
 <header class="top">
   <a href="https://bwatsekremtalks.com/" target="_top" class="home" title="Accueil · Bwat Sekrèm Talks"><img src="logos/bst-blanc.png" alt="Bwat Sekrèm Talks — accueil" /></a>
   <div class="langs" role="group" aria-label="Langue">
@@ -143,10 +144,10 @@
     <div class="tips"><div data-t="tip1"></div><div data-t="tip2"></div><div data-t="tip3"></div></div>
     <label class="f" for="prenom" data-t="prenomL"></label>
     <input class="t" id="prenom" maxlength="24" autocomplete="given-name" />
-    <label class="f" for="tel" data-t="telL"></label>
+    <div id="pubOnly"><label class="f" for="tel" data-t="telL"></label>
     <input class="t" id="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 3727 4672" />
     <p class="sub" style="margin:6px 0 0" data-t="telS"></p>
-    <label class="consent"><input type="checkbox" id="ok" /><span data-t="consent"></span></label>
+    <label class="consent"><input type="checkbox" id="ok" /><span data-t="consent"></span></label></div>
     <p class="err" id="err2" role="alert"></p>
     <button class="btn main" id="go2" type="button" disabled></button>
   </section>
@@ -199,6 +200,11 @@
 /* ===================== Réglages ===================== */
 // URL de la fonction Supabase qui appelle l’IA. Vide = mode démo (aucun appel payant).
 const API = new URLSearchParams(location.search).has('demo') ? '' : 'https://nltlgytehikguydcdhyy.supabase.co/functions/v1/portrait-ia';
+/* Mode test admin (?tes=1) : sans quota ni numéro, réservé à un admin BST connecté sur ce navigateur ; coûts notés « test ». */
+function adminTok() { try { const k = Object.keys(localStorage).find((x) => /^sb-.*-auth-token$/.test(x)); return k ? JSON.parse(localStorage.getItem(k)).access_token : null; } catch { return null; } }
+const TES = new URLSearchParams(location.search).has('tes') && !!adminTok();
+let TES_N = 0, TES_USD = 0;
+function tesBar(extra) { const b = document.getElementById('tesBar'); b.classList.remove('hidden'); b.textContent = TES ? `🧪 Mode test admin : sans quota ni numéro. Les coûts sont notés « test » dans la rentabilité.${extra || ''}` : '⚠️ Mode test : connecte-toi d’abord à l’admin BST sur ce navigateur, puis recharge cette page.'; }
 // Paiement manuel : MonCash + capture sur WhatsApp, puis code coupon (même numéro que sur le site).
 const MONCASH = { num: '+509 4872-2671', nom: 'Bwat Sekrèm Talks' };
 const WA_PAIEMENT = '50948722671';
@@ -424,7 +430,7 @@ $('reqGo').addEventListener('click', async () => {
 $('again').addEventListener('click', () => { S.prof = null; renderOpts(); show('s1'); });
 
 /* ----- Photo : réduite à 1024 px avant envoi (plus rapide, moins cher) ----- */
-function check2() { $('go2').disabled = !(S.photo && $('ok').checked && $('tel').value.replace(/\D/g, '').length >= 8 && S.left > 0); }
+function check2() { $('go2').disabled = !(S.photo && (TES || ($('ok').checked && $('tel').value.replace(/\D/g, '').length >= 8 && S.left > 0))); }
 ['ok', 'tel', 'prenom'].forEach((id) => $(id).addEventListener('input', check2));
 $('file').addEventListener('change', () => {
   const f = $('file').files[0]; if (!f) return;
@@ -446,13 +452,13 @@ $('file').addEventListener('change', () => {
 let MSG_T = null;
 $('go2').addEventListener('click', async () => {
   if (!S.photo) { $('err2').textContent = t().errPhoto; return; }
-  if ($('tel').value.replace(/\D/g, '').length < 8) { $('err2').textContent = t().errTel; return; }
+  if (!TES && $('tel').value.replace(/\D/g, '').length < 8) { $('err2').textContent = t().errTel; return; }
   show('sGen');
   let i = 0; $('genMsg').textContent = t().msgs[0];
   MSG_T = setInterval(() => { i = Math.min(i + 1, t().msgs.length - 1); $('genMsg').textContent = t().msgs[i]; }, 2200);
   try {
     const out = S.demo ? await demoPortrait() : await aiPortrait();
-    S.result = out; S.left = Math.max(0, S.left - 1);
+    S.result = out; S.left = TES ? 99 : Math.max(0, S.left - 1);
     $('demoNote').classList.toggle('hidden', !S.demo);
     $('resT').textContent = t().resT(profTitle()); $('left').textContent = t().left(S.left);
     $('again').classList.toggle('hidden', S.left <= 0);
@@ -460,7 +466,7 @@ $('go2').addEventListener('click', async () => {
     drawCard(); show('s3');
   } catch (err) {
     show('s2');
-    $('err2').textContent = ({ quota: t().errQuota, not_registered: t().errNotReg, closed: t().errClosed })[err.message] || t().errApi;
+    $('err2').textContent = ({ quota: t().errQuota, not_registered: t().errNotReg, closed: t().errClosed, pa_admin: 'Session admin expirée : reconnecte-toi à l’admin BST puis recharge la page.' })[err.message] || t().errApi;
     if (err.message === 'quota') { S.left = 0; QUOTA_ERR = true; renderBuy(); }
   } finally { clearInterval(MSG_T); check2(); }
 });
@@ -468,12 +474,13 @@ $('go2').addEventListener('click', async () => {
 async function aiPortrait() {
   const prof = PROFS.find((x) => x.k === S.prof);
   const r = await fetch(API, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: S.photoURL.split(',')[1], profession: prof.k, decor: S.decor, telephone: $('tel').value, lang: S.lang }),
+    method: 'POST', headers: { 'Content-Type': 'application/json', ...(TES ? { Authorization: `Bearer ${adminTok()}` } : {}) },
+    body: JSON.stringify({ image: S.photoURL.split(',')[1], profession: prof.k, decor: S.decor, telephone: $('tel').value, lang: S.lang, ...(TES ? { tes: true } : {}) }),
   });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.error || 'api');
   if (typeof j.left === 'number') S.left = j.left + 1;   // décrémenté juste après
+  if (TES) { TES_N++; TES_USD += j.cost || 0; tesBar(` · Cette session : ${TES_N} test(s), ${TES_USD.toFixed(3)} $ (dernier : ${(j.cost || 0).toFixed(3)} $).`); }
   const img = new Image(); img.src = 'data:' + (j.mime || 'image/png') + ';base64,' + j.image;
   await img.decode(); return img;
 }
@@ -616,6 +623,7 @@ $('redeem').addEventListener('click', async () => {
 /* ----- Le portrait est gardé sur le téléphone (1 seul par personne) ----- */
 const KEEP = 'bst_portrait_v1';
 function keep() {
+  if (TES) return;
   try {
     const c = document.createElement('canvas'), im = S.result, k = Math.min(1, 900 / im.width);
     c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
@@ -623,6 +631,7 @@ function keep() {
   } catch {}
 }
 async function restore() {
+  if (TES) return;
   let k = null; try { k = JSON.parse(localStorage.getItem(KEEP) || 'null'); } catch {}
   if (!k || !k.img || !PROFS.some((p) => p.k === k.prof)) return;
   const im = new Image(); im.src = k.img; try { await im.decode(); } catch { return; }
@@ -633,6 +642,7 @@ async function restore() {
 
 /* ----- Démarrage ----- */
 const q = new URLSearchParams(location.search);
+if (q.has('tes')) { tesBar(); if (TES) { $('pubOnly').classList.add('hidden'); S.left = 99; } }
 let lang0 = q.get('lang'); try { lang0 = lang0 || localStorage.getItem('bst_lang'); } catch {}
 lang0 = lang0 || ((navigator.language || '').startsWith('en') ? 'en' : 'fr');
 if (q.get('prenom')) $('prenom').value = q.get('prenom').slice(0, 24);

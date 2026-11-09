@@ -310,6 +310,7 @@
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
+        <button class="tab" role="tab" id="tabM" aria-selected="false" type="button">💰 Rentabilité</button>
         <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
         <div class="filters">
           <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
@@ -382,6 +383,20 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelM" class="hidden">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <label class="sub">Période <select id="mPer" style="padding:8px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit;margin-left:4px"><option value="0">Depuis le début</option><option value="30">30 derniers jours</option><option value="7">7 derniers jours</option><option value="1">Aujourd’hui</option></select></label>
+          <label class="sub">Taux : 1 $ = <input id="mTaux" type="number" min="50" max="400" step="1" value="135" style="width:80px;padding:8px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit" /> G</label>
+          <a class="btn" href="portrait/?tes=1" target="_blank" rel="noopener" style="margin-left:auto;background:#5b2bb5;border-color:#5b2bb5;color:#fff">🧪 Tester un portrait (sans quota)</a>
+        </div>
+        <div class="tiles" id="mTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>Par service</h2>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Service</th><th>Codes vendus</th><th>Revenus</th><th>Utilisations IA</th><th>Coût IA</th><th>Marge</th></tr></thead><tbody id="mRows"></tbody></table></div>
+          <p class="note" id="mNote"></p></div>
+        <div class="card" style="margin-top:12px"><h2>🧪 Tests admin <span class="sub" id="mTN"></span></h2>
+          <p class="sub" style="margin:0 0 8px">Les tests faits avec le bouton violet ne consomment aucun quota et sont comptés à part dans le tableau, et déduits de la marge totale.</p>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Métier</th><th>Décor</th><th>Résultat</th><th>Coût</th></tr></thead><tbody id="mTests"></tbody></table></div></div>
+      </div>
       <div id="panelC" class="hidden">
         <div class="counters" id="ptCounters"></div>
         <div class="presbar" aria-hidden="true"><div id="ptBar" style="width:0"></div></div>
@@ -1475,13 +1490,55 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
+$('tabM').addEventListener('click', () => setTab('M'));
+/* ---------- Rentabilité : ventes (coupons utilisés) − coûts IA réels (OpenRouter) ---------- */
+let MD = null;
+const EST_PORTRAIT = 0.038;   // coût estimé des portraits faits avant le suivi (9 nov. 2026)
+try { const tx = localStorage.getItem('bst_taux'); if (tx) $('mTaux').value = tx; } catch {}
+async function loadRant() {
+  const [pc, ck, pj, cj, pu] = await Promise.all([
+    sb.from('portrait_coupons').select('code, photos, prix_htg, cree_le, utilise_le').limit(5000),
+    sb.from('cv_koupon').select('code, pake, prix_htg, cree_le, utilise_le').limit(5000),
+    sb.from('portrait_jounal').select('created_at, metye, decor, tes, ok, kout_usd').order('created_at', { ascending: false }).limit(10000),
+    sb.from('cv_ia_jounal').select('created_at, kout_usd, aksyon').limit(20000),
+    sb.from('portrait_ia_usage').select('n'),
+  ]);
+  const err = [pc, ck, pj, cj, pu].find((x) => x.error); if (err) { notify('Rentabilité : ' + friendly(err.error), 'warn'); }
+  MD = { pc: pc.data || [], ck: ck.data || [], pj: pj.data || [], cj: cj.data || [], gen: (pu.data || []).reduce((a, r) => a + (r.n || 0), 0) };
+  renderRant();
+}
+function renderRant() {
+  if (!MD) return;
+  const taux = Math.max(1, +$('mTaux').value || 135), per = +$('mPer').value, since = per ? (per === 1 ? new Date(new Date().setHours(0, 0, 0, 0)) : new Date(Date.now() - per * 864e5)) : null;
+  const inP = (d) => d && (!since || new Date(d) >= since), G = (usd) => Math.round(usd * taux), fG = (g) => `${Math.round(g).toLocaleString('fr-FR')} G`, fU = (u) => `${u.toFixed(2).replace('.', ',')} $`;
+  const pcU = MD.pc.filter((c) => inP(c.utilise_le)), ckU = MD.ck.filter((c) => inP(c.utilise_le));
+  const revP = pcU.reduce((a, c) => a + (c.prix_htg || 0), 0), revC = ckU.reduce((a, c) => a + (c.prix_htg || 0), 0);
+  const pjP = MD.pj.filter((r) => inP(r.created_at)), prod = pjP.filter((r) => !r.tes), tests = pjP.filter((r) => r.tes);
+  const sumU = (L) => L.reduce((a, r) => a + (+r.kout_usd || 0), 0);
+  const okLogged = MD.pj.filter((r) => !r.tes && r.ok).length, histN = per ? 0 : Math.max(0, MD.gen - okLogged), histU = histN * EST_PORTRAIT;
+  const costP = sumU(prod) + histU, costT = sumU(tests), cjP = MD.cj.filter((r) => inP(r.created_at)), costC = sumU(cjP);
+  const rev = revP + revC, cost = costP + costC, marge = rev - G(cost) - G(costT);
+  const pend = [...MD.pc, ...MD.ck].filter((c) => !c.utilise_le), pendG = pend.reduce((a, c) => a + (c.prix_htg || 0), 0);
+  $('mTiles').innerHTML = [['Revenus', fG(rev), `${pcU.length + ckU.length} code(s) utilisé(s)`], ['Coût IA (ventes)', fG(G(cost)), fU(cost)], ['Tests admin', fG(G(costT)), `${tests.length} test(s) · ${fU(costT)}`], ['Marge', fG(marge), rev ? `${Math.round(marge / rev * 100)} % des revenus` : 'aucune vente sur la période']]
+    .map(([k, v, s], i) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v" style="${i === 3 ? `color:${marge >= 0 ? '#1a7a3c' : '#b3261e'}` : ''}">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  const cjBy = (a) => cjP.filter((r) => (r.aksyon || 'ameliore') === a);
+  const row = (n, ventes, revG, uses, usd, extra = '') => `<tr><td><strong>${n}</strong>${extra}</td><td>${ventes}</td><td>${revG == null ? '—' : fG(revG)}</td><td>${uses}</td><td>${fU(usd)} <span class="sub">(${fG(G(usd))})</span></td><td>${revG == null ? '—' : `<b style="color:${revG - G(usd) >= 0 ? '#1a7a3c' : '#b3261e'}">${fG(revG - G(usd))}</b>`}</td></tr>`;
+  $('mRows').innerHTML = row('🖼️ Portraits IA', pcU.length, revP, `${prod.filter((r) => r.ok).length + histN}${prod.some((r) => !r.ok) ? ` <span class="sub">(+${prod.filter((r) => !r.ok).length} échec)</span>` : ''}`, costP, histN ? `<br><span class="sub">dont ${histN} avant le suivi (estimés)</span>` : '')
+    + row('📄 CV (codes)', ckU.length, revC, cjP.length, costC, `<br><span class="sub">✨ ${cjBy('ameliore').length} amélioration(s) · 🎯 ${cjBy('analiz').length} analyse(s) · 📑 ${cjBy('adapte').length} version(s)</span>`)
+    + row('🧪 Tests admin', '—', null, tests.length, costT);
+  $('mNote').textContent = `Revenus = codes (portraits et CV) utilisés sur la période. ${pend.length} code(s) créé(s) mais pas encore utilisé(s) : ${fG(pendG)} non comptés. Coûts IA réels d’OpenRouter (en dollars), convertis au taux choisi.${histN ? ` Les ${histN} portraits faits avant le 9 novembre sont estimés à ${String(EST_PORTRAIT).replace(".", ",")} $ chacun.` : ''}`;
+  $('mTN').textContent = `· ${tests.length} sur la période`;
+  $('mTests').innerHTML = tests.slice(0, 50).map((r) => `<tr><td class="sub">${esc(fmtDate(r.created_at))}</td><td>${esc(r.metye || '')}</td><td class="sub">${esc(r.decor || '')}</td><td>${r.ok ? '✅' : '❌ échec'}</td><td>${r.kout_usd != null ? fU(+r.kout_usd) : '—'}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun test sur la période.</td></tr>';
+}
+$('mPer').addEventListener('change', renderRant);
+$('mTaux').addEventListener('input', () => { try { localStorage.setItem('bst_taux', $('mTaux').value); } catch {} renderRant(); });
 $('tabQ').addEventListener('click', () => setTab('Q'));
 $('tabC').addEventListener('click', () => setTab('C'));
 $('tabV').addEventListener('click', () => setTab('V'));

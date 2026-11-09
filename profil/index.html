@@ -117,6 +117,9 @@
   .foot { text-align: center; font-size: 13px; color: rgba(255,255,255,.55); margin-top: 26px; }
   #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 20; width: 100%; height: 100%; }
 </style>
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EPBK3XEPPW"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EPBK3XEPPW', { cookie_flags: 'SameSite=None;Secure' });</script>
 </head>
 <body>
 <canvas id="confetti"></canvas>
@@ -254,6 +257,7 @@ async function sbRpc(fn, args) {
 }
 function record() {   // résultat : profil, tendance, langue, équipe, université (+ prénom et numéro, sauf si « rester anonyme »)
   const anon = $('anon').checked;
+  try { gtag('event', 'adn_pro_fini', { profil: st.best, source: st.source }); } catch {}
   fetch(`${SB_URL}/rest/v1/quiz_resultats`, { method: 'POST', headers: { ...sbHeaders, Prefer: 'return=minimal' }, keepalive: true,
     body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null, source: st.source, non: anon ? null : (st.prenom || null), telefon: anon ? null : (st.tel || null) }) })
     .then(() => { st.recorded = true; }).catch(() => {});

@@ -426,6 +426,9 @@
       <label for="vLang">Langue</label><select id="vLang"><option value="fr">Français</option><option value="ht">Kreyòl</option><option value="en">English</option></select>
       <label for="vTit">Titre <span class="sub" style="font-weight:400">· mets *des étoiles* autour des mots en vert</span></label><input type="text" id="vTit" maxlength="80" />
       <label for="vSub">Sous-titre</label><input type="text" id="vSub" maxlength="90" />
+      <details style="margin-top:10px" open><summary style="font-weight:700;font-size:13px;cursor:pointer">🔠 Taille des textes</summary>
+        <div id="vSz" style="display:grid;grid-template-columns:auto 1fr 44px;gap:4px 8px;align-items:center;font-size:13px;margin-top:6px"></div>
+        <button class="btn" type="button" id="vSzR" style="margin-top:6px;padding:4px 10px;font-size:12px">Remettre les tailles par défaut</button></details>
       <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="vNum" checked /> Afficher les nombres (sinon seulement les %)</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" type="button" id="vDl" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">⬇️ Télécharger (PNG)</button><button class="btn" type="button" id="vPr">🖨️ Imprimer</button></div>
       <p class="sub" style="margin:10px 0 0">Les chiffres viennent des inscriptions de l’édition choisie (annulées exclues). « Non précisé » n’apparaît pas sur les visuels.</p>
@@ -902,28 +905,36 @@ async function drawVis() {
   if (logo) c.drawImage(logo, gx, y, lw, lh);
   c.fillStyle = NAVY; c.font = `400 ${50 * k}px ${LX}`; c.fillText('Bwat', gx + lw + 22, y + lh * .42); c.fillText('Sekrem', gx + lw + 22, y + lh * .42 + 44 * k); c.font = `700 ${50 * k}px ${LX}`; c.fillText('talks', gx + lw + 22, y + lh * .42 + 88 * k);
   y += lh + 46 * k; c.textAlign = 'center'; c.font = `400 ${21 * k}px ${LX}`; c.letterSpacing = '3px'; c.fillStyle = NAVY; c.fillText('APPRENDRE. INSPIRER. CONSTRUIRE ENSEMBLE', W / 2, y); c.letterSpacing = '0px'; c.textAlign = 'left';
-  y += 82 * k; y += richTitle(c, $('vTit').value, W / 2, y, W - 170, 54 * k, false, fmt === 'carre' ? 2 : 3);
+  const S = VSZ; y += 82 * k * Math.max(.8, S.tit); y += richTitle(c, $('vTit').value, W / 2, y, W - 170, 54 * k * S.tit, false, fmt === 'carre' ? 2 : 3);
   // Panneau
   const footH = (fmt === 'story' ? 400 : 290) * (fmt === 'carre' ? .86 : 1), px = 58, pt = y + 10, pb = H - footH, pw = W - 2 * px;
   if (dark) { const g = c.createLinearGradient(px, pt, px + pw, pb); g.addColorStop(0, '#1d5a2c'); g.addColorStop(.35, '#0D2D4A'); g.addColorStop(1, '#0a2238'); c.fillStyle = g; }
   else c.fillStyle = 'rgba(214,233,255,.88)';
   rr(c, px, pt, pw, pb - pt, 48); c.fill();
-  c.textAlign = 'center'; c.fillStyle = dark ? 'rgba(255,255,255,.92)' : NAVY; c.font = `300 ${30 * k}px ${LX}`; c.fillText($('vSub').value, W / 2, pt + 62 * k); c.textAlign = 'left';
-  drawChart(c, VTYPE, visData(VSEL), px + 52, pt + 100 * k, pw - 104, pb - pt - 140 * k, dark, showN);
+  c.textAlign = 'center'; c.fillStyle = dark ? 'rgba(255,255,255,.92)' : NAVY; c.font = `300 ${30 * k * S.sub}px ${LX}`; c.fillText($('vSub').value, W / 2, pt + 62 * k * Math.max(.85, S.sub)); c.textAlign = 'left';
+  const cTop = 100 * k * Math.max(.85, S.sub); drawChart(c, VTYPE, visData(VSEL), px + 52, pt + cTop, pw - 104, pb - pt - cTop - 40 * k, dark, showN);
   // Pied : date · réservation · site · devise
   const ed = ($('edition').selectedOptions[0] || {}).textContent || '', m = /(\d{1,2})\s+(\S+)\s+(\d{4})/.exec(ed), dte = m ? `${m[1]} ${m[2].slice(0, 3).toUpperCase()}. ${m[3]}` : '';
-  // Pied plus grand, mis à l'échelle pour remplir ~84 % de la largeur (comme sur les affiches)
+  // Pied : taille auto (≈ 84 % de la largeur) × réglages de l'utilisateur
   const fz = (n) => n * k;
   let fs = 1; const parts = () => [[dte, `500 ${fz(58) * fs}px ${LX}`, BLUE], ['  •  ', `700 ${fz(44) * fs}px ${LX}`, BLUE], [T.book + ' ', `300 ${fz(42) * fs}px ${LX}`, BLUE], ['+509 48 72 2671', `700 ${fz(42) * fs}px ${LX}`, BLUE]];
   const meas = () => parts().reduce((a, [s, f]) => { c.font = f; return a + c.measureText(s).width; }, 0);
-  fs = Math.min(1.25, (W - 150) / meas());
-  const m1 = Math.min(1, fs), blockH = fz(58) * fs * .75 + fz(72) * m1 + fz(54) * m1 + fz(8);
-  let fy = pb + (H - 30 - pb - blockH) / 2 + fz(58) * fs * .75;
+  const auto = Math.min(1.25, (W - 150) / meas()), m1 = Math.min(1, auto);
+  fs = Math.min(auto * S.date, (W - 90) / (meas() / fs));
+  const s2 = fz(50) * Math.min(1.1, auto) * S.site, s3 = fz(36) * Math.min(1.1, auto) * S.motto, g1 = fz(58) * fs * .75;
+  const blockH = g1 + s2 * 1.3 + s3 * 1.4 + fz(8);
+  let fy = pb + (H - 30 - pb - blockH) / 2 + g1;
   let fx = W / 2 - meas() / 2;
   parts().forEach(([s, f, col]) => { c.font = f; c.fillStyle = col; c.fillText(s, fx, fy); fx += c.measureText(s).width; });
-  c.textAlign = 'center'; fy += fz(72) * Math.min(1, fs); c.fillStyle = NAVY; c.font = `400 ${fz(50) * Math.min(1.1, fs)}px ${LX}`; c.fillText('www.bwatsekremtalks.com', W / 2, fy);
-  fy += fz(54) * Math.min(1, fs); c.fillStyle = BLUE; c.font = `italic 300 ${fz(36) * Math.min(1.1, fs)}px ${LX}`; c.fillText(T.motto, W / 2, fy); c.textAlign = 'left';
+  c.textAlign = 'center'; fy += s2 * 1.38; c.fillStyle = NAVY; c.font = `400 ${s2}px ${LX}`; c.fillText('www.bwatsekremtalks.com', W / 2, fy);
+  fy += s3 * 1.45; c.fillStyle = BLUE; c.font = `italic 300 ${s3}px ${LX}`; c.fillText(T.motto, W / 2, fy); c.textAlign = 'left';
 }
+const VSZ_DEF = { tit: 1, sub: 1, date: 1, site: 1, motto: 1 }, VSZ_L = [['tit', 'Titre'], ['sub', 'Sous-titre'], ['date', 'Date · réservation'], ['site', 'Site web'], ['motto', 'Devise']];
+let VSZ = { ...VSZ_DEF }; try { Object.assign(VSZ, JSON.parse(localStorage.getItem('bst_vis_sz') || '{}')); } catch {}
+function visSz() { $('vSz').innerHTML = VSZ_L.map(([k, n]) => `<span>${n}</span><input type="range" min="60" max="150" step="5" value="${Math.round(VSZ[k] * 100)}" data-sz="${k}" /><b id="vSzV_${k}">${Math.round(VSZ[k] * 100)} %</b>`).join(''); }
+$('vSz').addEventListener('input', (e) => { const r = e.target.closest('[data-sz]'); if (!r) return; VSZ[r.dataset.sz] = +r.value / 100; $('vSzV_' + r.dataset.sz).textContent = r.value + ' %'; try { localStorage.setItem('bst_vis_sz', JSON.stringify(VSZ)); } catch {} drawVis(); });
+$('vSzR').addEventListener('click', () => { VSZ = { ...VSZ_DEF }; try { localStorage.removeItem('bst_vis_sz'); } catch {} visSz(); drawVis(); });
+visSz();
 function visUI() {
   $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join('');
   $('vTyp').innerHTML = VTYPES.map(([x, n]) => `<button type="button" data-vy="${x}" aria-pressed="${x === VTYPE}" ${VSEL === 'resume' && x !== 'cartes' ? 'disabled style="opacity:.4"' : ''}>${n}</button>`).join('');

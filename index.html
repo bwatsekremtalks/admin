@@ -336,7 +336,7 @@
         <div class="card" style="margin-top:12px"><h2>🎟️ Vendre un accès CV (coupon)</h2>
           <p class="sub" style="margin:0 0 10px">1) La personne paie par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp. 2) Vérifie le paiement. 3) Crée le code ici et envoie-le lui. Un code s’utilise une fois ; il sert aussi à retrouver le CV sur un autre téléphone. Un 2ᵉ code sur le même téléphone ajoute des crédits.</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
-            <label class="sub">Pack<br><select id="vkPake" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit"><option value="pro">CV Pro · 500 G (1 analyse + 1 version)</option><option value="postilan">Pack Postulant · 1 000 G (5 + 5 + entretien)</option></select></label>
+            <label class="sub">Pack<br><select id="vkPake" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit"><option value="pro">CV Pro · 1 000 G (1 analyse + 1 version)</option><option value="postilan">Pack Postulant · 2 500 G (5 + 5 + entretien)</option></select></label>
             <label class="sub">Téléphone de l’acheteur<br><input id="vkTel" inputmode="tel" maxlength="25" placeholder="ex. 3727 4672" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit;width:170px" /></label>
             <label class="sub">Note<br><input id="vkNote" maxlength="120" placeholder="ex. réf. MonCash" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit;width:200px" /></label>
             <button class="btn" type="button" id="vkB" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Créer le code</button>
@@ -1264,7 +1264,7 @@ $('vkB').addEventListener('click', async () => {
   const msg = `Mèsi ! Men kòd CV ou : ${code}\nLouvri paj CV a epi antre kòd la : https://bwatsekremtalks.com/cv\n(Kenbe kòd la : li pèmèt ou jwenn CV w sou yon lòt telefòn.)`;
   const d = String(tel).replace(/\D/g, ''), wa = d ? `https://wa.me/${d.length === 8 ? '509' + d : d}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   $('vkOut').innerHTML = `<div style="background:#eef9e6;border:1px solid #b9e09a;border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span style="font:800 22px monospace;letter-spacing:.08em">${esc(code)}</span>
-    <button class="btn" type="button" id="vkCp">📋 Copier</button><a class="btn" href="${esc(wa)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a><span class="sub">${pake === 'postilan' ? 'Pack Postulant · 1 000 G' : 'CV Pro · 500 G'}</span></div>`;
+    <button class="btn" type="button" id="vkCp">📋 Copier</button><a class="btn" href="${esc(wa)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a><span class="sub">${pake === 'postilan' ? 'Pack Postulant · 2 500 G' : 'CV Pro · 1 000 G'}</span></div>`;
   $('vkCp').onclick = () => navigator.clipboard?.writeText(code);
   $('vkTel').value = ''; $('vkNote').value = ''; loadVK();
 });

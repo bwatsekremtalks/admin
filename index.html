@@ -797,11 +797,11 @@ const NAVY = '#0D2D4A', GREEN = '#5DB033', BLUE = '#1E8CF0';
 const PAL_L = ['#5DB033', '#1E8CF0', '#0D2D4A', '#F5A623', '#1B5FA8', '#9BD36F', '#E8505B', '#7FC1FF', '#90A4AE'];
 const PAL_D = ['#7AC142', '#4FB0FF', '#FFFFFF', '#F5A623', '#A8D5FF', '#B9E39A', '#FFD54F', '#F06292', '#B0BEC5'];
 const VTX = {
-  fr: { src: ['Comment vous avez *connu* Bwat Sekrèm Talks', 'Merci à vous qui partagez !'], uni: ['Toutes les *universités* au rendez-vous', 'D’où viennent les étudiants inscrits'], niv: ['Du cycle court *au doctorat*', 'Niveau d’études des étudiants inscrits'], sexe: ['Femmes et hommes *au rendez-vous*', 'Répartition des personnes inscrites'], profil: ['Qui sera *dans la salle* ?', 'Les profils des personnes inscrites'], resume: ['Bwat Sekrèm Talks *en chiffres*', 'Les inscriptions à ce jour'],
+  fr: { src: ['Comment vous avez *connu* Bwat Sekrèm Talks', 'Merci à vous qui partagez !'], uni: ['Toutes les *universités* au rendez-vous', 'D’où viennent les étudiants inscrits'], niv: ['Du cycle court *au doctorat*', 'Niveau d’études des étudiants inscrits'], sexe: ['Femmes et hommes *au rendez-vous*', 'Répartition des personnes inscrites'], profil: ['Qui sera *dans la salle* ?', 'Les profils des personnes inscrites (plusieurs choix possibles)'], resume: ['Bwat Sekrèm Talks *en chiffres*', 'Les inscriptions à ce jour'],
     book: 'Réservez votre place', motto: 'Plus qu’un événement, une communauté.', partT: 'Avec le soutien de', prop: 'Propulsé par *Bwat Sekrèm Talks*', pers: 'personnes inscrites', resa: 'réservations', fem: 'de femmes', unis: 'universités représentées', on: 'personnes', F: 'Femmes', H: 'Hommes' },
-  ht: { src: ['Kijan nou te *konnen* Bwat Sekrèm Talks', 'Mèsi paske nou pataje !'], uni: ['Tout *inivèsite* yo la', 'Kote etidyan ki enskri yo soti'], niv: ['Depi sik kout *rive doktora*', 'Nivo etid etidyan ki enskri yo'], sexe: ['Fanm kou gason *ap la*', 'Moun ki enskri yo'], profil: ['Ki moun ki pral *nan sal la* ?', 'Pwofil moun ki enskri yo'], resume: ['Bwat Sekrèm Talks *an chif*', 'Enskripsyon yo jiska jodi a'],
+  ht: { src: ['Kijan nou te *konnen* Bwat Sekrèm Talks', 'Mèsi paske nou pataje !'], uni: ['Tout *inivèsite* yo la', 'Kote etidyan ki enskri yo soti'], niv: ['Depi sik kout *rive doktora*', 'Nivo etid etidyan ki enskri yo'], sexe: ['Fanm kou gason *ap la*', 'Moun ki enskri yo'], profil: ['Ki moun ki pral *nan sal la* ?', 'Pwofil moun ki enskri yo (yo ka chwazi plizyè)'], resume: ['Bwat Sekrèm Talks *an chif*', 'Enskripsyon yo jiska jodi a'],
     book: 'Rezève plas ou', motto: 'Plis pase yon evènman, yon kominote.', partT: 'Avèk sipò', prop: 'Yon pwodiksyon *Bwat Sekrèm Talks*', pers: 'moun enskri', resa: 'rezèvasyon', fem: 'se fanm', unis: 'inivèsite reprezante', on: 'moun', F: 'Fanm', H: 'Gason' },
-  en: { src: ['How you *heard about* Bwat Sekrèm Talks', 'Thank you for sharing!'], uni: ['Every *university* is coming', 'Where registered students come from'], niv: ['From short cycle *to PhD*', 'Study level of registered students'], sexe: ['Women and men, *all in*', 'People registered'], profil: ['Who will be *in the room*?', 'Profiles of registered people'], resume: ['Bwat Sekrèm Talks *in numbers*', 'Registrations so far'],
+  en: { src: ['How you *heard about* Bwat Sekrèm Talks', 'Thank you for sharing!'], uni: ['Every *university* is coming', 'Where registered students come from'], niv: ['From short cycle *to PhD*', 'Study level of registered students'], sexe: ['Women and men, *all in*', 'People registered'], profil: ['Who will be *in the room*?', 'Profiles of registered people (several choices possible)'], resume: ['Bwat Sekrèm Talks *in numbers*', 'Registrations so far'],
     book: 'Book your seat', motto: 'More than an event, a community.', partT: 'With the support of', prop: 'Powered by *Bwat Sekrèm Talks*', pers: 'people registered', resa: 'bookings', fem: 'women', unis: 'universities', on: 'people', F: 'Women', H: 'Men' },
 };
 const VLAB = { ht: { 'Un ami / un collègue': 'Yon zanmi / yon kolèg', 'Affiche': 'Afich', 'Autre': 'Lòt', 'Cycle court': 'Sik kout', 'Maîtrise': 'Metriz', 'Doctorat': 'Doktora', 'Autres': 'Lòt' },
@@ -816,6 +816,8 @@ function visData(k) {
   const l = $('vLang').value, bad = (s) => /non précis/i.test(s);
   if (k === 'resume') { const pf = VIS.nP ? Math.round(VIS.f / VIS.nP * 100) : 0; return { kpi: true, rows: [[VTX[l].pers, VIS.nP || 0], [VTX[l].resa, VIS.nRows || 0], [VTX[l].fem, pf + ' %'], [VTX[l].unis, VIS.nUni || 0]] }; }
   const rows = (VIS[k] || []).filter(([s, n]) => n && !bad(String(s))).map(([s, n]) => [vLab(l, s), n]);
+  // Profils : plusieurs choix possibles → % calculés sur le nombre de PERSONNES (comme le tableau de l'admin)
+  if (k === 'profil') return { rows, tot: VIS.nP || 1, multi: true };
   return { rows, tot: rows.reduce((a, [, n]) => a + n, 0) || 1 };
 }
 function rr(c, x, y, w, h, r) { r = Math.max(0, Math.min(r, h / 2, w / 2)); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
@@ -834,6 +836,7 @@ function richTitle(c, text, cx, y, maxW, size, dark, maxLines = 3) {
 function person(c, x, y, s, col) { c.fillStyle = col; c.beginPath(); c.arc(x, y - s * .25, s * .15, 0, 7); c.fill(); c.beginPath(); c.moveTo(x - s * .26, y + s * .36); c.lineTo(x - s * .26, y + s * .1); c.quadraticCurveTo(x - s * .26, y - s * .06, x - s * .1, y - s * .06); c.lineTo(x + s * .1, y - s * .06); c.quadraticCurveTo(x + s * .26, y - s * .06, x + s * .26, y + s * .1); c.lineTo(x + s * .26, y + s * .36); c.closePath(); c.fill(); }
 /* ----- Graphiques ----- */
 function drawChart(c, type, D, X, Y, Wd, Hd, dark, showN) {
+  if (D.multi && ['donut', 'pie', 'picto'].includes(type)) type = 'barh';
   const P = dark ? PAL_D : PAL_L, ink = dark ? '#fff' : NAVY, soft = dark ? 'rgba(255,255,255,.14)' : 'rgba(13,45,74,.09)', mute = dark ? 'rgba(255,255,255,.75)' : '#4a6380';
   if (D.kpi || type === 'cartes') {
     const rows = D.kpi ? D.rows : D.rows.slice(0, 6).map(([s, n]) => [s, Math.round(n / D.tot * 100) + ' %', n]);
@@ -992,7 +995,7 @@ $('vSzR').addEventListener('click', () => { VSZ = { ...VSZ_DEF }; try { localSto
 visSz();
 function visUI() {
   $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join('');
-  $('vTyp').innerHTML = VTYPES.map(([x, n]) => `<button type="button" data-vy="${x}" aria-pressed="${x === VTYPE}" ${VSEL === 'resume' && x !== 'cartes' ? 'disabled style="opacity:.4"' : ''}>${n}</button>`).join('');
+  $('vTyp').innerHTML = VTYPES.map(([x, n]) => `<button type="button" data-vy="${x}" aria-pressed="${x === VTYPE}" ${(VSEL === 'resume' && x !== 'cartes') || (VSEL === 'profil' && ['donut', 'pie', 'picto'].includes(x)) ? 'disabled style="opacity:.4" title="Impossible : une personne peut avoir plusieurs profils"' : ''}>${n}</button>`).join('');
 }
 function visSet(k, keepText) { VSEL = k; VTYPE = VDEF[k]; const l = $('vLang').value; if (!keepText) { $('vTit').value = VTX[l][k][0]; $('vSub').value = VTX[l][k][1]; }
   if (!$('vPartT').dataset.l || $('vPartT').dataset.l !== l) { $('vPartT').value = VTX[l].partT; $('vProp').value = VTX[l].prop; $('vPartT').dataset.l = l; } visUI(); drawVis(); }

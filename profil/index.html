@@ -57,6 +57,7 @@
   label.f { display: block; font-size: 14px; font-weight: 600; margin: 0 0 6px; color: rgba(255,255,255,.85); }
   input[type="text"], select.s { width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font: inherit; margin-bottom: 14px; }
   select.s option { color: #123056; }
+  .anon { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: rgba(255,255,255,.8); margin: -4px 0 14px; } .anon input { width: 18px; height: 18px; margin-top: 1px; accent-color: #7AC142; flex: none; }
   input::placeholder { color: rgba(255,255,255,.45); }
   .progress { height: 6px; background: rgba(255,255,255,.14); border-radius: 99px; overflow: hidden; margin: 22px 0 8px; }
   .progress div { height: 100%; background: var(--green); border-radius: 99px; transition: width .35s ease; }
@@ -137,6 +138,9 @@
     <div class="types" id="types"></div>
     <label class="f" for="prenom" data-t="nameLabel"></label>
     <input type="text" id="prenom" maxlength="20" autocomplete="given-name" />
+    <label class="f" for="tel" data-t="telLabel"></label>
+    <input type="text" id="tel" maxlength="25" inputmode="tel" autocomplete="tel" />
+    <label class="anon"><input type="checkbox" id="anon" /> <span data-t="anonLabel"></span></label>
     <button class="btn go" id="start" type="button" data-t="start"></button>
     <p class="meta" data-t="meta"></p>
     <p class="meta" id="social" style="display:none;color:#fff;font-weight:700"></p>
@@ -248,9 +252,10 @@ async function sbRpc(fn, args) {
   const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: sbHeaders, body: JSON.stringify(args || {}) });
   if (!r.ok) throw new Error('rpc ' + r.status); return r.json();
 }
-function record() {   // résultat ANONYME : profil, tendance, langue, équipe, université
+function record() {   // résultat : profil, tendance, langue, équipe, université (+ prénom et numéro, sauf si « rester anonyme »)
+  const anon = $('anon').checked;
   fetch(`${SB_URL}/rest/v1/quiz_resultats`, { method: 'POST', headers: { ...sbHeaders, Prefer: 'return=minimal' }, keepalive: true,
-    body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null, source: st.source }) })
+    body: JSON.stringify({ lang: st.lang, profil: st.best, tendance: st.second || null, equipe: st.team ? st.team.slice(0, 60) : null, universite: st.uni ? st.uni.slice(0, 80) : null, source: st.source, non: anon ? null : (st.prenom || null), telefon: anon ? null : (st.tel || null) }) })
     .then(() => { st.recorded = true; }).catch(() => {});
 }
 const ORDER = ['L', 'M', 'I', 'D', 'B'];                 // départage en cas d'égalité
@@ -268,7 +273,7 @@ const T = {
     htmlLang: 'fr', date: '22 nov. 2026 · Cap-Haïtien',
     title: 'Découvre ton <em>ADN Pro</em>',
     lead: '6 questions, 1 minute. Manager, Leader, Innovateur… découvre le professionnel que tu es vraiment — et partage ta carte avec ton réseau.',
-    nameLabel: 'Ton prénom (pour ta carte)', namePh: 'ex. Marie',
+    nameLabel: 'Ton prénom (pour ta carte)', namePh: 'ex. Marie', telLabel: 'Ton numéro WhatsApp (facultatif)', telPh: 'ex. 3727 4672', anonLabel: 'Rester anonyme. Sinon, ton prénom et ton numéro sont enregistrés avec ton résultat pour l’équipe Bwat Sekrèm Talks (si tu es inscrit, il est relié à ta réservation).',
     social: (n) => `🔥 Déjà ${n} personnes ont découvert leur ADN Pro`, start: 'Découvrir mon ADN Pro →', meta: 'Gratuit · pas besoin de t’inscrire pour faire le test',
     teamLink: 'Faire le test en équipe (entreprise, classe, association) →',
     teamCreateTitle: 'Test d’équipe', teamCreateLead: 'Crée un lien pour ton équipe : chaque membre découvre son ADN Pro, et vous voyez l’ADN de toute l’équipe.',
@@ -331,7 +336,7 @@ const T = {
     htmlLang: 'ht', date: '22 nov. 2026 · Okap',
     title: 'Dekouvri <em>ADN Pwo</em> w',
     lead: '6 kesyon, 1 minit. Manadjè, Lidè, Inovatè… dekouvri ki kalite pwofesyonèl ou ye vre — epi pataje kat ou ak rezo w.',
-    nameLabel: 'Prenon w (pou kat ou)', namePh: 'egz. Marie',
+    nameLabel: 'Prenon w (pou kat ou)', namePh: 'egz. Marie', telLabel: 'Nimewo WhatsApp ou (pa obligatwa)', telPh: 'egz. 3727 4672', anonLabel: 'Rete anonim. Sinon, prenon w ak nimewo w anrejistre ak rezilta w pou ekip Bwat Sekrèm Talks la (si w enskri, li mare ak rezèvasyon w).',
     social: (n) => `🔥 Deja ${n} moun dekouvri ADN Pwo yo`, start: 'Dekouvri ADN Pwo mwen →', meta: 'Gratis · pa bezwen enskri pou fè tès la',
     teamLink: 'Fè tès la an ekip (antrepriz, klas, asosyasyon) →',
     teamCreateTitle: 'Tès an ekip', teamCreateLead: 'Kreye yon lyen pou ekip ou: chak manm dekouvri ADN Pwo pa l, epi nou wè ADN tout ekip la.',
@@ -394,7 +399,7 @@ const T = {
     htmlLang: 'en', date: 'Nov. 22, 2026 · Cap-Haïtien',
     title: 'Discover your <em>Pro DNA</em>',
     lead: '6 questions, 1 minute. Manager, Leader, Innovator… discover the professional you really are — and share your card with your network.',
-    nameLabel: 'Your first name (for your card)', namePh: 'e.g. Marie',
+    nameLabel: 'Your first name (for your card)', namePh: 'e.g. Marie', telLabel: 'Your WhatsApp number (optional)', telPh: 'e.g. 3727 4672', anonLabel: 'Stay anonymous. Otherwise, your first name and number are saved with your result for the Bwat Sekrèm Talks team (if you registered, it is linked to your booking).',
     social: (n) => `🔥 ${n} people have already discovered their Pro DNA`, start: 'Discover my Pro DNA →', meta: 'Free · no sign-up needed to take the test',
     teamLink: 'Take the test as a team (company, class, club) →',
     teamCreateTitle: 'Team test', teamCreateLead: 'Create a link for your team: each member discovers their Pro DNA, and you see the whole team’s DNA.',
@@ -470,7 +475,7 @@ function setLang(lang) {
   document.documentElement.lang = L().htmlLang;
   document.querySelectorAll('[data-t]').forEach((el) => { const v = L()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
   document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = L()[el.dataset.th]; });
-  $('prenom').placeholder = L().namePh; $('teamName').placeholder = L().teamNamePh; $('uniOther').placeholder = L().uniOtherPh;
+  $('prenom').placeholder = L().namePh; $('tel').placeholder = L().telPh; $('teamName').placeholder = L().teamNamePh; $('uniOther').placeholder = L().uniOtherPh;
   $('types').innerHTML = ['M', 'L', 'I', 'D', 'B'].map((k) => `<div class="type"><span>${EMO[k]}</span>${L().profils[k].short}</div>`).join('');
   document.querySelector('[data-fmt="story"]').textContent = L().fmtStory; document.querySelector('[data-fmt="post"]').textContent = L().fmtPost;
   document.querySelectorAll('.langs button').forEach((b) => b.setAttribute('aria-pressed', b.dataset.lang === lang));
@@ -506,7 +511,7 @@ $('openTeam').addEventListener('click', () => { st.team = st.pendingTeam; setLan
 
 /* =================== QUESTIONS =================== */
 $('start').addEventListener('click', () => {
-  st.prenom = $('prenom').value.trim().replace(/\s+/g, ' ');
+  st.prenom = $('prenom').value.trim().replace(/\s+/g, ' '); st.tel = $('tel').value.replace(/[^\d+ ]/g, '').trim().slice(0, 25);
   st.i = 0; st.picks = []; st.uni = ''; st.order = L().questions.map(() => shuffle(ORDER));
   renderQ(); show('s-quiz');
 });
@@ -729,6 +734,7 @@ function confetti() {
   setLang(q || saved || (nav === 'en' ? 'en' : nav === 'ht' ? 'ht' : 'fr'));
   const pre = (params.get('prenom') || '').trim().replace(/\s+/g, ' ').slice(0, 20);
   if (pre) $('prenom').value = pre;
+  const tq = (params.get('tel') || params.get('telephone') || '').replace(/[^\d+ ]/g, '').slice(0, 25); if (tq) $('tel').value = tq;
   if (st.source === 'inscription') { $('welcome').style.display = 'block'; renderWelcome(); }
 })();
 </script>

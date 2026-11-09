@@ -338,10 +338,14 @@
           <div class="card"><h2>Universités</h2><div class="bars" id="qUnis"></div></div>
           <div class="card"><h2>Tests par jour</h2><div class="bars" id="qDays"></div></div>
         </div>
+        <div class="card" style="margin-top:12px"><h2>👥 Participants au test <span class="sub" id="qPN"></span></h2>
+          <input type="search" id="qQ" placeholder="Rechercher un nom, un numéro, une université…" style="width:100%;max-width:420px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;margin:4px 0 10px;font:inherit" />
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Nom</th><th>Téléphone</th><th>Réservation</th><th>Profil</th><th>Tendance</th><th>Université</th><th>Équipe</th></tr></thead><tbody id="qPeople"></tbody></table></div>
+        </div>
         <div class="card" style="margin-top:12px"><h2>Équipes</h2>
           <div class="table-wrap" style="border:0"><table><thead><tr><th>Équipe</th><th>Membres</th><th>Profil dominant</th><th>Composition</th><th>Dernier test</th></tr></thead><tbody id="qTeams"></tbody></table></div>
         </div>
-        <p class="note">Résultats anonymes de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : aucun nom ni numéro n’est enregistré. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
+        <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
       <div id="panelC" class="hidden">
@@ -1204,8 +1208,18 @@ $('tabC').addEventListener('click', () => setTab('C'));
 /* ---------- Tès profil (résultats anonymes) ---------- */
 const QP = { M: '🧭 Manager', L: '🔥 Leader', I: '💡 Innovateur', D: '🤖 Stratège digital', B: '🧱 Bâtisseur' };
 const QL = { fr: 'Français', ht: 'Kreyòl', en: 'English' };
+let QROWS = [];
+function renderQPeople() {
+  const q = ($('qQ').value || '').trim().toLowerCase();
+  const L = QROWS.filter((r) => !q || [r.non, r.telefon, r.universite, r.equipe, QP[r.profil]].some((x) => String(x || '').toLowerCase().includes(q)));
+  const named = QROWS.filter((r) => r.non || r.telefon).length;
+  $('qPN').textContent = `· ${named} avec nom ou numéro sur ${QROWS.length}`;
+  $('qPeople').innerHTML = L.map((r) => `<tr><td class="sub">${esc(fmtDate(r.created_at))}</td><td><strong>${r.non ? esc(r.non) : '<span class="sub">Anonyme</span>'}</strong></td><td>${r.telefon ? `<a href="https://wa.me/509${esc(r.telefon)}" target="_blank" rel="noopener">${esc(r.telefon)}</a>` : '<span class="sub">—</span>'}</td>
+    <td>${r.inscription_id ? '✅ Liée' : r.source === 'inscription' ? '<span class="sub">Inscrit (non relié)</span>' : '<span class="sub">—</span>'}</td><td>${esc(QP[r.profil] || r.profil)}</td><td class="sub">${esc(QP[r.tendance] || '')}</td><td class="sub">${esc(r.universite || '')}</td><td class="sub">${esc(r.equipe || '')}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucun résultat.</td></tr>';
+}
+$('qQ').addEventListener('input', renderQPeople);
 async function loadQuiz() {
-  const { data, error } = await sb.from('quiz_resultats').select('created_at, lang, profil, tendance, equipe, universite, source').order('created_at', { ascending: false }).limit(5000);
+  const { data, error } = await sb.from('quiz_resultats').select('created_at, lang, profil, tendance, equipe, universite, source, non, telefon, inscription_id').order('created_at', { ascending: false }).limit(5000);
   if (error) { notify('Impossible de charger les résultats du test. ' + friendly(error), 'warn'); return; }
   const rows = data || [], n = rows.length;
   const teams = new Map(); rows.filter((r) => r.equipe).forEach((r) => { const k = r.equipe.trim().toLowerCase(); if (!teams.has(k)) teams.set(k, { nom: r.equipe.trim(), rows: [] }); teams.get(k).rows.push(r); });
@@ -1223,6 +1237,7 @@ async function loadQuiz() {
   bars($('qLangs'), cnt((r) => QL[r.lang] || r.lang), n, 'tests');
   bars($('qUnis'), cnt((r) => r.universite), rows.filter((r) => r.universite).length, 'étudiants');
   bars($('qDays'), cnt((r) => localDay(r.created_at)).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14).map(([d, v]) => [new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }), v]), n, 'tests');
+  QROWS = rows; renderQPeople();
   $('qTeams').innerHTML = [...teams.values()].sort((a, b) => b.rows.length - a.rows.length).map((t) => {
     const c = {}; t.rows.forEach((r) => (c[r.profil] = (c[r.profil] || 0) + 1));
     const dom = Object.entries(c).sort((a, b) => b[1] - a[1])[0][0];

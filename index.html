@@ -333,12 +333,24 @@
 
       <div id="panelV" class="hidden">
         <div class="tiles" id="vTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>🎟️ Vendre un accès CV (coupon)</h2>
+          <p class="sub" style="margin:0 0 10px">1) La personne paie par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp. 2) Vérifie le paiement. 3) Crée le code ici et envoie-le lui. Un code s’utilise une fois ; il sert aussi à retrouver le CV sur un autre téléphone. Un 2ᵉ code sur le même téléphone ajoute des crédits.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+            <label class="sub">Pack<br><select id="vkPake" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit"><option value="pro">CV Pro · 500 G (1 analyse + 1 version)</option><option value="postilan">Pack Postulant · 1 000 G (5 + 5 + entretien)</option></select></label>
+            <label class="sub">Téléphone de l’acheteur<br><input id="vkTel" inputmode="tel" maxlength="25" placeholder="ex. 3727 4672" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit;width:170px" /></label>
+            <label class="sub">Note<br><input id="vkNote" maxlength="120" placeholder="ex. réf. MonCash" style="padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit;width:200px" /></label>
+            <button class="btn" type="button" id="vkB" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Créer le code</button>
+          </div>
+          <div id="vkOut" style="margin-top:10px"></div>
+          <details style="margin-top:10px"><summary class="sub" style="cursor:pointer">Codes créés <span id="vkN"></span></summary>
+            <div class="table-wrap" style="border:0"><table><thead><tr><th>Créé</th><th>Code</th><th>Pack</th><th>Prix</th><th>Acheteur</th><th>Note</th><th>Utilisé</th></tr></thead><tbody id="vkRows"></tbody></table></div></details>
+        </div>
         <div class="card" style="margin-top:12px"><h2>📄 CV créés <span class="sub" id="vN"></span></h2>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px"><input type="search" id="vQ" placeholder="Rechercher un nom, un poste, une ville…" style="flex:1;min-width:220px;max-width:420px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
             <a class="btn" href="cv/" target="_blank" rel="noopener">Ouvrir la page CV publique ↗</a></div>
-          <div class="table-wrap" style="border:0"><table><thead><tr><th>Mis à jour</th><th>Nom</th><th>Poste visé</th><th>Téléphone</th><th>E-mail</th><th>Ville</th><th>Réservation</th><th>Modèle</th><th></th></tr></thead><tbody id="vRows"></tbody></table></div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Mis à jour</th><th>Nom</th><th>Poste visé</th><th>Téléphone</th><th>E-mail</th><th>Ville</th><th>Réservation</th><th>Pack · crédits</th><th>Modèle</th><th></th></tr></thead><tbody id="vRows"></tbody></table></div>
         </div>
-        <p class="note">CV créés sur <a href="https://bwatsekremtalks.github.io/admin/cv/" target="_blank" rel="noopener">la page CV</a> par les personnes qui ont accepté de les partager avec Bwat Sekrèm Talks. Les photos restent sur le téléphone de la personne et ne sont pas enregistrées.</p>
+        <p class="note">CV payants créés sur <a href="https://bwatsekremtalks.github.io/admin/cv/" target="_blank" rel="noopener">la page CV</a>. « 📣 Contact OK » = la personne accepte d’être contactée pour des stages, emplois et activités. Les photos restent sur le téléphone de la personne et ne sont pas enregistrées.</p>
       </div>
 
       <div id="panelQ" class="hidden">
@@ -1219,11 +1231,11 @@ $('tabV').addEventListener('click', () => setTab('V'));
 let VROWS = [];
 const VMOD = { modern: 'Moderne', classic: 'Classique', minimal: 'Minimal', exec: 'Exécutif' };
 async function loadCV() {
-  const { data, error } = await sb.from('cv').select('id, created_at, updated_at, lang, modele, nom, poste, telephone, email, ville, inscription_id, ia_itilize').order('updated_at', { ascending: false }).limit(2000);
+  const { data, error } = await sb.from('cv').select('id, created_at, updated_at, lang, modele, nom, poste, telephone, email, ville, inscription_id, ia_itilize, pake, analiz_rete, vesyon_rete, kontak_ok').order('updated_at', { ascending: false }).limit(2000);
   if (error) { notify('Impossible de charger les CV. ' + friendly(error), 'warn'); return; }
-  VROWS = data || [];
+  VROWS = data || []; loadVK();
   const today = VROWS.filter((r) => localDay(r.created_at) === localDay(new Date())).length;
-  $('vTiles').innerHTML = [['CV créés', VROWS.length, 'partagés avec BST'], ['Aujourd’hui', today, 'nouveaux CV'], ['Inscrits', VROWS.filter((r) => r.inscription_id).length, 'reliés à une réservation'], ['Aide IA', VROWS.reduce((a, r) => a + (r.ia_itilize || 0), 0), 'améliorations utilisées']]
+  $('vTiles').innerHTML = [['CV payés', VROWS.filter((r) => r.pake).length, `${VROWS.filter((r) => r.pake === 'postilan').length} Pack Postulant`], ['Aujourd’hui', today, 'nouveaux CV'], ['Inscrits', VROWS.filter((r) => r.inscription_id).length, 'reliés à une réservation'], ['Aide IA', VROWS.reduce((a, r) => a + (r.ia_itilize || 0), 0), 'améliorations utilisées']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   renderCV();
 }
@@ -1233,9 +1245,29 @@ function renderCV() {
   $('vN').textContent = `· ${L.length}`;
   $('vRows').innerHTML = L.map((r) => `<tr><td class="sub">${esc(fmtDate(r.updated_at))}</td><td><strong>${esc(r.nom || '—')}</strong></td><td>${esc(r.poste || '')}</td>
     <td>${r.telephone ? `<a href="https://wa.me/509${esc(r.telephone)}" target="_blank" rel="noopener">${esc(r.telephone)}</a>` : '—'}</td><td class="sub">${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}</td><td class="sub">${esc(r.ville || '')}</td>
-    <td>${r.inscription_id ? '✅ Liée' : '<span class="sub">—</span>'}</td><td class="sub">${esc(VMOD[r.modele] || r.modele)} · ${esc((r.lang || '').toUpperCase())}</td>
-    <td><a class="btn" href="cv/?id=${r.id}" target="_blank" rel="noopener">👁️ Voir / PDF</a></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucun CV pour le moment.</td></tr>';
+    <td>${r.inscription_id ? '✅ Liée' : '<span class="sub">—</span>'}${r.kontak_ok ? '<br><span class="sub">📣 Contact OK</span>' : ''}</td><td class="sub">${r.pake ? `<b>${r.pake === 'postilan' ? 'Postulant' : 'Pro'}</b> · 🎯${r.analiz_rete} 📑${r.vesyon_rete}` : 'Non payé'}</td><td class="sub">${esc(VMOD[r.modele] || r.modele)} · ${esc((r.lang || '').toUpperCase())}</td>
+    <td><a class="btn" href="cv/?id=${r.id}" target="_blank" rel="noopener">👁️ Voir / PDF</a></td></tr>`).join('') || '<tr><td colspan="10" class="empty">Aucun CV pour le moment.</td></tr>';
 }
+async function loadVK() {
+  const { data, error } = await sb.from('cv_koupon').select('*').order('cree_le', { ascending: false }).limit(500);
+  if (error) return;
+  const L = data || [], sold = L.filter((k) => k.utilise_le);
+  $('vkN').textContent = `· ${L.length} (${sold.length} utilisés · ${sold.reduce((a, k) => a + (k.prix_htg || 0), 0).toLocaleString('fr-FR')} G)`;
+  $('vkRows').innerHTML = L.map((k) => `<tr><td class="sub">${esc(fmtDate(k.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(k.code)}</strong></td><td>${k.pake === 'postilan' ? 'Postulant' : 'Pro'}</td><td>${esc(k.prix_htg)} G</td><td class="sub">${esc(k.tel_acheteur || '')}</td><td class="sub">${esc(k.note || '')}</td><td>${k.utilise_le ? '✅ ' + esc(fmtDate(k.utilise_le)) : '<span class="sub">Pas encore</span>'}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun code.</td></tr>';
+}
+$('vkB').addEventListener('click', async () => {
+  const pake = $('vkPake').value, tel = $('vkTel').value.trim(); $('vkB').disabled = true;
+  const { data: code, error } = await sb.rpc('cv_creer_coupon', { p_pake: pake, p_tel: tel || null, p_note: $('vkNote').value.trim() || null });
+  $('vkB').disabled = false;
+  if (error) { notify('Impossible de créer le code. ' + friendly(error), 'warn'); return; }
+  const url = `https://bwatsekremtalks.github.io/admin/cv/?kod=${encodeURIComponent(code)}`;
+  const msg = `Mèsi ! Men kòd CV ou : ${code}\nLouvri paj CV a epi antre kòd la : https://bwatsekremtalks.com/cv\n(Kenbe kòd la : li pèmèt ou jwenn CV w sou yon lòt telefòn.)`;
+  const d = String(tel).replace(/\D/g, ''), wa = d ? `https://wa.me/${d.length === 8 ? '509' + d : d}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  $('vkOut').innerHTML = `<div style="background:#eef9e6;border:1px solid #b9e09a;border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span style="font:800 22px monospace;letter-spacing:.08em">${esc(code)}</span>
+    <button class="btn" type="button" id="vkCp">📋 Copier</button><a class="btn" href="${esc(wa)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a><span class="sub">${pake === 'postilan' ? 'Pack Postulant · 1 000 G' : 'CV Pro · 500 G'}</span></div>`;
+  $('vkCp').onclick = () => navigator.clipboard?.writeText(code);
+  $('vkTel').value = ''; $('vkNote').value = ''; loadVK();
+});
 $('vQ').addEventListener('input', renderCV);
 
 /* ---------- Tès profil (résultats anonymes) ---------- */

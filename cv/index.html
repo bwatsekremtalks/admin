@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Mon CV pro — Bwat Sekrèm Talks</title>
-<meta name="description" content="Crée ton CV professionnel gratuitement : 4 modèles, en français, kreyòl ou anglais, avec l’aide de l’IA. Par Bwat Sekrèm Talks." />
+<meta name="description" content="Le CV qui te fait décrocher l’entretien : 4 modèles pro, IA d’écriture, analyse IA comme un recruteur, un CV adapté à chaque poste. Par Bwat Sekrèm Talks." />
 <meta property="og:title" content="Crée ton CV pro · Kreye CV pwofesyonèl ou · Build your pro CV" />
-<meta property="og:description" content="4 modèles, aide de l’IA, PDF prêt à envoyer. Gratuit, par Bwat Sekrèm Talks." />
+<meta property="og:description" content="4 modèles, IA d’écriture, analyse IA de ton CV, un CV par poste. Par Bwat Sekrèm Talks." />
 <meta property="og:image" content="https://bwatsekremtalks.github.io/admin/profil/og.jpg" />
 <meta name="theme-color" content="#0E2A4A" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -58,7 +58,7 @@
   .tog { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin: 10px 0; } .tog input { width: 18px; height: 18px; accent-color: var(--green); flex: none; margin-top: 1px; }
   .actions { position: sticky; bottom: 0; background: #eef2f7; padding: 10px 0; display: flex; gap: 8px; flex-wrap: wrap; }
   /* ---------- Aperçu ---------- */
-  .pvcol { min-width: 0; } .pvwrap { position: sticky; top: 70px; width: 100%; overflow: hidden; } .pvscale { transform-origin: top left; width: 794px; }
+  .pvcol { min-width: 0; align-self: stretch; } .pvwrap { position: sticky; top: 70px; width: 100%; overflow: hidden; } .pvscale { transform-origin: top left; width: 794px; }
   .cvpage { width: 794px; min-height: 1123px; background: #fff; color: #1d2735; box-shadow: 0 20px 60px rgba(14,42,74,.18); font: 13px/1.45 "DM Sans", sans-serif; position: relative; overflow: hidden; }
   .cvpage h2 { font: 800 13px "DM Sans", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin: 18px 0 8px; }
   .cvpage .job { margin-bottom: 12px; break-inside: avoid; } .cvpage .job b { font-size: 14px; } .cvpage .meta { color: #6a7687; font-size: 12px; }
@@ -81,11 +81,52 @@
   .m-exec .ph { width: 104px; height: 104px; border: 4px solid rgba(255,255,255,.3); } .m-exec .contact { background: color-mix(in srgb, var(--acc) 8%, white); padding: 10px 44px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; }
   .m-exec .body { display: grid; grid-template-columns: 1fr 230px; gap: 30px; padding: 10px 44px 40px; }
   .ct div { margin: 3px 0; word-break: break-word; }
+  /* ---------- Paywall ---------- */
+  .gate { max-width: 1080px; margin: 0 auto; padding: 18px 16px 48px; display: grid; gap: 16px; }
+  .hero { background: radial-gradient(circle at 85% 10%, rgba(122,193,66,.28), transparent 45%), linear-gradient(135deg, var(--navy3), #1d4a7c); color: #fff; border-radius: 26px; padding: 30px 26px; display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; align-items: center; }
+  .hero h2 { font: 800 clamp(28px, 4.2vw, 44px)/1.05 "Bricolage Grotesque", sans-serif; margin: 0 0 12px; }
+  .hero p { color: rgba(255,255,255,.85); margin: 0 0 14px; font-size: 16px; }
+  .feat { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; } .feat li { background: rgba(255,255,255,.08); border-radius: 12px; padding: 9px 12px; font-weight: 500; }
+  .excard { background: #fff; color: var(--navy); border-radius: 20px; padding: 18px; box-shadow: 0 24px 60px rgba(0,0,0,.3); transform: rotate(1.2deg); }
+  .excard .lab { font: 700 11px "DM Sans", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: #5b2bb5; }
+  .gauges { display: flex; gap: 10px; margin: 10px 0; } .gg { flex: 1; background: var(--soft); border-radius: 14px; padding: 10px 8px; text-align: center; }
+  .gg b { display: block; font: 800 30px/1 "Bricolage Grotesque", sans-serif; } .gg span { font-size: 12px; color: var(--muted); }
+  .gg.lo b { color: #c2410c; } .gg.mi b { color: #b7791f; } .gg.hi b { color: #1a7a3c; }
+  .fchips span { display: inline-block; padding: 3px 9px; border-radius: 999px; background: #fdecec; color: #9b1c1c; font-size: 12px; font-weight: 700; margin: 0 4px 5px 0; }
+  .fchips.ok span { background: #e9f7e1; color: #22631a; }
+  .packs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .pack { background: #fff; border: 2px solid var(--line); border-radius: 22px; padding: 20px; position: relative; }
+  .pack.star { border-color: var(--green); box-shadow: 0 12px 40px rgba(122,193,66,.25); }
+  .pack .tag { position: absolute; top: -12px; right: 16px; background: var(--green); color: var(--navy3); font: 800 12px "DM Sans", sans-serif; border-radius: 999px; padding: 4px 10px; }
+  .pack h3 { font: 800 20px "Bricolage Grotesque", sans-serif; margin: 0; } .pack .pr { font: 800 34px "Bricolage Grotesque", sans-serif; margin: 4px 0 8px; }
+  .pack ul { margin: 0; padding-left: 18px; } .pack li { margin: 4px 0; }
+  .pay { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .pay h3 { font: 800 18px "Bricolage Grotesque", sans-serif; margin: 0 0 8px; } .pay p { margin: 6px 0; }
+  .btn.wa { background: #25D366; border-color: #25D366; color: #fff; margin-top: 8px; text-decoration: none; }
+  input.code { text-transform: uppercase; letter-spacing: .12em; font: 800 20px "DM Sans", sans-serif; text-align: center; }
+  /* ---------- Kredi, nòt, vèsyon, analiz ---------- */
+  .kbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: linear-gradient(120deg, #f6f1ff, #eef9e6); }
+  .pill { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; font-weight: 700; font-size: 13px; }
+  .pill.pk { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .score { display: flex; gap: 14px; align-items: center; }
+  .ring { --p: 0; --sc: #c2410c; width: 76px; height: 76px; border-radius: 50%; background: conic-gradient(var(--sc) calc(var(--p) * 1%), #e6edf5 0); display: grid; place-items: center; flex: none; transition: background .4s; }
+  .ring span { width: 60px; height: 60px; border-radius: 50%; background: #fff; display: grid; place-items: center; font: 800 22px "Bricolage Grotesque", sans-serif; }
+  .score ul { margin: 4px 0 0; padding-left: 18px; font-size: 13px; color: var(--muted); } .score li { margin: 2px 0; }
+  .vers { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .vers button { border: 1.5px solid var(--line); border-radius: 999px; background: #fff; padding: 6px 12px; font: 700 13px "DM Sans", sans-serif; color: var(--navy); cursor: pointer; display: inline-flex; gap: 6px; align-items: center; }
+  .vers button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); } .vers i { font-style: normal; opacity: .6; }
+  .aibox { border: 2px solid #c9b6f2; background: linear-gradient(180deg, #fcfaff, #fff); }
+  .aibox h3 { font: 800 17px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; }
+  .res h4 { margin: 16px 0 6px; font: 800 14px "Bricolage Grotesque", sans-serif; } .res ul, .res ol { margin: 0; padding-left: 18px; } .res li { margin: 3px 0; }
+  .res details { border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 6px 0; background: #fff; } .res summary { font-weight: 700; cursor: pointer; }
+  .verd { background: var(--soft); border-radius: 12px; padding: 10px 12px; margin: 8px 0; font-weight: 500; }
+  .up { background: #fff7e6; border: 1px solid #f5d9a8; border-radius: 12px; padding: 10px 12px; margin-top: 12px; font-size: 13px; }
+  @media (max-width: 800px) { .hero, .pay, .packs { grid-template-columns: 1fr; } .excard { transform: none; } }
   @media (max-width: 900px) { .app { grid-template-columns: 1fr; } .mtabs { display: flex; } .pvwrap { position: static; } .app[data-v="form"] .pvcol { display: none; } .app[data-v="pv"] .form { display: none; } }
   @media (max-width: 480px) { .g2 { grid-template-columns: 1fr; } .models { grid-template-columns: repeat(2, 1fr); } }
   @media print {
     @page { size: A4; margin: 0; }
-    body { background: #fff; } header.top, .mtabs, .form, .noprint { display: none !important; }
+    body { background: #fff; } header.top, .mtabs, .form, .noprint, .gate { display: none !important; }
     .app { display: block; padding: 0; } .pvcol { display: block !important; } .pvwrap { position: static; } .pvscale { transform: none !important; height: auto !important; }
     .cvpage { box-shadow: none; width: 210mm; min-height: 297mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   }
@@ -97,9 +138,35 @@
   <h1 data-t="title"></h1>
   <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
 </header>
-<div class="mtabs"><button type="button" data-v="form" aria-pressed="true" data-t="tabForm"></button><button type="button" data-v="pv" aria-pressed="false" data-t="tabPv"></button></div>
-<div class="app" id="app" data-v="form">
+<section class="gate hidden" id="gate">
+  <button class="btn hidden" type="button" id="gBack" data-t="back" style="justify-self:start"></button>
+  <div class="hero">
+    <div><h2 data-t="gHero"></h2><p data-t="gSub"></p>
+      <ul class="feat"><li data-t="gF1"></li><li data-t="gF2"></li><li data-t="gF3"></li><li data-t="gF4"></li></ul></div>
+    <div class="excard" aria-hidden="true"><div class="lab" data-t="exT"></div>
+      <div class="gauges"><div class="gg mi"><b>68</b><span data-t="rNote"></span></div><div class="gg lo"><b>54%</b><span data-t="rAdek"></span></div></div>
+      <div class="verd" data-t="exVerd"></div>
+      <div class="sub" style="font-weight:700;margin-bottom:4px" data-t="rMo"></div><div class="fchips" id="exK"></div>
+    </div>
+  </div>
+  <div class="packs">
+    <div class="pack"><h3 data-t="pkPro"></h3><div class="pr">500 G</div><ul data-th="p1L"></ul></div>
+    <div class="pack star"><span class="tag" data-t="p2Tag"></span><h3 data-t="pkPost"></h3><div class="pr">1 000 G</div><ul data-th="p2L"></ul></div>
+  </div>
+  <div class="pay" id="payBox">
+    <div><h3 data-t="payT"></h3><p data-th="pay1"></p><p data-t="pay2"></p><p data-th="pay3"></p>
+      <a class="btn wa" id="waB" target="_blank" rel="noopener" data-t="waB"></a></div>
+    <div><h3 data-t="codeL"></h3><input class="t code" id="kod" maxlength="14" placeholder="CV-XXXX-XXXX" autocomplete="off" spellcheck="false" />
+      <button class="btn main" type="button" id="kodB" style="width:100%;margin-top:10px;padding:12px" data-t="actB"></button>
+      <p class="msg" id="kMsg"></p><p class="sub" data-t="codeS"></p></div>
+  </div>
+</section>
+<div class="mtabs hidden"><button type="button" data-v="form" aria-pressed="true" data-t="tabForm"></button><button type="button" data-v="pv" aria-pressed="false" data-t="tabPv"></button></div>
+<div class="app hidden" id="app" data-v="form">
   <div class="form">
+    <div class="box kbar" id="kbar"></div>
+    <div class="box score"><div class="ring" id="scR"><span id="scN">0</span></div><div><b data-t="scT"></b><ul id="scTips"></ul></div></div>
+    <div class="box"><b data-t="vT"></b><div class="sub" data-t="vS"></div><div class="vers" id="vers"></div></div>
     <div class="box">
       <b data-t="modelT"></b>
       <div class="models" id="models"></div>
@@ -128,6 +195,12 @@
       <label class="f" for="enterè" data-t="hob"></label><input class="t" id="enterè" maxlength="200" />
       <label class="f" for="referans" data-t="ref"></label><textarea class="t" id="referans" maxlength="500" style="min-height:60px"></textarea>
     </details>
+    <div class="box aibox" id="aiBox"><h3 data-t="aiT"></h3><div class="sub" data-t="aiS"></div>
+      <label class="f" for="anons" data-t="anonsL"></label><textarea class="t" id="anons" maxlength="6000" style="min-height:110px"></textarea>
+      <div class="g2"><div><label class="f" for="enst" data-t="enstL"></label><select class="t" id="enst"></select></div><div><label class="f" for="pv" data-t="pvL"></label><input class="t" id="pv" maxlength="120" /></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn dark" type="button" id="anB"></button><button class="btn main" type="button" id="adB"></button></div>
+      <p class="msg" id="aMsg"></p><div class="res" id="anRes"></div>
+    </div>
     <div class="box">
       <label class="tog"><input type="checkbox" id="ok" /> <span data-t="consent"></span></label>
       <div class="actions"><button class="btn main" type="button" id="pdf" data-t="pdf"></button><button class="btn dark" type="button" id="save" data-t="save"></button></div>
@@ -160,6 +233,72 @@ const UI = {
     f: { titre: 'Position', org: 'Company / organization', lieu: 'City', debut: 'Start (e.g. 03/2024)', fin: 'End (empty = current)', desc: 'What you did (one task per line)', dip: 'Degree / level', ecole: 'School / university', annee: 'Years (e.g. 2021 – 2025)', mention: 'Honors / details', langue: 'Language', niveau: 'Level', cert: 'Certificate / course', organisme: 'Provider', an: 'Year' },
     niv: ['Native', 'Fluent', 'Intermediate', 'Basic'], saved: '✓ CV saved. You can come back and edit it on this phone.', local: '✓ Saved on your phone. Tick the box to send it to the BST team.', err: 'Error. Try again.', iaWait: 'AI is improving your text…', iaOk: '✓ Text improved. Read it and adjust if needed.', iaLimit: 'Daily AI help limit reached.', iaNeed: 'Write a few words first.', pdfTip: 'In the print window, choose « Save as PDF ».' },
 };
+const UX = {
+  fr: { gHero: 'Le CV qui te fait décrocher l’entretien', gSub: 'Un recruteur passe quelques secondes sur un CV. Fais-les compter : un CV pro, lu par une IA comme le ferait un recruteur, et adapté à chaque poste où tu postules.',
+    gF1: '🎨 4 modèles pro, PDF prêt à envoyer', gF2: '✨ L’IA réécrit ton profil et tes expériences (sans rien inventer)', gF3: '🎯 Analyse IA : tes points forts, tes points faibles, ce que le recruteur et le jury d’entretien vont penser', gF4: '📑 Un CV différent pour chaque poste : l’IA l’adapte à l’offre d’emploi',
+    exT: 'Exemple d’analyse IA', exVerd: '« Bon parcours, mais ton profil est trop général pour la banque. Mets en avant ton stage en comptabilité et chiffre tes résultats. »', exK: ['Excel avancé', 'Reporting', 'Conformité'],
+    pkPro: 'CV Pro', pkPost: 'Pack Postulant', p2Tag: '⭐ Le plus choisi',
+    p1L: '<li>Ton CV complet, 4 modèles, PDF</li><li>✨ IA d’écriture</li><li>🎯 1 analyse IA</li><li>📑 1 CV adapté à un poste</li>',
+    p2L: '<li>Tout le CV Pro</li><li>🎯 5 analyses IA</li><li>📑 5 CV adaptés (5 postes)</li><li>🎤 Préparation à l’entretien : questions probables + comment y répondre</li>',
+    payT: 'Comment payer', pay1: '1. Envoie <b>500 G</b> ou <b>1 000 G</b> par <b>MonCash</b> au <b>+509 4872-2671</b> (Bwat Sekrèm Talks).', pay2: '2. Envoie la capture du paiement sur WhatsApp.', pay3: '3. Tu reçois ton code <b>CV-XXXX-XXXX</b> : entre-le ici.',
+    waB: '💬 Envoyer la capture sur WhatsApp', waTxt: 'Bonjour, je viens de payer pour le CV (Bwat Sekrèm Talks). Voici ma capture :',
+    codeL: '🔑 Ton code d’accès', actB: '🔓 Activer mon CV', codeS: 'Tu as déjà un code ? Entre-le pour retrouver ton CV sur ce téléphone.', back: '← Retour à mon CV',
+    kWait: 'Vérification…', kBad: 'Ce code n’existe pas. Vérifie-le (format CV-XXXX-XXXX).', kErr: 'Connexion impossible. Réessaie.', kOk: '✓ Code accepté. Bienvenue !',
+    krA: 'analyse(s)', krV: 'version(s)', recharge: '＋ Recharger', myCode: 'Ton code', codeKeep: 'garde-le : il permet de retrouver ton CV sur un autre téléphone.',
+    scT: 'Force de ton CV', scDone: '🎉 Ton CV est complet. Lance l’analyse IA pour aller plus loin.',
+    tips: { tNom: 'Ajoute ton nom et le poste visé', tCont: 'Ajoute ton téléphone et ton e-mail', tRez: 'Écris un profil d’au moins 3 phrases (l’IA peut t’aider)', tExp: 'Ajoute au moins une expérience (stage, bénévolat, petit job…)', tBul: 'Décris chaque expérience en 3 lignes ou plus', tNum: 'Ajoute un chiffre dans tes expériences (ex. « 120 clients par jour »)', tEdu: 'Ajoute ta formation', tSk: 'Liste au moins 6 compétences', tLang: 'Ajoute au moins 2 langues', tCert: 'Ajoute un certificat ou une formation courte', tVil: 'Ajoute ta ville' },
+    vT: '📑 Mes versions de CV', vBase: 'CV principal', vS: 'Un CV par poste. Clique pour changer de version : chacune se modifie et se télécharge séparément.', vDel: 'Supprimer cette version ?',
+    aiT: '🎯 Analyse IA et CV par poste', aiS: 'Colle l’offre d’emploi ou choisis le type d’institution. L’IA lit ton CV comme un recruteur.',
+    anonsL: 'Offre d’emploi (copier-coller, facultatif)', anonsPh: 'Colle ici le texte de l’annonce…', enstL: 'Type d’institution', pvL: 'Poste visé', pvPh: 'ex. Caissier(ère), Assistant(e) administratif(ve)…',
+    enst: ['— Choisir —', 'Banque / finance', 'ONG / organisation internationale', 'Administration publique', 'École / université', 'Télécom / technologie', 'Entreprise privée', 'Santé', 'Hôtellerie / tourisme'],
+    anB: '🎯 Analyser mon CV', adB: '📑 Créer un CV pour ce poste', kost: '1 crédit',
+    anWait: 'Le recruteur IA lit ton CV… (20 à 40 secondes)', adWait: 'L’IA prépare ta nouvelle version… (20 à 40 secondes)', noKr: 'Tu n’as plus de crédit pour ça. Recharge avec un nouveau code.', cvVid: 'Remplis d’abord ton CV (profil, expériences…).', adNeed: 'Colle une offre d’emploi ou écris le poste visé.', adOk: '✓ Nouvelle version créée et ouverte. Relis-la avant de l’envoyer.',
+    rNote: 'Note du CV', rAdek: 'Adéquation au poste', rFo: '✅ Points forts', rFeb: '⚠️ Points faibles', rMo: '🔑 Mots-clés manquants', rRek: '👔 Ce que le recruteur et le jury vont penser', rAk: '🚀 Quoi faire maintenant', rAn: '🎤 Préparation à l’entretien', rUp: '🎤 La préparation à l’entretien (questions probables + comment répondre) est incluse dans le Pack Postulant.', rFor: 'Analyse de',
+    consent: 'J’accepte que l’équipe Bwat Sekrèm Talks voie mon CV pour me proposer des stages, emplois et activités.', saved: '✓ CV enregistré. Tu le retrouves partout avec ton code.', autoS: '✓ enregistré' },
+  ht: { gHero: 'CV ki fè w jwenn antrevi a', gSub: 'Yon rekritè pase kèk segonn sou yon CV. Fè yo konte : yon CV pwofesyonèl, yon IA ki li l tankou yon rekritè, epi yon CV adapte pou chak pòs w ap aplike.',
+    gF1: '🎨 4 modèl pwofesyonèl, PDF pare pou voye', gF2: '✨ IA a reekri pwofil ou ak eksperyans ou (san l pa envante anyen)', gF3: '🎯 Analiz IA : pwen fò w, pwen fèb ou, sa rekritè a ak jiri antrevi a pral panse', gF4: '📑 Yon CV diferan pou chak pòs : IA a adapte l ak anons travay la',
+    exT: 'Egzanp analiz IA', exVerd: '« Bon pakou, men pwofil ou twò jeneral pou yon bank. Mete estaj kontablite w la devan epi bay chif sou rezilta w. »', exK: ['Excel avanse', 'Rapò', 'Konfòmite'],
+    pkPro: 'CV Pro', pkPost: 'Pakè Postilan', p2Tag: '⭐ Sa moun pi chwazi',
+    p1L: '<li>CV konplè w, 4 modèl, PDF</li><li>✨ IA pou ekri</li><li>🎯 1 analiz IA</li><li>📑 1 CV adapte pou yon pòs</li>',
+    p2L: '<li>Tout sa ki nan CV Pro a</li><li>🎯 5 analiz IA</li><li>📑 5 CV adapte (5 pòs)</li><li>🎤 Preparasyon antrevi : kesyon ki ka tonbe + kijan pou reponn</li>',
+    payT: 'Kijan pou peye', pay1: '1. Voye <b>500 G</b> oswa <b>1 000 G</b> pa <b>MonCash</b> nan <b>+509 4872-2671</b> (Bwat Sekrèm Talks).', pay2: '2. Voye kaptur peman an sou WhatsApp.', pay3: '3. W ap resevwa kòd ou <b>CV-XXXX-XXXX</b> : antre l la a.',
+    waB: '💬 Voye kaptur la sou WhatsApp', waTxt: 'Bonjou, mwen fèk peye pou CV a (Bwat Sekrèm Talks). Men kaptur la :',
+    codeL: '🔑 Kòd aksè w', actB: '🔓 Aktive CV mwen', codeS: 'Ou gen yon kòd deja ? Antre l pou jwenn CV w sou telefòn sa a.', back: '← Retounen nan CV mwen',
+    kWait: 'Verifikasyon…', kBad: 'Kòd sa a pa egziste. Verifye l (fòma CV-XXXX-XXXX).', kErr: 'Pa ka konekte. Eseye ankò.', kOk: '✓ Kòd la bon. Byenvini !',
+    krA: 'analiz', krV: 'vèsyon', recharge: '＋ Rechaje', myCode: 'Kòd ou', codeKeep: 'kenbe l : li pèmèt ou jwenn CV w sou yon lòt telefòn.',
+    scT: 'Fòs CV w', scDone: '🎉 CV w konplè. Lanse analiz IA a pou ale pi lwen.',
+    tips: { tNom: 'Mete non w ak pòs ou vize a', tCont: 'Mete telefòn ak imèl ou', tRez: 'Ekri yon pwofil omwen 3 fraz (IA a ka ede w)', tExp: 'Mete omwen yon eksperyans (estaj, volontarya, ti djòb…)', tBul: 'Dekri chak eksperyans sou 3 liy oswa plis', tNum: 'Mete yon chif nan eksperyans ou (egz. « 120 kliyan pa jou »)', tEdu: 'Mete fòmasyon w', tSk: 'Mete omwen 6 konpetans', tLang: 'Mete omwen 2 lang', tCert: 'Mete yon sètifika oswa yon ti fòmasyon', tVil: 'Mete vil ou' },
+    vT: '📑 Vèsyon CV mwen yo', vBase: 'CV prensipal', vS: 'Yon CV pou chak pòs. Klike pou chanje vèsyon : chak vèsyon modifye epi telechaje apa.', vDel: 'Efase vèsyon sa a ?',
+    aiT: '🎯 Analiz IA ak CV pou chak pòs', aiS: 'Kole anons travay la oswa chwazi kalite enstitisyon an. IA a li CV w tankou yon rekritè.',
+    anonsL: 'Anons travay la (kopye-kole, pa obligatwa)', anonsPh: 'Kole tèks anons lan la a…', enstL: 'Kalite enstitisyon', pvL: 'Pòs ou vize', pvPh: 'egz. Kesye, Asistan administratif…',
+    enst: ['— Chwazi —', 'Bank / finans', 'ONG / òganizasyon entènasyonal', 'Administrasyon piblik', 'Lekòl / inivèsite', 'Telekòm / teknoloji', 'Antrepriz prive', 'Sante', 'Otèl / touris'],
+    anB: '🎯 Analize CV mwen', adB: '📑 Kreye yon CV pou pòs sa a', kost: '1 kredi',
+    anWait: 'Rekritè IA a ap li CV w… (20 a 40 segonn)', adWait: 'IA a ap prepare nouvo vèsyon w… (20 a 40 segonn)', noKr: 'Ou pa gen kredi ankò pou sa. Rechaje ak yon nouvo kòd.', cvVid: 'Ranpli CV w anvan (pwofil, eksperyans…).', adNeed: 'Kole yon anons oswa ekri pòs ou vize a.', adOk: '✓ Nouvo vèsyon an kreye epi l louvri. Reli l anvan w voye l.',
+    rNote: 'Nòt CV a', rAdek: 'Adekwasyon ak pòs la', rFo: '✅ Pwen fò', rFeb: '⚠️ Pwen fèb', rMo: '🔑 Mo kle ki manke', rRek: '👔 Sa rekritè a ak jiri a pral panse', rAk: '🚀 Sa pou w fè kounya', rAn: '🎤 Preparasyon antrevi', rUp: '🎤 Preparasyon antrevi a (kesyon ki ka tonbe + kijan pou reponn) nan Pakè Postilan an.', rFor: 'Analiz pou',
+    consent: 'Mwen dakò pou ekip Bwat Sekrèm Talks la wè CV mwen pou pwopoze m estaj, travay ak aktivite.', saved: '✓ CV a anrejistre. Ou jwenn li tout kote ak kòd ou.', autoS: '✓ anrejistre' },
+  en: { gHero: 'The CV that gets you the interview', gSub: 'A recruiter spends a few seconds on a CV. Make them count: a pro CV, read by an AI the way a recruiter would, and tailored to every job you apply for.',
+    gF1: '🎨 4 pro templates, PDF ready to send', gF2: '✨ AI rewrites your profile and experience (without inventing anything)', gF3: '🎯 AI analysis: your strengths, your weaknesses, what the recruiter and interview panel will think', gF4: '📑 A different CV for each job: AI tailors it to the job offer',
+    exT: 'Sample AI analysis', exVerd: '“Good background, but your profile is too general for a bank. Highlight your accounting internship and add numbers to your results.”', exK: ['Advanced Excel', 'Reporting', 'Compliance'],
+    pkPro: 'Pro CV', pkPost: 'Job Seeker Pack', p2Tag: '⭐ Most popular',
+    p1L: '<li>Your full CV, 4 templates, PDF</li><li>✨ AI writing help</li><li>🎯 1 AI analysis</li><li>📑 1 CV tailored to a job</li>',
+    p2L: '<li>Everything in Pro CV</li><li>🎯 5 AI analyses</li><li>📑 5 tailored CVs (5 jobs)</li><li>🎤 Interview prep: likely questions + how to answer</li>',
+    payT: 'How to pay', pay1: '1. Send <b>500 G</b> or <b>1,000 G</b> with <b>MonCash</b> to <b>+509 4872-2671</b> (Bwat Sekrèm Talks).', pay2: '2. Send the payment screenshot on WhatsApp.', pay3: '3. You receive your code <b>CV-XXXX-XXXX</b>: enter it here.',
+    waB: '💬 Send the screenshot on WhatsApp', waTxt: 'Hello, I just paid for the CV (Bwat Sekrèm Talks). Here is my screenshot:',
+    codeL: '🔑 Your access code', actB: '🔓 Activate my CV', codeS: 'Already have a code? Enter it to get your CV back on this phone.', back: '← Back to my CV',
+    kWait: 'Checking…', kBad: 'This code does not exist. Check it (format CV-XXXX-XXXX).', kErr: 'Cannot connect. Try again.', kOk: '✓ Code accepted. Welcome!',
+    krA: 'analysis', krV: 'version(s)', recharge: '＋ Top up', myCode: 'Your code', codeKeep: 'keep it: it lets you get your CV back on another phone.',
+    scT: 'CV strength', scDone: '🎉 Your CV is complete. Run the AI analysis to go further.',
+    tips: { tNom: 'Add your name and target position', tCont: 'Add your phone and email', tRez: 'Write a profile of at least 3 sentences (AI can help)', tExp: 'Add at least one experience (internship, volunteering, side job…)', tBul: 'Describe each experience in 3 lines or more', tNum: 'Add a number to your experience (e.g. “120 customers a day”)', tEdu: 'Add your education', tSk: 'List at least 6 skills', tLang: 'Add at least 2 languages', tCert: 'Add a certificate or short course', tVil: 'Add your city' },
+    vT: '📑 My CV versions', vBase: 'Main CV', vS: 'One CV per job. Click to switch versions: each one is edited and downloaded separately.', vDel: 'Delete this version?',
+    aiT: '🎯 AI analysis and one CV per job', aiS: 'Paste the job offer or choose the type of institution. The AI reads your CV like a recruiter.',
+    anonsL: 'Job offer (copy-paste, optional)', anonsPh: 'Paste the job ad text here…', enstL: 'Type of institution', pvL: 'Target position', pvPh: 'e.g. Cashier, Administrative assistant…',
+    enst: ['— Choose —', 'Bank / finance', 'NGO / international organization', 'Public administration', 'School / university', 'Telecom / technology', 'Private company', 'Health', 'Hotel / tourism'],
+    anB: '🎯 Analyse my CV', adB: '📑 Create a CV for this job', kost: '1 credit',
+    anWait: 'The AI recruiter is reading your CV… (20 to 40 seconds)', adWait: 'The AI is preparing your new version… (20 to 40 seconds)', noKr: 'No credit left for this. Top up with a new code.', cvVid: 'Fill in your CV first (profile, experience…).', adNeed: 'Paste a job offer or type the target position.', adOk: '✓ New version created and opened. Read it before sending.',
+    rNote: 'CV score', rAdek: 'Job match', rFo: '✅ Strengths', rFeb: '⚠️ Weaknesses', rMo: '🔑 Missing keywords', rRek: '👔 What the recruiter and panel will think', rAk: '🚀 What to do now', rAn: '🎤 Interview prep', rUp: '🎤 Interview prep (likely questions + how to answer) is included in the Job Seeker Pack.', rFor: 'Analysis for',
+    consent: 'I agree that the Bwat Sekrèm Talks team can see my CV to offer me internships, jobs and activities.', saved: '✓ CV saved. Get it back anywhere with your code.', autoS: '✓ saved' },
+};
+Object.keys(UX).forEach((l) => Object.assign(UI[l], UX[l]));
 const CVL = {
   fr: { profil: 'Profil', exp: 'Expérience professionnelle', edu: 'Formation', skills: 'Compétences', langs: 'Langues', certs: 'Certificats', hob: 'Centres d’intérêt', ref: 'Références', contact: 'Contact', now: 'aujourd’hui', niv: ['Langue maternelle', 'Courant', 'Intermédiaire', 'Notions'] },
   ht: { profil: 'Pwofil', exp: 'Eksperyans pwofesyonèl', edu: 'Fòmasyon', skills: 'Konpetans', langs: 'Lang', certs: 'Sètifika', hob: 'Sa m renmen fè', ref: 'Referans', contact: 'Kontak', now: 'jodi a', niv: ['Lang manman', 'Byen pale l', 'Mwayen', 'Ti kras'] },
@@ -170,11 +309,20 @@ const COLORS = ['#123056', '#1f6f5c', '#7a1f3d', '#3b2a6b', '#b4541a', '#2b2b2b'
 const FIELDS = ['nom', 'poste', 'telephone', 'email', 'ville', 'lien', 'rezime', 'konpetans', 'enterè', 'referans'];
 const LISTS = { exp: ['titre', 'org', 'lieu', 'debut', 'fin', 'desc'], edu: ['dip', 'ecole', 'lieu', 'annee', 'mention'], lang: ['langue', 'niveau'], cert: ['cert', 'organisme', 'an'] };
 const KEY = 'bst_cv_v1';
-let L = 'fr', D = { modele: 'modern', koule: COLORS[0], cvLang: 'fr', photo: null, token: null, exp: [{}], edu: [{}], lang: [{ langue: 'Créole', niveau: '0' }, { langue: 'Français', niveau: '1' }], cert: [] };
+let L = 'fr', D = { modele: 'modern', koule: COLORS[0], cvLang: 'fr', photo: null, token: null, kod: '', kontak: false, cur: 'base', vers: null, analiz: null, exp: [{}], edu: [{}], lang: [{ langue: 'Créole', niveau: '0' }, { langue: 'Français', niveau: '1' }], cert: [] };
+let K = null, ADMIN = false, sT = null;
+const CONTENT = [...FIELDS, 'exp', 'edu', 'lang', 'cert'];
+const clone = (o) => JSON.parse(JSON.stringify(o ?? null));
+async function rpc(fn, body) { const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); const txt = await r.text(); if (!r.ok) { const e = new Error(txt); e.status = r.status; throw e; } return txt ? JSON.parse(txt) : null; }
 const t = () => UI[L];
 
 function load() { try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) D = Object.assign(D, s); } catch {} }
-function persist() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {} }
+function snap() { const o = {}; CONTENT.forEach((k) => (o[k] = clone(D[k] ?? (LISTS[k] ? [] : '')))); return o; }
+function ensureVers() { if (!Array.isArray(D.vers) || !D.vers.length) D.vers = [{ id: 'base', tit: null, data: snap() }]; if (!D.vers.some((v) => v.id === D.cur)) D.cur = 'base'; }
+function sync() { ensureVers(); const v = D.vers.find((x) => x.id === D.cur); if (v) v.data = snap(); }
+function persist() { if (ADMIN) return; sync(); try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {} }
+function fillForm() { FIELDS.forEach((f) => ($(f).value = D[f] || '')); $('cvLang').value = D.cvLang || 'fr'; $('ok').checked = !!D.kontak; }
+function applyData(o) { CONTENT.forEach((k) => (D[k] = clone(o[k] ?? (LISTS[k] ? [] : '')))); fillForm(); renderLists(); render(); }
 function readForm() { FIELDS.forEach((f) => (D[f] = $(f).value)); D.cvLang = $('cvLang').value;
   for (const k of Object.keys(LISTS)) document.querySelectorAll(`[data-li="${k}"]`).forEach((el) => { const i = +el.dataset.i; LISTS[k].forEach((f) => { const x = el.querySelector(`[data-f="${f}"]`); if (x) (D[k][i] ||= {})[f] = x.value; }); }); }
 function renderLists() {
@@ -194,7 +342,12 @@ function setLang(l) {
   L = UI[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
   document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
   document.querySelectorAll('[data-t]').forEach((el) => { const v = t()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
-  readForm(); renderLists(); renderModels(); render();
+  $('anons').placeholder = t().anonsPh; $('pv').placeholder = t().pvPh;
+  const ev = $('enst').value; $('enst').innerHTML = t().enst.map((x, i) => `<option value="${i ? i : ''}">${esc(x)}</option>`).join(''); $('enst').value = ev;
+  document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
+  $('exK').innerHTML = t().exK.map((x) => `<span>${esc(x)}</span>`).join('');
+  $('waB').href = 'https://wa.me/50948722671?text=' + encodeURIComponent(t().waTxt);
+  readForm(); renderLists(); renderModels(); render(); renderK(); renderVers(); renderAn();
 }
 function renderModels() {
   const mini = { modern: `<div style="position:absolute;inset:0 65% 0 0;background:${D.koule}"></div>`, classic: `<div style="position:absolute;left:20%;right:20%;top:8px;height:5px;background:${D.koule}"></div><div style="position:absolute;left:12%;right:12%;top:20px;height:1px;background:#bbb"></div>`, minimal: `<div style="position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:4px;background:${D.koule}"></div><div style="position:absolute;left:30px;top:12px;width:40%;height:5px;background:#333"></div>`, exec: `<div style="position:absolute;inset:0 0 62% 0;background:${D.koule}"></div>` };
@@ -223,13 +376,112 @@ function render() {
   else if (m === 'classic') cv.innerHTML = `<div class="hd">${ph}<div class="nm">${nm}</div><div class="pt">${pt}</div><div class="meta" style="margin-top:6px">${contact.join(' · ')}</div></div>${profil}${exp}${edu}${skills}${langs}${certs}${hob}${ref}`;
   else if (m === 'minimal') cv.innerHTML = `<div class="hd">${ph}<div><div class="nm">${nm}</div><div class="pt">${pt}</div><div class="meta">${contact.join(' · ')}</div></div></div><div class="cols"><div>${profil}${exp}${edu}${ref}</div><div>${skills}${langs}${certs}${hob}</div></div>`;
   else cv.innerHTML = `<div class="band">${ph}<div><div class="nm">${nm}</div><div class="pt">${pt}</div></div></div><div class="contact">${contact.map((x) => `<span>${x}</span>`).join('')}</div><div class="body"><div>${profil}${exp}${edu}${ref}</div><div>${skills}${langs}${certs}${hob}</div></div>`;
-  fit();
+  fit(); renderScore(); schedule();
 }
 function fit() { const w = $('pvs').parentElement.clientWidth || 794, k = Math.min(1, w / 794); $('pvs').style.transform = `scale(${k})`; $('pvs').style.height = ($('cv').offsetHeight * k) + 'px'; }
 window.addEventListener('resize', fit);
+/* ---------- Nòt CV a ---------- */
+function renderScore() {
+  const n = (s) => String(s || '').trim(), exps = (D.exp || []).filter((x) => x && (x.titre || x.org));
+  const lines = exps.reduce((a, x) => a + n(x.desc).split('\n').filter((l) => l.trim()).length, 0);
+  const sk = n(D.konpetans).split(/[,;\n]/).filter((x) => x.trim()).length;
+  const R = [[n(D.nom) && n(D.poste), 10, 'tNom'], [n(D.telephone) && n(D.email), 10, 'tCont'], [n(D.rezime).length >= 150, 15, 'tRez'], [exps.length >= 1, 15, 'tExp'],
+    [exps.length && lines >= exps.length * 3, 10, 'tBul'], [/\d/.test(exps.map((x) => x.desc || '').join(' ')), 5, 'tNum'], [(D.edu || []).some((x) => x && (x.dip || x.ecole)), 10, 'tEdu'],
+    [sk >= 6, 10, 'tSk'], [(D.lang || []).filter((x) => x && x.langue).length >= 2, 5, 'tLang'], [(D.cert || []).some((x) => x && x.cert), 5, 'tCert'], [n(D.ville), 5, 'tVil']];
+  const sc = R.reduce((a, r) => a + (r[0] ? r[1] : 0), 0), miss = R.filter((r) => !r[0]).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  $('scR').style.setProperty('--p', sc); $('scR').style.setProperty('--sc', sc < 50 ? '#c2410c' : sc < 80 ? '#d69e2e' : '#4f9a2a'); $('scN').textContent = sc;
+  $('scTips').innerHTML = miss.length ? miss.map((r) => `<li>${esc(t().tips[r[2]])} <b style="color:var(--navy)">+${r[1]}</b></li>`).join('') : `<li>${esc(t().scDone)}</li>`;
+}
+/* ---------- Kredi / peman ---------- */
+function renderK() {
+  if (!K) { $('kbar').innerHTML = ''; return; }
+  $('kbar').innerHTML = `<span class="pill pk">${K.pake === 'postilan' ? t().pkPost : t().pkPro}</span><span class="pill">🎯 ${K.analiz} ${t().krA}</span><span class="pill">📑 ${K.vesyon} ${t().krV}</span>${K.antrevi ? '<span class="pill">🎤</span>' : ''}
+    <button class="btn" type="button" id="rech" style="padding:5px 12px;font-size:13px">${t().recharge}</button>
+    ${D.kod ? `<div class="sub" style="width:100%">${t().myCode} : <b style="color:var(--navy);letter-spacing:.06em">${esc(D.kod)}</b> · ${t().codeKeep} <span id="aSt" style="float:right"></span></div>` : '<span class="sub" id="aSt"></span>'}`;
+  $('anB').textContent = `${t().anB} · ${t().kost}`; $('adB').textContent = `${t().adB} · ${t().kost}`;
+}
+function showGate(recharge) {
+  $('gate').classList.remove('hidden'); $('app').classList.add('hidden'); document.querySelector('.mtabs').classList.add('hidden');
+  $('gBack').classList.toggle('hidden', !(recharge && K)); window.scrollTo(0, 0);
+}
+function showApp() { $('gate').classList.add('hidden'); $('app').classList.remove('hidden'); document.querySelector('.mtabs').classList.remove('hidden'); renderK(); setTimeout(fit, 30); }
+async function refreshK() { try { const k = await rpc('cv_kredi', { p_token: D.token }); if (k) { K = k; renderK(); } } catch {} }
+function restore(d) {
+  const base = {}; CONTENT.forEach((k) => (base[k] = d[k] ?? (LISTS[k] ? [] : '')));
+  D.vers = [{ id: 'base', tit: null, data: base }, ...(Array.isArray(d.versions) ? d.versions.filter((v) => v && v.id && v.data) : [])]; D.cur = 'base';
+  if (d.analiz) D.analiz = d.analiz; applyData(base); renderVers(); renderAn();
+}
+async function aktive() {
+  const code = $('kod').value.trim(), m = $('kMsg'), say = (s, k = 'ok') => { m.className = 'msg ' + k; m.textContent = s; };
+  if (code.length < 8) return say(t().kBad, 'err');
+  $('kodB').disabled = true; say(t().kWait, '');
+  try {
+    const r = await rpc('cv_koupon_itilize', { p_code: code, p_token: D.token || null });
+    if (!r || !r.ok) { $('kodB').disabled = false; return say(t().kBad, 'err'); }
+    const nouvo = r.token !== D.token, d = r.done || {};
+    D.token = r.token; D.kod = code.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^(..)(....)(....)$/, '$1-$2-$3'); K = { pake: r.pake, analiz: r.analiz, vesyon: r.vesyon, antrevi: r.antrevi };
+    if (nouvo && (d.nom || (d.exp || []).some((x) => x && (x.titre || x.org)))) { if (r.modele) D.modele = r.modele; if (r.koule) D.koule = r.koule; if (r.lang) D.cvLang = r.lang; restore(d); renderModels(); }
+    say(t().kOk); persist(); showApp(); save(true); $('kod').value = '';
+    try { gtag('event', 'cv_aktive', { pake: r.pake }); } catch {}
+  } catch { say(t().kErr, 'err'); }
+  $('kodB').disabled = false;
+}
+/* ---------- Vèsyon ---------- */
+function renderVers() {
+  ensureVers();
+  $('vers').innerHTML = D.vers.map((v) => `<button type="button" data-ver="${esc(v.id)}" aria-pressed="${v.id === D.cur}">${v.id === 'base' ? '⭐ ' + esc(t().vBase) : esc(v.tit || '')}${v.id !== 'base' ? `<i data-vdel="${esc(v.id)}" title="✖">✖</i>` : ''}</button>`).join('');
+}
+function switchVer(id) { if (id === D.cur) return; sync(); const v = D.vers.find((x) => x.id === id); if (!v) return; D.cur = id; applyData(v.data || {}); renderVers(); }
+/* ---------- Analiz IA ---------- */
+async function callIA(body) {
+  const r = await fetch(`${SB_URL}/functions/v1/cv-ia`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, token: D.token, ui: L, lang: D.cvLang }) });
+  const j = await r.json().catch(() => ({})); if (j.error === 'pa_peye') { K = null; showGate(false); } return j;
+}
+function renderAn() {
+  const A = D.analiz, el = $('anRes'); if (!A || !A.j) { el.innerHTML = ''; return; }
+  const j = A.j, li = (a) => (Array.isArray(a) ? a : []).map((x) => `<li>${esc(x)}</li>`).join(''), cls = (v) => (v < 50 ? 'lo' : v < 75 ? 'mi' : 'hi');
+  const note = Math.max(0, Math.min(100, +j.note || 0)), ad = j.adekwasyon == null || j.adekwasyon === '' ? null : Math.max(0, Math.min(100, +j.adekwasyon || 0));
+  el.innerHTML = `<div class="sub" style="margin-top:12px">${esc(t().rFor)} : <b>${esc(A.pou || '')}</b> · ${esc(new Date(A.at).toLocaleDateString(L === 'en' ? 'en-GB' : 'fr-FR'))}</div>
+    <div class="gauges"><div class="gg ${cls(note)}"><b>${note}</b><span>${t().rNote} /100</span></div>${ad != null ? `<div class="gg ${cls(ad)}"><b>${ad}%</b><span>${t().rAdek}</span></div>` : ''}</div>
+    ${j.verdik ? `<div class="verd">${esc(j.verdik)}</div>` : ''}
+    <h4>${t().rFo}</h4><ul>${li(j.pwen_fo)}</ul><h4>${t().rFeb}</h4><ul>${li(j.pwen_feb)}</ul>
+    ${(j.mo_kle || []).length ? `<h4>${t().rMo}</h4><div class="fchips">${j.mo_kle.map((x) => `<span>${esc(x)}</span>`).join('')}</div>` : ''}
+    ${j.rekrite ? `<h4>${t().rRek}</h4><p style="margin:0">${esc(j.rekrite)}</p>` : ''}
+    <h4>${t().rAk}</h4><ol>${li(j.aksyon)}</ol>
+    ${Array.isArray(j.antrevi) && j.antrevi.length ? `<h4>${t().rAn}</h4>${j.antrevi.map((x) => `<details><summary>${esc(x.q)}</summary><p style="margin:6px 0 0">${esc(x.konsey)}</p></details>`).join('')}` : K && !K.antrevi ? `<div class="up">${t().rUp}</div>` : ''}`;
+}
+function cible() { const e = $('enst').value; return { anons: $('anons').value.trim(), enstitisyon: e ? UI.en.enst[+e] : '', poste_vize: $('pv').value.trim(), label: $('pv').value.trim() || (e ? t().enst[+e] : '') || ($('anons').value.trim().split('\n')[0] || '').slice(0, 50) || D.poste || '—' }; }
+async function analize() {
+  const m = $('aMsg'), say = (s, k = 'ok') => { m.className = 'msg ' + k; m.textContent = s; }; render();
+  if (!K || K.analiz < 1) return say(t().noKr, 'err');
+  const c = cible(); $('anB').disabled = $('adB').disabled = true; say(t().anWait, '');
+  try {
+    const j = await callIA({ action: 'analiz', cv: snap(), anons: c.anons, enstitisyon: c.enstitisyon });
+    if (j.ok) { D.analiz = { j: j.analiz, at: Date.now(), pou: c.label }; persist(); renderAn(); say(''); save(true); $('anRes').scrollIntoView({ behavior: 'smooth', block: 'start' }); try { gtag('event', 'cv_analiz'); } catch {} }
+    else say(j.error === 'pa_kredi' ? t().noKr : j.error === 'cv_vid' ? t().cvVid : t().err, 'err');
+  } catch { say(t().err, 'err'); }
+  $('anB').disabled = $('adB').disabled = false; refreshK();
+}
+async function adapte() {
+  const m = $('aMsg'), say = (s, k = 'ok') => { m.className = 'msg ' + k; m.textContent = s; }; render();
+  if (!K || K.vesyon < 1) return say(t().noKr, 'err');
+  const c = cible(); if (!c.anons && !c.poste_vize) return say(t().adNeed, 'err');
+  $('anB').disabled = $('adB').disabled = true; say(t().adWait, '');
+  try {
+    const src = snap(), j = await callIA({ action: 'adapte', cv: src, anons: c.anons, enstitisyon: c.enstitisyon, poste_vize: c.poste_vize });
+    if (j.ok) {
+      const v = j.vesyon || {}, nd = clone(src);
+      ['poste', 'rezime', 'konpetans'].forEach((k) => { if (typeof v[k] === 'string' && v[k].trim()) nd[k] = v[k].trim(); });
+      if (Array.isArray(v.exp)) { const used = new Set(), ne = []; v.exp.forEach((x) => { const i = +x?.i; if (src.exp[i] && !used.has(i)) { used.add(i); ne.push({ ...src.exp[i], desc: String(x.desc || src.exp[i].desc || '').trim() }); } }); src.exp.forEach((x, i) => { if (!used.has(i)) ne.push(x); }); nd.exp = ne; }
+      sync(); const id = 'v' + Date.now().toString(36); D.vers.push({ id, tit: String(v.tit_vesyon || c.label).slice(0, 60), data: nd }); D.cur = id;
+      applyData(nd); renderVers(); say(t().adOk); save(true); try { gtag('event', 'cv_vesyon'); } catch {}
+    } else say(j.error === 'pa_kredi' ? t().noKr : j.error === 'cv_vid' ? t().cvVid : j.error === 'bad_request' ? t().adNeed : t().err, 'err');
+  } catch { say(t().err, 'err'); }
+  $('anB').disabled = $('adB').disabled = false; refreshK();
+}
 /* ---------- Evènman ---------- */
-document.addEventListener('input', (e) => { if (e.target.closest('.form')) render(); });
-document.addEventListener('change', (e) => { if (e.target.closest('.form')) render(); });
+document.addEventListener('input', (e) => { if (e.target.closest('.form') && !e.target.closest('#aiBox')) render(); });
+document.addEventListener('change', (e) => { if (e.target.closest('.form') && !e.target.closest('#aiBox')) { if (e.target.id === 'ok') D.kontak = e.target.checked; render(); } });
 document.addEventListener('click', async (e) => {
   const l = e.target.closest('[data-l]'); if (l) return setLang(l.dataset.l);
   const v = e.target.closest('.mtabs [data-v]'); if (v) { $('app').dataset.v = v.dataset.v; document.querySelectorAll('.mtabs [data-v]').forEach((b) => b.setAttribute('aria-pressed', b === v)); if (v.dataset.v === 'pv') setTimeout(fit, 30); return; }
@@ -238,7 +490,15 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-add]'); if (a) { readForm(); D[a.dataset.add].push({}); renderLists(); return render(); }
   const d = e.target.closest('[data-del]'); if (d) { readForm(); D[d.dataset.del].splice(+d.dataset.i, 1); renderLists(); return render(); }
   const ia = e.target.closest('[data-ia]'); if (ia) return amelyore(ia);
+  const vd = e.target.closest('[data-vdel]'); if (vd) { e.stopPropagation(); if (!confirm(t().vDel)) return; sync(); const id = vd.dataset.vdel; D.vers = D.vers.filter((x) => x.id !== id); if (D.cur === id) { D.cur = 'base'; applyData(D.vers[0].data || {}); } renderVers(); persist(); return save(true); }
+  const vr = e.target.closest('[data-ver]'); if (vr) return switchVer(vr.dataset.ver);
+  if (e.target.closest('#rech')) return showGate(true);
 });
+$('gBack').addEventListener('click', showApp);
+$('kodB').addEventListener('click', aktive);
+$('kod').addEventListener('keydown', (e) => { if (e.key === 'Enter') aktive(); });
+$('anB').addEventListener('click', analize);
+$('adB').addEventListener('click', adapte);
 $('phF').addEventListener('change', () => { const f = $('phF').files[0]; if (!f) return; const i = new Image(); i.onload = () => { const s = 320, cv = document.createElement('canvas'); cv.width = cv.height = s; const k = Math.max(s / i.width, s / i.height); const x = cv.getContext('2d'); x.drawImage(i, (s - i.width * k) / 2, (s - i.height * k) / 2, i.width * k, i.height * k); D.photo = cv.toDataURL('image/jpeg', .85); renderModels(); render(); }; i.src = URL.createObjectURL(f); });
 $('phX').addEventListener('click', () => { D.photo = null; $('phF').value = ''; renderModels(); render(); });
 async function amelyore(b) {
@@ -249,35 +509,35 @@ async function amelyore(b) {
   if ((tekst || '').trim().length < 3 && !(tip === 'konpetans' && D.poste)) return say(t().iaNeed, 'err');
   b.disabled = true; say(t().iaWait);
   try {
-    const r = await fetch(`${SB_URL}/functions/v1/cv-ia`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tip, tekst: tekst || D.poste, poste: D.poste, lang: D.cvLang, kontek, token: D.token }) });
-    const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.ok) { b.disabled = false; return say(j.error === 'limit' ? t().iaLimit : t().err, 'err'); }
+    const j = await callIA({ action: 'ameliore', tip, tekst: tekst || D.poste, poste: D.poste, kontek });
+    if (!j.ok) { b.disabled = false; return say(j.error === 'limit' ? t().iaLimit : t().err, 'err'); }
     if (tip === 'rezime') $('rezime').value = j.tekst; else if (tip === 'konpetans') $('konpetans').value = j.tekst; else document.querySelector(`[data-li="exp"][data-i="${i}"] [data-f="desc"]`).value = j.tekst;
     render(); say(t().iaOk); try { gtag('event', 'cv_ia', { tip }); } catch {}
   } catch { say(t().err, 'err'); }
   b.disabled = false;
 }
-$('save').addEventListener('click', async () => {
-  render(); const msg = (s, k = 'ok') => { $('sMsg').className = 'msg ' + k; $('sMsg').textContent = s; };
-  if (!$('ok').checked) return msg(t().local);
-  $('save').disabled = true;
+function schedule() { if (ADMIN || !D.token || !K) return; clearTimeout(sT); sT = setTimeout(() => save(true), 5000); }
+async function save(silent) {
+  if (ADMIN || !D.token) return; clearTimeout(sT); sync();
+  const msg = (s, k = 'ok') => { $('sMsg').className = 'msg ' + k; $('sMsg').textContent = s; };
+  const base = (D.vers.find((v) => v.id === 'base') || {}).data || snap();
+  const done = { ...base, versions: D.vers.filter((v) => v.id !== 'base').map((v) => ({ id: v.id, tit: v.tit, data: v.data })), analiz: D.analiz || null };
   try {
-    const done = {}; FIELDS.forEach((f) => (done[f] = D[f])); ['exp', 'edu', 'lang', 'cert'].forEach((k) => (done[k] = D[k]));
-    const r = await fetch(`${SB_URL}/rest/v1/rpc/cv_sove`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_token: D.token, p_lang: D.cvLang, p_modele: D.modele, p_koule: D.koule, p_done: done }) });
-    if (!r.ok) throw 0; D.token = await r.json(); persist(); msg(t().saved); try { gtag('event', 'cv_sove', { modele: D.modele }); } catch {}
-  } catch { msg(t().err, 'err'); }
-  $('save').disabled = false;
-});
+    await rpc('cv_sove', { p_token: D.token, p_lang: D.cvLang, p_modele: D.modele, p_koule: D.koule, p_done: done, p_kontak: !!D.kontak });
+    if (silent) { const a = $('aSt'); if (a) a.textContent = t().autoS; } else { msg(t().saved); try { gtag('event', 'cv_sove', { modele: D.modele }); } catch {} }
+  } catch (e) { if (String(e.message).includes('pa_peye')) { K = null; showGate(false); } else if (!silent) msg(t().err, 'err'); }
+}
+$('save').addEventListener('click', () => { render(); $('save').disabled = true; save(false).finally(() => ($('save').disabled = false)); });
 $('pdf').addEventListener('click', () => { render(); $('sMsg').className = 'msg'; $('sMsg').textContent = t().pdfTip; try { gtag('event', 'cv_pdf', { modele: D.modele }); } catch {} setTimeout(() => window.print(), 150); });
 /* ---------- Mòd admin : ?id=… (lekti sèlman, pou ekip BST la) ---------- */
 async function adminView(id) {
   let tok = null; try { const k = Object.keys(localStorage).find((x) => /^sb-.*-auth-token$/.test(x)); tok = k && JSON.parse(localStorage.getItem(k)).access_token; } catch {}
-  if (!tok) return false;
+  if (!tok) return false; ADMIN = true;
   const r = await fetch(`${SB_URL}/rest/v1/cv?id=eq.${encodeURIComponent(id)}&select=*`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${tok}` } });
-  const row = r.ok ? (await r.json())[0] : null; if (!row) return false;
+  const row = r.ok ? (await r.json())[0] : null; if (!row) { ADMIN = false; return false; }
   D = Object.assign(D, row.done, { modele: row.modele, koule: row.koule || COLORS[0], cvLang: row.lang, token: null, photo: null }); D.exp ||= []; D.edu ||= []; D.lang ||= []; D.cert ||= [];
   FIELDS.forEach((f) => ($(f).value = D[f] || '')); $('cvLang').value = D.cvLang;
-  document.querySelector('.form').classList.add('hidden'); document.querySelector('.mtabs').classList.add('hidden'); $('app').style.gridTemplateColumns = '1fr'; $('app').dataset.v = 'pv';
+  $('app').classList.remove('hidden'); document.querySelector('.form').classList.add('hidden'); document.querySelector('.mtabs').classList.add('hidden'); $('app').style.gridTemplateColumns = '1fr'; $('app').dataset.v = 'pv';
   const bar = document.createElement('div'); bar.className = 'noprint'; bar.style.cssText = 'max-width:794px;margin:12px auto 0;display:flex;gap:8px'; bar.innerHTML = '<button class="btn main" type="button" onclick="window.print()">📄 PDF</button>';
   document.body.insertBefore(bar, $('app')); return true;
 }
@@ -286,10 +546,14 @@ async function adminView(id) {
   let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
   if (q.get('id') && await adminView(q.get('id'))) { setLang(l0 || 'fr'); return; }
   let fresh = true; try { fresh = !localStorage.getItem(KEY); } catch {}
-  load(); FIELDS.forEach((f) => ($(f).value = D[f] || '')); $('cvLang').value = D.cvLang || 'fr';
+  load(); ensureVers(); fillForm();
   if (!D.telephone && q.get('tel')) $('telephone').value = q.get('tel').slice(0, 25);
+  if (q.get('kod')) $('kod').value = q.get('kod').slice(0, 14);
   setLang(l0 || 'fr'); if (fresh) { $('cvLang').value = L === 'en' ? 'en' : L === 'ht' ? 'ht' : 'fr'; if (L !== 'fr') D.lang = [{ langue: L === 'en' ? 'Haitian Creole' : 'Kreyòl', niveau: '0' }, { langue: L === 'en' ? 'French' : 'Fransè', niveau: '1' }]; renderLists(); render(); }
   document.fonts && document.fonts.ready.then(fit);
+  if (!D.token) return showGate(false);
+  try { K = await rpc('cv_kredi', { p_token: D.token }); } catch { K = K || null; }
+  if (K) showApp(); else showGate(false);
 })();
 </script>
 </body>

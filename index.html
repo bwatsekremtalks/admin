@@ -117,6 +117,16 @@
   #appMsg.n-info { background: var(--surface); color: var(--ink-2); border-color: var(--line); }
   #lastRef.off { color: #9a6700; font-weight: 600; }
   dialog.ed { width: min(760px, calc(100% - 24px)); max-height: calc(100dvh - 24px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
+  dialog.vis { width: min(980px, calc(100% - 24px)); max-height: calc(100dvh - 24px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
+  dialog.vis::backdrop { background: rgba(8, 20, 36, .55); }
+  .visg { display: grid; grid-template-columns: 300px 1fr; gap: 18px; padding: 18px; }
+  .visg label { display: block; font-weight: 700; font-size: 13px; margin: 10px 0 4px; }
+  .visg select, .visg input[type=text] { width: 100%; padding: 9px 11px; border: 1px solid #d8dee9; border-radius: 10px; font: inherit; }
+  .visc { background: #e9eef5; border-radius: 14px; padding: 12px; display: grid; place-items: center; min-height: 300px; }
+  .visc canvas { max-width: 100%; max-height: 70dvh; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+  .vtpl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; } .vtpl button { border: 1.5px solid #d8dee9; background: #fff; border-radius: 10px; padding: 8px; font: 700 12.5px "DM Sans", sans-serif; cursor: pointer; text-align: left; }
+  .vtpl button[aria-pressed="true"] { border-color: #7AC142; box-shadow: 0 0 0 3px rgba(122,193,66,.25); }
+  @media (max-width: 760px) { .visg { grid-template-columns: 1fr; } }
   dialog.ed::backdrop { background: rgba(8, 20, 36, .55); }
   .ed form { padding: 22px 24px 0; }
   .ed h2 { font-size: 20px; margin: 0 0 4px; }
@@ -249,6 +259,7 @@
         <label class="sub" style="display:inline-flex;align-items:center;gap:6px" title="Recharge la liste toutes les 2 minutes"><input type="checkbox" id="autoRef" checked /> Auto (2 min) <span id="lastRef"></span></label>
         <button class="btn" id="printList" type="button">Imprimer la liste</button>
         <button class="btn" id="printStats" type="button">Imprimer les stats</button>
+        <button class="btn" id="visBtn" type="button">🎨 Visuels réseaux</button>
         <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
         <button class="btn" id="csv" type="button">Exporter (Excel)</button>
         <button class="btn" id="newResa" type="button">+ Nouvelle inscription</button>
@@ -404,6 +415,22 @@
 
 <div id="serie" class="hidden" role="region" aria-label="Envoi en série"></div>
 
+<dialog class="vis" id="vis" aria-labelledby="visTitle">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)"><h2 id="visTitle" style="margin:0;font-size:18px">🎨 Visuels pour les réseaux sociaux</h2><button class="btn" type="button" id="visX">Fermer</button></div>
+  <div class="visg">
+    <div>
+      <label>Graphique</label><div class="vtpl" id="vTpl"></div>
+      <label for="vFmt">Format</label><select id="vFmt"><option value="post">Post Instagram / Facebook (4:5)</option><option value="story">Story / Statut WhatsApp (9:16)</option><option value="carre">Carré (1:1)</option><option value="a4">Affiche A4 (impression)</option></select>
+      <label for="vLang">Langue</label><select id="vLang"><option value="fr">Français</option><option value="ht">Kreyòl</option><option value="en">English</option></select>
+      <label for="vTit">Titre</label><input type="text" id="vTit" maxlength="70" />
+      <label for="vSub">Sous-titre</label><input type="text" id="vSub" maxlength="90" />
+      <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="vNum" checked /> Afficher les nombres (sinon seulement les %)</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" type="button" id="vDl" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">⬇️ Télécharger (PNG)</button><button class="btn" type="button" id="vPr">🖨️ Imprimer</button></div>
+      <p class="sub" style="margin:10px 0 0">Les chiffres viennent des inscriptions de l’édition choisie (annulées exclues). « Non précisé » n’apparaît pas sur les visuels.</p>
+    </div>
+    <div class="visc"><canvas id="vCan"></canvas></div>
+  </div>
+</dialog>
 <dialog class="ed" id="ed" aria-labelledby="edTitle">
   <form id="edForm" novalidate>
     <h2 id="edTitle">Modifier l’inscription</h2>
@@ -754,6 +781,87 @@ function bars(el, entries, total, unit) {
 }
 const countBy = (arr, fn) => { const m = new Map(); arr.forEach((x) => { const k = fn(x); m.set(k, (m.get(k) || 0) + 1); }); return m; };
 
+/* ---------- Visuels pour les réseaux (canvas) ---------- */
+const VIS = {};
+const VCOL = ['#7AC142', '#F5A623', '#3FA9F5', '#E8505B', '#9B6BDF', '#14B8A6', '#F06292', '#FFD54F', '#90A4AE'];
+const VTX = {
+  fr: { src: ['Comment vous avez connu Bwat Sekrèm Talks', 'Merci à vous qui partagez ! 💚'], uni: ['Toutes les universités au rendez-vous', 'D’où viennent les étudiants inscrits'], niv: ['Du cycle court au doctorat', 'Niveau d’études des étudiants inscrits'], sexe: ['Femmes et hommes au rendez-vous', 'Répartition des personnes inscrites'], profil: ['Qui sera dans la salle ?', 'Les profils des personnes inscrites'], resume: ['Bwat Sekrèm Talks en chiffres', 'Les inscriptions à ce jour'],
+    foot: 'Inscription : bwatsekremtalks.com', pers: 'personnes inscrites', resa: 'réservations', fem: 'de femmes', unis: 'universités représentées', etu: 'étudiants', autres: 'Autres', F: 'Femmes', H: 'Hommes', on: 'personnes' },
+  ht: { src: ['Kijan nou te konnen Bwat Sekrèm Talks', 'Mèsi paske nou pataje ! 💚'], uni: ['Tout inivèsite yo la', 'Kote etidyan ki enskri yo soti'], niv: ['Depi sik kout rive doktora', 'Nivo etid etidyan ki enskri yo'], sexe: ['Fanm kou gason ap la', 'Moun ki enskri yo'], profil: ['Ki moun ki pral nan sal la ?', 'Pwofil moun ki enskri yo'], resume: ['Bwat Sekrèm Talks an chif', 'Enskripsyon yo jiska jodi a'],
+    foot: 'Enskripsyon : bwatsekremtalks.com', pers: 'moun enskri', resa: 'rezèvasyon', fem: 'se fanm', unis: 'inivèsite reprezante', etu: 'etidyan', autres: 'Lòt', F: 'Fanm', H: 'Gason', on: 'moun' },
+  en: { src: ['How you heard about Bwat Sekrèm Talks', 'Thank you for sharing! 💚'], uni: ['Every university is coming', 'Where registered students come from'], niv: ['From short cycle to PhD', 'Study level of registered students'], sexe: ['Women and men, all in', 'People registered'], profil: ['Who will be in the room?', 'Profiles of registered people'], resume: ['Bwat Sekrèm Talks in numbers', 'Registrations so far'],
+    foot: 'Register: bwatsekremtalks.com', pers: 'people registered', resa: 'bookings', fem: 'women', unis: 'universities', etu: 'students', autres: 'Others', F: 'Women', H: 'Men', on: 'people' },
+};
+const VLAB = { ht: { 'Un ami / un collègue': 'Yon zanmi / yon kolèg', 'Affiche': 'Afich', 'Autre': 'Lòt', 'Cycle court': 'Sik kout', 'Maîtrise': 'Metriz', 'Doctorat': 'Doktora', 'Autres': 'Lòt' },
+  en: { 'Un ami / un collègue': 'A friend / colleague', 'Affiche': 'Poster', 'Autre': 'Other', 'Cycle court': 'Short cycle', 'Maîtrise': 'Master’s', 'Doctorat': 'PhD', 'Autres': 'Others' } };
+const vLab = (l, s) => { let x = (VLAB[l] || {})[s] || s; const m = /^Licence (\d)\S* année$/.exec(s); if (m && l !== 'fr') x = l === 'ht' ? `Lisans ${m[1]}yèm ane` : `Bachelor year ${m[1]}`; return x; };
+const VTPLS = [['resume', '📊 En chiffres'], ['src', '📣 Comment ils ont connu'], ['uni', '🎓 Universités'], ['niv', '📚 Niveau d’études'], ['sexe', '👩‍🦱 Femmes / Hommes'], ['profil', '🧑‍💼 Profils']];
+let VSEL = 'resume', VLOGO = null;
+function visImg() { if (VLOGO) return Promise.resolve(VLOGO); return new Promise((ok) => { const i = new Image(); i.onload = () => ok(VLOGO = i); i.onerror = () => ok(null); i.src = 'portrait/logos/bst-blanc.png'; }); }
+function visData(k) {
+  const bad = (s) => /non précis/i.test(s);
+  if (k === 'niv') return (VIS.niv || []).filter(([s, n]) => n && !bad(s));
+  return (VIS[k] || []).filter(([s, n]) => n && !bad(String(s)));
+}
+function wrapT(c, text, maxW) { const w = String(text).split(' '), L = []; let cur = ''; for (const x of w) { const tr = cur ? cur + ' ' + x : x; if (c.measureText(tr).width > maxW && cur) { L.push(cur); cur = x; } else cur = tr; } if (cur) L.push(cur); return L; }
+function rr(c, x, y, w, h, r) { r = Math.min(r, h / 2, w / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+async function drawVis() {
+  const fmt = $('vFmt').value, l = $('vLang').value, T = VTX[l], showN = $('vNum').checked;
+  const W = 1080, H = { post: 1350, story: 1920, carre: 1080, a4: 1527 }[fmt];
+  const cv = $('vCan'); cv.width = W; cv.height = H; const c = cv.getContext('2d'), F = '"DM Sans", system-ui, sans-serif';
+  const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0a1f38'); g.addColorStop(1, '#1d4a7c'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  [[W * .9, H * .08, 260, '#7AC142'], [W * .05, H * .95, 300, '#F5A623'], [W * .95, H * .7, 180, '#3FA9F5']].forEach(([x, y, r, col]) => { c.globalAlpha = .13; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }); c.globalAlpha = 1;
+  const P = 72; let y = fmt === 'story' ? 140 : 70;
+  const logo = await visImg(); if (logo) { const lh = 92, lw = logo.width * lh / logo.height; c.drawImage(logo, P, y, lw, lh); }
+  const ed = ($('edition').selectedOptions[0] || {}).textContent || '';
+  c.font = `700 26px ${F}`; const ew = c.measureText(ed).width + 40; c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, W - P - ew, y + 24, ew, 48, 24); c.fill(); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(ed, W - P - ew + 20, y + 49);
+  y += 150; c.textBaseline = 'alphabetic';
+  c.fillStyle = '#fff'; c.font = `800 ${fmt === 'carre' ? 60 : 68}px ${F}`;
+  for (const ln of wrapT(c, $('vTit').value, W - 2 * P).slice(0, 3)) { y += 72; c.fillText(ln, P, y); }
+  c.fillStyle = '#7AC142'; c.font = `500 34px ${F}`; y += 56; c.fillText($('vSub').value, P, y);
+  const foot = H - (fmt === 'story' ? 150 : 70), top = y + 60, bot = foot - 60;
+  if (VSEL === 'resume') {
+    const pf = VIS.nP ? Math.round(VIS.f / VIS.nP * 100) : 0;
+    const tiles = [[VIS.nP || 0, T.pers, '#7AC142'], [VIS.nRows || 0, T.resa, '#F5A623'], [pf + ' %', T.fem, '#F06292'], [VIS.nUni || 0, T.unis, '#3FA9F5']];
+    const gap = 28, tw = (W - 2 * P - gap) / 2, th = Math.min(330, (bot - top - gap) / 2);
+    tiles.forEach(([v, s, col], i) => { const x = P + (i % 2) * (tw + gap), yy = top + Math.floor(i / 2) * (th + gap);
+      c.fillStyle = 'rgba(255,255,255,.08)'; rr(c, x, yy, tw, th, 32); c.fill(); c.fillStyle = col; rr(c, x, yy, 14, th, 7); c.fill();
+      c.fillStyle = col; c.font = `800 ${Math.min(130, th * .42)}px ${F}`; c.fillText(String(v), x + 46, yy + th * .55);
+      c.fillStyle = '#fff'; c.font = `600 32px ${F}`; wrapT(c, s, tw - 80).slice(0, 2).forEach((ln, j) => c.fillText(ln, x + 46, yy + th * .55 + 56 + j * 40)); });
+  } else if (VSEL === 'sexe') {
+    const d = visData('sexe'), tot = d.reduce((a, [, n]) => a + n, 0) || 1, cx = W / 2, R0 = Math.min(300, (bot - top - 200) / 2 - 55), cy = top + Math.max(0, (bot - top - 2 * R0 - 310) / 2) + 55 + R0;
+    let a0 = -Math.PI / 2; d.forEach(([s, n], i) => { const a1 = a0 + n / tot * Math.PI * 2; c.strokeStyle = [ '#F06292', '#3FA9F5', '#90A4AE'][i]; c.lineWidth = 110; c.beginPath(); c.arc(cx, cy, R0, a0 + .02, a1 - .02); c.stroke(); a0 = a1; });
+    c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = `800 110px ${F}`; c.fillText(tot, cx, cy + 20); c.font = `600 34px ${F}`; c.fillText(T.on, cx, cy + 70);
+    const ly = cy + R0 + 55 + 95; d.forEach(([s, n], i) => { const x = d.length === 1 ? cx : P + 120 + i * ((W - 2 * P - 240) / Math.max(1, d.length - 1));
+      c.fillStyle = ['#F06292', '#3FA9F5', '#90A4AE'][i]; c.font = `800 76px ${F}`; c.fillText(Math.round(n / tot * 100) + ' %', x, ly);
+      c.fillStyle = '#fff'; c.font = `600 32px ${F}`; c.fillText((s === 'Femmes' ? T.F : s === 'Hommes' ? T.H : vLab(l, s)) + (showN ? ` · ${n}` : ''), x, ly + 46); });
+    c.textAlign = 'left';
+  } else {
+    const d = visData(VSEL), tot = d.reduce((a, [, n]) => a + n, 0) || 1, max = Math.max(...d.map(([, n]) => n), 1);
+    const rh = Math.min(118, (bot - top) / Math.max(d.length, 1)), bh = Math.max(18, rh * .3);
+    const t0 = top + Math.max(0, (bot - top - d.length * rh) / 2) * (fmt === 'story' ? 1 : .5);
+    d.forEach(([s, n], i) => { const yy = t0 + i * rh, col = VCOL[i % VCOL.length];
+      c.fillStyle = '#fff'; c.font = `600 ${Math.min(34, rh * .3)}px ${F}`; let lab = vLab(l, s); while (c.measureText(lab).width > W - 2 * P - 230 && lab.length > 4) lab = lab.slice(0, -2); if (lab !== vLab(l, s)) lab += '…'; c.fillText(lab, P, yy + rh * .36);
+      const bw = W - 2 * P - 230; c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, P, yy + rh * .48, bw, bh, bh / 2); c.fill();
+      c.fillStyle = col; rr(c, P, yy + rh * .48, Math.max(bh, bw * n / max), bh, bh / 2); c.fill();
+      c.textAlign = 'right'; c.fillStyle = col; c.font = `800 ${Math.min(58, rh * .46)}px ${F}`; c.fillText(Math.round(n / tot * 100) + ' %', W - P, yy + rh * .7);
+      if (showN) { c.fillStyle = 'rgba(255,255,255,.7)'; c.font = `600 ${Math.min(26, rh * .22)}px ${F}`; c.fillText(String(n), W - P, yy + rh * .7 + Math.min(34, rh * .28)); }
+      c.textAlign = 'left'; });
+  }
+  c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(P, foot - 46, W - 2 * P, 2);
+  c.fillStyle = '#fff'; c.font = `700 32px ${F}`; c.fillText(T.foot, P, foot + 4);
+  c.fillStyle = '#7AC142'; c.font = `800 30px ${F}`; c.textAlign = 'right'; c.fillText('#BwatSekremTalks', W - P, foot + 4); c.textAlign = 'left';
+}
+function visSet(k, keepText) { VSEL = k; const l = $('vLang').value; if (!keepText) { $('vTit').value = VTX[l][k][0]; $('vSub').value = VTX[l][k][1]; }
+  $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join(''); drawVis(); }
+$('visBtn').addEventListener('click', () => { $('vis').showModal(); visSet(VSEL); });
+$('visX').addEventListener('click', () => $('vis').close());
+$('vTpl').addEventListener('click', (e) => { const b = e.target.closest('[data-vt]'); if (b) visSet(b.dataset.vt); });
+$('vLang').addEventListener('change', () => visSet(VSEL));
+['vFmt', 'vNum'].forEach((id) => $(id).addEventListener('change', drawVis));
+['vTit', 'vSub'].forEach((id) => $(id).addEventListener('input', drawVis));
+$('vDl').addEventListener('click', () => { const a = document.createElement('a'); a.download = `bst-${VSEL}-${$('vFmt').value}.png`; a.href = $('vCan').toDataURL('image/png'); a.click(); });
+$('vPr').addEventListener('click', () => { const w = window.open(''); if (!w) return; w.document.write(`<!doctype html><title>Bwat Sekrèm Talks</title><style>@page{margin:8mm}body{margin:0;display:grid;place-items:center}img{max-width:100%;max-height:96vh}</style><img src="${$('vCan').toDataURL('image/png')}" onload="setTimeout(()=>print(),200)">`); w.document.close(); });
 function renderStats(rows, ppl, nAnnul = 0) {
   const nP = ppl.length;
   const confP = ppl.filter((p) => pst(p) === 'c').length;
@@ -784,6 +892,8 @@ function renderStats(rows, ppl, nAnnul = 0) {
 
   const src = countBy(rows, (r) => r.source || 'Non précisé');
   bars($('bySource'), [...src.entries()].sort((a, b) => b[1] - a[1]), rows.length, 'réservations');
+  VIS.src = [...src.entries()].sort((a, b) => b[1] - a[1]); VIS.sexe = sx; VIS.profil = pc.sort((a, b) => b[1] - a[1]);
+  VIS.nP = nP; VIS.nRows = rows.length; VIS.f = f; VIS.h = h;
 
   const etuP = ppl.filter((p) => p.universite);
   const uni = countBy(etuP, (p) => p.universite.trim().toUpperCase());
@@ -791,6 +901,7 @@ function renderStats(rows, ppl, nAnnul = 0) {
   const top = uniList.slice(0, 8); const rest = uniList.slice(8).reduce((s, [, n]) => s + n, 0);
   if (rest) top.push(['Autres', rest]);
   bars($('byUni'), top, etuP.length, 'étudiants');
+  VIS.uni = uniList.slice(0, 7).concat(uniList.length > 7 ? [['Autres', uniList.slice(7).reduce((s, [, n]) => s + n, 0)]] : []); VIS.nUni = uniList.length; VIS.nEtu = etuP.length;
 
   const etu = rows.filter((r) => r.niveau_etude);
   const niv = [];
@@ -801,7 +912,7 @@ function renderStats(rows, ppl, nAnnul = 0) {
       niv.push(['Licence (année non précisée)', lic.filter((r) => !r.annee_etude).length]);
     } else niv.push([v, etu.filter((r) => r.niveau_etude === k).length]);
   }
-  bars($('byNiveau'), niv, etu.length, 'étudiants');
+  bars($('byNiveau'), niv, etu.length, 'étudiants'); VIS.niv = niv;
 
   const day = countBy(rows, (r) => new Date(r.created_at).toISOString().slice(0, 10));
   bars($('byDay'), [...day.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 14)

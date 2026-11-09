@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Inscriptions BST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
   :root {
@@ -419,10 +419,12 @@
   <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)"><h2 id="visTitle" style="margin:0;font-size:18px">🎨 Visuels pour les réseaux sociaux</h2><button class="btn" type="button" id="visX">Fermer</button></div>
   <div class="visg">
     <div>
-      <label>Graphique</label><div class="vtpl" id="vTpl"></div>
+      <label>Statistique</label><div class="vtpl" id="vTpl"></div>
+      <label>Type de graphique</label><div class="vtpl" id="vTyp"></div>
+      <label for="vPan">Style</label><select id="vPan"><option value="clair">Clair (comme l’affiche partenaire)</option><option value="sombre">Bleu nuit (comme l’affiche événement)</option></select>
       <label for="vFmt">Format</label><select id="vFmt"><option value="post">Post Instagram / Facebook (4:5)</option><option value="story">Story / Statut WhatsApp (9:16)</option><option value="carre">Carré (1:1)</option><option value="a4">Affiche A4 (impression)</option></select>
       <label for="vLang">Langue</label><select id="vLang"><option value="fr">Français</option><option value="ht">Kreyòl</option><option value="en">English</option></select>
-      <label for="vTit">Titre</label><input type="text" id="vTit" maxlength="70" />
+      <label for="vTit">Titre <span class="sub" style="font-weight:400">· mets *des étoiles* autour des mots en vert</span></label><input type="text" id="vTit" maxlength="80" />
       <label for="vSub">Sous-titre</label><input type="text" id="vSub" maxlength="90" />
       <label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" id="vNum" checked /> Afficher les nombres (sinon seulement les %)</label>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" type="button" id="vDl" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">⬇️ Télécharger (PNG)</button><button class="btn" type="button" id="vPr">🖨️ Imprimer</button></div>
@@ -781,86 +783,155 @@ function bars(el, entries, total, unit) {
 }
 const countBy = (arr, fn) => { const m = new Map(); arr.forEach((x) => { const k = fn(x); m.set(k, (m.get(k) || 0) + 1); }); return m; };
 
-/* ---------- Visuels pour les réseaux (canvas) ---------- */
+/* ---------- Visuels pour les réseaux (canvas, charte BST) ---------- */
 const VIS = {};
-const VCOL = ['#7AC142', '#F5A623', '#3FA9F5', '#E8505B', '#9B6BDF', '#14B8A6', '#F06292', '#FFD54F', '#90A4AE'];
+const NAVY = '#0D2D4A', GREEN = '#5DB033', BLUE = '#1E8CF0';
+const PAL_L = ['#5DB033', '#1E8CF0', '#0D2D4A', '#F5A623', '#1B5FA8', '#9BD36F', '#E8505B', '#7FC1FF', '#90A4AE'];
+const PAL_D = ['#7AC142', '#4FB0FF', '#FFFFFF', '#F5A623', '#A8D5FF', '#B9E39A', '#FFD54F', '#F06292', '#B0BEC5'];
 const VTX = {
-  fr: { src: ['Comment vous avez connu Bwat Sekrèm Talks', 'Merci à vous qui partagez ! 💚'], uni: ['Toutes les universités au rendez-vous', 'D’où viennent les étudiants inscrits'], niv: ['Du cycle court au doctorat', 'Niveau d’études des étudiants inscrits'], sexe: ['Femmes et hommes au rendez-vous', 'Répartition des personnes inscrites'], profil: ['Qui sera dans la salle ?', 'Les profils des personnes inscrites'], resume: ['Bwat Sekrèm Talks en chiffres', 'Les inscriptions à ce jour'],
-    foot: 'Inscription : bwatsekremtalks.com', pers: 'personnes inscrites', resa: 'réservations', fem: 'de femmes', unis: 'universités représentées', etu: 'étudiants', autres: 'Autres', F: 'Femmes', H: 'Hommes', on: 'personnes' },
-  ht: { src: ['Kijan nou te konnen Bwat Sekrèm Talks', 'Mèsi paske nou pataje ! 💚'], uni: ['Tout inivèsite yo la', 'Kote etidyan ki enskri yo soti'], niv: ['Depi sik kout rive doktora', 'Nivo etid etidyan ki enskri yo'], sexe: ['Fanm kou gason ap la', 'Moun ki enskri yo'], profil: ['Ki moun ki pral nan sal la ?', 'Pwofil moun ki enskri yo'], resume: ['Bwat Sekrèm Talks an chif', 'Enskripsyon yo jiska jodi a'],
-    foot: 'Enskripsyon : bwatsekremtalks.com', pers: 'moun enskri', resa: 'rezèvasyon', fem: 'se fanm', unis: 'inivèsite reprezante', etu: 'etidyan', autres: 'Lòt', F: 'Fanm', H: 'Gason', on: 'moun' },
-  en: { src: ['How you heard about Bwat Sekrèm Talks', 'Thank you for sharing! 💚'], uni: ['Every university is coming', 'Where registered students come from'], niv: ['From short cycle to PhD', 'Study level of registered students'], sexe: ['Women and men, all in', 'People registered'], profil: ['Who will be in the room?', 'Profiles of registered people'], resume: ['Bwat Sekrèm Talks in numbers', 'Registrations so far'],
-    foot: 'Register: bwatsekremtalks.com', pers: 'people registered', resa: 'bookings', fem: 'women', unis: 'universities', etu: 'students', autres: 'Others', F: 'Women', H: 'Men', on: 'people' },
+  fr: { src: ['Comment vous avez *connu* Bwat Sekrèm Talks', 'Merci à vous qui partagez !'], uni: ['Toutes les *universités* au rendez-vous', 'D’où viennent les étudiants inscrits'], niv: ['Du cycle court *au doctorat*', 'Niveau d’études des étudiants inscrits'], sexe: ['Femmes et hommes *au rendez-vous*', 'Répartition des personnes inscrites'], profil: ['Qui sera *dans la salle* ?', 'Les profils des personnes inscrites'], resume: ['Bwat Sekrèm Talks *en chiffres*', 'Les inscriptions à ce jour'],
+    book: 'Réservez votre place', motto: 'Plus qu’un événement, une communauté.', pers: 'personnes inscrites', resa: 'réservations', fem: 'de femmes', unis: 'universités représentées', on: 'personnes', F: 'Femmes', H: 'Hommes' },
+  ht: { src: ['Kijan nou te *konnen* Bwat Sekrèm Talks', 'Mèsi paske nou pataje !'], uni: ['Tout *inivèsite* yo la', 'Kote etidyan ki enskri yo soti'], niv: ['Depi sik kout *rive doktora*', 'Nivo etid etidyan ki enskri yo'], sexe: ['Fanm kou gason *ap la*', 'Moun ki enskri yo'], profil: ['Ki moun ki pral *nan sal la* ?', 'Pwofil moun ki enskri yo'], resume: ['Bwat Sekrèm Talks *an chif*', 'Enskripsyon yo jiska jodi a'],
+    book: 'Rezève plas ou', motto: 'Plis pase yon evènman, yon kominote.', pers: 'moun enskri', resa: 'rezèvasyon', fem: 'se fanm', unis: 'inivèsite reprezante', on: 'moun', F: 'Fanm', H: 'Gason' },
+  en: { src: ['How you *heard about* Bwat Sekrèm Talks', 'Thank you for sharing!'], uni: ['Every *university* is coming', 'Where registered students come from'], niv: ['From short cycle *to PhD*', 'Study level of registered students'], sexe: ['Women and men, *all in*', 'People registered'], profil: ['Who will be *in the room*?', 'Profiles of registered people'], resume: ['Bwat Sekrèm Talks *in numbers*', 'Registrations so far'],
+    book: 'Book your seat', motto: 'More than an event, a community.', pers: 'people registered', resa: 'bookings', fem: 'women', unis: 'universities', on: 'people', F: 'Women', H: 'Men' },
 };
 const VLAB = { ht: { 'Un ami / un collègue': 'Yon zanmi / yon kolèg', 'Affiche': 'Afich', 'Autre': 'Lòt', 'Cycle court': 'Sik kout', 'Maîtrise': 'Metriz', 'Doctorat': 'Doktora', 'Autres': 'Lòt' },
   en: { 'Un ami / un collègue': 'A friend / colleague', 'Affiche': 'Poster', 'Autre': 'Other', 'Cycle court': 'Short cycle', 'Maîtrise': 'Master’s', 'Doctorat': 'PhD', 'Autres': 'Others' } };
-const vLab = (l, s) => { let x = (VLAB[l] || {})[s] || s; const m = /^Licence (\d)\S* année$/.exec(s); if (m && l !== 'fr') x = l === 'ht' ? `Lisans ${m[1]}yèm ane` : `Bachelor year ${m[1]}`; return x; };
-const VTPLS = [['resume', '📊 En chiffres'], ['src', '📣 Comment ils ont connu'], ['uni', '🎓 Universités'], ['niv', '📚 Niveau d’études'], ['sexe', '👩‍🦱 Femmes / Hommes'], ['profil', '🧑‍💼 Profils']];
-let VSEL = 'resume', VLOGO = null;
-function visImg() { if (VLOGO) return Promise.resolve(VLOGO); return new Promise((ok) => { const i = new Image(); i.onload = () => ok(VLOGO = i); i.onerror = () => ok(null); i.src = 'portrait/logos/bst-blanc.png'; }); }
+const vLab = (l, s) => { let x = (VLAB[l] || {})[s] || s; const m = /^Licence (\d)\S* année$/.exec(s); if (m && l !== 'fr') x = l === 'ht' ? `Lisans ${m[1]}yèm ane` : `Bachelor year ${m[1]}`; if (s === 'Femmes') x = VTX[l].F; if (s === 'Hommes') x = VTX[l].H; return x; };
+const VTPLS = [['resume', '📊 En chiffres'], ['src', '📣 Comment ils ont connu'], ['uni', '🎓 Universités'], ['niv', '📚 Niveau d’études'], ['sexe', '⚧ Femmes / Hommes'], ['profil', '🧑‍💼 Profils']];
+const VTYPES = [['barh', '▤ Barres'], ['barv', '📊 Colonnes'], ['donut', '🍩 Anneau'], ['pie', '🥧 Camembert'], ['picto', '🧍 Pictogramme (100 personnes)'], ['cartes', '🔢 Grands chiffres']];
+const VDEF = { resume: 'cartes', src: 'donut', uni: 'barh', niv: 'barv', sexe: 'donut', profil: 'barh' };
+let VSEL = 'resume', VTYPE = 'cartes', VLOGO = null;
+function visImg() { if (VLOGO) return Promise.resolve(VLOGO); return new Promise((ok) => { const i = new Image(); i.onload = () => ok(VLOGO = i); i.onerror = () => ok(null); i.src = 'portrait/logos/bst-couleur.png'; }); }
 function visData(k) {
-  const bad = (s) => /non précis/i.test(s);
-  if (k === 'niv') return (VIS.niv || []).filter(([s, n]) => n && !bad(s));
-  return (VIS[k] || []).filter(([s, n]) => n && !bad(String(s)));
+  const l = $('vLang').value, bad = (s) => /non précis/i.test(s);
+  if (k === 'resume') { const pf = VIS.nP ? Math.round(VIS.f / VIS.nP * 100) : 0; return { kpi: true, rows: [[VTX[l].pers, VIS.nP || 0], [VTX[l].resa, VIS.nRows || 0], [VTX[l].fem, pf + ' %'], [VTX[l].unis, VIS.nUni || 0]] }; }
+  const rows = (VIS[k] || []).filter(([s, n]) => n && !bad(String(s))).map(([s, n]) => [vLab(l, s), n]);
+  return { rows, tot: rows.reduce((a, [, n]) => a + n, 0) || 1 };
 }
-function wrapT(c, text, maxW) { const w = String(text).split(' '), L = []; let cur = ''; for (const x of w) { const tr = cur ? cur + ' ' + x : x; if (c.measureText(tr).width > maxW && cur) { L.push(cur); cur = x; } else cur = tr; } if (cur) L.push(cur); return L; }
-function rr(c, x, y, w, h, r) { r = Math.min(r, h / 2, w / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-async function drawVis() {
-  const fmt = $('vFmt').value, l = $('vLang').value, T = VTX[l], showN = $('vNum').checked;
-  const W = 1080, H = { post: 1350, story: 1920, carre: 1080, a4: 1527 }[fmt];
-  const cv = $('vCan'); cv.width = W; cv.height = H; const c = cv.getContext('2d'), F = '"DM Sans", system-ui, sans-serif';
-  const g = c.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#0a1f38'); g.addColorStop(1, '#1d4a7c'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-  [[W * .9, H * .08, 260, '#7AC142'], [W * .05, H * .95, 300, '#F5A623'], [W * .95, H * .7, 180, '#3FA9F5']].forEach(([x, y, r, col]) => { c.globalAlpha = .13; c.fillStyle = col; c.beginPath(); c.arc(x, y, r, 0, 7); c.fill(); }); c.globalAlpha = 1;
-  const P = 72; let y = fmt === 'story' ? 140 : 70;
-  const logo = await visImg(); if (logo) { const lh = 92, lw = logo.width * lh / logo.height; c.drawImage(logo, P, y, lw, lh); }
-  const ed = ($('edition').selectedOptions[0] || {}).textContent || '';
-  c.font = `700 26px ${F}`; const ew = c.measureText(ed).width + 40; c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, W - P - ew, y + 24, ew, 48, 24); c.fill(); c.fillStyle = '#fff'; c.textBaseline = 'middle'; c.fillText(ed, W - P - ew + 20, y + 49);
-  y += 150; c.textBaseline = 'alphabetic';
-  c.fillStyle = '#fff'; c.font = `800 ${fmt === 'carre' ? 60 : 68}px ${F}`;
-  for (const ln of wrapT(c, $('vTit').value, W - 2 * P).slice(0, 3)) { y += 72; c.fillText(ln, P, y); }
-  c.fillStyle = '#7AC142'; c.font = `500 34px ${F}`; y += 56; c.fillText($('vSub').value, P, y);
-  const foot = H - (fmt === 'story' ? 150 : 70), top = y + 60, bot = foot - 60;
-  if (VSEL === 'resume') {
-    const pf = VIS.nP ? Math.round(VIS.f / VIS.nP * 100) : 0;
-    const tiles = [[VIS.nP || 0, T.pers, '#7AC142'], [VIS.nRows || 0, T.resa, '#F5A623'], [pf + ' %', T.fem, '#F06292'], [VIS.nUni || 0, T.unis, '#3FA9F5']];
-    const gap = 28, tw = (W - 2 * P - gap) / 2, th = Math.min(330, (bot - top - gap) / 2);
-    tiles.forEach(([v, s, col], i) => { const x = P + (i % 2) * (tw + gap), yy = top + Math.floor(i / 2) * (th + gap);
-      c.fillStyle = 'rgba(255,255,255,.08)'; rr(c, x, yy, tw, th, 32); c.fill(); c.fillStyle = col; rr(c, x, yy, 14, th, 7); c.fill();
-      c.fillStyle = col; c.font = `800 ${Math.min(130, th * .42)}px ${F}`; c.fillText(String(v), x + 46, yy + th * .55);
-      c.fillStyle = '#fff'; c.font = `600 32px ${F}`; wrapT(c, s, tw - 80).slice(0, 2).forEach((ln, j) => c.fillText(ln, x + 46, yy + th * .55 + 56 + j * 40)); });
-  } else if (VSEL === 'sexe') {
-    const d = visData('sexe'), tot = d.reduce((a, [, n]) => a + n, 0) || 1, cx = W / 2, R0 = Math.min(300, (bot - top - 200) / 2 - 55), cy = top + Math.max(0, (bot - top - 2 * R0 - 310) / 2) + 55 + R0;
-    let a0 = -Math.PI / 2; d.forEach(([s, n], i) => { const a1 = a0 + n / tot * Math.PI * 2; c.strokeStyle = [ '#F06292', '#3FA9F5', '#90A4AE'][i]; c.lineWidth = 110; c.beginPath(); c.arc(cx, cy, R0, a0 + .02, a1 - .02); c.stroke(); a0 = a1; });
-    c.textAlign = 'center'; c.fillStyle = '#fff'; c.font = `800 110px ${F}`; c.fillText(tot, cx, cy + 20); c.font = `600 34px ${F}`; c.fillText(T.on, cx, cy + 70);
-    const ly = cy + R0 + 55 + 95; d.forEach(([s, n], i) => { const x = d.length === 1 ? cx : P + 120 + i * ((W - 2 * P - 240) / Math.max(1, d.length - 1));
-      c.fillStyle = ['#F06292', '#3FA9F5', '#90A4AE'][i]; c.font = `800 76px ${F}`; c.fillText(Math.round(n / tot * 100) + ' %', x, ly);
-      c.fillStyle = '#fff'; c.font = `600 32px ${F}`; c.fillText((s === 'Femmes' ? T.F : s === 'Hommes' ? T.H : vLab(l, s)) + (showN ? ` · ${n}` : ''), x, ly + 46); });
-    c.textAlign = 'left';
-  } else {
-    const d = visData(VSEL), tot = d.reduce((a, [, n]) => a + n, 0) || 1, max = Math.max(...d.map(([, n]) => n), 1);
-    const rh = Math.min(118, (bot - top) / Math.max(d.length, 1)), bh = Math.max(18, rh * .3);
-    const t0 = top + Math.max(0, (bot - top - d.length * rh) / 2) * (fmt === 'story' ? 1 : .5);
-    d.forEach(([s, n], i) => { const yy = t0 + i * rh, col = VCOL[i % VCOL.length];
-      c.fillStyle = '#fff'; c.font = `600 ${Math.min(34, rh * .3)}px ${F}`; let lab = vLab(l, s); while (c.measureText(lab).width > W - 2 * P - 230 && lab.length > 4) lab = lab.slice(0, -2); if (lab !== vLab(l, s)) lab += '…'; c.fillText(lab, P, yy + rh * .36);
-      const bw = W - 2 * P - 230; c.fillStyle = 'rgba(255,255,255,.12)'; rr(c, P, yy + rh * .48, bw, bh, bh / 2); c.fill();
-      c.fillStyle = col; rr(c, P, yy + rh * .48, Math.max(bh, bw * n / max), bh, bh / 2); c.fill();
-      c.textAlign = 'right'; c.fillStyle = col; c.font = `800 ${Math.min(58, rh * .46)}px ${F}`; c.fillText(Math.round(n / tot * 100) + ' %', W - P, yy + rh * .7);
-      if (showN) { c.fillStyle = 'rgba(255,255,255,.7)'; c.font = `600 ${Math.min(26, rh * .22)}px ${F}`; c.fillText(String(n), W - P, yy + rh * .7 + Math.min(34, rh * .28)); }
+function rr(c, x, y, w, h, r) { r = Math.max(0, Math.min(r, h / 2, w / 2)); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+const LX = 'Lexend, "DM Sans", sans-serif';
+function fitText(c, s, maxW) { s = String(s); if (c.measureText(s).width <= maxW) return s; while (s.length > 3 && c.measureText(s + '…').width > maxW) s = s.slice(0, -1); return s + '…'; }
+/* Titre riche : *mots* en vert gras, centré, retour à la ligne automatique */
+function richTitle(c, text, cx, y, maxW, size, dark, maxLines = 3) {
+  const words = []; String(text).split('*').forEach((seg, i) => seg.split(/\s+/).filter(Boolean).forEach((w) => words.push([w, i % 2 === 1])));
+  const font = (hl) => `${hl ? 700 : 300} ${size}px ${LX}`;
+  const lines = [[]]; let lw = 0; c.font = font(false); const sp = c.measureText(' ').width;
+  for (const [w, hl] of words) { c.font = font(hl); const ww = c.measureText(w).width; if (lw + ww > maxW && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push([w, hl, ww]); lw += ww + sp; }
+  lines.slice(0, maxLines).forEach((ln, i) => { const tw = ln.reduce((a, [, , ww]) => a + ww, 0) + sp * (ln.length - 1); let x = cx - tw / 2;
+    for (const [w, hl, ww] of ln) { c.font = font(hl); c.fillStyle = hl ? GREEN : dark ? '#fff' : NAVY; c.fillText(w, x, y + i * size * 1.12); x += ww + sp; } });
+  return Math.min(lines.length, maxLines) * size * 1.12;
+}
+function person(c, x, y, s, col) { c.fillStyle = col; c.beginPath(); c.arc(x, y - s * .25, s * .15, 0, 7); c.fill(); c.beginPath(); c.moveTo(x - s * .26, y + s * .36); c.lineTo(x - s * .26, y + s * .1); c.quadraticCurveTo(x - s * .26, y - s * .06, x - s * .1, y - s * .06); c.lineTo(x + s * .1, y - s * .06); c.quadraticCurveTo(x + s * .26, y - s * .06, x + s * .26, y + s * .1); c.lineTo(x + s * .26, y + s * .36); c.closePath(); c.fill(); }
+/* ----- Graphiques ----- */
+function drawChart(c, type, D, X, Y, Wd, Hd, dark, showN) {
+  const P = dark ? PAL_D : PAL_L, ink = dark ? '#fff' : NAVY, soft = dark ? 'rgba(255,255,255,.14)' : 'rgba(13,45,74,.09)', mute = dark ? 'rgba(255,255,255,.75)' : '#4a6380';
+  if (D.kpi || type === 'cartes') {
+    const rows = D.kpi ? D.rows : D.rows.slice(0, 6).map(([s, n]) => [s, Math.round(n / D.tot * 100) + ' %', n]);
+    const cols = rows.length > 4 ? 3 : 2, nr = Math.ceil(rows.length / cols), g = 22, tw = (Wd - g * (cols - 1)) / cols, th = Math.min(260, (Hd - g * (nr - 1)) / nr);
+    const y0 = Y + (Hd - (th * nr + g * (nr - 1))) / 2;
+    rows.forEach(([s, v, n], i) => { const x = X + (i % cols) * (tw + g), y = y0 + Math.floor(i / cols) * (th + g), col = P[i % P.length];
+      c.fillStyle = dark ? 'rgba(255,255,255,.08)' : '#fff'; rr(c, x, y, tw, th, 28); c.fill(); if (!dark) { c.strokeStyle = 'rgba(13,45,74,.08)'; c.lineWidth = 2; c.stroke(); }
+      c.fillStyle = col === '#FFFFFF' && !dark ? NAVY : col; c.textAlign = 'center'; c.font = `700 ${Math.min(96, th * .4, tw * .32)}px ${LX}`; c.fillText(String(v), x + tw / 2, y + th * .52);
+      c.fillStyle = ink; c.font = `400 ${Math.min(28, tw * .085)}px ${LX}`; c.fillText(fitText(c, s, tw - 30), x + tw / 2, y + th * .52 + Math.min(46, th * .2));
+      if (n != null && showN && !D.kpi) { c.fillStyle = mute; c.font = `400 22px ${LX}`; c.fillText(String(n), x + tw / 2, y + th * .52 + Math.min(80, th * .34)); }
+      c.textAlign = 'left'; });
+    return;
+  }
+  const rows = D.rows, tot = D.tot, max = Math.max(...rows.map(([, n]) => n), 1), pct = (n) => Math.round(n / tot * 100) + ' %';
+  if (type === 'barh') {
+    const rh = Math.min(104, Hd / Math.max(rows.length, 1)), bh = Math.max(16, rh * .28), y0 = Y + (Hd - rh * rows.length) / 2, bw = Wd - 190;
+    rows.forEach(([s, n], i) => { const y = y0 + i * rh, col = P[i % P.length];
+      c.fillStyle = ink; c.font = `400 ${Math.min(30, rh * .3)}px ${LX}`; c.fillText(fitText(c, s, bw), X, y + rh * .36);
+      c.fillStyle = soft; rr(c, X, y + rh * .48, bw, bh, bh / 2); c.fill(); c.fillStyle = col; rr(c, X, y + rh * .48, Math.max(bh, bw * n / max), bh, bh / 2); c.fill();
+      c.textAlign = 'right'; c.fillStyle = col === '#FFFFFF' || col === NAVY ? ink : col; c.font = `700 ${Math.min(50, rh * .44)}px ${LX}`; c.fillText(pct(n), X + Wd, y + rh * .7);
+      if (showN) { c.fillStyle = mute; c.font = `400 ${Math.min(22, rh * .2)}px ${LX}`; c.fillText(String(n), X + Wd, y + rh * .7 + Math.min(28, rh * .26)); }
+      c.textAlign = 'left'; });
+  } else if (type === 'barv') {
+    const n = rows.length, g = Math.max(10, Wd * .03), cw = Math.min(130, (Wd - g * (n - 1)) / n), x0 = X + (Wd - (cw * n + g * (n - 1))) / 2, lab = 92, top = Y + 70, base = Y + Hd - lab;
+    c.fillStyle = soft; c.fillRect(X, base, Wd, 3);
+    rows.forEach(([s, v], i) => { const x = x0 + i * (cw + g), h = Math.max(8, (base - top) * v / max), col = P[i % P.length];
+      c.fillStyle = col; rr(c, x, base - h, cw, h, Math.min(18, cw / 3)); c.fill(); c.fillRect(x, base - Math.min(h, 18), cw, Math.min(h, 18));
+      c.textAlign = 'center'; c.fillStyle = col === '#FFFFFF' || col === NAVY ? ink : col; c.font = `700 ${Math.min(40, cw * .36)}px ${LX}`; c.fillText(pct(v), x + cw / 2, base - h - (showN ? 36 : 14));
+      if (showN) { c.fillStyle = mute; c.font = `400 ${Math.min(22, cw * .2)}px ${LX}`; c.fillText(String(v), x + cw / 2, base - h - 10); }
+      c.fillStyle = ink; c.font = `400 ${Math.min(22, cw * .2)}px ${LX}`;
+      const wds = String(s).split(' '), L = ['']; wds.forEach((w) => { const tr = (L[L.length - 1] + ' ' + w).trim(); if (c.measureText(tr).width > cw + g - 4 && L[L.length - 1]) L.push(w); else L[L.length - 1] = tr; });
+      L.slice(0, 3).forEach((ln, j) => c.fillText(fitText(c, ln, cw + g - 4), x + cw / 2, base + 30 + j * 26)); c.textAlign = 'left'; });
+  } else if (type === 'donut' || type === 'pie' || type === 'picto') {
+    const vert = Hd > Wd * 1.05, legN = rows.length;
+    let cx, cy, R, lx, ly, lw;
+    if (vert) { R = Math.min(Wd * .36, (Hd - legN * 54 - 40) / 2); cx = X + Wd / 2; cy = Y + R + 10; lx = X + Wd * .12; ly = cy + R + 50; lw = Wd * .76; }
+    else { R = Math.min(Hd / 2 - 10, Wd * .25); cx = X + R + 10; cy = Y + Hd / 2; lx = cx + R + 50; lw = X + Wd - lx; ly = cy - (legN * Math.min(70, Hd / legN)) / 2 + 30; }
+    if (type === 'picto') {
+      const tot100 = rows.map(([, v]) => v / tot * 100), fl = tot100.map(Math.floor); let rest = 100 - fl.reduce((a, b) => a + b, 0);
+      tot100.map((v, i) => [v - fl[i], i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (rest > 0) { fl[i]++; rest--; } });
+      const s = (2 * R) / 10, x0 = cx - R + s / 2, y0 = cy - R + s / 2; let k = 0;
+      fl.forEach((cnt, i) => { for (let j = 0; j < cnt; j++, k++) person(c, x0 + (k % 10) * s, y0 + Math.floor(k / 10) * s + s * .1, s * .95, P[i % P.length]); });
+    } else {
+      let a0 = -Math.PI / 2;
+      rows.forEach(([, v], i) => { const a1 = a0 + v / tot * Math.PI * 2; c.fillStyle = P[i % P.length]; c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, R, a0, a1); c.closePath(); c.fill();
+        c.strokeStyle = dark ? '#123d66' : '#fff'; c.lineWidth = 5; c.stroke(); a0 = a1; });
+      if (type === 'donut') { c.fillStyle = dark ? '#103558' : '#EAF3FF'; c.beginPath(); c.arc(cx, cy, R * .58, 0, 7); c.fill();
+        c.textAlign = 'center'; c.fillStyle = ink; c.font = `700 ${R * .36}px ${LX}`; c.fillText(String(tot), cx, cy + R * .08); c.font = `400 ${R * .12}px ${LX}`; c.fillText(VTX[$('vLang').value].on, cx, cy + R * .26); c.textAlign = 'left'; }
+    }
+    const lh = Math.min(vert ? 54 : 70, (vert ? (Y + Hd - ly) : Hd) / legN);
+    rows.forEach(([s, v], i) => { const y = ly + i * lh, col = P[i % P.length];
+      c.fillStyle = col; c.beginPath(); c.arc(lx + 12, y - 9, 12, 0, 7); c.fill(); if (col === '#FFFFFF' && !dark) { c.strokeStyle = NAVY; c.stroke(); }
+      c.font = `700 ${Math.min(34, lh * .6)}px ${LX}`; const pw2 = c.measureText('100 %').width + 14;
+      c.font = `400 ${Math.min(22, lh * .4)}px ${LX}`; const nTxt = showN ? ` (${v})` : '', nw = c.measureText(nTxt).width;
+      c.fillStyle = ink; c.font = `400 ${Math.min(28, lh * .5)}px ${LX}`; const lab = fitText(c, s, lw - 38 - pw2 - nw); c.fillText(lab, lx + 38, y);
+      if (showN) { const x2 = lx + 38 + c.measureText(lab).width; c.fillStyle = mute; c.font = `400 ${Math.min(22, lh * .4)}px ${LX}`; c.fillText(nTxt, x2, y); }
+      c.textAlign = 'right'; c.font = `700 ${Math.min(34, lh * .6)}px ${LX}`; c.fillStyle = col === '#FFFFFF' || col === NAVY ? ink : col; c.fillText(pct(v), lx + lw, y);
       c.textAlign = 'left'; });
   }
-  c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(P, foot - 46, W - 2 * P, 2);
-  c.fillStyle = '#fff'; c.font = `700 32px ${F}`; c.fillText(T.foot, P, foot + 4);
-  c.fillStyle = '#7AC142'; c.font = `800 30px ${F}`; c.textAlign = 'right'; c.fillText('#BwatSekremTalks', W - P, foot + 4); c.textAlign = 'left';
 }
-function visSet(k, keepText) { VSEL = k; const l = $('vLang').value; if (!keepText) { $('vTit').value = VTX[l][k][0]; $('vSub').value = VTX[l][k][1]; }
-  $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join(''); drawVis(); }
+async function drawVis() {
+  const fmt = $('vFmt').value, l = $('vLang').value, T = VTX[l], showN = $('vNum').checked, dark = $('vPan').value === 'sombre';
+  const W = 1080, H = { post: 1350, story: 1920, carre: 1080, a4: 1527 }[fmt], k = fmt === 'carre' ? .82 : 1;
+  const cv = $('vCan'); cv.width = W; cv.height = H; const c = cv.getContext('2d');
+  await Promise.all(['300 40px Lexend', '400 40px Lexend', '700 40px Lexend', 'italic 400 30px Lexend'].map((f) => document.fonts.load(f).catch(() => {})));
+  const logo = await visImg();
+  // Fond blanc + motif d'icônes BST très léger
+  c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+  if (logo) { c.save(); c.globalAlpha = .03; c.filter = 'grayscale(1)'; for (let y = 6, r = 0; y < H; y += 74, r++) for (let x = (r % 2) * 38 - 30; x < W; x += 76) c.drawImage(logo, x, y, 50, 49); c.restore(); }
+  c.strokeStyle = NAVY; c.lineWidth = 4; rr(c, 28, 28, W - 56, H - 56, 64); c.stroke();
+  // En-tête : logo + nom + devise
+  let y = (fmt === 'story' ? 150 : 74) * (fmt === 'carre' ? .7 : 1);
+  const lh = 150 * k, lw = logo ? logo.width * lh / logo.height : 0; c.font = `400 ${50 * k}px ${LX}`; const nameW = c.measureText('Sekrem').width, gx = W / 2 - (lw + 22 + nameW) / 2;
+  if (logo) c.drawImage(logo, gx, y, lw, lh);
+  c.fillStyle = NAVY; c.font = `400 ${50 * k}px ${LX}`; c.fillText('Bwat', gx + lw + 22, y + lh * .42); c.fillText('Sekrem', gx + lw + 22, y + lh * .42 + 44 * k); c.font = `700 ${50 * k}px ${LX}`; c.fillText('talks', gx + lw + 22, y + lh * .42 + 88 * k);
+  y += lh + 46 * k; c.textAlign = 'center'; c.font = `400 ${21 * k}px ${LX}`; c.letterSpacing = '3px'; c.fillStyle = NAVY; c.fillText('APPRENDRE. INSPIRER. CONSTRUIRE ENSEMBLE', W / 2, y); c.letterSpacing = '0px'; c.textAlign = 'left';
+  y += 82 * k; y += richTitle(c, $('vTit').value, W / 2, y, W - 170, 54 * k, false, fmt === 'carre' ? 2 : 3);
+  // Panneau
+  const footH = (fmt === 'story' ? 340 : 232) * (fmt === 'carre' ? .88 : 1), px = 58, pt = y + 10, pb = H - footH, pw = W - 2 * px;
+  if (dark) { const g = c.createLinearGradient(px, pt, px + pw, pb); g.addColorStop(0, '#1d5a2c'); g.addColorStop(.35, '#0D2D4A'); g.addColorStop(1, '#0a2238'); c.fillStyle = g; }
+  else c.fillStyle = 'rgba(214,233,255,.88)';
+  rr(c, px, pt, pw, pb - pt, 48); c.fill();
+  c.textAlign = 'center'; c.fillStyle = dark ? 'rgba(255,255,255,.92)' : NAVY; c.font = `300 ${30 * k}px ${LX}`; c.fillText($('vSub').value, W / 2, pt + 62 * k); c.textAlign = 'left';
+  drawChart(c, VTYPE, visData(VSEL), px + 52, pt + 100 * k, pw - 104, pb - pt - 140 * k, dark, showN);
+  // Pied : date · réservation · site · devise
+  const ed = ($('edition').selectedOptions[0] || {}).textContent || '', m = /(\d{1,2})\s+(\S+)\s+(\d{4})/.exec(ed), dte = m ? `${m[1]} ${m[2].slice(0, 3).toUpperCase()}. ${m[3]}` : '';
+  let fy = pb + (fmt === 'story' ? 110 : 70) * (fmt === 'carre' ? .85 : 1);
+  const parts = [[dte, `400 ${40 * k}px ${LX}`, BLUE], ['  •  ', `700 ${34 * k}px ${LX}`, NAVY], [T.book + ' ', `300 ${32 * k}px ${LX}`, BLUE], ['+509 48 72 2671', `700 ${32 * k}px ${LX}`, BLUE]];
+  const tw = parts.reduce((a, [s, f]) => { c.font = f; return a + c.measureText(s).width; }, 0); let fx = W / 2 - tw / 2;
+  parts.forEach(([s, f, col]) => { c.font = f; c.fillStyle = col; c.fillText(s, fx, fy); fx += c.measureText(s).width; });
+  c.textAlign = 'center'; fy += 54 * k; c.fillStyle = NAVY; c.font = `400 ${34 * k}px ${LX}`; c.fillText('www.bwatsekremtalks.com', W / 2, fy);
+  fy += 42 * k; c.fillStyle = BLUE; c.font = `italic 300 ${26 * k}px ${LX}`; c.fillText(T.motto, W / 2, fy); c.textAlign = 'left';
+}
+function visUI() {
+  $('vTpl').innerHTML = VTPLS.map(([x, n]) => `<button type="button" data-vt="${x}" aria-pressed="${x === VSEL}">${n}</button>`).join('');
+  $('vTyp').innerHTML = VTYPES.map(([x, n]) => `<button type="button" data-vy="${x}" aria-pressed="${x === VTYPE}" ${VSEL === 'resume' && x !== 'cartes' ? 'disabled style="opacity:.4"' : ''}>${n}</button>`).join('');
+}
+function visSet(k, keepText) { VSEL = k; VTYPE = VDEF[k]; const l = $('vLang').value; if (!keepText) { $('vTit').value = VTX[l][k][0]; $('vSub').value = VTX[l][k][1]; } visUI(); drawVis(); }
 $('visBtn').addEventListener('click', () => { $('vis').showModal(); visSet(VSEL); });
 $('visX').addEventListener('click', () => $('vis').close());
 $('vTpl').addEventListener('click', (e) => { const b = e.target.closest('[data-vt]'); if (b) visSet(b.dataset.vt); });
-$('vLang').addEventListener('change', () => visSet(VSEL));
-['vFmt', 'vNum'].forEach((id) => $(id).addEventListener('change', drawVis));
+$('vTyp').addEventListener('click', (e) => { const b = e.target.closest('[data-vy]'); if (b && !b.disabled) { VTYPE = b.dataset.vy; visUI(); drawVis(); } });
+$('vLang').addEventListener('change', () => { const ty = VTYPE; visSet(VSEL); VTYPE = ty; visUI(); drawVis(); });
+['vFmt', 'vNum', 'vPan'].forEach((id) => $(id).addEventListener('change', drawVis));
 ['vTit', 'vSub'].forEach((id) => $(id).addEventListener('input', drawVis));
-$('vDl').addEventListener('click', () => { const a = document.createElement('a'); a.download = `bst-${VSEL}-${$('vFmt').value}.png`; a.href = $('vCan').toDataURL('image/png'); a.click(); });
+$('vDl').addEventListener('click', () => { const a = document.createElement('a'); a.download = `bst-${VSEL}-${VTYPE}-${$('vFmt').value}.png`; a.href = $('vCan').toDataURL('image/png'); a.click(); });
 $('vPr').addEventListener('click', () => { const w = window.open(''); if (!w) return; w.document.write(`<!doctype html><title>Bwat Sekrèm Talks</title><style>@page{margin:8mm}body{margin:0;display:grid;place-items:center}img{max-width:100%;max-height:96vh}</style><img src="${$('vCan').toDataURL('image/png')}" onload="setTimeout(()=>print(),200)">`); w.document.close(); });
 function renderStats(rows, ppl, nAnnul = 0) {
   const nP = ppl.length;

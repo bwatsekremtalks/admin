@@ -298,6 +298,7 @@
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
+        <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
         <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
         <div class="filters">
           <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
@@ -328,6 +329,16 @@
           <tbody id="rowsR"></tbody>
         </table></div>
         <p class="count-line" id="countR"></p>
+      </div>
+
+      <div id="panelV" class="hidden">
+        <div class="tiles" id="vTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>📄 CV créés <span class="sub" id="vN"></span></h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px"><input type="search" id="vQ" placeholder="Rechercher un nom, un poste, une ville…" style="flex:1;min-width:220px;max-width:420px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+            <a class="btn" href="cv/" target="_blank" rel="noopener">Ouvrir la page CV publique ↗</a></div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Mis à jour</th><th>Nom</th><th>Poste visé</th><th>Téléphone</th><th>E-mail</th><th>Ville</th><th>Réservation</th><th>Modèle</th><th></th></tr></thead><tbody id="vRows"></tbody></table></div>
+        </div>
+        <p class="note">CV créés sur <a href="https://bwatsekremtalks.github.io/admin/cv/" target="_blank" rel="noopener">la page CV</a> par les personnes qui ont accepté de les partager avec Bwat Sekrèm Talks. Les photos restent sur le téléphone de la personne et ne sont pas enregistrées.</p>
       </div>
 
       <div id="panelQ" class="hidden">
@@ -1195,15 +1206,37 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C');
-  if (t === 'Q') loadQuiz();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
 $('tabQ').addEventListener('click', () => setTab('Q'));
 $('tabC').addEventListener('click', () => setTab('C'));
+$('tabV').addEventListener('click', () => setTab('V'));
+let VROWS = [];
+const VMOD = { modern: 'Moderne', classic: 'Classique', minimal: 'Minimal', exec: 'Exécutif' };
+async function loadCV() {
+  const { data, error } = await sb.from('cv').select('id, created_at, updated_at, lang, modele, nom, poste, telephone, email, ville, inscription_id, ia_itilize').order('updated_at', { ascending: false }).limit(2000);
+  if (error) { notify('Impossible de charger les CV. ' + friendly(error), 'warn'); return; }
+  VROWS = data || [];
+  const today = VROWS.filter((r) => localDay(r.created_at) === localDay(new Date())).length;
+  $('vTiles').innerHTML = [['CV créés', VROWS.length, 'partagés avec BST'], ['Aujourd’hui', today, 'nouveaux CV'], ['Inscrits', VROWS.filter((r) => r.inscription_id).length, 'reliés à une réservation'], ['Aide IA', VROWS.reduce((a, r) => a + (r.ia_itilize || 0), 0), 'améliorations utilisées']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  renderCV();
+}
+function renderCV() {
+  const q = ($('vQ').value || '').trim().toLowerCase();
+  const L = VROWS.filter((r) => !q || [r.nom, r.poste, r.ville, r.email, r.telephone].some((x) => String(x || '').toLowerCase().includes(q)));
+  $('vN').textContent = `· ${L.length}`;
+  $('vRows').innerHTML = L.map((r) => `<tr><td class="sub">${esc(fmtDate(r.updated_at))}</td><td><strong>${esc(r.nom || '—')}</strong></td><td>${esc(r.poste || '')}</td>
+    <td>${r.telephone ? `<a href="https://wa.me/509${esc(r.telephone)}" target="_blank" rel="noopener">${esc(r.telephone)}</a>` : '—'}</td><td class="sub">${r.email ? `<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}</td><td class="sub">${esc(r.ville || '')}</td>
+    <td>${r.inscription_id ? '✅ Liée' : '<span class="sub">—</span>'}</td><td class="sub">${esc(VMOD[r.modele] || r.modele)} · ${esc((r.lang || '').toUpperCase())}</td>
+    <td><a class="btn" href="cv/?id=${r.id}" target="_blank" rel="noopener">👁️ Voir / PDF</a></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucun CV pour le moment.</td></tr>';
+}
+$('vQ').addEventListener('input', renderCV);
 
 /* ---------- Tès profil (résultats anonymes) ---------- */
 const QP = { M: '🧭 Manager', L: '🔥 Leader', I: '💡 Innovateur', D: '🤖 Stratège digital', B: '🧱 Bâtisseur' };

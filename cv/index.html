@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Mon CV pro — Bwat Sekrèm Talks</title>
+<meta name="description" content="Crée ton CV professionnel gratuitement : 4 modèles, en français, kreyòl ou anglais, avec l’aide de l’IA. Par Bwat Sekrèm Talks." />
+<meta property="og:title" content="Crée ton CV pro · Kreye CV pwofesyonèl ou · Build your pro CV" />
+<meta property="og:description" content="4 modèles, aide de l’IA, PDF prêt à envoyer. Gratuit, par Bwat Sekrèm Talks." />
+<meta property="og:image" content="https://bwatsekremtalks.github.io/admin/profil/og.jpg" />
+<meta name="theme-color" content="#0E2A4A" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Lora:wght@500;700&display=swap" rel="stylesheet" />
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EPBK3XEPPW"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EPBK3XEPPW', { cookie_flags: 'SameSite=None;Secure' });</script>
+<style>
+  :root { --navy: #123056; --navy2: #0E2A4A; --navy3: #0a1f38; --green: #7AC142; --muted: #5b6f8a; --line: #dfe7f0; --soft: #f3f7fb; --acc: #123056; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 "DM Sans", system-ui, sans-serif; color: var(--navy); background: #eef2f7; }
+  .hidden { display: none !important; }
+  header.top { background: linear-gradient(120deg, var(--navy3), #1d4a7c); color: #fff; padding: 12px 18px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 20; }
+  .brand { font: 800 15px "Bricolage Grotesque", sans-serif; letter-spacing: .04em; display: inline-flex; gap: 8px; align-items: center; color: #fff; text-decoration: none; }
+  .brand i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(122,193,66,.25); }
+  header.top h1 { font: 800 18px "Bricolage Grotesque", sans-serif; margin: 0; }
+  .langs { margin-left: auto; display: flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
+  .langs button { border: 0; background: none; color: #fff; font: 700 13px "DM Sans", sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .langs button[aria-pressed="true"] { background: var(--green); color: var(--navy3); }
+  .mtabs { display: none; gap: 6px; padding: 10px 16px 0; } .mtabs button { flex: 1; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 10px; font: 700 14px "DM Sans", sans-serif; color: var(--navy); }
+  .mtabs button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .app { display: grid; grid-template-columns: minmax(340px, 470px) 1fr; gap: 18px; max-width: 1320px; margin: 0 auto; padding: 16px; align-items: start; }
+  .form { display: grid; gap: 12px; }
+  .box { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; }
+  details.box > summary { font: 800 16px "Bricolage Grotesque", sans-serif; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.box > summary::after { content: "＋"; color: var(--muted); } details.box[open] > summary::after { content: "－"; }
+  details.box > summary::-webkit-details-marker { display: none; }
+  .sub { color: var(--muted); font-size: 13px; }
+  label.f { display: block; font-weight: 700; font-size: 13px; margin: 10px 0 4px; }
+  input.t, select.t, textarea.t { width: 100%; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; font: 15px "DM Sans", sans-serif; color: var(--navy); background: #fff; }
+  textarea.t { min-height: 90px; resize: vertical; }
+  input.t:focus, select.t:focus, textarea.t:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(122,193,66,.2); }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+  .btn { border: 1.5px solid var(--line); background: #fff; color: var(--navy); border-radius: 999px; padding: 9px 16px; font: 700 14px "DM Sans", sans-serif; cursor: pointer; display: inline-flex; gap: 6px; align-items: center; justify-content: center; }
+  .btn.main { background: var(--green); border-color: var(--green); color: var(--navy3); } .btn.dark { background: var(--navy); border-color: var(--navy); color: #fff; }
+  .btn.ia { border-color: #c9b6f2; background: #f6f1ff; color: #5b2bb5; font-size: 13px; padding: 6px 12px; margin-top: 6px; }
+  .btn:disabled { opacity: .55; cursor: wait; }
+  .item { border: 1px dashed #c9d6e6; border-radius: 14px; padding: 4px 12px 12px; margin-top: 10px; position: relative; background: #fbfdff; }
+  .item .x { position: absolute; top: 6px; right: 6px; border: 0; background: none; font-size: 16px; cursor: pointer; color: var(--muted); }
+  .models { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+  .models button { border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 6px; cursor: pointer; font: 700 12px "DM Sans", sans-serif; color: var(--navy); }
+  .models button[aria-pressed="true"] { border-color: var(--green); box-shadow: 0 0 0 3px rgba(122,193,66,.2); }
+  .models .mini { height: 54px; border-radius: 6px; margin-bottom: 4px; background: #f3f6fa; position: relative; overflow: hidden; }
+  .colors { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; } .colors button { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+  .colors button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--navy); }
+  .photo { display: flex; gap: 12px; align-items: center; margin-top: 6px; } .photo img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--soft); }
+  .msg { min-height: 1.2em; font-size: 13px; margin: 6px 0 0; } .msg.ok { color: #1a7a3c; font-weight: 700; } .msg.err { color: #b3261e; }
+  .tog { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; margin: 10px 0; } .tog input { width: 18px; height: 18px; accent-color: var(--green); flex: none; margin-top: 1px; }
+  .actions { position: sticky; bottom: 0; background: #eef2f7; padding: 10px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+  /* ---------- Aperçu ---------- */
+  .pvcol { min-width: 0; } .pvwrap { position: sticky; top: 70px; width: 100%; overflow: hidden; } .pvscale { transform-origin: top left; width: 794px; }
+  .cvpage { width: 794px; min-height: 1123px; background: #fff; color: #1d2735; box-shadow: 0 20px 60px rgba(14,42,74,.18); font: 13px/1.45 "DM Sans", sans-serif; position: relative; overflow: hidden; }
+  .cvpage h2 { font: 800 13px "DM Sans", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin: 18px 0 8px; }
+  .cvpage .job { margin-bottom: 12px; break-inside: avoid; } .cvpage .job b { font-size: 14px; } .cvpage .meta { color: #6a7687; font-size: 12px; }
+  .cvpage ul { margin: 4px 0 0; padding-left: 16px; } .cvpage li { margin: 2px 0; } .cvpage p { margin: 4px 0; }
+  .cvpage .chips span { display: inline-block; padding: 3px 9px; border-radius: 999px; background: color-mix(in srgb, var(--acc) 12%, white); color: var(--acc); font-size: 12px; font-weight: 700; margin: 0 4px 5px 0; }
+  .cvpage .lv { display: flex; justify-content: space-between; font-size: 12.5px; margin: 3px 0; } .cvpage .ph { width: 128px; height: 128px; border-radius: 50%; object-fit: cover; }
+  /* Moderne : barre latérale colorée */
+  .m-modern { display: grid; grid-template-columns: 260px 1fr; } .m-modern .side { background: var(--acc); color: #fff; padding: 34px 24px; } .m-modern .side h2 { color: #fff; opacity: .85; }
+  .m-modern .side .chips span { background: rgba(255,255,255,.16); color: #fff; } .m-modern .main { padding: 34px 32px; } .m-modern .nm { font: 800 30px/1.1 "Bricolage Grotesque", sans-serif; color: var(--acc); }
+  .m-modern .pt { font-size: 15px; font-weight: 700; color: #475467; margin-top: 4px; } .m-modern .ph { display: block; margin: 0 auto 18px; border: 4px solid rgba(255,255,255,.35); } .m-modern .side .meta { color: rgba(255,255,255,.75); }
+  /* Classique : une colonne, centrée, serif */
+  .m-classic { padding: 46px 56px; } .m-classic .hd { text-align: center; border-bottom: 2px solid var(--acc); padding-bottom: 14px; } .m-classic .nm { font: 700 32px "Lora", Georgia, serif; color: var(--acc); }
+  .m-classic .pt { font: 500 16px "Lora", Georgia, serif; color: #475467; } .m-classic h2 { font-family: "Lora", Georgia, serif; letter-spacing: .06em; border-bottom: 1px solid #d5dbe3; padding-bottom: 3px; } .m-classic .ph { width: 96px; height: 96px; margin-bottom: 8px; }
+  /* Minimal */
+  .m-minimal { padding: 48px 54px; } .m-minimal .hd { display: flex; gap: 20px; align-items: center; } .m-minimal .nm { font: 800 34px/1.05 "Bricolage Grotesque", sans-serif; } .m-minimal .pt { color: var(--acc); font-weight: 700; font-size: 15px; }
+  .m-minimal h2 { color: #1d2735; display: flex; gap: 10px; align-items: center; } .m-minimal h2::before { content: ""; width: 22px; height: 3px; background: var(--acc); border-radius: 2px; } .m-minimal .ph { width: 92px; height: 92px; border-radius: 18px; }
+  .m-minimal .cols { display: grid; grid-template-columns: 1fr 210px; gap: 30px; }
+  /* Exécutif : bandeau sombre */
+  .m-exec .band { background: var(--acc); color: #fff; padding: 34px 44px; display: flex; gap: 22px; align-items: center; } .m-exec .nm { font: 800 32px/1.1 "Bricolage Grotesque", sans-serif; } .m-exec .pt { opacity: .85; font-size: 15px; font-weight: 700; }
+  .m-exec .ph { width: 104px; height: 104px; border: 4px solid rgba(255,255,255,.3); } .m-exec .contact { background: color-mix(in srgb, var(--acc) 8%, white); padding: 10px 44px; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12.5px; }
+  .m-exec .body { display: grid; grid-template-columns: 1fr 230px; gap: 30px; padding: 10px 44px 40px; }
+  .ct div { margin: 3px 0; word-break: break-word; }
+  @media (max-width: 900px) { .app { grid-template-columns: 1fr; } .mtabs { display: flex; } .pvwrap { position: static; } .app[data-v="form"] .pvcol { display: none; } .app[data-v="pv"] .form { display: none; } }
+  @media (max-width: 480px) { .g2 { grid-template-columns: 1fr; } .models { grid-template-columns: repeat(2, 1fr); } }
+  @media print {
+    @page { size: A4; margin: 0; }
+    body { background: #fff; } header.top, .mtabs, .form, .noprint { display: none !important; }
+    .app { display: block; padding: 0; } .pvcol { display: block !important; } .pvwrap { position: static; } .pvscale { transform: none !important; height: auto !important; }
+    .cvpage { box-shadow: none; width: 210mm; min-height: 297mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="https://bwatsekremtalks.com/" target="_top"><i></i>BWAT SEKRÈM TALKS</a>
+  <h1 data-t="title"></h1>
+  <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
+</header>
+<div class="mtabs"><button type="button" data-v="form" aria-pressed="true" data-t="tabForm"></button><button type="button" data-v="pv" aria-pressed="false" data-t="tabPv"></button></div>
+<div class="app" id="app" data-v="form">
+  <div class="form">
+    <div class="box">
+      <b data-t="modelT"></b>
+      <div class="models" id="models"></div>
+      <div class="colors" id="colors"></div>
+      <label class="f" for="cvLang" data-t="cvLangL"></label><select class="t" id="cvLang"><option value="fr">Français</option><option value="ht">Kreyòl</option><option value="en">English</option></select>
+    </div>
+    <details class="box" open><summary data-t="s1"></summary>
+      <div class="photo"><img id="phImg" alt="" /><div><label class="btn" style="cursor:pointer"><span data-t="photoB"></span><input type="file" id="phF" accept="image/*" hidden /></label> <button class="btn" type="button" id="phX" data-t="photoX"></button><div class="sub" data-t="photoS"></div></div></div>
+      <div class="g2"><div><label class="f" for="nom" data-t="nom"></label><input class="t" id="nom" maxlength="80" /></div><div><label class="f" for="poste" data-t="poste"></label><input class="t" id="poste" maxlength="100" /></div>
+        <div><label class="f" for="telephone" data-t="tel"></label><input class="t" id="telephone" inputmode="tel" maxlength="25" /></div><div><label class="f" for="email" data-t="email"></label><input class="t" id="email" type="email" maxlength="100" /></div>
+        <div><label class="f" for="ville" data-t="ville"></label><input class="t" id="ville" maxlength="60" /></div><div><label class="f" for="lien" data-t="lien"></label><input class="t" id="lien" maxlength="120" placeholder="linkedin.com/in/…" /></div></div>
+    </details>
+    <details class="box" open><summary data-t="s2"></summary>
+      <textarea class="t" id="rezime" maxlength="1200"></textarea>
+      <button class="btn ia" type="button" data-ia="rezime" data-t="ia"></button><p class="msg" id="m_rezime"></p>
+    </details>
+    <details class="box" open><summary data-t="s3"></summary><div id="L_exp"></div><button class="btn" type="button" data-add="exp" style="margin-top:10px" data-t="addExp"></button></details>
+    <details class="box"><summary data-t="s4"></summary><div id="L_edu"></div><button class="btn" type="button" data-add="edu" style="margin-top:10px" data-t="addEdu"></button></details>
+    <details class="box"><summary data-t="s5"></summary>
+      <textarea class="t" id="konpetans" maxlength="600" style="min-height:70px"></textarea><div class="sub" data-t="skillsS"></div>
+      <button class="btn ia" type="button" data-ia="konpetans" data-t="iaSkills"></button><p class="msg" id="m_konpetans"></p>
+    </details>
+    <details class="box"><summary data-t="s6"></summary><div id="L_lang"></div><button class="btn" type="button" data-add="lang" style="margin-top:10px" data-t="addLang"></button></details>
+    <details class="box"><summary data-t="s7"></summary><div id="L_cert"></div><button class="btn" type="button" data-add="cert" style="margin-top:10px" data-t="addCert"></button></details>
+    <details class="box"><summary data-t="s8"></summary>
+      <label class="f" for="enterè" data-t="hob"></label><input class="t" id="enterè" maxlength="200" />
+      <label class="f" for="referans" data-t="ref"></label><textarea class="t" id="referans" maxlength="500" style="min-height:60px"></textarea>
+    </details>
+    <div class="box">
+      <label class="tog"><input type="checkbox" id="ok" /> <span data-t="consent"></span></label>
+      <div class="actions"><button class="btn main" type="button" id="pdf" data-t="pdf"></button><button class="btn dark" type="button" id="save" data-t="save"></button></div>
+      <p class="msg" id="sMsg"></p>
+    </div>
+  </div>
+  <div class="pvcol"><div class="pvwrap"><div class="pvscale" id="pvs"><div class="cvpage" id="cv"></div></div></div></div>
+</div>
+<script>
+const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const UI = {
+  fr: { title: 'Crée ton CV pro', tabForm: '✏️ Remplir', tabPv: '👁️ Aperçu', modelT: '🎨 Modèle et couleur', cvLangL: 'Langue du CV', s1: '👤 Informations personnelles', photoB: '📷 Photo', photoX: 'Retirer', photoS: 'Facultatif · reste sur ton téléphone', nom: 'Prénom et nom', poste: 'Poste visé / titre', tel: 'Téléphone (WhatsApp)', email: 'E-mail', ville: 'Ville', lien: 'LinkedIn ou site (facultatif)',
+    s2: '📝 Profil', ia: '✨ Améliorer avec l’IA', s3: '💼 Expériences', addExp: '＋ Ajouter une expérience', s4: '🎓 Formation', addEdu: '＋ Ajouter une formation', s5: '🛠️ Compétences', skillsS: 'Sépare par des virgules : Excel, Gestion de projet, Service client…', iaSkills: '✨ Suggérer avec l’IA (selon le poste)',
+    s6: '🌍 Langues', addLang: '＋ Ajouter une langue', s7: '📜 Certificats et formations courtes', addCert: '＋ Ajouter', s8: '➕ Plus', hob: 'Centres d’intérêt', ref: 'Références',
+    consent: 'J’accepte que Bwat Sekrèm Talks conserve mon CV pour me contacter (stages, emplois, activités). Sans cette case, ton CV reste seulement sur ton téléphone.', pdf: '📄 Télécharger en PDF', save: '💾 Enregistrer',
+    f: { titre: 'Poste', org: 'Entreprise / organisation', lieu: 'Ville', debut: 'Début (ex. 03/2024)', fin: 'Fin (vide = en cours)', desc: 'Ce que tu as fait (une tâche par ligne)', dip: 'Diplôme / niveau', ecole: 'Établissement', annee: 'Années (ex. 2021 – 2025)', mention: 'Mention / détails', langue: 'Langue', niveau: 'Niveau', cert: 'Certificat / formation', organisme: 'Organisme', an: 'Année' },
+    niv: ['Langue maternelle', 'Courant', 'Intermédiaire', 'Notions'], saved: '✓ CV enregistré. Tu peux revenir le modifier sur ce téléphone.', local: '✓ Sauvegardé sur ton téléphone. Coche la case pour l’envoyer à l’équipe BST.', err: 'Erreur. Réessaie.', iaWait: 'L’IA améliore ton texte…', iaOk: '✓ Texte amélioré. Relis-le et corrige si besoin.', iaLimit: 'Limite d’aide IA atteinte pour aujourd’hui.', iaNeed: 'Écris d’abord quelques mots.', pdfTip: 'Dans la fenêtre d’impression, choisis « Enregistrer en PDF ».' },
+  ht: { title: 'Kreye CV pwofesyonèl ou', tabForm: '✏️ Ranpli', tabPv: '👁️ Aperçu', modelT: '🎨 Modèl ak koulè', cvLangL: 'Lang CV a', s1: '👤 Enfòmasyon pèsonèl', photoB: '📷 Foto', photoX: 'Retire', photoS: 'Pa obligatwa · li rete sou telefòn ou', nom: 'Prenon ak non', poste: 'Pòs ou vize / tit ou', tel: 'Telefòn (WhatsApp)', email: 'Imèl', ville: 'Vil', lien: 'LinkedIn oswa sit (pa obligatwa)',
+    s2: '📝 Pwofil', ia: '✨ Amelyore ak IA', s3: '💼 Eksperyans', addExp: '＋ Ajoute yon eksperyans', s4: '🎓 Fòmasyon', addEdu: '＋ Ajoute yon fòmasyon', s5: '🛠️ Konpetans', skillsS: 'Separe yo ak vigil : Excel, Jesyon pwojè, Sèvis kliyan…', iaSkills: '✨ Sijere ak IA (selon pòs la)',
+    s6: '🌍 Lang', addLang: '＋ Ajoute yon lang', s7: '📜 Sètifika ak ti fòmasyon', addCert: '＋ Ajoute', s8: '➕ Plis', hob: 'Sa w renmen fè', ref: 'Referans',
+    consent: 'Mwen dakò pou Bwat Sekrèm Talks kenbe CV mwen pou kontakte m (estaj, travay, aktivite). San kaz sa a, CV a rete sèlman sou telefòn ou.', pdf: '📄 Telechaje an PDF', save: '💾 Anrejistre',
+    f: { titre: 'Pòs', org: 'Antrepriz / òganizasyon', lieu: 'Vil', debut: 'Kòmanse (egz. 03/2024)', fin: 'Fini (vid = toujou la)', desc: 'Sa w te fè (yon travay pa liy)', dip: 'Diplòm / nivo', ecole: 'Lekòl / inivèsite', annee: 'Ane (egz. 2021 – 2025)', mention: 'Mansyon / detay', langue: 'Lang', niveau: 'Nivo', cert: 'Sètifika / fòmasyon', organisme: 'Òganis', an: 'Ane' },
+    niv: ['Lang manman', 'Byen pale l', 'Mwayen', 'Ti kras'], saved: '✓ CV a anrejistre. Ou ka retounen modifye l sou telefòn sa a.', local: '✓ Li sove sou telefòn ou. Tcheke kaz la pou voye l bay ekip BST la.', err: 'Erè. Eseye ankò.', iaWait: 'IA a ap amelyore tèks ou…', iaOk: '✓ Tèks la amelyore. Reli l epi korije si sa nesesè.', iaLimit: 'Ou rive nan limit èd IA pou jodi a.', iaNeed: 'Ekri kèk mo anvan.', pdfTip: 'Nan fenèt enpresyon an, chwazi « Anrejistre an PDF ».' },
+  en: { title: 'Build your pro CV', tabForm: '✏️ Fill in', tabPv: '👁️ Preview', modelT: '🎨 Template and color', cvLangL: 'CV language', s1: '👤 Personal details', photoB: '📷 Photo', photoX: 'Remove', photoS: 'Optional · stays on your phone', nom: 'Full name', poste: 'Target position / title', tel: 'Phone (WhatsApp)', email: 'Email', ville: 'City', lien: 'LinkedIn or website (optional)',
+    s2: '📝 Profile', ia: '✨ Improve with AI', s3: '💼 Experience', addExp: '＋ Add an experience', s4: '🎓 Education', addEdu: '＋ Add education', s5: '🛠️ Skills', skillsS: 'Separate with commas: Excel, Project management, Customer service…', iaSkills: '✨ Suggest with AI (based on the position)',
+    s6: '🌍 Languages', addLang: '＋ Add a language', s7: '📜 Certificates and short courses', addCert: '＋ Add', s8: '➕ More', hob: 'Interests', ref: 'References',
+    consent: 'I agree that Bwat Sekrèm Talks keeps my CV to contact me (internships, jobs, activities). Without this box, your CV stays only on your phone.', pdf: '📄 Download PDF', save: '💾 Save',
+    f: { titre: 'Position', org: 'Company / organization', lieu: 'City', debut: 'Start (e.g. 03/2024)', fin: 'End (empty = current)', desc: 'What you did (one task per line)', dip: 'Degree / level', ecole: 'School / university', annee: 'Years (e.g. 2021 – 2025)', mention: 'Honors / details', langue: 'Language', niveau: 'Level', cert: 'Certificate / course', organisme: 'Provider', an: 'Year' },
+    niv: ['Native', 'Fluent', 'Intermediate', 'Basic'], saved: '✓ CV saved. You can come back and edit it on this phone.', local: '✓ Saved on your phone. Tick the box to send it to the BST team.', err: 'Error. Try again.', iaWait: 'AI is improving your text…', iaOk: '✓ Text improved. Read it and adjust if needed.', iaLimit: 'Daily AI help limit reached.', iaNeed: 'Write a few words first.', pdfTip: 'In the print window, choose « Save as PDF ».' },
+};
+const CVL = {
+  fr: { profil: 'Profil', exp: 'Expérience professionnelle', edu: 'Formation', skills: 'Compétences', langs: 'Langues', certs: 'Certificats', hob: 'Centres d’intérêt', ref: 'Références', contact: 'Contact', now: 'aujourd’hui', niv: ['Langue maternelle', 'Courant', 'Intermédiaire', 'Notions'] },
+  ht: { profil: 'Pwofil', exp: 'Eksperyans pwofesyonèl', edu: 'Fòmasyon', skills: 'Konpetans', langs: 'Lang', certs: 'Sètifika', hob: 'Sa m renmen fè', ref: 'Referans', contact: 'Kontak', now: 'jodi a', niv: ['Lang manman', 'Byen pale l', 'Mwayen', 'Ti kras'] },
+  en: { profil: 'Profile', exp: 'Work experience', edu: 'Education', skills: 'Skills', langs: 'Languages', certs: 'Certificates', hob: 'Interests', ref: 'References', contact: 'Contact', now: 'present', niv: ['Native', 'Fluent', 'Intermediate', 'Basic'] },
+};
+const MODELS = { modern: 'Moderne', classic: 'Classique', minimal: 'Minimal', exec: 'Exécutif' };
+const COLORS = ['#123056', '#1f6f5c', '#7a1f3d', '#3b2a6b', '#b4541a', '#2b2b2b'];
+const FIELDS = ['nom', 'poste', 'telephone', 'email', 'ville', 'lien', 'rezime', 'konpetans', 'enterè', 'referans'];
+const LISTS = { exp: ['titre', 'org', 'lieu', 'debut', 'fin', 'desc'], edu: ['dip', 'ecole', 'lieu', 'annee', 'mention'], lang: ['langue', 'niveau'], cert: ['cert', 'organisme', 'an'] };
+const KEY = 'bst_cv_v1';
+let L = 'fr', D = { modele: 'modern', koule: COLORS[0], cvLang: 'fr', photo: null, token: null, exp: [{}], edu: [{}], lang: [{ langue: 'Créole', niveau: '0' }, { langue: 'Français', niveau: '1' }], cert: [] };
+const t = () => UI[L];
+
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) D = Object.assign(D, s); } catch {} }
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch {} }
+function readForm() { FIELDS.forEach((f) => (D[f] = $(f).value)); D.cvLang = $('cvLang').value;
+  for (const k of Object.keys(LISTS)) document.querySelectorAll(`[data-li="${k}"]`).forEach((el) => { const i = +el.dataset.i; LISTS[k].forEach((f) => { const x = el.querySelector(`[data-f="${f}"]`); if (x) (D[k][i] ||= {})[f] = x.value; }); }); }
+function renderLists() {
+  const F = t().f;
+  const field = (k, i, f, o = {}) => {
+    const v = esc((D[k][i] || {})[f] || '');
+    if (f === 'desc') return `<label class="f">${F.desc}</label><textarea class="t" data-f="desc" maxlength="1200">${v}</textarea><button class="btn ia" type="button" data-ia="eksperyans" data-ii="${i}">${t().ia}</button><p class="msg" id="m_exp${i}"></p>`;
+    if (f === 'niveau') return `<label class="f">${F.niveau}</label><select class="t" data-f="niveau">${t().niv.map((n, j) => `<option value="${j}" ${String((D[k][i] || {}).niveau ?? '1') === String(j) ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
+    return `<div><label class="f">${F[f]}</label><input class="t" data-f="${f}" maxlength="${o.max || 100}" value="${v}" /></div>`;
+  };
+  $('L_exp').innerHTML = D.exp.map((_, i) => `<div class="item" data-li="exp" data-i="${i}"><button class="x" type="button" data-del="exp" data-i="${i}">✖</button><div class="g2">${['titre', 'org', 'lieu', 'debut', 'fin'].map((f) => field('exp', i, f)).join('')}</div>${field('exp', i, 'desc')}</div>`).join('');
+  $('L_edu').innerHTML = D.edu.map((_, i) => `<div class="item" data-li="edu" data-i="${i}"><button class="x" type="button" data-del="edu" data-i="${i}">✖</button><div class="g2">${['dip', 'ecole', 'lieu', 'annee'].map((f) => field('edu', i, f)).join('')}</div>${field('edu', i, 'mention', { max: 160 })}</div>`).join('');
+  $('L_lang').innerHTML = D.lang.map((_, i) => `<div class="item" data-li="lang" data-i="${i}"><button class="x" type="button" data-del="lang" data-i="${i}">✖</button><div class="g2">${field('lang', i, 'langue')}<div>${field('lang', i, 'niveau')}</div></div></div>`).join('');
+  $('L_cert').innerHTML = D.cert.map((_, i) => `<div class="item" data-li="cert" data-i="${i}"><button class="x" type="button" data-del="cert" data-i="${i}">✖</button><div class="g2">${['cert', 'organisme', 'an'].map((f) => field('cert', i, f)).join('')}</div></div>`).join('');
+}
+function setLang(l) {
+  L = UI[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
+  document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
+  document.querySelectorAll('[data-t]').forEach((el) => { const v = t()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
+  readForm(); renderLists(); renderModels(); render();
+}
+function renderModels() {
+  const mini = { modern: `<div style="position:absolute;inset:0 65% 0 0;background:${D.koule}"></div>`, classic: `<div style="position:absolute;left:20%;right:20%;top:8px;height:5px;background:${D.koule}"></div><div style="position:absolute;left:12%;right:12%;top:20px;height:1px;background:#bbb"></div>`, minimal: `<div style="position:absolute;left:8px;top:8px;width:16px;height:16px;border-radius:4px;background:${D.koule}"></div><div style="position:absolute;left:30px;top:12px;width:40%;height:5px;background:#333"></div>`, exec: `<div style="position:absolute;inset:0 0 62% 0;background:${D.koule}"></div>` };
+  $('models').innerHTML = Object.entries(MODELS).map(([k, n]) => `<button type="button" data-m="${k}" aria-pressed="${D.modele === k}"><div class="mini">${mini[k]}</div>${n}</button>`).join('');
+  $('colors').innerHTML = COLORS.map((c) => `<button type="button" data-c="${c}" aria-pressed="${D.koule === c}" style="background:${c}" title="${c}"></button>`).join('');
+  $('phImg').src = D.photo || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#e8eef5"/><circle cx="32" cy="25" r="11" fill="#b9c7d8"/><path d="M12 56c3-12 12-17 20-17s17 5 20 17" fill="#b9c7d8"/></svg>');
+}
+/* ---------- Rann CV a ---------- */
+function bullets(s) { const ls = String(s || '').split('\n').map((x) => x.replace(/^\s*[•\-*]\s*/, '').trim()).filter(Boolean); return ls.length > 1 ? `<ul>${ls.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ls.length ? `<p>${esc(ls[0])}</p>` : ''; }
+function render() {
+  readForm(); persist();
+  const C = CVL[D.cvLang] || CVL.fr, cv = $('cv'); cv.style.setProperty('--acc', D.koule);
+  const has = (a) => a.some((x) => Object.values(x || {}).some((v) => String(v || '').trim()));
+  const exp = has(D.exp) ? `<h2>${C.exp}</h2>` + D.exp.filter((x) => x && (x.titre || x.org)).map((x) => `<div class="job"><b>${esc(x.titre)}</b>${x.org ? ` · <span>${esc(x.org)}</span>` : ''}<div class="meta">${[x.lieu, x.debut ? `${esc(x.debut)} – ${x.fin ? esc(x.fin) : C.now}` : ''].filter(Boolean).join(' · ')}</div>${bullets(x.desc)}</div>`).join('') : '';
+  const edu = has(D.edu) ? `<h2>${C.edu}</h2>` + D.edu.filter((x) => x && (x.dip || x.ecole)).map((x) => `<div class="job"><b>${esc(x.dip)}</b>${x.ecole ? ` · ${esc(x.ecole)}` : ''}<div class="meta">${[x.lieu, x.annee].filter(Boolean).map(esc).join(' · ')}</div>${x.mention ? `<p>${esc(x.mention)}</p>` : ''}</div>`).join('') : '';
+  const skills = D.konpetans.trim() ? `<h2>${C.skills}</h2><div class="chips">${D.konpetans.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean).map((s) => `<span>${esc(s)}</span>`).join('')}</div>` : '';
+  const langs = has(D.lang) ? `<h2>${C.langs}</h2>` + D.lang.filter((x) => x && x.langue).map((x) => `<div class="lv"><b>${esc(x.langue)}</b><span>${C.niv[+x.niveau || 0]}</span></div>`).join('') : '';
+  const certs = has(D.cert) ? `<h2>${C.certs}</h2>` + D.cert.filter((x) => x && x.cert).map((x) => `<div class="job"><b>${esc(x.cert)}</b><div class="meta">${[x.organisme, x.an].filter(Boolean).map(esc).join(' · ')}</div></div>`).join('') : '';
+  const profil = D.rezime.trim() ? `<h2>${C.profil}</h2><p>${esc(D.rezime).replace(/\n/g, '<br>')}</p>` : '';
+  const hob = D['enterè'].trim() ? `<h2>${C.hob}</h2><p>${esc(D['enterè'])}</p>` : '', ref = D.referans.trim() ? `<h2>${C.ref}</h2><p>${esc(D.referans).replace(/\n/g, '<br>')}</p>` : '';
+  const contact = [D.telephone && `📞 ${esc(D.telephone)}`, D.email && `✉️ ${esc(D.email)}`, D.ville && `📍 ${esc(D.ville)}`, D.lien && `🔗 ${esc(D.lien)}`].filter(Boolean);
+  const ph = D.photo ? `<img class="ph" src="${D.photo}" alt="" />` : '', nm = esc(D.nom || 'Prénom Nom'), pt = esc(D.poste || '');
+  const m = D.modele;
+  cv.className = 'cvpage m-' + m;
+  if (m === 'modern') cv.innerHTML = `<div class="side">${ph}${contact.length ? `<h2>${C.contact}</h2>` : ''}<div class="ct">${contact.map((x) => `<div>${x}</div>`).join('')}</div>${skills}${langs}${hob}</div><div class="main"><div class="nm">${nm}</div><div class="pt">${pt}</div>${profil}${exp}${edu}${certs}${ref}</div>`;
+  else if (m === 'classic') cv.innerHTML = `<div class="hd">${ph}<div class="nm">${nm}</div><div class="pt">${pt}</div><div class="meta" style="margin-top:6px">${contact.join(' · ')}</div></div>${profil}${exp}${edu}${skills}${langs}${certs}${hob}${ref}`;
+  else if (m === 'minimal') cv.innerHTML = `<div class="hd">${ph}<div><div class="nm">${nm}</div><div class="pt">${pt}</div><div class="meta">${contact.join(' · ')}</div></div></div><div class="cols"><div>${profil}${exp}${edu}${ref}</div><div>${skills}${langs}${certs}${hob}</div></div>`;
+  else cv.innerHTML = `<div class="band">${ph}<div><div class="nm">${nm}</div><div class="pt">${pt}</div></div></div><div class="contact">${contact.map((x) => `<span>${x}</span>`).join('')}</div><div class="body"><div>${profil}${exp}${edu}${ref}</div><div>${skills}${langs}${certs}${hob}</div></div>`;
+  fit();
+}
+function fit() { const w = $('pvs').parentElement.clientWidth || 794, k = Math.min(1, w / 794); $('pvs').style.transform = `scale(${k})`; $('pvs').style.height = ($('cv').offsetHeight * k) + 'px'; }
+window.addEventListener('resize', fit);
+/* ---------- Evènman ---------- */
+document.addEventListener('input', (e) => { if (e.target.closest('.form')) render(); });
+document.addEventListener('change', (e) => { if (e.target.closest('.form')) render(); });
+document.addEventListener('click', async (e) => {
+  const l = e.target.closest('[data-l]'); if (l) return setLang(l.dataset.l);
+  const v = e.target.closest('.mtabs [data-v]'); if (v) { $('app').dataset.v = v.dataset.v; document.querySelectorAll('.mtabs [data-v]').forEach((b) => b.setAttribute('aria-pressed', b === v)); if (v.dataset.v === 'pv') setTimeout(fit, 30); return; }
+  const m = e.target.closest('[data-m]'); if (m) { D.modele = m.dataset.m; renderModels(); return render(); }
+  const c = e.target.closest('[data-c]'); if (c) { D.koule = c.dataset.c; renderModels(); return render(); }
+  const a = e.target.closest('[data-add]'); if (a) { readForm(); D[a.dataset.add].push({}); renderLists(); return render(); }
+  const d = e.target.closest('[data-del]'); if (d) { readForm(); D[d.dataset.del].splice(+d.dataset.i, 1); renderLists(); return render(); }
+  const ia = e.target.closest('[data-ia]'); if (ia) return amelyore(ia);
+});
+$('phF').addEventListener('change', () => { const f = $('phF').files[0]; if (!f) return; const i = new Image(); i.onload = () => { const s = 320, cv = document.createElement('canvas'); cv.width = cv.height = s; const k = Math.max(s / i.width, s / i.height); const x = cv.getContext('2d'); x.drawImage(i, (s - i.width * k) / 2, (s - i.height * k) / 2, i.width * k, i.height * k); D.photo = cv.toDataURL('image/jpeg', .85); renderModels(); render(); }; i.src = URL.createObjectURL(f); });
+$('phX').addEventListener('click', () => { D.photo = null; $('phF').value = ''; renderModels(); render(); });
+async function amelyore(b) {
+  readForm(); const tip = b.dataset.ia, i = b.dataset.ii, out = tip === 'eksperyans' ? $('m_exp' + i) : $('m_' + tip);
+  const say = (s, k = 'ok') => { out.className = 'msg ' + k; out.textContent = s; };
+  let tekst = tip === 'rezime' ? D.rezime : tip === 'konpetans' ? D.konpetans : (D.exp[i] || {}).desc;
+  const kontek = tip === 'eksperyans' ? [D.exp[i]?.titre, D.exp[i]?.org].filter(Boolean).join(' — ') : tip === 'rezime' ? D.exp.filter((x) => x && x.titre).map((x) => `${x.titre} (${x.org || ''})`).join('; ').slice(0, 280) : '';
+  if ((tekst || '').trim().length < 3 && !(tip === 'konpetans' && D.poste)) return say(t().iaNeed, 'err');
+  b.disabled = true; say(t().iaWait);
+  try {
+    const r = await fetch(`${SB_URL}/functions/v1/cv-ia`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tip, tekst: tekst || D.poste, poste: D.poste, lang: D.cvLang, kontek, token: D.token }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) { b.disabled = false; return say(j.error === 'limit' ? t().iaLimit : t().err, 'err'); }
+    if (tip === 'rezime') $('rezime').value = j.tekst; else if (tip === 'konpetans') $('konpetans').value = j.tekst; else document.querySelector(`[data-li="exp"][data-i="${i}"] [data-f="desc"]`).value = j.tekst;
+    render(); say(t().iaOk); try { gtag('event', 'cv_ia', { tip }); } catch {}
+  } catch { say(t().err, 'err'); }
+  b.disabled = false;
+}
+$('save').addEventListener('click', async () => {
+  render(); const msg = (s, k = 'ok') => { $('sMsg').className = 'msg ' + k; $('sMsg').textContent = s; };
+  if (!$('ok').checked) return msg(t().local);
+  $('save').disabled = true;
+  try {
+    const done = {}; FIELDS.forEach((f) => (done[f] = D[f])); ['exp', 'edu', 'lang', 'cert'].forEach((k) => (done[k] = D[k]));
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/cv_sove`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_token: D.token, p_lang: D.cvLang, p_modele: D.modele, p_koule: D.koule, p_done: done }) });
+    if (!r.ok) throw 0; D.token = await r.json(); persist(); msg(t().saved); try { gtag('event', 'cv_sove', { modele: D.modele }); } catch {}
+  } catch { msg(t().err, 'err'); }
+  $('save').disabled = false;
+});
+$('pdf').addEventListener('click', () => { render(); $('sMsg').className = 'msg'; $('sMsg').textContent = t().pdfTip; try { gtag('event', 'cv_pdf', { modele: D.modele }); } catch {} setTimeout(() => window.print(), 150); });
+/* ---------- Mòd admin : ?id=… (lekti sèlman, pou ekip BST la) ---------- */
+async function adminView(id) {
+  let tok = null; try { const k = Object.keys(localStorage).find((x) => /^sb-.*-auth-token$/.test(x)); tok = k && JSON.parse(localStorage.getItem(k)).access_token; } catch {}
+  if (!tok) return false;
+  const r = await fetch(`${SB_URL}/rest/v1/cv?id=eq.${encodeURIComponent(id)}&select=*`, { headers: { apikey: SB_KEY, Authorization: `Bearer ${tok}` } });
+  const row = r.ok ? (await r.json())[0] : null; if (!row) return false;
+  D = Object.assign(D, row.done, { modele: row.modele, koule: row.koule || COLORS[0], cvLang: row.lang, token: null, photo: null }); D.exp ||= []; D.edu ||= []; D.lang ||= []; D.cert ||= [];
+  FIELDS.forEach((f) => ($(f).value = D[f] || '')); $('cvLang').value = D.cvLang;
+  document.querySelector('.form').classList.add('hidden'); document.querySelector('.mtabs').classList.add('hidden'); $('app').style.gridTemplateColumns = '1fr'; $('app').dataset.v = 'pv';
+  const bar = document.createElement('div'); bar.className = 'noprint'; bar.style.cssText = 'max-width:794px;margin:12px auto 0;display:flex;gap:8px'; bar.innerHTML = '<button class="btn main" type="button" onclick="window.print()">📄 PDF</button>';
+  document.body.insertBefore(bar, $('app')); return true;
+}
+(async () => {
+  const q = new URLSearchParams(location.search);
+  let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
+  if (q.get('id') && await adminView(q.get('id'))) { setLang(l0 || 'fr'); return; }
+  let fresh = true; try { fresh = !localStorage.getItem(KEY); } catch {}
+  load(); FIELDS.forEach((f) => ($(f).value = D[f] || '')); $('cvLang').value = D.cvLang || 'fr';
+  if (!D.telephone && q.get('tel')) $('telephone').value = q.get('tel').slice(0, 25);
+  setLang(l0 || 'fr'); if (fresh) { $('cvLang').value = L === 'en' ? 'en' : L === 'ht' ? 'ht' : 'fr'; if (L !== 'fr') D.lang = [{ langue: L === 'en' ? 'Haitian Creole' : 'Kreyòl', niveau: '0' }, { langue: L === 'en' ? 'French' : 'Fransè', niveau: '1' }]; renderLists(); render(); }
+  document.fonts && document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>

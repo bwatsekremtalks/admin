@@ -309,6 +309,7 @@
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
+        <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
         <button class="tab" role="tab" id="tabM" aria-selected="false" type="button">💰 Rentabilité</button>
         <button class="tab action" id="serieBtn" type="button" title="Envoyer le message de confirmation à toutes les personnes pas encore contactées, une par une">Envoi en série</button>
@@ -383,6 +384,19 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelI" class="hidden">
+        <div class="tiles" id="iTiles"></div>
+        <div class="grid2" style="margin-top:12px">
+          <div class="card"><h2>Métiers les plus choisis <span class="sub" id="iMN"></span></h2><div class="bars" id="iMetiers"></div></div>
+          <div class="card"><h2>Portraits par jour</h2><div class="bars" id="iJours"></div></div>
+        </div>
+        <div class="card" style="margin-top:12px"><h2>🖼️ Personnes qui ont fait leur portrait <span class="sub" id="iN"></span></h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px"><input type="search" id="iQ" placeholder="Rechercher un nom, un numéro, un métier…" style="flex:1;min-width:220px;max-width:420px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+            <a class="btn" href="portrait/" target="_blank" rel="noopener">Ouvrir la page Portrait ↗</a></div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Dernier portrait</th><th>Nom</th><th>Téléphone</th><th>Réservation</th><th>Portraits faits</th><th>Achetés</th><th>Métiers</th></tr></thead><tbody id="iRows"></tbody></table></div>
+        </div>
+        <p class="note">Une personne inscrite a droit à 1 portrait gratuit ; les portraits « achetés » viennent des coupons. Les métiers sont notés depuis le 10 novembre 2026 (les portraits faits avant n’ont pas de métier enregistré). Les tests faits par l’équipe admin ne sont pas comptés ici (voir 💰 Rentabilité).</p>
+      </div>
       <div id="panelM" class="hidden">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
           <label class="sub">Période <select id="mPer" style="padding:8px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit;margin-left:4px"><option value="0">Depuis le début</option><option value="30">30 derniers jours</option><option value="7">7 derniers jours</option><option value="1">Aujourd’hui</option></select></label>
@@ -1501,14 +1515,54 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
 $('tabM').addEventListener('click', () => setTab('M'));
+$('tabI').addEventListener('click', () => setTab('I'));
+/* ---------- Portraits IA : qui a fait son portrait, combien, quels métiers ---------- */
+let IROWS = [], IJ = [];
+const IMETIER = { comptable: 'Comptable', gestionnaire: 'Gestionnaire', medecin: 'Médecin', infirmier: 'Infirmier(ère)', professeur: 'Professeur(e)', avocat: 'Avocat(e)', ingenieur: 'Ingénieur(e)', architecte: 'Architecte', developpeur: 'Développeur(se)', entrepreneur: 'Entrepreneur(e)', banquier: 'Banquier(ère)', pharmacien: 'Pharmacien(ne)', agronome: 'Agronome', journaliste: 'Journaliste', pilote: 'Pilote de ligne', diplomate: 'Diplomate', juge: 'Juge', notaire: 'Notaire', economiste: 'Économiste', psychologue: 'Psychologue', chef: 'Chef cuisinier', designer: 'Designer graphique', policier: 'Officier de police', militaire: 'Militaire', dentiste: 'Dentiste', veterinaire: 'Vétérinaire', musicien: 'Musicien(ne)', commercial: 'Commercial(e)', terrain: 'Opérateur / Agent terrain', data: 'Analyste données / IA' };
+async function loadPortraits() {
+  const [u, j] = await Promise.all([
+    sb.from('portrait_ia_usage').select('tel, n, bonus, dernier').limit(5000),
+    sb.from('portrait_jounal').select('created_at, tel, metye, decor, ok, tes').eq('tes', false).order('created_at', { ascending: false }).limit(10000),
+  ]);
+  if (u.error) { notify('Portraits : ' + friendly(u.error), 'warn'); return; }
+  // Nom et réservation retrouvés grâce au numéro (personne principale ou accompagnant)
+  const byTel = new Map();
+  for (const pp of people(ALL.filter((r) => !r.annule))) { const d = localDigits(pp.tel).slice(-8); if (d.length === 8 && !byTel.has(d)) byTel.set(d, pp); }
+  IJ = j.data || [];
+  IROWS = (u.data || []).filter((r) => (r.n || 0) > 0 || (r.bonus || 0) > 0).map((r) => {
+    const pp = byTel.get(String(r.tel).slice(-8)), mets = IJ.filter((x) => x.ok && x.tel === r.tel).map((x) => IMETIER[x.metye] || x.metye);
+    return { ...r, nom: pp ? pp.nom : '', resa: pp ? pp.resa : null, by: pp && pp.by, mets: [...new Set(mets)] };
+  }).sort((a, b) => String(b.dernier || '').localeCompare(String(a.dernier || '')));
+  const tot = IROWS.reduce((a, r) => a + (r.n || 0), 0), today = IROWS.filter((r) => r.dernier && localDay(r.dernier) === localDay(new Date())).length;
+  const bought = IROWS.reduce((a, r) => a + (r.bonus || 0), 0), buyers = IROWS.filter((r) => r.bonus > 0).length, inscrits = people(rowsForEdition().filter((r) => !r.annule)).length;
+  $('iTiles').innerHTML = [['Personnes', IROWS.filter((r) => r.n > 0).length, inscrits ? `${Math.round(IROWS.filter((r) => r.n > 0).length / inscrits * 100)} % des personnes inscrites` : ''], ['Portraits générés', tot, `${(tot / Math.max(1, IROWS.filter((r) => r.n > 0).length)).toFixed(1).replace('.', ',')} par personne`], ['Aujourd’hui', today, 'personne(s) ont fait un portrait'], ['Portraits achetés', bought, `${buyers} acheteur(s) par coupon`], ['Retrouvés', IROWS.filter((r) => r.resa).length, 'reliés à une réservation']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  const okJ = IJ.filter((x) => x.ok);
+  const met = countBy(okJ, (x) => IMETIER[x.metye] || x.metye);
+  $('iMN').textContent = `· ${okJ.length} portrait(s) depuis le 10 nov.`;
+  bars($('iMetiers'), [...met.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10), okJ.length, 'portraits');
+  if (!okJ.length) $('iMetiers').innerHTML = '<p class="sub">Aucun portrait depuis le 10 novembre.</p>';
+  const day = countBy(IROWS.filter((r) => r.dernier), (r) => localDay(r.dernier));
+  bars($('iJours'), [...day.entries()].sort((a, b) => b[0].localeCompare(a[0])).slice(0, 10).map(([d, n]) => [new Date(d + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }), n]), IROWS.length, 'personnes');
+  renderPortraits();
+}
+function renderPortraits() {
+  const q = ($('iQ').value || '').trim().toLowerCase();
+  const L = IROWS.filter((r) => !q || [r.nom, r.tel, ...r.mets].some((x) => String(x || '').toLowerCase().includes(q)));
+  $('iN').textContent = `· ${L.length}`;
+  $('iRows').innerHTML = L.map((r) => `<tr><td class="sub">${r.dernier ? esc(fmtDate(r.dernier)) : '—'}</td><td><strong>${r.nom ? esc(r.nom) : '<span class="sub">Inconnu</span>'}</strong>${r.by ? `<br><span class="sub">avec ${esc(r.by)}</span>` : ''}</td>
+    <td><a href="https://wa.me/509${esc(r.tel)}" target="_blank" rel="noopener">${esc(r.tel)}</a></td><td>${r.resa ? '✅ Liée' : '<span class="sub">Non trouvée</span>'}</td>
+    <td><b>${r.n || 0}</b> <span class="sub">/ ${1 + (r.bonus || 0)}</span></td><td>${r.bonus ? `🎟️ ${r.bonus}` : '<span class="sub">—</span>'}</td><td class="sub">${esc(r.mets.join(', ') || '—')}</td></tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun portrait pour le moment.</td></tr>';
+}
+$('iQ').addEventListener('input', renderPortraits);
 /* ---------- Rentabilité : ventes (coupons utilisés) − coûts IA réels (OpenRouter) ---------- */
 let MD = null;
 const EST_PORTRAIT = 0.038;   // coût estimé des portraits faits avant le suivi (9 nov. 2026)

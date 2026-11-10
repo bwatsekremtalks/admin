@@ -769,6 +769,15 @@ const UNIVERSITES = {
   'EMMAÜS': 'Université Emmaüs',
   'UGNH': 'Université du Grand Nord d’Haïti',
 };
+/* Nom d'université « propre » pour les stats : « Aucune » ignoré, variantes regroupées (ex. « Université Emmüs (UE) » → EMMAÜS). */
+function normUni(s) {
+  let u = String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!u || /^(AUCUNE?|NON|NONE|PAS|RIEN|N\/?A|[-—.]+)$/.test(u)) return null;
+  const plain = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, "'");
+  if (/EMM.?[AU]?[UÜ]?S\b|EMMAUS|EMMÜS/.test(plain(u)) || /EMM[AÜU]+S/.test(u)) return 'EMMAÜS';
+  for (const [k, v] of Object.entries(UNIVERSITES)) { if (u === k || plain(u) === plain(v.toUpperCase()) || plain(u).endsWith('(' + plain(k) + ')')) return k; }
+  return u;
+}
 const NIVEAUX = { cycle_court: 'Cycle court', licence: 'Licence', maitrise: 'Maîtrise', doctorat: 'Doctorat' };
 function etudes(r) {
   if (!r.universite && !r.niveau_etude) return '';
@@ -1058,8 +1067,8 @@ function renderStats(rows, ppl, nAnnul = 0) {
   VIS.src = [...src.entries()].sort((a, b) => b[1] - a[1]); VIS.sexe = sx; VIS.profil = pc.sort((a, b) => b[1] - a[1]);
   VIS.nP = nP; VIS.nRows = rows.length; VIS.f = f; VIS.h = h;
 
-  const etuP = ppl.filter((p) => p.universite);
-  const uni = countBy(etuP, (p) => p.universite.trim().toUpperCase());
+  const etuP = ppl.filter((p) => normUni(p.universite));
+  const uni = countBy(etuP, (p) => normUni(p.universite));
   const uniList = [...uni.entries()].sort((a, b) => b[1] - a[1]);
   const top = uniList.slice(0, 8); const rest = uniList.slice(8).reduce((s, [, n]) => s + n, 0);
   if (rest) top.push(['Autres', rest]);

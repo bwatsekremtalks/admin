@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Compteur des réservations — Bwat Sekrèm Talks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<!--
+  Compteur EN DIRECT des réservations, à intégrer sur bwatsekremtalks.com (iframe).
+  Paramètres d'URL (tous facultatifs) :
+    ?lang=fr|ht|en        langue (fr par défaut)
+    &style=clair|sombre   fond blanc ou bleu nuit (clair par défaut)
+    &lien=URL             ajoute un bouton « Réserver ma place » vers cette adresse
+  Les chiffres viennent de la fonction publique talks_compteur (totaux seulement, aucune donnée personnelle).
+-->
+<style>
+  :root { --navy: #0D2D4A; --green: #5DB033; --blue: #1E8CF0; --bg: #ffffff; --ink: #0D2D4A; --mute: #4a6380; --line: rgba(13,45,74,.12); }
+  .sombre { --bg: linear-gradient(120deg, #0a2238, #123d66); --ink: #ffffff; --mute: rgba(255,255,255,.78); --line: rgba(255,255,255,.18); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; font-family: Lexend, "DM Sans", system-ui, sans-serif; }
+  .box { background: var(--bg); color: var(--ink); border: 2px solid var(--line); border-radius: 22px; padding: 16px 20px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center; }
+  .num { display: flex; align-items: baseline; gap: 10px; }
+  .num b { font-weight: 700; font-size: clamp(40px, 9vw, 58px); line-height: 1; color: var(--green); font-variant-numeric: tabular-nums; }
+  .num span { font-weight: 400; font-size: clamp(15px, 3.6vw, 19px); }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  .live i { width: 9px; height: 9px; border-radius: 50%; background: #e8505b; box-shadow: 0 0 0 0 rgba(232,80,91,.6); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(232,80,91,0); } 100% { box-shadow: 0 0 0 0 rgba(232,80,91,0); } }
+  .mid { display: grid; gap: 4px; text-align: left; }
+  .today { font-size: 14px; color: var(--mute); }
+  .lim { display: inline-flex; align-items: center; gap: 8px; background: #fff4e0; color: #8a4b00; border: 1px solid #f5d9a8; border-radius: 999px; padding: 7px 14px; font-size: 14px; font-weight: 600; }
+  .sombre .lim { background: rgba(245,166,35,.16); color: #ffd28a; border-color: rgba(245,166,35,.4); }
+  .cta { display: inline-flex; align-items: center; justify-content: center; background: var(--green); color: #fff; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 999px; padding: 11px 20px; white-space: nowrap; }
+  .cta:hover { filter: brightness(1.06); }
+  @media (max-width: 520px) { .box { flex-direction: column; text-align: center; gap: 10px; } .mid { text-align: center; justify-items: center; } }
+</style>
+</head>
+<body>
+<div class="box" id="box" aria-live="polite">
+  <div class="mid">
+    <span class="live"><i></i><span id="tLive"></span></span>
+    <div class="num"><b id="n">—</b><span id="tPers"></span></div>
+    <span class="today" id="today"></span>
+  </div>
+  <span class="lim" id="lim"></span>
+  <a class="cta" id="cta" target="_top" style="display:none"></a>
+</div>
+<script>
+const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const q = new URLSearchParams(location.search);
+const T = {
+  fr: { live: 'En direct', pers: (n) => n > 1 ? 'personnes ont déjà réservé leur place' : 'personne a déjà réservé sa place', today: (n) => `dont ${n} aujourd’hui 🔥`, lim: '⚠️ Places limitées : réserve vite la tienne', cta: 'Réserver ma place' },
+  ht: { live: 'An dirèk', pers: () => 'moun deja rezève plas yo', today: (n) => `${n} ladan yo jodi a 🔥`, lim: '⚠️ Plas yo limite : rezève pa w vit', cta: 'Rezève plas mwen' },
+  en: { live: 'Live', pers: (n) => n > 1 ? 'people have already booked their seat' : 'person has already booked a seat', today: (n) => `${n} of them today 🔥`, lim: '⚠️ Limited seats: book yours now', cta: 'Book my seat' },
+};
+const L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L];
+document.documentElement.lang = L;
+if (q.get('style') === 'sombre') document.body.classList.add('sombre');
+document.getElementById('tLive').textContent = t.live;
+document.getElementById('lim').textContent = t.lim;
+const lien = q.get('lien');
+if (lien && /^https?:\/\//i.test(lien)) { const a = document.getElementById('cta'); a.href = lien; a.textContent = t.cta; a.style.display = ''; }
+let shown = 0;
+function countTo(n) {   // petite animation du chiffre
+  const start = shown, d = n - start, t0 = performance.now(), dur = start ? 700 : 1400;
+  const step = (now) => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); document.getElementById('n').textContent = Math.round(start + d * e); if (k < 1) requestAnimationFrame(step); else shown = n; };
+  requestAnimationFrame(step);
+}
+async function load() {
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/talks_compteur`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: '{}' });
+    if (!r.ok) return;
+    const j = await r.json(), n = +j.personnes || 0;
+    if (n !== shown) countTo(n);
+    document.getElementById('tPers').textContent = t.pers(n);
+    document.getElementById('today').textContent = j.aujourdhui > 0 ? t.today(j.aujourdhui) : '';
+  } catch {}
+}
+load(); setInterval(load, 60000);
+</script>
+</body>
+</html>

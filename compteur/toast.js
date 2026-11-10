@@ -65,7 +65,12 @@
     sh.innerHTML = '<style>@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap");' +
       '.c{box-sizing:border-box;font-family:Lexend,system-ui,sans-serif;width:min(360px,calc(100vw - 32px));background:#fff;color:#0D2D4A;border:2px solid rgba(93,176,51,.55);border-radius:20px;box-shadow:0 18px 50px rgba(13,45,74,.22);padding:14px 16px 14px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;position:relative;' +
       (reduce ? '' : 'transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.3,1.2),opacity .35s;') + '}' +
-      '.c.on{transform:none;opacity:1}.i{grid-row:span 2;width:44px;height:44px;border-radius:14px;background:#EAF6E2;display:grid;place-items:center;font-size:22px}' +
+      '.c.on{transform:none;opacity:1}' +
+      (reduce ? '' : '@keyframes bob{0%,55%,100%{transform:translateY(0) scale(1)}8%{transform:translateY(-16px) scale(1.02)}16%{transform:translateY(0) scale(.99,1.01)}23%{transform:translateY(-8px)}30%{transform:translateY(0)}36%{transform:translateY(-3px)}42%{transform:translateY(0)}}' +
+      '.c.on.bob{animation:bob 2.6s cubic-bezier(.3,.7,.4,1) infinite}.c.on.bob:hover{animation-play-state:paused}' +
+      '@keyframes wig{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-14deg) scale(1.15)}40%{transform:rotate(12deg) scale(1.15)}60%{transform:rotate(-6deg) scale(1.05)}80%{transform:rotate(3deg)}}.c.on .i{animation:wig 1.3s ease-in-out infinite}' +
+      '@keyframes shine{0%{left:-60%}55%,100%{left:130%}}.a{position:relative;overflow:hidden}.a:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 2.2s ease-in-out infinite}' +
+      '@keyframes glow{0%,100%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 0 rgba(93,176,51,.45)}50%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 10px rgba(93,176,51,0)}}.c.on.bob{animation:bob 2.6s cubic-bezier(.3,.7,.4,1) infinite,glow 2.6s ease-out infinite}') + '.i{grid-row:span 2;width:44px;height:44px;border-radius:14px;background:#EAF6E2;display:grid;place-items:center;font-size:22px}' +
       '.t{font-weight:600;font-size:15px;line-height:1.25;padding-right:18px}.t b{color:#5DB033;font-weight:700;font-size:18px}' +
       '.s{font-size:12.5px;color:#8a4b00;font-weight:600}.a{grid-column:1/-1;margin-top:8px;display:block;text-align:center;background:#5DB033;color:#fff;text-decoration:none;font-weight:600;font-size:14px;border-radius:999px;padding:10px 14px;cursor:pointer;border:0;font-family:inherit}' +
       '.a:hover{filter:brightness(1.06)}.x{position:absolute;top:6px;right:8px;border:0;background:none;font-size:18px;line-height:1;color:#6b7f96;cursor:pointer;padding:4px}' +
@@ -77,7 +82,7 @@
     sh.querySelector('.s').textContent = '\u26a0\ufe0f ' + L.s(data.aujourdhui || 0);
     sh.querySelector('.a').textContent = L.b;
     document.body.appendChild(host);
-    requestAnimationFrame(function () { requestAnimationFrame(function () { c.classList.add('on'); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { c.classList.add('on'); setTimeout(function () { c.classList.add('bob'); }, 650); }); });
     var close = function () { c.classList.remove('on'); setTimeout(function () { host.remove(); }, 600); };
     var auto = setTimeout(close, 12000);
     c.addEventListener('mouseenter', function () { clearTimeout(auto); });

@@ -98,7 +98,7 @@
   .pack { background: #fff; border: 2px solid var(--line); border-radius: 22px; padding: 20px; position: relative; }
   .pack.star { border-color: var(--green); box-shadow: 0 12px 40px rgba(122,193,66,.25); }
   .pack .tag { position: absolute; top: -12px; right: 16px; background: var(--green); color: var(--navy3); font: 800 12px "DM Sans", sans-serif; border-radius: 999px; padding: 4px 10px; }
-  .pack h3 { font: 800 20px "Bricolage Grotesque", sans-serif; margin: 0; } .pack .pr { font: 800 34px "Bricolage Grotesque", sans-serif; margin: 4px 0 8px; }
+  .pack h3 { font: 800 20px "Bricolage Grotesque", sans-serif; margin: 0; } .pack .pr { font: 800 34px "Bricolage Grotesque", sans-serif; margin: 4px 0 8px; } .pack .pr small { display: block; font: 500 14px "DM Sans", sans-serif; color: var(--muted); margin-top: 2px; }
   .pack ul { margin: 0; padding-left: 18px; } .pack li { margin: 4px 0; }
   .pay { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .pay h3 { font: 800 18px "Bricolage Grotesque", sans-serif; margin: 0 0 8px; } .pay p { margin: 6px 0; }
@@ -150,8 +150,8 @@
     </div>
   </div>
   <div class="packs">
-    <div class="pack"><h3 data-t="pkPro"></h3><div class="pr">1 000 G</div><ul data-th="p1L"></ul></div>
-    <div class="pack star"><span class="tag" data-t="p2Tag"></span><h3 data-t="pkPost"></h3><div class="pr">2 500 G</div><ul data-th="p2L"></ul></div>
+    <div class="pack"><h3 data-t="pkPro"></h3><div class="pr" data-usd="7.5" data-htg="1 000"></div><ul data-th="p1L"></ul></div>
+    <div class="pack star"><span class="tag" data-t="p2Tag"></span><h3 data-t="pkPost"></h3><div class="pr" data-usd="18.5" data-htg="2 500"></div><ul data-th="p2L"></ul></div>
   </div>
   <div class="pay" id="payBox">
     <div><h3 data-t="payT"></h3><p data-th="pay1"></p><p data-t="pay2"></p><p data-th="pay3"></p>
@@ -345,6 +345,7 @@ function setLang(l) {
   $('anons').placeholder = t().anonsPh; $('pv').placeholder = t().pvPh;
   const ev = $('enst').value; $('enst').innerHTML = t().enst.map((x, i) => `<option value="${i ? i : ''}">${esc(x)}</option>`).join(''); $('enst').value = ev;
   document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
+  document.querySelectorAll('.pr[data-usd]').forEach((el) => { const v = (+el.dataset.usd).toFixed(2); el.innerHTML = `${L === 'en' ? 'US$' + v : v.replace('.', ',') + ' $ US'}<small>${el.dataset.htg} gourdes</small>`; });
   $('exK').innerHTML = t().exK.map((x) => `<span>${esc(x)}</span>`).join('');
   $('waB').href = 'https://wa.me/50948722671?text=' + encodeURIComponent(t().waTxt);
   readForm(); renderLists(); renderModels(); render(); renderK(); renderVers(); renderAn();

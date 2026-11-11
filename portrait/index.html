@@ -79,7 +79,8 @@
   .pack { position: relative; border: 1.5px solid var(--line); background: #fff; border-radius: 18px; padding: 16px 8px 12px; text-align: center; cursor: pointer; font-family: "DM Sans", system-ui, sans-serif; color: var(--ink); }
   .pack b { display: block; font: 800 30px/1 "Bricolage Grotesque", system-ui, sans-serif; }
   .pack span { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .pack strong { display: block; font-size: 17px; margin-top: 8px; }
+  .pack strong { display: block; font-size: 17px; margin-top: 8px; white-space: nowrap; }
+  .pack small { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
   .pack em { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); white-space: nowrap; font: 700 11px "DM Sans", system-ui, sans-serif; font-style: normal; background: var(--green); color: #12300a; padding: 3px 8px; border-radius: 999px; }
   .pack[aria-pressed="true"] { border-color: var(--navy); background: #eef3fa; box-shadow: inset 0 0 0 1px var(--navy); }
   .howto { margin: 16px 0 12px; padding-left: 22px; font-size: 15px; }
@@ -208,7 +209,8 @@ function tesBar(extra) { const b = document.getElementById('tesBar'); b.classLis
 // Paiement manuel : MonCash + capture sur WhatsApp, puis code coupon (même numéro que sur le site).
 const MONCASH = { num: '+509 4872-2671', nom: 'Bwat Sekrèm Talks' };
 const WA_PAIEMENT = '50948722671';
-const PACKS = [{ n: 1, p: 100 }, { n: 3, p: 250, tag: 'save' }, { n: 5, p: 350, tag: 'best' }];
+const PACKS = [{ n: 1, p: 100, usd: 0.75 }, { n: 3, p: 250, usd: 1.85, tag: 'save' }, { n: 5, p: 350, usd: 2.6, tag: 'best' }];   // prix en gourdes (MonCash) ; affichage en dollars US au taux de 135 G
+const usd = (v) => S.lang === 'en' ? `US$${v.toFixed(2)}` : `${v.toFixed(2).replace('.', ',')} $ US`;
 const MAX_TRIES = 1;            // essais par numéro WhatsApp (contrôlé aussi côté serveur)
 const SITE = 'bwatsekremtalks.com/portrait';
 
@@ -264,7 +266,7 @@ function buildPrompt(prof, decor) {
 const T = {
   fr: {
     buyT: 'Envie d’autres portraits ? 📸', buyS: 'Essaie d’autres métiers ou décors. Paiement simple par MonCash.',
-    pk: (n) => `portrait${n > 1 ? 's' : ''}`, tagSave: 'Économise 50 G', tagBest: 'Meilleur prix',
+    pk: (n) => `portrait${n > 1 ? 's' : ''}`, tagSave: 'Économise 0,40 $', tagBest: 'Meilleur prix',
     steps: (p) => [`Envoie <b>${p} gourdes</b> par MonCash au <b>${MONCASH.num}</b> (${MONCASH.nom}).`, 'Envoie la capture d’écran du paiement sur WhatsApp avec le bouton ci-dessous.', 'Tu reçois un <b>code coupon</b> : entre-le ici pour débloquer tes portraits.'],
     waBtn: 'Envoyer ma capture sur WhatsApp', waMsg: (n, p, tel) => `Bonjour Bwat Sekrèm Talks 👋\nJ’ai payé ${p} G par MonCash pour ${n} portrait${n > 1 ? 's' : ''} IA.\nMon numéro d’inscription : ${tel || '…'}\nVoici ma capture d’écran :`,
     codeL: 'J’ai un code coupon', codeTelL: 'Numéro WhatsApp de ton inscription', redeem: 'Débloquer mes portraits',
@@ -295,7 +297,7 @@ const T = {
   },
   ht: {
     buyT: 'Ou vle plis pòtrè? 📸', buyS: 'Eseye lòt metye oswa lòt dekò. Peman fasil ak MonCash.',
-    pk: () => 'pòtrè', tagSave: 'Ekonomize 50 G', tagBest: 'Pi bon pri',
+    pk: () => 'pòtrè', tagSave: 'Ekonomize 0,40 $', tagBest: 'Pi bon pri',
     steps: (p) => [`Voye <b>${p} goud</b> sou MonCash nan <b>${MONCASH.num}</b> (${MONCASH.nom}).`, 'Voye screenshot peman an sou WhatsApp ak bouton ki anba a.', 'W ap resevwa yon <b>kòd koupon</b> : mete l la a pou debloke pòtrè w yo.'],
     waBtn: 'Voye screenshot mwen sou WhatsApp', waMsg: (n, p, tel) => `Bonjou Bwat Sekrèm Talks 👋\nMwen peye ${p} G sou MonCash pou ${n} pòtrè IA.\nNimewo enskripsyon mwen : ${tel || '…'}\nMen screenshot la :`,
     codeL: 'Mwen gen yon kòd koupon', codeTelL: 'Nimewo WhatsApp enskripsyon w', redeem: 'Debloke pòtrè m yo',
@@ -326,7 +328,7 @@ const T = {
   },
   en: {
     buyT: 'Want more portraits? 📸', buyS: 'Try other careers or settings. Easy payment with MonCash.',
-    pk: (n) => `portrait${n > 1 ? 's' : ''}`, tagSave: 'Save 50 G', tagBest: 'Best price',
+    pk: (n) => `portrait${n > 1 ? 's' : ''}`, tagSave: 'Save US$0.40', tagBest: 'Best price',
     steps: (p) => [`Send <b>${p} gourdes</b> via MonCash to <b>${MONCASH.num}</b> (${MONCASH.nom}).`, 'Send the payment screenshot on WhatsApp with the button below.', 'You’ll receive a <b>coupon code</b>: enter it here to unlock your portraits.'],
     waBtn: 'Send my screenshot on WhatsApp', waMsg: (n, p, tel) => `Hello Bwat Sekrèm Talks 👋\nI paid ${p} G via MonCash for ${n} AI portrait${n > 1 ? 's' : ''}.\nMy registration number: ${tel || '…'}\nHere is my screenshot:`,
     codeL: 'I have a coupon code', codeTelL: 'WhatsApp number you registered with', redeem: 'Unlock my portraits',
@@ -583,7 +585,7 @@ var PACK = null, QUOTA_ERR = false, CODE_LINK = false;
 function renderBuy() {
   const show3 = !$('s3').classList.contains('hidden');
   $('buy').classList.toggle('hidden', !((S.left <= 0 && (show3 || QUOTA_ERR)) || CODE_LINK));
-  $('packs').innerHTML = PACKS.map((k) => `<button type="button" class="pack" data-pack="${k.n}" aria-pressed="${PACK === k.n}">${k.tag ? `<em>${k.tag === 'save' ? t().tagSave : t().tagBest}</em>` : ''}<b>${k.n}</b><span>${t().pk(k.n)}</span><strong>${k.p} G</strong></button>`).join('');
+  $('packs').innerHTML = PACKS.map((k) => `<button type="button" class="pack" data-pack="${k.n}" aria-pressed="${PACK === k.n}">${k.tag ? `<em>${k.tag === 'save' ? t().tagSave : t().tagBest}</em>` : ''}<b>${k.n}</b><span>${t().pk(k.n)}</span><strong>${usd(k.usd)}</strong><small>${k.p} gourdes</small></button>`).join('');
   const k = PACKS.find((x) => x.n === PACK);
   $('howto').classList.toggle('hidden', !k);
   if (k) {

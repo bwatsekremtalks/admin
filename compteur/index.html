@@ -34,7 +34,7 @@
   .bar i::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); transform: translateX(-100%); animation: shine 2.4s ease-in-out infinite; }
   @keyframes shine { 60%, 100% { transform: translateX(100%); } }
   .row { display: flex; gap: 8px 14px; align-items: center; justify-content: center; flex-wrap: wrap; }
-  .lim { display: inline-flex; align-items: center; gap: 8px; background: #fff4e0; color: #8a4b00; border: 1px solid #f5d9a8; border-radius: 999px; padding: 6px 14px; font-size: 14.5px; font-weight: 600; }
+  .lim { display: inline-block; white-space: nowrap; max-width: 100%; background: #fff4e0; color: #8a4b00; border: 1px solid #f5d9a8; border-radius: 999px; padding: 6px clamp(10px, 3vw, 14px); font-size: clamp(12px, 4.1vw, 14.5px); font-weight: 600; line-height: 1.35; }
   .lim b { font-weight: 700; color: #c2410c; }
   .sombre .lim { background: rgba(245,166,35,.16); color: #ffd28a; border-color: rgba(245,166,35,.4); } .sombre .lim b { color: #ffb36b; }
   .today { font-size: 13.5px; color: var(--mute); }

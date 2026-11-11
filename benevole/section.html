@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Devenir bénévole — section</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+<!--
+  Section « Devenir bénévole » à intégrer sur la page d'accueil de bwatsekremtalks.com (iframe).
+  Paramètres : ?lang=fr|ht|en  &lien=URL (page bénévole, par défaut https://bwatsekremtalks.com/benevole)
+-->
+<style>
+  :root { --navy: #0D2D4A; --green: #5DB033; --green2: #7AC142; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; font-family: "DM Sans", system-ui, sans-serif; }
+  .s { position: relative; overflow: hidden; border-radius: 28px; color: #fff; padding: 34px 32px; display: grid; grid-template-columns: 1.05fr 1fr; gap: 28px; align-items: center;
+       background: radial-gradient(circle at 92% 8%, rgba(122,193,66,.32), transparent 42%), radial-gradient(circle at 0% 100%, rgba(30,140,240,.22), transparent 45%), linear-gradient(135deg, #0a1f38, #123d66); }
+  .k { display: inline-flex; align-items: center; gap: 8px; font: 700 12px "DM Sans", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--green2); }
+  .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--green2); box-shadow: 0 0 0 0 rgba(122,193,66,.6); animation: p 1.8s infinite; }
+  @keyframes p { 70% { box-shadow: 0 0 0 9px rgba(122,193,66,0); } 100% { box-shadow: 0 0 0 0 rgba(122,193,66,0); } }
+  h2 { font: 800 clamp(28px, 4.2vw, 42px)/1.05 "Bricolage Grotesque", sans-serif; margin: 12px 0 12px; }
+  h2 em { font-style: normal; color: var(--green2); }
+  p.l { margin: 0 0 18px; color: rgba(255,255,255,.85); font-size: 16px; line-height: 1.55; max-width: 520px; }
+  .g { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 22px; padding: 0; list-style: none; }
+  .g li { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); border-radius: 999px; padding: 7px 13px; font-size: 14px; font-weight: 500; }
+  .cta { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: #fff; text-decoration: none; font: 700 17px "DM Sans", sans-serif; border-radius: 999px; padding: 15px 26px; box-shadow: 0 12px 30px rgba(93,176,51,.35); transition: transform .15s, filter .15s; }
+  .cta:hover { transform: translateY(-2px); filter: brightness(1.06); }
+  .cta span { transition: transform .2s; } .cta:hover span { transform: translateX(4px); }
+  .lim { display: block; margin-top: 12px; font-size: 13.5px; color: #ffd28a; font-weight: 600; }
+  .box { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 20px; }
+  .box h3 { margin: 0 0 12px; font: 700 12px "DM Sans", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+  .koms { display: grid; gap: 9px; }
+  .kom { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(122,193,66,.45); border-radius: 16px; padding: 11px 14px; }
+  .kom b { font-size: 22px; width: 30px; text-align: center; flex: none; } .kom div { font-weight: 700; font-size: 15.5px; } .kom small { display: block; font-weight: 400; font-size: 13px; color: rgba(255,255,255,.72); margin-top: 1px; }
+  @media (max-width: 760px) { .s { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; border-radius: 24px; } .cta { width: 100%; justify-content: center; } .lim { text-align: center; } p.l { font-size: 15.5px; } }
+  @media (max-width: 560px) { .g { gap: 6px; } .g li { font-size: 13px; padding: 6px 10px; } .box { padding: 14px; border-radius: 18px; }
+    .koms { grid-template-columns: 1fr 1fr; gap: 7px; } .kom { padding: 9px 10px; gap: 8px; border-radius: 14px; } .kom:last-child { grid-column: 1 / -1; justify-content: center; }
+    .kom b { font-size: 18px; width: 22px; } .kom div { font-size: 13.5px; line-height: 1.25; } .kom small { display: none; } h2 { margin: 10px 0 10px; } p.l { margin-bottom: 14px; } }
+  @media (prefers-reduced-motion: reduce) { .k i { animation: none; } .cta, .cta span { transition: none; } }
+</style>
+</head>
+<body>
+<section class="s" id="s">
+  <div>
+    <span class="k"><i></i><span id="kick"></span></span>
+    <h2 id="title"></h2>
+    <p class="l" id="lead"></p>
+    <ul class="g" id="gains"></ul>
+    <a class="cta" id="cta" target="_top"><b id="ctaT"></b><span>→</span></a>
+    <span class="lim" id="lim"></span>
+  </div>
+  <div class="box"><h3 id="komT"></h3><div class="koms" id="koms"></div></div>
+</section>
+<script>
+const T = {
+  fr: { kick: 'On recrute', title: 'Deviens <em>bénévole</em> le 22 novembre', lead: 'Bwat Sekrèm Talks, c’est aussi une équipe. Accueille les participants, capture les moments forts, fais vivre l’événement en coulisses… et vis l’expérience de l’intérieur.',
+    gains: ['🎓 Certificat de bénévolat', '💼 Expérience pour ton CV', '🪪 Badge « Équipe BST »', '⭐ Accès premium aux événements'], cta: 'Je deviens bénévole', lim: '⚠️ Places limitées dans l’équipe', komT: '5 commissions',
+    koms: [['🙋', 'Accueil', 'Recevoir et orienter les participants'], ['📸', 'Médias', 'Photos, vidéos et témoignages'], ['📦', 'Logistique', 'Matériel, installation, rangement'], ['🎤', 'Programme & intervenants', 'Temps de parole, micro, intervenants'], ['📣', 'Communication', 'Publications en direct sur les réseaux']] },
+  ht: { kick: 'Nou bezwen w', title: 'Vin <em>volontè</em> 22 novanm nan', lead: 'Bwat Sekrèm Talks, se yon ekip tou. Akeyi patisipan yo, kaptire bèl moman yo, fè evènman an mache dèyè sèn nan… epi viv eksperyans lan anndan l.',
+    gains: ['🎓 Sètifika volontè', '💼 Eksperyans pou CV w', '🪪 Badj « Ekip BST »', '⭐ Aksè premium nan evènman yo'], cta: 'Mwen vle vin volontè', lim: '⚠️ Plas nan ekip la limite', komT: '5 komisyon',
+    koms: [['🙋', 'Akèy', 'Resevwa ak oryante patisipan yo'], ['📸', 'Medya', 'Foto, videyo ak temwayaj'], ['📦', 'Lojistik', 'Materyèl, enstalasyon, ranje'], ['🎤', 'Pwogram ak entèvenan', 'Tan pou pale, mikwo, entèvenan'], ['📣', 'Kominikasyon', 'Piblikasyon an dirèk sou rezo yo']] },
+  en: { kick: 'We’re recruiting', title: 'Become a <em>volunteer</em> on November 22', lead: 'Bwat Sekrèm Talks is also a team. Welcome participants, capture the best moments, run the event behind the scenes… and live the experience from the inside.',
+    gains: ['🎓 Volunteer certificate', '💼 Experience for your CV', '🪪 “BST Team” badge', '⭐ Premium access to events'], cta: 'I want to volunteer', lim: '⚠️ Team spots are limited', komT: '5 committees',
+    koms: [['🙋', 'Welcome', 'Greet and guide participants'], ['📸', 'Media', 'Photos, videos and testimonials'], ['📦', 'Logistics', 'Equipment, setup, teardown'], ['🎤', 'Program & speakers', 'Timekeeping, mic, speakers'], ['📣', 'Communication', 'Live posts on social media']] },
+};
+const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L];
+document.documentElement.lang = L;
+const $ = (id) => document.getElementById(id), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead; $('ctaT').textContent = t.cta; $('lim').textContent = t.lim; $('komT').textContent = t.komT;
+$('gains').innerHTML = t.gains.map((g) => `<li>${esc(g)}</li>`).join('');
+$('koms').innerHTML = t.koms.map(([e, n, d]) => `<div class="kom"><b>${e}</b><div>${esc(n)}<small>${esc(d)}</small></div></div>`).join('');
+const lien = q.get('lien'); $('cta').href = lien && /^https?:\/\//i.test(lien) ? lien : 'https://bwatsekremtalks.com/benevole';
+$('cta').addEventListener('click', () => { try { window.top.gtag && window.top.gtag('event', 'section_benevole_clic'); } catch {} });
+</script>
+</body>
+</html>

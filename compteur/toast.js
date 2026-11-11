@@ -27,9 +27,9 @@
   if (ls.get(DONE)) return;
 
   var T = {
-    fr: { t: function (n) { return n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d) { return (d > 0 ? 'dont ' + d + ' aujourd\u2019hui \u00b7 ' : '') + 'Places limit\u00e9es'; }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', m: function (n) { return n + ' inscrits \u00b7 R\u00e9server'; } },
-    ht: { t: function (n) { return n + ' moun deja rez\u00e8ve plas yo'; }, s: function (d) { return (d > 0 ? d + ' jodi a \u00b7 ' : '') + 'Plas yo limite'; }, b: 'Rez\u00e8ve plas mwen', x: 'F\u00e8 l piti', m: function (n) { return n + ' enskri \u00b7 Rez\u00e8ve'; } },
-    en: { t: function (n) { return n + ' people have already booked their seat'; }, s: function (d) { return (d > 0 ? d + ' today \u00b7 ' : '') + 'Limited seats'; }, b: 'Book my seat', x: 'Minimize', m: function (n) { return n + ' booked \u00b7 Book now'; } },
+    fr: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> places r\u00e9serv\u00e9es' : n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d, r) { return (r != null ? (r > 0 ? 'Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' disponible' + (r > 1 ? 's' : '') : '\u26d4 Complet') : '\u26a0\ufe0f Places limit\u00e9es') + (d > 0 ? ' \u00b7 dont ' + d + ' aujourd\u2019hui' : ''); }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', m: function (n, r) { return r != null ? 'Plus que ' + r + ' places \u00b7 R\u00e9server' : n + ' inscrits \u00b7 R\u00e9server'; } },
+    ht: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> plas rez\u00e8ve' : n + ' moun deja rez\u00e8ve plas yo'; }, s: function (d, r) { return (r != null ? (r > 0 ? 'Rete <b>' + r + '</b> plas s\u00e8lman' : '\u26d4 Plen') : '\u26a0\ufe0f Plas yo limite') + (d > 0 ? ' \u00b7 ' + d + ' jodi a' : ''); }, b: 'Rez\u00e8ve plas mwen', x: 'F\u00e8 l piti', m: function (n, r) { return r != null ? 'Rete ' + r + ' plas \u00b7 Rez\u00e8ve' : n + ' enskri \u00b7 Rez\u00e8ve'; } },
+    en: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> seats booked' : n + ' people have already booked their seat'; }, s: function (d, r) { return (r != null ? (r > 0 ? 'Only <b>' + r + '</b> seat' + (r > 1 ? 's' : '') + ' left' : '\u26d4 Full') : '\u26a0\ufe0f Limited seats') + (d > 0 ? ' \u00b7 ' + d + ' today' : ''); }, b: 'Book my seat', x: 'Minimize', m: function (n, r) { return r != null ? 'Only ' + r + ' seats left \u00b7 Book' : n + ' booked \u00b7 Book now'; } },
   };
   function lang() { var l = (opt('lang') || document.documentElement.lang || 'fr').slice(0, 2).toLowerCase(); if (l === 'kr') l = 'ht'; return T[l] ? l : 'fr'; }
 
@@ -74,9 +74,12 @@
 
   function paint() {
     if (!sh || !data) return; var L = T[lang()];
-    sh.querySelector('.t').innerHTML = L.t('<b>' + (+data.personnes || 0) + '</b>');
-    sh.querySelector('.s').textContent = '\u26a0\ufe0f ' + L.s(data.aujourdhui || 0);
-    sh.querySelector('.p span').textContent = L.m(+data.personnes || 0);
+    var n = +data.personnes || 0, c = +data.capacite || 0, r = c ? Math.max(0, c - n) : null;
+    sh.querySelector('.t').innerHTML = L.t('<b>' + n + '</b>', c || 0);
+    sh.querySelector('.s').innerHTML = L.s(+data.aujourdhui || 0, r);
+    sh.querySelector('.p span').textContent = L.m(n, r);
+    var bar = sh.querySelector('.g'), f = sh.querySelector('.g i');
+    if (c) { var pct = Math.min(100, n / c * 100); bar.style.display = ''; setTimeout(function () { f.style.width = Math.max(4, pct) + '%'; }, 400); f.className = pct >= 90 ? 'tres' : pct >= 70 ? 'chaud' : ''; } else bar.style.display = 'none';
   }
   function bye() { clearInterval(timer); if (host) { var h = host; host = null; h.style.opacity = '0'; setTimeout(function () { h.remove(); }, 450); } }
   function go() {
@@ -103,14 +106,15 @@
       '@keyframes shine{0%{left:-60%}55%,100%{left:130%}}.a:after,.p:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 2.2s ease-in-out infinite}') +
       '.i{grid-row:span 2;width:44px;height:44px;border-radius:14px;background:#EAF6E2;display:grid;place-items:center;font-size:22px}' +
       '.t{font-weight:600;font-size:15px;line-height:1.25;padding-right:18px}.t b{color:#5DB033;font-weight:700;font-size:18px}' +
-      '.s{font-size:12.5px;color:#8a4b00;font-weight:600}' +
+      '.s{font-size:12.5px;color:#8a4b00;font-weight:600}.s b{color:#c2410c;font-size:14px}.t em{font-style:normal;color:#6b7f96;font-weight:600;font-size:15px;margin-right:4px}' +
+      '.g{grid-column:1/-1;height:10px;border-radius:999px;background:rgba(13,45,74,.08);overflow:hidden;position:relative;margin-top:6px}.g i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:linear-gradient(90deg,#5DB033,#8fd14f);transition:width 1.3s cubic-bezier(.2,.8,.2,1)}.g i.chaud{background:linear-gradient(90deg,#5DB033,#F5A623)}.g i.tres{background:linear-gradient(90deg,#F5A623,#e8505b)}' +
       '.a{position:relative;overflow:hidden;grid-column:1/-1;margin-top:8px;display:block;text-align:center;background:#5DB033;color:#fff;font-weight:600;font-size:14px;border-radius:999px;padding:10px 14px;cursor:pointer;border:0;font-family:inherit}' +
       '.a:hover,.p:hover{filter:brightness(1.06)}.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:24px;line-height:1;color:#6b7f96;cursor:pointer;padding:4px 6px}' +
       '.p{position:relative;overflow:hidden;box-sizing:border-box;font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;background:#5DB033;color:#fff;border:0;border-radius:999px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 12px 30px rgba(13,45,74,.25)}' +
       '.p i{font-style:normal;display:inline-block}' +
       '</style>' +
       '<div class="c" role="status" aria-live="polite"><button class="x" type="button" aria-label="' + L.x + '" title="' + L.x + '">\u2013</button>' +
-      '<div class="i">\ud83d\udd25</div><div class="t"></div><div class="s"></div><button class="a" type="button">' + L.b + '</button></div>' +
+      '<div class="i">\ud83d\udd25</div><div class="t"></div><div class="s"></div><div class="g"><i></i></div><button class="a" type="button">' + L.b + '</button></div>' +
       '<button class="p hide" type="button"><i>\ud83d\udd25</i><span></span></button>';
     var c = sh.querySelector('.c'), pill = sh.querySelector('.p');
     document.body.appendChild(host); paint();

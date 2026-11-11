@@ -1583,8 +1583,8 @@ function renderBenevoles() {
     <td>1. ${esc(bk(r.komisyon1))}${r.komisyon2 ? `<br><span class="sub">2. ${esc(bk(r.komisyon2))}</span>` : ''}</td>
     <td><select data-bst="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit">${opt(BST, r.statut)}</select></td>
     <td><select data-bkf="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit"><option value="">— ${esc(bk(r.komisyon1))} —</option>${opt(BKOM, r.komisyon_final)}</select></td>
-    <td><a class="btn" href="${bWa(r)}" target="_blank" rel="noopener" title="Message WhatsApp adapté au statut">💬</a>${r.eksperyans || r.motivasyon ? ` <button class="btn" type="button" data-bmore="${r.id}" title="Expérience et motivation">📝</button>` : ''}</td></tr>
-    <tr id="bMore${r.id}" class="hidden"><td></td><td colspan="7" class="sub">${r.eksperyans ? `<b>Expérience :</b> ${esc(r.eksperyans)}<br>` : ''}${r.motivasyon ? `<b>Motivation :</b> ${esc(r.motivasyon)}` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucune candidature pour le moment. Partage le lien de la page bénévole !</td></tr>';
+    <td><a class="btn" href="${bWa(r)}" target="_blank" rel="noopener" title="Message WhatsApp adapté au statut">💬</a>${r.eksperyans || r.motivasyon || (r.photos || []).length ? ` <button class="btn" type="button" data-bmore="${r.id}" title="Expérience, motivation et photos">${(r.photos || []).length ? `📷 ${r.photos.length}` : '📝'}</button>` : ''}</td></tr>
+    <tr id="bMore${r.id}" class="hidden"><td></td><td colspan="7" class="sub">${r.eksperyans ? `<b>Expérience :</b> ${esc(r.eksperyans)}<br>` : ''}${r.motivasyon ? `<b>Motivation :</b> ${esc(r.motivasyon)}` : ''}${(r.photos || []).length ? `<div class="bph" data-bph="${r.id}" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucune candidature pour le moment. Partage le lien de la page bénévole !</td></tr>';
 }
 async function bSave(id, patch) {
   const { error } = await sb.from('talks_benevoles').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
@@ -1595,7 +1595,16 @@ $('bRows').addEventListener('change', (e) => {
   const s = e.target.closest('[data-bst]'); if (s) return bSave(+s.dataset.bst, { statut: s.value });
   const k = e.target.closest('[data-bkf]'); if (k) return bSave(+k.dataset.bkf, { komisyon_final: k.value || null });
 });
-$('bRows').addEventListener('click', (e) => { const m = e.target.closest('[data-bmore]'); if (m) $('bMore' + m.dataset.bmore).classList.toggle('hidden'); });
+$('bRows').addEventListener('click', async (e) => {
+  const m = e.target.closest('[data-bmore]'); if (!m) return;
+  const tr = $('bMore' + m.dataset.bmore); tr.classList.toggle('hidden');
+  const box = tr.querySelector('[data-bph]'); if (!box || box.dataset.ok) return;
+  const r = BROWS.find((x) => x.id === +m.dataset.bmore);
+  const { data, error } = await sb.storage.from('benevoles').createSignedUrls(r.photos, 3600);
+  if (error) { box.textContent = 'Photos indisponibles. ' + friendly(error); return; }
+  box.dataset.ok = '1';
+  box.innerHTML = (data || []).filter((x) => x.signedUrl).map((x) => `<a href="${esc(x.signedUrl)}" target="_blank" rel="noopener"><img src="${esc(x.signedUrl)}" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:1px solid #dfe7f0" /></a>`).join('');
+});
 ['bQ', 'bKomF', 'bStF'].forEach((id) => $(id).addEventListener('input', renderBenevoles));
 $('bLink').addEventListener('click', () => { navigator.clipboard?.writeText(BURL); notify('Lien copié : ' + BURL); });
 /* ---------- Portraits IA : qui a fait son portrait, combien, quels métiers ---------- */

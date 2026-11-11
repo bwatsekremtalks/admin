@@ -25,12 +25,39 @@
   .langs { margin-left: auto; display: flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
   .langs button { border: 0; background: none; color: #fff; font: 700 13px "DM Sans", sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
   .langs button[aria-pressed="true"] { background: var(--green2); color: var(--navy2); }
-  .hero { background: radial-gradient(circle at 85% 0%, rgba(122,193,66,.3), transparent 45%), linear-gradient(135deg, var(--navy2), #1d4a7c); color: #fff; padding: 34px 16px 70px; text-align: center; }
-  .hero .k { font: 700 12px "DM Sans", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--green2); }
-  .hero h1 { font: 800 clamp(30px, 6.5vw, 50px)/1.05 "Bricolage Grotesque", sans-serif; margin: 10px auto 12px; max-width: 760px; }
-  .hero h1 em { font-style: normal; color: var(--green2); }
-  .hero p { margin: 0 auto; max-width: 640px; color: rgba(255,255,255,.85); font-size: 17px; }
-  .wrap { max-width: 860px; margin: -46px auto 40px; padding: 0 16px; display: grid; gap: 16px; }
+  .emb header.top { display: none; }
+  .hero { position: relative; overflow: hidden; color: #fff; padding: 40px 20px 92px;
+          background: radial-gradient(circle at 88% 10%, rgba(122,193,66,.35), transparent 40%), radial-gradient(circle at 0% 100%, rgba(30,140,240,.25), transparent 45%), linear-gradient(135deg, var(--navy2), #1d4a7c); }
+  .hero::before { content: ""; position: absolute; inset: 0; opacity: .06; background-image: radial-gradient(#fff 1.2px, transparent 1.3px); background-size: 22px 22px; pointer-events: none; }
+  .hin { position: relative; max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: 1.25fr .75fr; gap: 36px; align-items: center; }
+  .hero .langs { position: absolute; top: 14px; right: 16px; z-index: 2; }
+  .hero .k { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 7px 14px; font: 700 12.5px "DM Sans", sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #dff3d0; }
+  .hero .k .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green2); box-shadow: 0 0 0 0 rgba(122,193,66,.7); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 9px rgba(122,193,66,0); } 100% { box-shadow: 0 0 0 0 rgba(122,193,66,0); } }
+  .hero h1 { font: 800 clamp(34px, 5.4vw, 56px)/1.02 "Bricolage Grotesque", sans-serif; margin: 16px 0 14px; letter-spacing: -.01em; }
+  .hero h1 em { font-style: normal; color: var(--green2); display: inline-block; }
+  .hero p { margin: 0; max-width: 540px; color: rgba(255,255,255,.86); font-size: 17px; line-height: 1.55; }
+  .hc { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 22px; }
+  .hbtn { display: inline-flex; align-items: center; gap: 10px; background: var(--green); color: #fff; text-decoration: none; font: 700 16px "DM Sans", sans-serif; border-radius: 999px; padding: 13px 22px; box-shadow: 0 12px 30px rgba(93,176,51,.35); transition: transform .15s; }
+  .hbtn:hover { transform: translateY(-2px); }
+  .hs { display: flex; gap: 8px; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; }
+  .hs li { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.9); background: rgba(255,255,255,.08); border-radius: 999px; padding: 6px 12px; }
+  .hs li.w { color: #ffd28a; }
+  /* Badge « Équipe BST » */
+  .badge { justify-self: center; width: 230px; background: #fff; color: var(--navy); border-radius: 22px; box-shadow: 0 30px 60px rgba(0,0,0,.35); transform: rotate(4deg); animation: float 5s ease-in-out infinite; position: relative; overflow: hidden; }
+  @keyframes float { 50% { transform: rotate(2deg) translateY(-8px); } }
+  .badge::before { content: ""; position: absolute; top: 10px; left: 50%; width: 44px; height: 8px; margin-left: -22px; border-radius: 6px; background: #dfe7f0; }
+  .badge .bt { background: linear-gradient(120deg, var(--green), #8fd14f); padding: 30px 16px 46px; text-align: center; color: #fff; }
+  .badge .bt img { height: 34px; display: block; margin: 0 auto 6px; }
+  .badge .bt b { font: 800 13px "DM Sans", sans-serif; letter-spacing: .2em; }
+  .badge .bb { padding: 16px 16px 18px; text-align: center; }
+  .badge .av { width: 74px; height: 74px; border-radius: 50%; margin: -54px auto 8px; background: #EAF3FF; border: 4px solid #fff; display: grid; place-items: center; font-size: 36px; position: relative; }
+  .badge .role { font: 800 22px "Bricolage Grotesque", sans-serif; letter-spacing: .04em; }
+  .badge .nm { margin: 6px auto 10px; width: 80%; border-bottom: 2px dashed #c9d6e6; padding-bottom: 4px; color: #8aa0bb; font-size: 13px; font-style: italic; }
+  .badge .dt { font-size: 12px; font-weight: 700; color: #1E8CF0; letter-spacing: .06em; }
+  @media (max-width: 760px) { .hin { grid-template-columns: 1fr; gap: 26px; text-align: center; } .hero { padding: 54px 16px 86px; } .hero p { margin: 0 auto; } .hc, .hs { justify-content: center; } .hc { flex-direction: column; } .hbtn { width: 100%; justify-content: center; } .badge { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .badge, .hero .k .dot { animation: none; } }
+  .wrap { max-width: 860px; margin: -54px auto 40px; position: relative; padding: 0 16px; display: grid; gap: 16px; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; box-shadow: 0 10px 30px rgba(13,45,74,.06); }
   .card h2 { font: 800 21px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; }
   .sub { color: var(--muted); font-size: 14px; }
@@ -72,12 +99,22 @@
 <body>
 <header class="top">
   <a href="https://bwatsekremtalks.com/" target="_top"><img src="../portrait/logos/bst-blanc.png" alt="Bwat Sekrèm Talks" /></a>
-  <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
 </header>
 <section class="hero">
-  <div class="k" data-t="kick"></div>
-  <h1 data-th="title"></h1>
-  <p data-t="lead"></p>
+  <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
+  <div class="hin">
+    <div>
+      <div class="k"><span class="dot"></span><span data-t="kick"></span></div>
+      <h1 data-th="title"></h1>
+      <p data-t="lead"></p>
+      <div class="hc"><a class="hbtn" href="#komCard">✍️ <span data-t="go"></span></a>
+        <ul class="hs"><li data-t="sKom"></li><li data-t="sTime"></li><li class="w" data-t="sLim"></li></ul></div>
+    </div>
+    <div class="badge" aria-hidden="true">
+      <div class="bt"><img src="../portrait/logos/bst-blanc.png" alt="" /><b data-t="bTeam"></b></div>
+      <div class="bb"><div class="av">🙋</div><div class="role" data-t="bRole"></div><div class="nm" data-t="bName"></div><div class="dt" data-t="bDate"></div></div>
+    </div>
+  </div>
 </section>
 <main class="wrap">
   <div id="formView">
@@ -85,7 +122,7 @@
       <h2 data-t="gainsT"></h2>
       <div class="gains" id="gains"></div>
     </div>
-    <div class="card" style="margin-top:16px">
+    <div class="card" style="margin-top:16px;scroll-margin-top:16px" id="komCard">
       <h2 data-t="komT"></h2>
       <div class="sub" data-t="komS"></div>
       <div class="koms" id="koms"></div>
@@ -124,7 +161,7 @@ const $ = (id) => document.getElementById(id);
 const KOMS = ['akey', 'medya', 'lojistik', 'pwogram', 'kominikasyon'];
 const T = {
   fr: {
-    kick: '22 novembre 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat Sekrèm Talks</em>', lead: 'Accueil, médias, logistique, communication… Mets tes talents au service d’un événement qui fait grandir les professionnels de demain. Les places dans l’équipe sont limitées.',
+    kick: 'On recrute · 22 nov. 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat\u00a0Sekrèm\u00a0Talks</em>', lead: 'Accueil, médias, logistique, communication : mets tes talents au service d’un événement qui fait grandir les professionnels de demain.', go: 'Je postule', sKom: '5 commissions', sTime: '⏱ 2 minutes', sLim: '⚠️ Places limitées', bTeam: 'ÉQUIPE BST', bRole: 'BÉNÉVOLE', bName: 'Ton nom ici', bDate: '22.11.2026 · CAP-HAÏTIEN',
     gainsT: 'Ce que tu gagnes', gains: [['🎓', 'Un certificat de bénévolat Bwat Sekrèm Talks'], ['💼', 'Une vraie expérience à mettre sur ton CV'], ['🪪', 'Ton badge « Équipe BST »'], ['⭐', 'Un accès premium aux événements de Bwat Sekrèm Talks']],
     komT: 'Choisis ta commission', komS: 'Clique sur 1 ou 2 commissions, par ordre de préférence.',
     k: { akey: ['🙋 Accueil', 'Recevoir les participants, la liste de présence, orienter et accompagner les invités.'], medya: ['📸 Médias', 'Photos, vidéos et témoignages pendant l’événement (avec ton propre appareil si possible).'], lojistik: ['📦 Logistique', 'Transport du matériel, eau, installation et rangement.'], dekorasyon: ['🎨 Décoration', 'Préparer la scène et la salle aux couleurs de BST.'], pwogram: ['🎤 Programme & intervenants', 'Gérer le temps, passer le micro au public, accompagner les intervenants.'], kominikasyon: ['📣 Communication', 'Publier en direct sur les réseaux sociaux avec l’équipe BST.'], live: ['🎥 Live', 'Assister le technicien de la retransmission en direct.'], sekirite: ['🛡️ Circulation & sécurité', 'Gérer les entrées et la circulation, en appui aux agents de sécurité.'] },
@@ -136,7 +173,7 @@ const T = {
     eKom: 'Choisis au moins une commission.', eNom: 'Écris ton nom complet.', eTel: 'Écris un numéro WhatsApp valide.', eDispo: 'Coche au moins une disponibilité.', eOk: 'Coche la case d’accord.', eApi: 'Envoi impossible. Vérifie ta connexion et réessaie.',
     okT: 'Merci, candidature reçue !', okP: (n) => `${n ? n + ', l' : 'L'}’équipe Bwat Sekrèm Talks te contactera très vite sur WhatsApp pour te confirmer ta commission et la réunion de préparation.`, okWa: 'Écrire à l’équipe sur WhatsApp', waTxt: 'Bonjour, je viens d’envoyer ma candidature de bénévole pour Bwat Sekrèm Talks.' },
   ht: {
-    kick: '22 novanm 2026 · Okap', title: 'Vin nan ekip <em>Bwat Sekrèm Talks</em> la', lead: 'Akèy, medya, lojistik, kominikasyon… Mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi. Plas nan ekip la limite.',
+    kick: 'Nou bezwen w · 22 nov. 2026 · Okap', title: 'Vin nan ekip <em>Bwat\u00a0Sekrèm\u00a0Talks</em> la', lead: 'Akèy, medya, lojistik, kominikasyon : mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi.', go: 'Mwen aplike', sKom: '5 komisyon', sTime: '⏱ 2 minit', sLim: '⚠️ Plas limite', bTeam: 'EKIP BST', bRole: 'VOLONTÈ', bName: 'Non w isit la', bDate: '22.11.2026 · OKAP',
     gainsT: 'Sa w ap jwenn', gains: [['🎓', 'Yon sètifika volontè Bwat Sekrèm Talks'], ['💼', 'Yon vrè eksperyans pou mete sou CV w'], ['🪪', 'Badj « Ekip BST » ou'], ['⭐', 'Aksè premium nan evènman Bwat Sekrèm Talks yo']],
     komT: 'Chwazi komisyon w', komS: 'Klike sou 1 oswa 2 komisyon, nan lòd ou prefere yo.',
     k: { akey: ['🙋 Akèy', 'Resevwa patisipan yo, lis prezans lan, oryante ak akonpaye envite yo.'], medya: ['📸 Medya', 'Foto, videyo ak temwayaj pandan evènman an (ak pwòp aparèy ou si posib).'], lojistik: ['📦 Lojistik', 'Transpò materyèl, dlo, enstalasyon ak ranje.'], dekorasyon: ['🎨 Dekorasyon', 'Prepare sèn nan ak sal la ak koulè BST yo.'], pwogram: ['🎤 Pwogram ak entèvenan', 'Jere tan an, pase mikwo bay piblik la, akonpaye entèvenan yo.'], kominikasyon: ['📣 Kominikasyon', 'Pibliye an dirèk sou rezo sosyal yo ak ekip BST a.'], live: ['🎥 Live', 'Ede teknisyen ki fè retransmisyon an dirèk la.'], sekirite: ['🛡️ Sikilasyon ak sekirite', 'Jere antre yo ak sikilasyon an, pou sipòte ajan sekirite yo.'] },
@@ -148,7 +185,7 @@ const T = {
     eKom: 'Chwazi omwen yon komisyon.', eNom: 'Ekri non konplè w.', eTel: 'Ekri yon nimewo WhatsApp ki bon.', eDispo: 'Koche omwen yon disponiblite.', eOk: 'Koche kaz dakò a.', eApi: 'Pa ka voye l. Verifye koneksyon w epi eseye ankò.',
     okT: 'Mèsi, nou resevwa kandidati w !', okP: (n) => `${n ? n + ', e' : 'E'}kip Bwat Sekrèm Talks la ap kontakte w byento sou WhatsApp pou konfime komisyon w ak reyinyon preparasyon an.`, okWa: 'Ekri ekip la sou WhatsApp', waTxt: 'Bonjou, mwen fèk voye kandidati volontè m pou Bwat Sekrèm Talks.' },
   en: {
-    kick: 'November 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat Sekrèm Talks</em> team', lead: 'Welcome, media, logistics, communication… Put your talents to work for an event that helps tomorrow’s professionals grow. Team spots are limited.',
+    kick: 'We’re recruiting · Nov 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat\u00a0Sekrèm\u00a0Talks</em> team', lead: 'Welcome, media, logistics, communication: put your talents to work for an event that helps tomorrow’s professionals grow.', go: 'Apply now', sKom: '5 committees', sTime: '⏱ 2 minutes', sLim: '⚠️ Limited spots', bTeam: 'BST TEAM', bRole: 'VOLUNTEER', bName: 'Your name here', bDate: '22.11.2026 · CAP-HAÏTIEN',
     gainsT: 'What you get', gains: [['🎓', 'A Bwat Sekrèm Talks volunteer certificate'], ['💼', 'Real experience for your CV'], ['🪪', 'Your “BST Team” badge'], ['⭐', 'Premium access to Bwat Sekrèm Talks events']],
     komT: 'Choose your committee', komS: 'Click 1 or 2 committees, in order of preference.',
     k: { akey: ['🙋 Welcome', 'Greet participants, check-in list, guide and accompany guests.'], medya: ['📸 Media', 'Photos, videos and testimonials during the event (with your own device if possible).'], lojistik: ['📦 Logistics', 'Equipment transport, water, setup and teardown.'], dekorasyon: ['🎨 Decoration', 'Prepare the stage and room in BST colors.'], pwogram: ['🎤 Program & speakers', 'Timekeeping, passing the mic to the audience, accompanying speakers.'], kominikasyon: ['📣 Communication', 'Post live on social media with the BST team.'], live: ['🎥 Live stream', 'Assist the live-stream technician.'], sekirite: ['🛡️ Flow & safety', 'Manage entrances and crowd flow, supporting security staff.'] },
@@ -160,6 +197,7 @@ const T = {
     eKom: 'Choose at least one committee.', eNom: 'Enter your full name.', eTel: 'Enter a valid WhatsApp number.', eDispo: 'Tick at least one availability.', eOk: 'Tick the consent box.', eApi: 'Could not send. Check your connection and try again.',
     okT: 'Thank you, application received!', okP: (n) => `${n ? n + ', t' : 'T'}he Bwat Sekrèm Talks team will contact you soon on WhatsApp to confirm your committee and the preparation meeting.`, okWa: 'Message the team on WhatsApp', waTxt: 'Hello, I just sent my volunteer application for Bwat Sekrèm Talks.' },
 };
+try { if (window.self !== window.top) document.documentElement.classList.add('emb'); } catch { document.documentElement.classList.add('emb'); }
 let L = 'fr', SEL = [], PH = [];   // PH : photos réduites (dataURL jpeg) avant envoi
 function renderPh() { $('phG').innerHTML = PH.map((p, i) => `<div><img src="${p}" alt="" /><button type="button" data-phx="${i}" aria-label="✖">×</button></div>`).join(''); $('phN').textContent = PH.length ? `${PH.length}/6` : ''; }
 function shrink(f) { return new Promise((ok) => { const img = new Image(); img.onload = () => { const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src); ok(c.toDataURL('image/jpeg', 0.82)); }; img.onerror = () => ok(null); img.src = URL.createObjectURL(f); }); }

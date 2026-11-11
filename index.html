@@ -309,6 +309,7 @@
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
+        <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
         <button class="tab" role="tab" id="tabM" aria-selected="false" type="button">💰 Rentabilité</button>
@@ -384,6 +385,22 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelB" class="hidden">
+        <div class="tiles" id="bTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>Commissions <span class="sub">· candidats (1er + 2e choix) et bénévoles acceptés</span></h2>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Commission</th><th>Besoin</th><th>1er choix</th><th>2e choix</th><th>Acceptés</th><th></th></tr></thead><tbody id="bKoms"></tbody></table></div></div>
+        <div class="card" style="margin-top:12px"><h2>🙋 Candidatures <span class="sub" id="bN"></span></h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 10px">
+            <input type="search" id="bQ" placeholder="Rechercher un nom, un numéro, une université…" style="flex:1;min-width:200px;max-width:340px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+            <select id="bKomF" style="padding:9px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit"></select>
+            <select id="bStF" style="padding:9px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit"><option value="">Tous les statuts</option><option value="nouveau">🆕 Nouveaux</option><option value="accepte">✅ Acceptés</option><option value="attente">⏳ Liste d’attente</option><option value="refuse">✖️ Non retenus</option></select>
+            <a class="btn" href="benevole/" target="_blank" rel="noopener">Ouvrir la page bénévole ↗</a>
+            <button class="btn" type="button" id="bLink">📋 Copier le lien</button>
+          </div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Reçue</th><th>Nom</th><th>Téléphone</th><th>Profil</th><th>Choix</th><th>Disponibilités</th><th>Statut</th><th>Commission finale</th><th></th></tr></thead><tbody id="bRows"></tbody></table></div>
+        </div>
+        <p class="note">Les candidatures arrivent depuis <a href="https://bwatsekremtalks.github.io/admin/benevole/" target="_blank" rel="noopener">la page « Devenir bénévole »</a>. Change le statut et la commission directement dans le tableau (enregistrement automatique). Le bouton WhatsApp prépare un message adapté au statut. « ✅ Inscrit » = la personne a aussi réservé sa place à l’événement.</p>
+      </div>
       <div id="panelI" class="hidden">
         <div class="tiles" id="iTiles"></div>
         <div class="grid2" style="margin-top:12px">
@@ -1515,15 +1532,71 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
 $('tabA').addEventListener('click', () => setTab('A'));
 $('tabM').addEventListener('click', () => setTab('M'));
 $('tabI').addEventListener('click', () => setTab('I'));
+$('tabB').addEventListener('click', () => setTab('B'));
+/* ---------- Bénévoles : candidatures, statut, commission finale ---------- */
+const BKOM = { akey: ['🙋 Accueil', 7], medya: ['📸 Médias', 3], lojistik: ['📦 Logistique', 4], dekorasyon: ['🎨 Décoration', 3], pwogram: ['🎤 Programme & intervenants', 3], kominikasyon: ['📣 Communication', 2], live: ['🎥 Live', 2], sekirite: ['🛡️ Circulation & sécurité', 2] };
+const BST = { nouveau: '🆕 Nouveau', accepte: '✅ Accepté', attente: '⏳ Liste d’attente', refuse: '✖️ Non retenu' };
+const BDISPO = { veille: 'Sam. 21 (installation)', matin: 'Dim. 22 matin', evenement: 'Pendant l’événement', apres: 'Rangement' };
+const BOCC = { etudiant: 'Étudiant(e)', employe: 'Employé(e)', entrepreneur: 'Entrepreneur(e)', sans_emploi: 'En recherche d’emploi', autre: 'Autre' };
+const BURL = 'https://bwatsekremtalks.github.io/admin/benevole/';
+let BROWS = [];
+$('bKomF').innerHTML = '<option value="">Toutes les commissions</option>' + Object.entries(BKOM).map(([k, [n]]) => `<option value="${k}">${n}</option>`).join('');
+async function loadBenevoles() {
+  const { data, error } = await sb.from('talks_benevoles').select('*').order('created_at', { ascending: false }).limit(2000);
+  if (error) { notify('Bénévoles : ' + friendly(error), 'warn'); return; }
+  BROWS = data || []; renderBenevoles();
+}
+function bWa(r) {
+  const p = (r.nom || '').split(' ')[0], k = BKOM[r.komisyon_final || r.komisyon1][0].replace(/^\S+\s/, '');
+  const m = r.statut === 'accepte' ? `Bonjour ${p} ! 🎉 Bonne nouvelle : tu fais partie de l’équipe de bénévoles de Bwat Sekrèm Talks, commission « ${k} ». Nous t’enverrons très vite la date de la réunion de préparation. Merci pour ton engagement ! 💚`
+    : r.statut === 'attente' ? `Bonjour ${p}, merci pour ta candidature de bénévole à Bwat Sekrèm Talks ! Pour l’instant tu es sur la liste d’attente pour la commission « ${k} » : nous te recontactons dès qu’une place se libère. 💚`
+    : r.statut === 'refuse' ? `Bonjour ${p}, merci beaucoup pour ta candidature de bénévole à Bwat Sekrèm Talks. L’équipe est complète pour cette édition, mais nous gardons ton contact pour les prochaines. On compte sur toi le 22 novembre ! 💚`
+    : `Bonjour ${p}, merci pour ta candidature de bénévole à Bwat Sekrèm Talks (commission « ${k} ») ! Nous l’étudions et revenons vers toi très vite. 💚`;
+  return `https://wa.me/509${String(r.telephone).slice(-8)}?text=${encodeURIComponent(m)}`;
+}
+function renderBenevoles() {
+  const acc = BROWS.filter((r) => r.statut === 'accepte'), news = BROWS.filter((r) => r.statut === 'nouveau');
+  const need = Object.values(BKOM).reduce((a, [, n]) => a + n, 0);
+  $('bTiles').innerHTML = [['Candidatures', BROWS.length, `${BROWS.filter((r) => localDay(r.created_at) === localDay(new Date())).length} aujourd’hui`], ['À traiter', news.length, 'nouvelles candidatures'], ['Acceptés', acc.length, `sur ${need} bénévoles prévus`], ['Déjà inscrits', BROWS.filter((r) => r.inscription_id).length, 'ont aussi réservé leur place']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  $('bKoms').innerHTML = Object.entries(BKOM).map(([k, [n, b]]) => { const a = acc.filter((r) => (r.komisyon_final || r.komisyon1) === k).length;
+    return `<tr><td><strong>${n}</strong></td><td>${b}</td><td>${BROWS.filter((r) => r.komisyon1 === k).length}</td><td class="sub">${BROWS.filter((r) => r.komisyon2 === k).length}</td><td><b style="color:${a >= b ? '#1a7a3c' : a ? '#b7791f' : '#b3261e'}">${a} / ${b}</b></td><td>${a >= b ? '✅ Complet' : `<span class="sub">manque ${b - a}</span>`}</td></tr>`; }).join('');
+  const q = ($('bQ').value || '').trim().toLowerCase(), kf = $('bKomF').value, sf = $('bStF').value;
+  const L = BROWS.filter((r) => (!kf || r.komisyon1 === kf || r.komisyon2 === kf || r.komisyon_final === kf) && (!sf || r.statut === sf) && (!q || [r.nom, r.telephone, r.organisation, r.email].some((x) => String(x || '').toLowerCase().includes(q))));
+  $('bN').textContent = `· ${L.length}`;
+  const opt = (o, v) => Object.entries(o).map(([k, n]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${esc(Array.isArray(n) ? n[0] : n)}</option>`).join('');
+  $('bRows').innerHTML = L.map((r) => `<tr><td class="sub">${esc(fmtDate(r.created_at))}</td>
+    <td><strong>${esc(r.nom)}</strong>${r.inscription_id ? '<br><span class="sub">✅ Inscrit</span>' : ''}${r.email ? `<br><a class="sub" href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}</td>
+    <td><a href="https://wa.me/509${esc(String(r.telephone).slice(-8))}" target="_blank" rel="noopener">${esc(r.telephone)}</a></td>
+    <td class="sub">${esc(BOCC[r.occupation] || r.occupation || '')}${r.organisation ? `<br>${esc(r.organisation)}` : ''}</td>
+    <td>1. ${esc(BKOM[r.komisyon1][0])}${r.komisyon2 ? `<br><span class="sub">2. ${esc(BKOM[r.komisyon2][0])}</span>` : ''}</td>
+    <td class="sub">${(r.disponib || []).map((d) => esc(BDISPO[d] || d)).join('<br>')}</td>
+    <td><select data-bst="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit">${opt(BST, r.statut)}</select></td>
+    <td><select data-bkf="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit"><option value="">— ${esc(BKOM[r.komisyon1][0])} —</option>${opt(BKOM, r.komisyon_final)}</select></td>
+    <td><a class="btn" href="${bWa(r)}" target="_blank" rel="noopener" title="Message WhatsApp adapté au statut">💬</a>${r.eksperyans || r.motivasyon ? ` <button class="btn" type="button" data-bmore="${r.id}" title="Expérience et motivation">📝</button>` : ''}</td></tr>
+    <tr id="bMore${r.id}" class="hidden"><td></td><td colspan="8" class="sub">${r.eksperyans ? `<b>Expérience :</b> ${esc(r.eksperyans)}<br>` : ''}${r.motivasyon ? `<b>Motivation :</b> ${esc(r.motivasyon)}` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucune candidature pour le moment. Partage le lien de la page bénévole !</td></tr>';
+}
+async function bSave(id, patch) {
+  const { error } = await sb.from('talks_benevoles').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { notify('Enregistrement impossible. ' + friendly(error), 'warn'); return loadBenevoles(); }
+  const r = BROWS.find((x) => x.id === id); Object.assign(r, patch); renderBenevoles(); notify('Enregistré ✓');
+}
+$('bRows').addEventListener('change', (e) => {
+  const s = e.target.closest('[data-bst]'); if (s) return bSave(+s.dataset.bst, { statut: s.value });
+  const k = e.target.closest('[data-bkf]'); if (k) return bSave(+k.dataset.bkf, { komisyon_final: k.value || null });
+});
+$('bRows').addEventListener('click', (e) => { const m = e.target.closest('[data-bmore]'); if (m) $('bMore' + m.dataset.bmore).classList.toggle('hidden'); });
+['bQ', 'bKomF', 'bStF'].forEach((id) => $(id).addEventListener('input', renderBenevoles));
+$('bLink').addEventListener('click', () => { navigator.clipboard?.writeText(BURL); notify('Lien copié : ' + BURL); });
 /* ---------- Portraits IA : qui a fait son portrait, combien, quels métiers ---------- */
 let IROWS = [], IJ = [];
 const IMETIER = { comptable: 'Comptable', gestionnaire: 'Gestionnaire', medecin: 'Médecin', infirmier: 'Infirmier(ère)', professeur: 'Professeur(e)', avocat: 'Avocat(e)', ingenieur: 'Ingénieur(e)', architecte: 'Architecte', developpeur: 'Développeur(se)', entrepreneur: 'Entrepreneur(e)', banquier: 'Banquier(ère)', pharmacien: 'Pharmacien(ne)', agronome: 'Agronome', journaliste: 'Journaliste', pilote: 'Pilote de ligne', diplomate: 'Diplomate', juge: 'Juge', notaire: 'Notaire', economiste: 'Économiste', psychologue: 'Psychologue', chef: 'Chef cuisinier', designer: 'Designer graphique', policier: 'Officier de police', militaire: 'Militaire', dentiste: 'Dentiste', veterinaire: 'Vétérinaire', musicien: 'Musicien(ne)', commercial: 'Commercial(e)', terrain: 'Opérateur / Agent terrain', data: 'Analyste données / IA' };

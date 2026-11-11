@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Devenir bénévole — Bwat Sekrèm Talks</title>
+<meta name="description" content="Rejoins l’équipe de bénévoles de Bwat Sekrèm Talks, le 22 novembre 2026 à Cap-Haïtien." />
+<meta property="og:title" content="Deviens bénévole · Bwat Sekrèm Talks" />
+<meta property="og:description" content="Accueil, médias, logistique, live… Rejoins l’équipe du 22 novembre 2026 à Cap-Haïtien." />
+<meta property="og:image" content="https://bwatsekremtalks.github.io/admin/profil/og.jpg" />
+<meta name="theme-color" content="#0E2A4A" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-EPBK3XEPPW"></script>
+<script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EPBK3XEPPW', { cookie_flags: 'SameSite=None;Secure' });</script>
+<style>
+  :root { --navy: #0D2D4A; --navy2: #0a1f38; --green: #5DB033; --green2: #7AC142; --muted: #5b6f8a; --line: #dfe7f0; --soft: #f3f7fb; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.5 "DM Sans", system-ui, sans-serif; color: var(--navy); background: #eef2f7; }
+  .hidden { display: none !important; }
+  header.top { background: linear-gradient(120deg, var(--navy2), #1d4a7c); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+  header.top img { height: 40px; }
+  .langs { margin-left: auto; display: flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
+  .langs button { border: 0; background: none; color: #fff; font: 700 13px "DM Sans", sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .langs button[aria-pressed="true"] { background: var(--green2); color: var(--navy2); }
+  .hero { background: radial-gradient(circle at 85% 0%, rgba(122,193,66,.3), transparent 45%), linear-gradient(135deg, var(--navy2), #1d4a7c); color: #fff; padding: 34px 16px 70px; text-align: center; }
+  .hero .k { font: 700 12px "DM Sans", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--green2); }
+  .hero h1 { font: 800 clamp(30px, 6.5vw, 50px)/1.05 "Bricolage Grotesque", sans-serif; margin: 10px auto 12px; max-width: 760px; }
+  .hero h1 em { font-style: normal; color: var(--green2); }
+  .hero p { margin: 0 auto; max-width: 640px; color: rgba(255,255,255,.85); font-size: 17px; }
+  .wrap { max-width: 860px; margin: -46px auto 40px; padding: 0 16px; display: grid; gap: 16px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; box-shadow: 0 10px 30px rgba(13,45,74,.06); }
+  .card h2 { font: 800 21px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 14px; }
+  .gains { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 12px; }
+  .gains div { background: var(--soft); border-radius: 14px; padding: 12px; font-weight: 500; font-size: 14.5px; }
+  .gains b { display: block; font-size: 22px; margin-bottom: 2px; }
+  @media (max-width: 560px) { .gains div { font-size: 13.5px; padding: 10px; } }
+  .koms { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-top: 12px; }
+  .kom { text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 16px; padding: 12px 14px; cursor: pointer; font: inherit; color: inherit; position: relative; }
+  .kom b { display: block; font-size: 16px; } .kom span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .kom[aria-pressed="true"] { border-color: var(--green); background: #f4fbef; box-shadow: 0 0 0 3px rgba(93,176,51,.18); }
+  .kom i { position: absolute; top: 10px; right: 12px; font-style: normal; font: 800 12px "DM Sans", sans-serif; background: var(--green); color: #fff; border-radius: 999px; padding: 2px 9px; }
+  label.f { display: block; font-weight: 700; font-size: 14px; margin: 14px 0 5px; }
+  label.f small { font-weight: 400; color: var(--muted); }
+  input.t, select.t, textarea.t { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; font: 16px "DM Sans", sans-serif; color: var(--navy); background: #fff; }
+  textarea.t { min-height: 84px; resize: vertical; }
+  input.t:focus, select.t:focus, textarea.t:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(93,176,51,.2); }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .checks { display: grid; gap: 8px; margin-top: 6px; }
+  .checks label { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; font-size: 15px; }
+  .checks input { width: 19px; height: 19px; accent-color: var(--green); flex: none; margin-top: 2px; }
+  .checks label:has(input:checked) { border-color: var(--green); background: #f4fbef; }
+  .btn { width: 100%; border: 0; background: var(--green); color: #fff; font: 700 17px "DM Sans", sans-serif; border-radius: 999px; padding: 15px 20px; cursor: pointer; margin-top: 18px; }
+  .btn:disabled { opacity: .6; cursor: wait; }
+  .err { color: #b3261e; font-weight: 600; font-size: 14px; min-height: 1.2em; margin: 8px 0 0; }
+  .ok { text-align: center; padding: 30px 20px; }
+  .ok .big { font-size: 54px; }
+  .ok h2 { font: 800 28px "Bricolage Grotesque", sans-serif; margin: 6px 0 8px; }
+  .wa { display: inline-flex; gap: 8px; align-items: center; background: #25D366; color: #fff; text-decoration: none; font-weight: 700; border-radius: 999px; padding: 12px 20px; margin-top: 14px; }
+  @media (max-width: 560px) { .g2 { grid-template-columns: 1fr; } .card { padding: 16px; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="https://bwatsekremtalks.com/" target="_top"><img src="../portrait/logos/bst-blanc.png" alt="Bwat Sekrèm Talks" /></a>
+  <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
+</header>
+<section class="hero">
+  <div class="k" data-t="kick"></div>
+  <h1 data-th="title"></h1>
+  <p data-t="lead"></p>
+</section>
+<main class="wrap">
+  <div id="formView">
+    <div class="card">
+      <h2 data-t="gainsT"></h2>
+      <div class="gains" id="gains"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2 data-t="komT"></h2>
+      <div class="sub" data-t="komS"></div>
+      <div class="koms" id="koms"></div>
+      <p class="err" id="eKom"></p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2 data-t="youT"></h2>
+      <div class="g2">
+        <div><label class="f" for="nom" data-t="nom"></label><input class="t" id="nom" maxlength="120" autocomplete="name" /></div>
+        <div><label class="f" for="tel" data-t="tel"></label><input class="t" id="tel" maxlength="25" inputmode="tel" autocomplete="tel" placeholder="ex. 3727 4672" /></div>
+        <div><label class="f" for="email"><span data-t="email"></span> <small data-t="opt"></small></label><input class="t" id="email" type="email" maxlength="120" autocomplete="email" /></div>
+        <div><label class="f" for="occ" data-t="occ"></label><select class="t" id="occ"></select></div>
+      </div>
+      <label class="f" for="org"><span data-t="org"></span> <small data-t="opt"></small></label><input class="t" id="org" maxlength="120" />
+      <label class="f" data-t="dispoT"></label>
+      <div class="checks" id="dispo"></div>
+      <label class="f" for="eks"><span data-t="eks"></span> <small data-t="opt"></small></label><textarea class="t" id="eks" maxlength="600"></textarea>
+      <label class="f" for="mot"><span data-t="mot"></span> <small data-t="opt"></small></label><textarea class="t" id="mot" maxlength="600"></textarea>
+      <div class="checks" style="margin-top:14px"><label><input type="checkbox" id="ok" /> <span data-t="consent"></span></label></div>
+      <button class="btn" type="button" id="send" data-t="send"></button>
+      <p class="err" id="err" role="alert"></p>
+    </div>
+  </div>
+  <div class="card ok hidden" id="okView">
+    <div class="big">🙌</div>
+    <h2 data-t="okT"></h2>
+    <p id="okP"></p>
+    <a class="wa" id="okWa" target="_blank" rel="noopener" data-t="okWa"></a>
+  </div>
+</main>
+<script>
+const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const WA = '50948722671';
+const $ = (id) => document.getElementById(id);
+const KOMS = ['akey', 'medya', 'lojistik', 'dekorasyon', 'pwogram', 'kominikasyon', 'live', 'sekirite'];
+const T = {
+  fr: {
+    kick: '22 novembre 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat Sekrèm Talks</em>', lead: 'Accueil, médias, logistique, live… Mets tes talents au service d’un événement qui fait grandir les professionnels de demain. Les places dans l’équipe sont limitées.',
+    gainsT: 'Ce que tu gagnes', gains: [['🎓', 'Un certificat de bénévolat Bwat Sekrèm Talks'], ['🤝', 'Rencontrer les intervenants et les partenaires'], ['💼', 'Une vraie expérience à mettre sur ton CV'], ['🪪', 'Ton badge « Équipe BST »'], ['📸', 'Ton portrait professionnel IA offert']],
+    komT: 'Choisis ta commission', komS: 'Clique sur 1 ou 2 commissions, par ordre de préférence.',
+    k: { akey: ['🙋 Accueil', 'Recevoir les participants, la liste de présence, orienter et accompagner les invités.'], medya: ['📸 Médias', 'Photos, vidéos et témoignages pendant l’événement (avec ton propre appareil si possible).'], lojistik: ['📦 Logistique', 'Transport du matériel, eau, installation et rangement.'], dekorasyon: ['🎨 Décoration', 'Préparer la scène et la salle aux couleurs de BST.'], pwogram: ['🎤 Programme & intervenants', 'Gérer le temps, passer le micro au public, accompagner les intervenants.'], kominikasyon: ['📣 Communication', 'Publier en direct sur les réseaux sociaux avec l’équipe BST.'], live: ['🎥 Live', 'Assister le technicien de la retransmission en direct.'], sekirite: ['🛡️ Circulation & sécurité', 'Gérer les entrées et la circulation, en appui aux agents de sécurité.'] },
+    choix: (n) => `Choix ${n}`, youT: 'Toi', nom: 'Nom complet', tel: 'Téléphone (WhatsApp)', email: 'E-mail', opt: '(facultatif)', occ: 'Tu es…',
+    occs: [['', '— Choisir —'], ['etudiant', 'Étudiant(e)'], ['employe', 'Employé(e)'], ['entrepreneur', 'Entrepreneur(e)'], ['sans_emploi', 'En recherche d’emploi'], ['autre', 'Autre']],
+    org: 'Université, école ou entreprise', dispoT: 'Tes disponibilités', dispo: [['veille', 'Samedi 21 novembre : installation de la salle'], ['matin', 'Dimanche 22 au matin : préparation (dès 10 h)'], ['evenement', 'Dimanche 22 pendant l’événement (14 h 30 – 17 h 30)'], ['apres', 'Après l’événement : rangement']],
+    eks: 'Une expérience utile ? (bénévolat, événements, photo…)', mot: 'Pourquoi veux-tu rejoindre l’équipe ?',
+    consent: 'J’accepte que Bwat Sekrèm Talks utilise ces informations pour organiser l’équipe de bénévoles et me contacter sur WhatsApp.', send: 'Envoyer ma candidature',
+    eKom: 'Choisis au moins une commission.', eNom: 'Écris ton nom complet.', eTel: 'Écris un numéro WhatsApp valide.', eDispo: 'Coche au moins une disponibilité.', eOk: 'Coche la case d’accord.', eApi: 'Envoi impossible. Vérifie ta connexion et réessaie.',
+    okT: 'Merci, candidature reçue !', okP: (n) => `${n ? n + ', l' : 'L'}’équipe Bwat Sekrèm Talks te contactera très vite sur WhatsApp pour te confirmer ta commission et la réunion de préparation.`, okWa: 'Écrire à l’équipe sur WhatsApp', waTxt: 'Bonjour, je viens d’envoyer ma candidature de bénévole pour Bwat Sekrèm Talks.' },
+  ht: {
+    kick: '22 novanm 2026 · Okap', title: 'Vin nan ekip <em>Bwat Sekrèm Talks</em> la', lead: 'Akèy, medya, lojistik, live… Mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi. Plas nan ekip la limite.',
+    gainsT: 'Sa w ap jwenn', gains: [['🎓', 'Yon sètifika volontè Bwat Sekrèm Talks'], ['🤝', 'Rankontre entèvenan yo ak patnè yo'], ['💼', 'Yon vrè eksperyans pou mete sou CV w'], ['🪪', 'Badj « Ekip BST » ou'], ['📸', 'Pòtrè pwofesyonèl IA ou gratis']],
+    komT: 'Chwazi komisyon w', komS: 'Klike sou 1 oswa 2 komisyon, nan lòd ou prefere yo.',
+    k: { akey: ['🙋 Akèy', 'Resevwa patisipan yo, lis prezans lan, oryante ak akonpaye envite yo.'], medya: ['📸 Medya', 'Foto, videyo ak temwayaj pandan evènman an (ak pwòp aparèy ou si posib).'], lojistik: ['📦 Lojistik', 'Transpò materyèl, dlo, enstalasyon ak ranje.'], dekorasyon: ['🎨 Dekorasyon', 'Prepare sèn nan ak sal la ak koulè BST yo.'], pwogram: ['🎤 Pwogram ak entèvenan', 'Jere tan an, pase mikwo bay piblik la, akonpaye entèvenan yo.'], kominikasyon: ['📣 Kominikasyon', 'Pibliye an dirèk sou rezo sosyal yo ak ekip BST a.'], live: ['🎥 Live', 'Ede teknisyen ki fè retransmisyon an dirèk la.'], sekirite: ['🛡️ Sikilasyon ak sekirite', 'Jere antre yo ak sikilasyon an, pou sipòte ajan sekirite yo.'] },
+    choix: (n) => `Chwa ${n}`, youT: 'Ou menm', nom: 'Non konplè', tel: 'Telefòn (WhatsApp)', email: 'Imèl', opt: '(pa obligatwa)', occ: 'Ou se…',
+    occs: [['', '— Chwazi —'], ['etudiant', 'Etidyan'], ['employe', 'Anplwaye'], ['entrepreneur', 'Antreprenè'], ['sans_emploi', 'Ap chèche travay'], ['autre', 'Lòt']],
+    org: 'Inivèsite, lekòl oswa antrepriz', dispoT: 'Disponiblite w', dispo: [['veille', 'Samdi 21 novanm : enstale sal la'], ['matin', 'Dimanch 22 nan maten : preparasyon (depi 10 è)'], ['evenement', 'Dimanch 22 pandan evènman an (2 è 30 – 5 è 30)'], ['apres', 'Apre evènman an : ranje']],
+    eks: 'Yon eksperyans ki ka itil ? (volontarya, evènman, foto…)', mot: 'Poukisa w vle vin nan ekip la ?',
+    consent: 'Mwen dakò pou Bwat Sekrèm Talks itilize enfòmasyon sa yo pou òganize ekip volontè a epi kontakte m sou WhatsApp.', send: 'Voye kandidati mwen',
+    eKom: 'Chwazi omwen yon komisyon.', eNom: 'Ekri non konplè w.', eTel: 'Ekri yon nimewo WhatsApp ki bon.', eDispo: 'Koche omwen yon disponiblite.', eOk: 'Koche kaz dakò a.', eApi: 'Pa ka voye l. Verifye koneksyon w epi eseye ankò.',
+    okT: 'Mèsi, nou resevwa kandidati w !', okP: (n) => `${n ? n + ', e' : 'E'}kip Bwat Sekrèm Talks la ap kontakte w byento sou WhatsApp pou konfime komisyon w ak reyinyon preparasyon an.`, okWa: 'Ekri ekip la sou WhatsApp', waTxt: 'Bonjou, mwen fèk voye kandidati volontè m pou Bwat Sekrèm Talks.' },
+  en: {
+    kick: 'November 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat Sekrèm Talks</em> team', lead: 'Welcome, media, logistics, live… Put your talents to work for an event that helps tomorrow’s professionals grow. Team spots are limited.',
+    gainsT: 'What you get', gains: [['🎓', 'A Bwat Sekrèm Talks volunteer certificate'], ['🤝', 'Meet the speakers and partners'], ['💼', 'Real experience for your CV'], ['🪪', 'Your “BST Team” badge'], ['📸', 'A free AI professional portrait']],
+    komT: 'Choose your committee', komS: 'Click 1 or 2 committees, in order of preference.',
+    k: { akey: ['🙋 Welcome', 'Greet participants, check-in list, guide and accompany guests.'], medya: ['📸 Media', 'Photos, videos and testimonials during the event (with your own device if possible).'], lojistik: ['📦 Logistics', 'Equipment transport, water, setup and teardown.'], dekorasyon: ['🎨 Decoration', 'Prepare the stage and room in BST colors.'], pwogram: ['🎤 Program & speakers', 'Timekeeping, passing the mic to the audience, accompanying speakers.'], kominikasyon: ['📣 Communication', 'Post live on social media with the BST team.'], live: ['🎥 Live stream', 'Assist the live-stream technician.'], sekirite: ['🛡️ Flow & safety', 'Manage entrances and crowd flow, supporting security staff.'] },
+    choix: (n) => `Choice ${n}`, youT: 'About you', nom: 'Full name', tel: 'Phone (WhatsApp)', email: 'Email', opt: '(optional)', occ: 'You are…',
+    occs: [['', '— Choose —'], ['etudiant', 'Student'], ['employe', 'Employee'], ['entrepreneur', 'Entrepreneur'], ['sans_emploi', 'Job seeker'], ['autre', 'Other']],
+    org: 'University, school or company', dispoT: 'Your availability', dispo: [['veille', 'Saturday Nov 21: room setup'], ['matin', 'Sunday Nov 22 morning: preparation (from 10 am)'], ['evenement', 'Sunday Nov 22 during the event (2:30 – 5:30 pm)'], ['apres', 'After the event: teardown']],
+    eks: 'Any useful experience? (volunteering, events, photo…)', mot: 'Why do you want to join the team?',
+    consent: 'I agree that Bwat Sekrèm Talks uses this information to organize the volunteer team and contact me on WhatsApp.', send: 'Send my application',
+    eKom: 'Choose at least one committee.', eNom: 'Enter your full name.', eTel: 'Enter a valid WhatsApp number.', eDispo: 'Tick at least one availability.', eOk: 'Tick the consent box.', eApi: 'Could not send. Check your connection and try again.',
+    okT: 'Thank you, application received!', okP: (n) => `${n ? n + ', t' : 'T'}he Bwat Sekrèm Talks team will contact you soon on WhatsApp to confirm your committee and the preparation meeting.`, okWa: 'Message the team on WhatsApp', waTxt: 'Hello, I just sent my volunteer application for Bwat Sekrèm Talks.' },
+};
+let L = 'fr', SEL = [];
+const t = () => T[L];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function renderKoms() { $('koms').innerHTML = KOMS.map((k) => { const i = SEL.indexOf(k), [n, d] = t().k[k]; return `<button type="button" class="kom" data-k="${k}" aria-pressed="${i >= 0}">${i >= 0 ? `<i>${t().choix(i + 1)}</i>` : ''}<b>${n}</b><span>${d}</span></button>`; }).join(''); }
+function setLang(l) {
+  L = T[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
+  document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
+  document.querySelectorAll('[data-t]').forEach((el) => { const v = t()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
+  document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
+  $('gains').innerHTML = t().gains.map(([e, s]) => `<div><b>${e}</b>${esc(s)}</div>`).join('');
+  const occ = $('occ').value; $('occ').innerHTML = t().occs.map(([v, n]) => `<option value="${v}">${esc(n)}</option>`).join(''); $('occ').value = occ;
+  const on = [...document.querySelectorAll('#dispo input:checked')].map((x) => x.value);
+  $('dispo').innerHTML = t().dispo.map(([v, n]) => `<label><input type="checkbox" value="${v}" ${on.includes(v) ? 'checked' : ''} /> <span>${esc(n)}</span></label>`).join('');
+  renderKoms();
+}
+document.addEventListener('click', (e) => {
+  const l = e.target.closest('[data-l]'); if (l) return setLang(l.dataset.l);
+  const k = e.target.closest('[data-k]'); if (k) { const i = SEL.indexOf(k.dataset.k); if (i >= 0) SEL.splice(i, 1); else { if (SEL.length >= 2) SEL.shift(); SEL.push(k.dataset.k); } $('eKom').textContent = ''; renderKoms(); }
+});
+$('send').addEventListener('click', async () => {
+  const err = (s, id = 'err') => { $(id).textContent = s; if (id === 'eKom') $('koms').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+  $('err').textContent = '';
+  const nom = $('nom').value.trim(), tel = $('tel').value.trim(), dispo = [...document.querySelectorAll('#dispo input:checked')].map((x) => x.value);
+  if (!SEL.length) return err(t().eKom, 'eKom');
+  if (nom.length < 2) return err(t().eNom);
+  if (tel.replace(/\D/g, '').length < 8) return err(t().eTel);
+  if (!dispo.length) return err(t().eDispo);
+  if (!$('ok').checked) return err(t().eOk);
+  $('send').disabled = true;
+  try {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/talks_benevole_kandida`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ p_nom: nom, p_telephone: tel, p_email: $('email').value.trim() || null, p_occupation: $('occ').value || null, p_organisation: $('org').value.trim() || null,
+        p_komisyon1: SEL[0], p_komisyon2: SEL[1] || null, p_disponib: dispo, p_eksperyans: $('eks').value.trim() || null, p_motivasyon: $('mot').value.trim() || null, p_lang: L }) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || !j.ok) throw new Error(j.error || 'api');
+    $('formView').classList.add('hidden'); $('okView').classList.remove('hidden');
+    $('okP').textContent = t().okP(nom.split(' ')[0]);
+    $('okWa').href = `https://wa.me/${WA}?text=${encodeURIComponent(t().waTxt)}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try { gtag('event', 'benevole_kandida', { komisyon: SEL[0] }); } catch {}
+  } catch (e) { err(e.message === 'tel' ? t().eTel : e.message === 'nom' ? t().eNom : t().eApi); }
+  $('send').disabled = false;
+});
+const q = new URLSearchParams(location.search);
+let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
+setLang(l0 || 'fr');
+if (q.get('tel')) $('tel').value = q.get('tel').slice(0, 25);
+if (q.get('nom')) $('nom').value = q.get('nom').slice(0, 120);
+</script>
+</body>
+</html>

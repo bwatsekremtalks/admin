@@ -397,7 +397,7 @@
             <a class="btn" href="benevole/" target="_blank" rel="noopener">Ouvrir la page bénévole ↗</a>
             <button class="btn" type="button" id="bLink">📋 Copier le lien</button>
           </div>
-          <div class="table-wrap" style="border:0"><table><thead><tr><th>Reçue</th><th>Nom</th><th>Téléphone</th><th>Profil</th><th>Choix</th><th>Disponibilités</th><th>Statut</th><th>Commission finale</th><th></th></tr></thead><tbody id="bRows"></tbody></table></div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Reçue</th><th>Nom</th><th>Téléphone</th><th>Profil</th><th>Choix</th><th>Statut</th><th>Commission finale</th><th></th></tr></thead><tbody id="bRows"></tbody></table></div>
         </div>
         <p class="note">Les candidatures arrivent depuis <a href="https://bwatsekremtalks.github.io/admin/benevole/" target="_blank" rel="noopener">la page « Devenir bénévole »</a>. Change le statut et la commission directement dans le tableau (enregistrement automatique). Le bouton WhatsApp prépare un message adapté au statut. « ✅ Inscrit » = la personne a aussi réservé sa place à l’événement.</p>
       </div>
@@ -1543,7 +1543,9 @@ $('tabM').addEventListener('click', () => setTab('M'));
 $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
 /* ---------- Bénévoles : candidatures, statut, commission finale ---------- */
-const BKOM = { akey: ['🙋 Accueil', 7], medya: ['📸 Médias', 3], lojistik: ['📦 Logistique', 4], dekorasyon: ['🎨 Décoration', 3], pwogram: ['🎤 Programme & intervenants', 3], kominikasyon: ['📣 Communication', 2], live: ['🎥 Live', 2], sekirite: ['🛡️ Circulation & sécurité', 2] };
+const BKOM = { akey: ['🙋 Accueil', 7], medya: ['📸 Médias', 3], lojistik: ['📦 Logistique', 4], pwogram: ['🎤 Programme & intervenants', 3], kominikasyon: ['📣 Communication', 2] };
+const BKOM_OLD = { dekorasyon: ['🎨 Décoration', 0], live: ['🎥 Live', 0], sekirite: ['🛡️ Circulation & sécurité', 0] };   // commissions fermées (anciennes candidatures)
+const bk = (k) => (BKOM[k] || BKOM_OLD[k] || [k])[0];
 const BST = { nouveau: '🆕 Nouveau', accepte: '✅ Accepté', attente: '⏳ Liste d’attente', refuse: '✖️ Non retenu' };
 const BDISPO = { veille: 'Sam. 21 (installation)', matin: 'Dim. 22 matin', evenement: 'Pendant l’événement', apres: 'Rangement' };
 const BOCC = { etudiant: 'Étudiant(e)', employe: 'Employé(e)', entrepreneur: 'Entrepreneur(e)', sans_emploi: 'En recherche d’emploi', autre: 'Autre' };
@@ -1556,7 +1558,7 @@ async function loadBenevoles() {
   BROWS = data || []; renderBenevoles();
 }
 function bWa(r) {
-  const p = (r.nom || '').split(' ')[0], k = BKOM[r.komisyon_final || r.komisyon1][0].replace(/^\S+\s/, '');
+  const p = (r.nom || '').split(' ')[0], k = bk(r.komisyon_final || r.komisyon1).replace(/^\S+\s/, '');
   const m = r.statut === 'accepte' ? `Bonjour ${p} ! 🎉 Bonne nouvelle : tu fais partie de l’équipe de bénévoles de Bwat Sekrèm Talks, commission « ${k} ». Nous t’enverrons très vite la date de la réunion de préparation. Merci pour ton engagement ! 💚`
     : r.statut === 'attente' ? `Bonjour ${p}, merci pour ta candidature de bénévole à Bwat Sekrèm Talks ! Pour l’instant tu es sur la liste d’attente pour la commission « ${k} » : nous te recontactons dès qu’une place se libère. 💚`
     : r.statut === 'refuse' ? `Bonjour ${p}, merci beaucoup pour ta candidature de bénévole à Bwat Sekrèm Talks. L’équipe est complète pour cette édition, mais nous gardons ton contact pour les prochaines. On compte sur toi le 22 novembre ! 💚`
@@ -1578,12 +1580,11 @@ function renderBenevoles() {
     <td><strong>${esc(r.nom)}</strong>${r.inscription_id ? '<br><span class="sub">✅ Inscrit</span>' : ''}${r.email ? `<br><a class="sub" href="mailto:${esc(r.email)}">${esc(r.email)}</a>` : ''}</td>
     <td><a href="https://wa.me/509${esc(String(r.telephone).slice(-8))}" target="_blank" rel="noopener">${esc(r.telephone)}</a></td>
     <td class="sub">${esc(BOCC[r.occupation] || r.occupation || '')}${r.organisation ? `<br>${esc(r.organisation)}` : ''}</td>
-    <td>1. ${esc(BKOM[r.komisyon1][0])}${r.komisyon2 ? `<br><span class="sub">2. ${esc(BKOM[r.komisyon2][0])}</span>` : ''}</td>
-    <td class="sub">${(r.disponib || []).map((d) => esc(BDISPO[d] || d)).join('<br>')}</td>
+    <td>1. ${esc(bk(r.komisyon1))}${r.komisyon2 ? `<br><span class="sub">2. ${esc(bk(r.komisyon2))}</span>` : ''}</td>
     <td><select data-bst="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit">${opt(BST, r.statut)}</select></td>
-    <td><select data-bkf="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit"><option value="">— ${esc(BKOM[r.komisyon1][0])} —</option>${opt(BKOM, r.komisyon_final)}</select></td>
+    <td><select data-bkf="${r.id}" style="padding:6px 8px;border:1px solid #d8dee9;border-radius:8px;font:inherit"><option value="">— ${esc(bk(r.komisyon1))} —</option>${opt(BKOM, r.komisyon_final)}</select></td>
     <td><a class="btn" href="${bWa(r)}" target="_blank" rel="noopener" title="Message WhatsApp adapté au statut">💬</a>${r.eksperyans || r.motivasyon ? ` <button class="btn" type="button" data-bmore="${r.id}" title="Expérience et motivation">📝</button>` : ''}</td></tr>
-    <tr id="bMore${r.id}" class="hidden"><td></td><td colspan="8" class="sub">${r.eksperyans ? `<b>Expérience :</b> ${esc(r.eksperyans)}<br>` : ''}${r.motivasyon ? `<b>Motivation :</b> ${esc(r.motivasyon)}` : ''}</td></tr>`).join('') || '<tr><td colspan="9" class="empty">Aucune candidature pour le moment. Partage le lien de la page bénévole !</td></tr>';
+    <tr id="bMore${r.id}" class="hidden"><td></td><td colspan="7" class="sub">${r.eksperyans ? `<b>Expérience :</b> ${esc(r.eksperyans)}<br>` : ''}${r.motivasyon ? `<b>Motivation :</b> ${esc(r.motivasyon)}` : ''}</td></tr>`).join('') || '<tr><td colspan="8" class="empty">Aucune candidature pour le moment. Partage le lien de la page bénévole !</td></tr>';
 }
 async function bSave(id, patch) {
   const { error } = await sb.from('talks_benevoles').update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);

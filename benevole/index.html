@@ -6,7 +6,7 @@
 <title>Devenir bénévole — Bwat Sekrèm Talks</title>
 <meta name="description" content="Rejoins l’équipe de bénévoles de Bwat Sekrèm Talks, le 22 novembre 2026 à Cap-Haïtien." />
 <meta property="og:title" content="Deviens bénévole · Bwat Sekrèm Talks" />
-<meta property="og:description" content="Accueil, médias, logistique, live… Rejoins l’équipe du 22 novembre 2026 à Cap-Haïtien." />
+<meta property="og:description" content="Accueil, médias, logistique, communication… Rejoins l’équipe du 22 novembre 2026 à Cap-Haïtien." />
 <meta property="og:image" content="https://bwatsekremtalks.github.io/admin/profil/og.jpg" />
 <meta name="theme-color" content="#0E2A4A" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -94,8 +94,6 @@
         <div><label class="f" for="occ" data-t="occ"></label><select class="t" id="occ"></select></div>
       </div>
       <label class="f" for="org"><span data-t="org"></span> <small data-t="opt"></small></label><input class="t" id="org" maxlength="120" />
-      <label class="f" data-t="dispoT"></label>
-      <div class="checks" id="dispo"></div>
       <label class="f" for="eks"><span data-t="eks"></span> <small data-t="opt"></small></label><textarea class="t" id="eks" maxlength="600"></textarea>
       <label class="f" for="mot"><span data-t="mot"></span> <small data-t="opt"></small></label><textarea class="t" id="mot" maxlength="600"></textarea>
       <div class="checks" style="margin-top:14px"><label><input type="checkbox" id="ok" /> <span data-t="consent"></span></label></div>
@@ -114,11 +112,11 @@
 const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
 const WA = '50948722671';
 const $ = (id) => document.getElementById(id);
-const KOMS = ['akey', 'medya', 'lojistik', 'dekorasyon', 'pwogram', 'kominikasyon', 'live', 'sekirite'];
+const KOMS = ['akey', 'medya', 'lojistik', 'pwogram', 'kominikasyon'];
 const T = {
   fr: {
-    kick: '22 novembre 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat Sekrèm Talks</em>', lead: 'Accueil, médias, logistique, live… Mets tes talents au service d’un événement qui fait grandir les professionnels de demain. Les places dans l’équipe sont limitées.',
-    gainsT: 'Ce que tu gagnes', gains: [['🎓', 'Un certificat de bénévolat Bwat Sekrèm Talks'], ['🤝', 'Rencontrer les intervenants et les partenaires'], ['💼', 'Une vraie expérience à mettre sur ton CV'], ['🪪', 'Ton badge « Équipe BST »']],
+    kick: '22 novembre 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat Sekrèm Talks</em>', lead: 'Accueil, médias, logistique, communication… Mets tes talents au service d’un événement qui fait grandir les professionnels de demain. Les places dans l’équipe sont limitées.',
+    gainsT: 'Ce que tu gagnes', gains: [['🎓', 'Un certificat de bénévolat Bwat Sekrèm Talks'], ['💼', 'Une vraie expérience à mettre sur ton CV'], ['🪪', 'Ton badge « Équipe BST »']],
     komT: 'Choisis ta commission', komS: 'Clique sur 1 ou 2 commissions, par ordre de préférence.',
     k: { akey: ['🙋 Accueil', 'Recevoir les participants, la liste de présence, orienter et accompagner les invités.'], medya: ['📸 Médias', 'Photos, vidéos et témoignages pendant l’événement (avec ton propre appareil si possible).'], lojistik: ['📦 Logistique', 'Transport du matériel, eau, installation et rangement.'], dekorasyon: ['🎨 Décoration', 'Préparer la scène et la salle aux couleurs de BST.'], pwogram: ['🎤 Programme & intervenants', 'Gérer le temps, passer le micro au public, accompagner les intervenants.'], kominikasyon: ['📣 Communication', 'Publier en direct sur les réseaux sociaux avec l’équipe BST.'], live: ['🎥 Live', 'Assister le technicien de la retransmission en direct.'], sekirite: ['🛡️ Circulation & sécurité', 'Gérer les entrées et la circulation, en appui aux agents de sécurité.'] },
     choix: (n) => `Choix ${n}`, youT: 'Toi', nom: 'Nom complet', tel: 'Téléphone (WhatsApp)', email: 'E-mail', opt: '(facultatif)', occ: 'Tu es…',
@@ -129,8 +127,8 @@ const T = {
     eKom: 'Choisis au moins une commission.', eNom: 'Écris ton nom complet.', eTel: 'Écris un numéro WhatsApp valide.', eDispo: 'Coche au moins une disponibilité.', eOk: 'Coche la case d’accord.', eApi: 'Envoi impossible. Vérifie ta connexion et réessaie.',
     okT: 'Merci, candidature reçue !', okP: (n) => `${n ? n + ', l' : 'L'}’équipe Bwat Sekrèm Talks te contactera très vite sur WhatsApp pour te confirmer ta commission et la réunion de préparation.`, okWa: 'Écrire à l’équipe sur WhatsApp', waTxt: 'Bonjour, je viens d’envoyer ma candidature de bénévole pour Bwat Sekrèm Talks.' },
   ht: {
-    kick: '22 novanm 2026 · Okap', title: 'Vin nan ekip <em>Bwat Sekrèm Talks</em> la', lead: 'Akèy, medya, lojistik, live… Mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi. Plas nan ekip la limite.',
-    gainsT: 'Sa w ap jwenn', gains: [['🎓', 'Yon sètifika volontè Bwat Sekrèm Talks'], ['🤝', 'Rankontre entèvenan yo ak patnè yo'], ['💼', 'Yon vrè eksperyans pou mete sou CV w'], ['🪪', 'Badj « Ekip BST » ou']],
+    kick: '22 novanm 2026 · Okap', title: 'Vin nan ekip <em>Bwat Sekrèm Talks</em> la', lead: 'Akèy, medya, lojistik, kominikasyon… Mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi. Plas nan ekip la limite.',
+    gainsT: 'Sa w ap jwenn', gains: [['🎓', 'Yon sètifika volontè Bwat Sekrèm Talks'], ['💼', 'Yon vrè eksperyans pou mete sou CV w'], ['🪪', 'Badj « Ekip BST » ou']],
     komT: 'Chwazi komisyon w', komS: 'Klike sou 1 oswa 2 komisyon, nan lòd ou prefere yo.',
     k: { akey: ['🙋 Akèy', 'Resevwa patisipan yo, lis prezans lan, oryante ak akonpaye envite yo.'], medya: ['📸 Medya', 'Foto, videyo ak temwayaj pandan evènman an (ak pwòp aparèy ou si posib).'], lojistik: ['📦 Lojistik', 'Transpò materyèl, dlo, enstalasyon ak ranje.'], dekorasyon: ['🎨 Dekorasyon', 'Prepare sèn nan ak sal la ak koulè BST yo.'], pwogram: ['🎤 Pwogram ak entèvenan', 'Jere tan an, pase mikwo bay piblik la, akonpaye entèvenan yo.'], kominikasyon: ['📣 Kominikasyon', 'Pibliye an dirèk sou rezo sosyal yo ak ekip BST a.'], live: ['🎥 Live', 'Ede teknisyen ki fè retransmisyon an dirèk la.'], sekirite: ['🛡️ Sikilasyon ak sekirite', 'Jere antre yo ak sikilasyon an, pou sipòte ajan sekirite yo.'] },
     choix: (n) => `Chwa ${n}`, youT: 'Ou menm', nom: 'Non konplè', tel: 'Telefòn (WhatsApp)', email: 'Imèl', opt: '(pa obligatwa)', occ: 'Ou se…',
@@ -141,8 +139,8 @@ const T = {
     eKom: 'Chwazi omwen yon komisyon.', eNom: 'Ekri non konplè w.', eTel: 'Ekri yon nimewo WhatsApp ki bon.', eDispo: 'Koche omwen yon disponiblite.', eOk: 'Koche kaz dakò a.', eApi: 'Pa ka voye l. Verifye koneksyon w epi eseye ankò.',
     okT: 'Mèsi, nou resevwa kandidati w !', okP: (n) => `${n ? n + ', e' : 'E'}kip Bwat Sekrèm Talks la ap kontakte w byento sou WhatsApp pou konfime komisyon w ak reyinyon preparasyon an.`, okWa: 'Ekri ekip la sou WhatsApp', waTxt: 'Bonjou, mwen fèk voye kandidati volontè m pou Bwat Sekrèm Talks.' },
   en: {
-    kick: 'November 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat Sekrèm Talks</em> team', lead: 'Welcome, media, logistics, live… Put your talents to work for an event that helps tomorrow’s professionals grow. Team spots are limited.',
-    gainsT: 'What you get', gains: [['🎓', 'A Bwat Sekrèm Talks volunteer certificate'], ['🤝', 'Meet the speakers and partners'], ['💼', 'Real experience for your CV'], ['🪪', 'Your “BST Team” badge']],
+    kick: 'November 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat Sekrèm Talks</em> team', lead: 'Welcome, media, logistics, communication… Put your talents to work for an event that helps tomorrow’s professionals grow. Team spots are limited.',
+    gainsT: 'What you get', gains: [['🎓', 'A Bwat Sekrèm Talks volunteer certificate'], ['💼', 'Real experience for your CV'], ['🪪', 'Your “BST Team” badge']],
     komT: 'Choose your committee', komS: 'Click 1 or 2 committees, in order of preference.',
     k: { akey: ['🙋 Welcome', 'Greet participants, check-in list, guide and accompany guests.'], medya: ['📸 Media', 'Photos, videos and testimonials during the event (with your own device if possible).'], lojistik: ['📦 Logistics', 'Equipment transport, water, setup and teardown.'], dekorasyon: ['🎨 Decoration', 'Prepare the stage and room in BST colors.'], pwogram: ['🎤 Program & speakers', 'Timekeeping, passing the mic to the audience, accompanying speakers.'], kominikasyon: ['📣 Communication', 'Post live on social media with the BST team.'], live: ['🎥 Live stream', 'Assist the live-stream technician.'], sekirite: ['🛡️ Flow & safety', 'Manage entrances and crowd flow, supporting security staff.'] },
     choix: (n) => `Choice ${n}`, youT: 'About you', nom: 'Full name', tel: 'Phone (WhatsApp)', email: 'Email', opt: '(optional)', occ: 'You are…',
@@ -164,8 +162,6 @@ function setLang(l) {
   document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
   $('gains').innerHTML = t().gains.map(([e, s]) => `<div><b>${e}</b>${esc(s)}</div>`).join('');
   const occ = $('occ').value; $('occ').innerHTML = t().occs.map(([v, n]) => `<option value="${v}">${esc(n)}</option>`).join(''); $('occ').value = occ;
-  const on = [...document.querySelectorAll('#dispo input:checked')].map((x) => x.value);
-  $('dispo').innerHTML = t().dispo.map(([v, n]) => `<label><input type="checkbox" value="${v}" ${on.includes(v) ? 'checked' : ''} /> <span>${esc(n)}</span></label>`).join('');
   renderKoms();
 }
 document.addEventListener('click', (e) => {
@@ -175,17 +171,16 @@ document.addEventListener('click', (e) => {
 $('send').addEventListener('click', async () => {
   const err = (s, id = 'err') => { $(id).textContent = s; if (id === 'eKom') $('koms').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
   $('err').textContent = '';
-  const nom = $('nom').value.trim(), tel = $('tel').value.trim(), dispo = [...document.querySelectorAll('#dispo input:checked')].map((x) => x.value);
+  const nom = $('nom').value.trim(), tel = $('tel').value.trim();
   if (!SEL.length) return err(t().eKom, 'eKom');
   if (nom.length < 2) return err(t().eNom);
   if (tel.replace(/\D/g, '').length < 8) return err(t().eTel);
-  if (!dispo.length) return err(t().eDispo);
   if (!$('ok').checked) return err(t().eOk);
   $('send').disabled = true;
   try {
     const r = await fetch(`${SB_URL}/rest/v1/rpc/talks_benevole_kandida`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ p_nom: nom, p_telephone: tel, p_email: $('email').value.trim() || null, p_occupation: $('occ').value || null, p_organisation: $('org').value.trim() || null,
-        p_komisyon1: SEL[0], p_komisyon2: SEL[1] || null, p_disponib: dispo, p_eksperyans: $('eks').value.trim() || null, p_motivasyon: $('mot').value.trim() || null, p_lang: L }) });
+        p_komisyon1: SEL[0], p_komisyon2: SEL[1] || null, p_disponib: [], p_eksperyans: $('eks').value.trim() || null, p_motivasyon: $('mot').value.trim() || null, p_lang: L }) });
     const j = await r.json().catch(() => ({}));
     if (!r.ok || !j.ok) throw new Error(j.error || 'api');
     $('formView').classList.add('hidden'); $('okView').classList.remove('hidden');

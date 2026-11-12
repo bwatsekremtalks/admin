@@ -309,6 +309,7 @@
         <button class="tab" role="tab" id="tabA" aria-selected="false" type="button">Traiter les réponses</button>
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
+        <button class="tab" role="tab" id="tabW" aria-selected="false" type="button">📈 Visites</button>
         <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
@@ -385,6 +386,22 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelW" class="hidden">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <label class="sub">Période <select id="wPer" style="padding:8px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit;margin-left:4px"><option value="7">7 derniers jours</option><option value="14" selected>14 derniers jours</option><option value="30">30 derniers jours</option><option value="1">Aujourd’hui</option></select></label>
+          <span class="sub" id="wLive" style="margin-left:auto"></span>
+        </div>
+        <div class="tiles" id="wTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>Visiteurs et réservations par jour</h2>
+          <div id="wChart" style="overflow-x:auto"></div>
+          <p class="sub" style="margin:6px 0 0"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#2f6db0;margin-right:4px"></span>Visiteurs <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#5DB033;margin:0 4px 0 14px"></span>Personnes inscrites (réservations)</p></div>
+        <div class="grid2" style="margin-top:12px">
+          <div class="card"><h2>Pages les plus vues</h2><div class="bars" id="wPages"></div></div>
+          <div class="card"><h2>D’où viennent les visiteurs</h2><div class="bars" id="wSrc"></div></div>
+          <div class="card"><h2>Appareils</h2><div class="bars" id="wDev"></div></div>
+        </div>
+        <p class="note" id="wNote"></p>
+      </div>
       <div id="panelB" class="hidden">
         <div class="tiles" id="bTiles"></div>
         <div class="card" style="margin-top:12px"><h2>Commissions <span class="sub">· candidats (1er + 2e choix) et bénévoles acceptés</span></h2>
@@ -1532,9 +1549,9 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
@@ -1542,6 +1559,38 @@ $('tabA').addEventListener('click', () => setTab('A'));
 $('tabM').addEventListener('click', () => setTab('M'));
 $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
+$('tabW').addEventListener('click', () => setTab('W'));
+/* ---------- Visites du site (compteur anonyme intégré au script du popup) ---------- */
+const WPAGE = { '/': 'Accueil', '/reserver': 'Réserver', '/benevole': 'Devenir bénévole', '/cv': 'CV pro', '/portrait': 'Portrait IA', '/profil': 'ADN Pro', '/editions': 'Éditions', '/partenaires': 'Partenaires' };
+const WSRC = { direct: 'Direct (lien tapé, favori, app)', whatsapp: 'WhatsApp', facebook: 'Facebook', instagram: 'Instagram', google: 'Google', tiktok: 'TikTok', linkedin: 'LinkedIn', x: 'X (Twitter)' };
+const WDEV = { mobile: '📱 Téléphone', desktop: '💻 Ordinateur', tablet: 'Tablette', '?': 'Inconnu' };
+async function loadVisites() {
+  const { data: d, error } = await sb.rpc('talks_visites_stats', { p_jours: +$('wPer').value });
+  if (error) { notify('Visites : ' + friendly(error), 'warn'); return; }
+  const J = d.jours || [], today = J[J.length - 1] || {}, vis = d.total_visiteurs || 0, per = J.reduce((a, x) => a + (x.personnes || 0), 0), res = J.reduce((a, x) => a + (x.reservations || 0), 0);
+  const fmt = (n) => Number(n || 0).toLocaleString('fr-FR');
+  $('wLive').innerHTML = `<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#e8505b;margin-right:6px"></span><b>${fmt(d.live)}</b> visiteur(s) en ce moment`;
+  $('wTiles').innerHTML = [['Visiteurs aujourd’hui', fmt(today.visiteurs), `${fmt(today.pages)} pages vues`], ['Visiteurs (période)', fmt(vis), `${fmt(d.total_pages)} pages vues · ${(d.total_pages / Math.max(1, vis)).toFixed(1).replace('.', ',')} par visite`],
+    ['Réservations (période)', fmt(res), `${fmt(per)} personnes`], ['Taux de conversion', vis ? `${(J.filter((x) => x.visiteurs).reduce((a2, x) => a2 + x.reservations, 0) / vis * 100).toFixed(1).replace('.', ',')} %` : '—', 'réservations ÷ visiteurs (jours comptés)']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  // graphique en colonnes (SVG)
+  const W = Math.max(560, J.length * 54), H = 220, pad = 28, max = Math.max(1, ...J.map((x) => Math.max(x.visiteurs, x.personnes))), bw = (W - pad * 2) / Math.max(1, J.length);
+  const y = (v) => H - 34 - (H - 60) * v / max;
+  $('wChart').innerHTML = `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="display:block;min-width:${Math.min(W, 560)}px;font:11px 'DM Sans',sans-serif">${J.map((x, i) => {
+    const x0 = pad + i * bw, w = Math.min(18, bw * .32), lab = new Date(x.jour + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    return `<rect x="${x0 + bw / 2 - w - 1}" y="${y(x.visiteurs)}" width="${w}" height="${H - 34 - y(x.visiteurs)}" rx="3" fill="#2f6db0"><title>${x.visiteurs} visiteurs</title></rect>
+      <rect x="${x0 + bw / 2 + 1}" y="${y(x.personnes)}" width="${w}" height="${H - 34 - y(x.personnes)}" rx="3" fill="#5DB033"><title>${x.personnes} personnes inscrites</title></rect>
+      ${x.visiteurs ? `<text x="${x0 + bw / 2 - w / 2 - 1}" y="${y(x.visiteurs) - 4}" text-anchor="middle" fill="#2f6db0" font-weight="700">${x.visiteurs}</text>` : ''}
+      ${x.personnes ? `<text x="${x0 + bw / 2 + w / 2 + 1}" y="${y(x.personnes) - 4}" text-anchor="middle" fill="#3f7f22" font-weight="700">${x.personnes}</text>` : ''}
+      <text x="${x0 + bw / 2}" y="${H - 14}" text-anchor="middle" fill="#6b7f96">${lab}</text>`; }).join('')}<line x1="${pad}" x2="${W - pad}" y1="${H - 34}" y2="${H - 34}" stroke="#dfe7f0"/></svg>`;
+  const P = d.pages || [], S = d.sources || [], D = d.appareils || [];
+  bars($('wPages'), P.map((x) => [WPAGE[x.path] ? `${WPAGE[x.path]} (${x.path})` : x.path, x.vues]), d.total_pages || 1, 'vues');
+  bars($('wSrc'), S.map((x) => [WSRC[x.src] || x.src, x.n]), S.reduce((a, x) => a + x.n, 0) || 1, 'visiteurs');
+  bars($('wDev'), D.map((x) => [WDEV[x.dev] || x.dev, x.n]), D.reduce((a, x) => a + x.n, 0) || 1, 'visiteurs');
+  if (!P.length) { $('wPages').innerHTML = $('wSrc').innerHTML = $('wDev').innerHTML = '<p class="sub">Pas encore de visites sur la période.</p>'; }
+  $('wNote').textContent = `Compteur anonyme ajouté au site le ${d.depuis ? new Date(d.depuis).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) : '12 novembre'} : sans cookie, sans adresse IP, sans nom. Un « visiteur » = un onglet ouvert sur le site (une même personne qui revient un autre jour compte à nouveau). Les jours précédents ne sont pas disponibles ici : voir Hostinger Horizons → Integrations → Analytics. Heure d’Haïti.`;
+}
+$('wPer').addEventListener('change', loadVisites);
 /* ---------- Bénévoles : candidatures, statut, commission finale ---------- */
 const BKOM = { akey: ['🙋 Accueil', 7], medya: ['📸 Médias', 3], lojistik: ['📦 Logistique', 4], pwogram: ['🎤 Programme & intervenants', 3], kominikasyon: ['📣 Communication', 2] };
 const BKOM_OLD = { dekorasyon: ['🎨 Décoration', 0], live: ['🎥 Live', 0], sekirite: ['🛡️ Circulation & sécurité', 0] };   // commissions fermées (anciennes candidatures)

@@ -23,6 +23,33 @@
   var DONE = 'bst_a_reserve', MINI = 'bst_toast_mini';
   var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   var ss = { get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+  /* ---- Compteur de visites anonyme : sans cookie, sans IP ; un identifiant al\u00e9atoire par onglet (sessionStorage) ---- */
+  (function () {
+    try {
+      var sid = ss.get('bst_sid'), nouveau = false;
+      if (!sid) { sid = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); ss.set('bst_sid', sid); nouveau = true; }
+      var src = ss.get('bst_src');
+      if (!src) {
+        var q = new URLSearchParams(location.search), u = (q.get('utm_source') || q.get('src') || '').toLowerCase(), r = '';
+        try { r = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : ''; } catch (e) {}
+        if (r && r.indexOf('bwatsekremtalks') >= 0) r = '';
+        src = u || (/whatsapp|wa\.me/.test(r) ? 'whatsapp' : /facebook|fb\.com|fb\.me/.test(r) ? 'facebook' : /instagram/.test(r) ? 'instagram' : /google\./.test(r) ? 'google' : /tiktok/.test(r) ? 'tiktok' : /linkedin|lnkd/.test(r) ? 'linkedin' : /t\.co$|twitter|x\.com/.test(r) ? 'x' : r ? r.split('.').slice(-2).join('.') : (/FBAN|FBAV|FB_IAB/.test(navigator.userAgent) ? 'facebook' : /Instagram/.test(navigator.userAgent) ? 'instagram' : 'direct'));
+        ss.set('bst_src', src);
+      }
+      var dev = /iPad|Tablet/i.test(navigator.userAgent) ? 'tablet' : (/Mobi|Android|iPhone/i.test(navigator.userAgent) || innerWidth < 760) ? 'mobile' : 'desktop';
+      var last = '';
+      var hit = function () {
+        var path = location.pathname || '/'; if (path === last) return; last = path;
+        fetch(SB + '/rest/v1/rpc/talks_visite', { method: 'POST', keepalive: true, headers: { apikey: KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_sid: sid, p_path: path, p_src: src, p_dev: dev, p_lang: (document.documentElement.lang || '').slice(0, 5), p_nouveau: nouveau }) }).catch(function () {});
+        nouveau = false;
+      };
+      hit();
+      // le site change de page sans recharger (React) : on suit les changements d'adresse
+      ['pushState', 'replaceState'].forEach(function (k) { var o = history[k]; history[k] = function () { var r2 = o.apply(this, arguments); setTimeout(hit, 50); return r2; }; });
+      addEventListener('popstate', function () { setTimeout(hit, 50); });
+    } catch (e) {}
+  })();
   if (/[?&](reserve|reservation)=(ok|1)/i.test(location.search)) ls.set(DONE, '1');
   if (ls.get(DONE)) return;
 

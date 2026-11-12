@@ -260,6 +260,7 @@
         <button class="btn" id="printList" type="button">Imprimer la liste</button>
         <button class="btn" id="printStats" type="button">Imprimer les stats</button>
         <button class="btn" id="visBtn" type="button">🎨 Visuels réseaux</button>
+        <button class="btn" id="goVisites" type="button">📈 Visites du site</button>
         <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
         <button class="btn" id="csv" type="button">Exporter (Excel)</button>
         <button class="btn" id="newResa" type="button">+ Nouvelle inscription</button>
@@ -1560,6 +1561,7 @@ $('tabM').addEventListener('click', () => setTab('M'));
 $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
+$('goVisites').addEventListener('click', () => { setTab('W'); $('tabW').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 /* ---------- Visites du site (compteur anonyme intégré au script du popup) ---------- */
 const WPAGE = { '/': 'Accueil', '/reserver': 'Réserver', '/benevole': 'Devenir bénévole', '/cv': 'CV pro', '/portrait': 'Portrait IA', '/profil': 'ADN Pro', '/editions': 'Éditions', '/partenaires': 'Partenaires' };
 const WSRC = { direct: 'Direct (lien tapé, favori, app)', whatsapp: 'WhatsApp', facebook: 'Facebook', instagram: 'Instagram', google: 'Google', tiktok: 'TikTok', linkedin: 'LinkedIn', x: 'X (Twitter)' };

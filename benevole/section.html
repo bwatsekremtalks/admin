@@ -34,13 +34,41 @@
   .koms { display: grid; gap: 9px; }
   .kom { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(122,193,66,.45); border-radius: 16px; padding: 11px 14px; }
   .kom b { font-size: 22px; width: 30px; text-align: center; flex: none; } .kom div { font-weight: 700; font-size: 15.5px; } .kom small { display: block; font-weight: 400; font-size: 13px; color: rgba(255,255,255,.72); margin-top: 1px; }
+  /* ---------- Visuel : badge bénévole + commissions qui flottent ---------- */
+  .vis { position: relative; height: 420px; }
+  .halo { position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px 0 0 -150px; border-radius: 50%; background: radial-gradient(circle, rgba(122,193,66,.35), rgba(122,193,66,0) 65%); }
+  .cord { position: absolute; left: 50%; top: 0; width: 4px; height: 70px; margin-left: -2px; background: linear-gradient(#7AC142, #5DB033); border-radius: 2px; }
+  .badge { position: absolute; left: 50%; top: 62px; width: 210px; margin-left: -105px; background: #fff; color: #0D2D4A; border-radius: 22px; box-shadow: 0 30px 60px rgba(0,0,0,.35); transform-origin: 50% -60px; animation: sway 6s ease-in-out infinite; overflow: hidden; }
+  @keyframes sway { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+  .badge::before { content: ""; position: absolute; top: 10px; left: 50%; width: 44px; height: 8px; margin-left: -22px; border-radius: 6px; background: rgba(255,255,255,.55); z-index: 1; }
+  .badge .bt { background: linear-gradient(120deg, #5DB033, #8fd14f); padding: 30px 14px 46px; text-align: center; color: #fff; }
+  .badge .bt img { height: 32px; display: block; margin: 0 auto 6px; }
+  .badge .bt b { font: 800 12px "DM Sans", sans-serif; letter-spacing: .22em; }
+  .badge .bb { padding: 0 14px 18px; text-align: center; }
+  .badge .av { width: 70px; height: 70px; border-radius: 50%; margin: -36px auto 8px; background: #EAF3FF; border: 4px solid #fff; display: grid; place-items: center; font-size: 34px; position: relative; }
+  .badge .role { font: 800 21px "Bricolage Grotesque", sans-serif; letter-spacing: .04em; }
+  .badge .nm { margin: 6px auto 10px; width: 80%; border-bottom: 2px dashed #c9d6e6; padding-bottom: 4px; color: #8aa0bb; font-size: 12.5px; font-style: italic; }
+  .badge .dt { font-size: 11.5px; font-weight: 700; color: #1E8CF0; letter-spacing: .06em; }
+  .chip { position: absolute; display: inline-flex; align-items: center; gap: 7px; background: #17406a; border: 1.5px solid rgba(122,193,66,.65); color: #fff; border-radius: 999px; padding: 8px 13px; font-weight: 700; font-size: 14px; white-space: nowrap; box-shadow: 0 10px 24px rgba(0,0,0,.18); animation: bob 5s ease-in-out infinite; }
+  .chip b { font-size: 18px; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+  .chip:nth-child(1) { left: 0; top: 40px; } .chip:nth-child(2) { right: 0; top: 96px; animation-delay: -1.2s; } .chip:nth-child(3) { left: 4%; top: 230px; animation-delay: -2.4s; }
+  .chip:nth-child(4) { right: 2%; top: 286px; animation-delay: -3.1s; } .chip:nth-child(5) { left: 50%; bottom: 0; transform: translateX(-50%); animation-name: bobc; animation-delay: -.6s; }
+  @keyframes bobc { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -9px); } }
   @media (max-width: 760px) { .s { grid-template-columns: minmax(0, 1fr); padding: 26px 20px; gap: 20px; border-radius: 24px; } .cta { width: 100%; justify-content: center; } .lim { text-align: center; } p.l { font-size: 15.5px; } }
   @media (max-width: 560px) { .g { gap: 6px; } .g li { font-size: 13px; padding: 6px 10px; } .box { padding: 14px; border-radius: 18px; }
     .koms { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 7px; } .kom { padding: 9px 10px; gap: 8px; border-radius: 14px; } .kom:last-child { grid-column: 1 / -1; justify-content: center; }
     .kom b { font-size: 18px; width: 22px; } .kom div { font-size: 13.5px; line-height: 1.25; } .kom small { display: none; } h2 { margin: 10px 0 10px; } p.l { margin-bottom: 14px; } }
   @media (max-width: 400px) { .s { padding: 22px 14px; border-radius: 20px; } h2 { font-size: 26px; } p.l { font-size: 14.5px; }
     .g li { font-size: 12.5px; padding: 6px 10px; white-space: normal; max-width: 100%; } .cta { font-size: 15.5px; padding: 14px 16px; gap: 8px; } .box { padding: 12px; } .koms { grid-template-columns: minmax(0, 1fr); } .kom:last-child { justify-content: flex-start; } .kom div { font-size: 13.5px; } }
-  @media (prefers-reduced-motion: reduce) { .k i { animation: none; } .cta, .cta span { transition: none; } }
+  @media (max-width: 760px) {
+    .vis { order: -1; height: auto; display: flex; flex-direction: column; align-items: center; padding-top: 50px; margin-bottom: 4px; }
+    .halo { top: 150px; width: 240px; height: 240px; margin: -120px 0 0 -120px; } .cord { height: 56px; }
+    .badge { position: relative; left: auto; top: auto; margin: 0; width: 164px; transform-origin: 50% -50px; }
+    .badge .bt { padding: 22px 12px 38px; } .badge .bt img { height: 26px; } .badge .role { font-size: 17px; } .badge .dt { font-size: 10px; white-space: nowrap; letter-spacing: .02em; } .badge .av { width: 60px; height: 60px; font-size: 28px; margin-top: -32px; }
+    #chips { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 18px; }
+    .chip, .chip:nth-child(n) { position: static; transform: none; animation: none; font-size: 12.5px; padding: 6px 11px; gap: 5px; box-shadow: none; } .chip b { font-size: 15px; } }
+  @media (prefers-reduced-motion: reduce) { .badge, .chip { animation: none !important; } .k i { animation: none; } .cta, .cta span { transition: none; } }
 </style>
 </head>
 <body>
@@ -53,26 +81,35 @@
     <a class="cta" id="cta" target="_top"><b id="ctaT"></b><span>→</span></a>
     <span class="lim" id="lim"></span>
   </div>
-  <div class="box"><h3 id="komT"></h3><div class="koms" id="koms"></div></div>
+  <div class="vis" aria-hidden="true">
+    <div class="halo"></div>
+    <div class="cord"></div>
+    <div class="badge">
+      <div class="bt"><img src="../portrait/logos/bst-blanc.png" alt="" /><b id="bTeam"></b></div>
+      <div class="bb"><div class="av">🙋</div><div class="role" id="bRole"></div><div class="nm" id="bName"></div><div class="dt" id="bDate"></div></div>
+    </div>
+    <div id="chips"></div>
+  </div>
 </section>
 <script>
 const T = {
   fr: { kick: 'On recrute', title: 'Deviens <em>bénévole</em> le 22 novembre', lead: 'Bwat Sekrèm Talks, c’est aussi une équipe. Accueille les participants, capture les moments forts, fais vivre l’événement en coulisses… et vis l’expérience de l’intérieur.',
-    gains: ['🎓 Certificat de bénévolat', '💼 Expérience pour ton CV', '🪪 Badge « Équipe BST »', '⭐ Accès premium aux événements'], cta: 'Je deviens bénévole', lim: '⚠️ Places limitées dans l’équipe', komT: '5 commissions',
-    koms: [['🙋', 'Accueil', 'Recevoir et orienter les participants'], ['📸', 'Médias', 'Photos, vidéos et témoignages'], ['📦', 'Logistique', 'Matériel, installation, rangement'], ['🎤', 'Programme & intervenants', 'Temps de parole, micro, intervenants'], ['📣', 'Communication', 'Publications en direct sur les réseaux']] },
+    gains: ['🎓 Certificat de bénévolat', '💼 Expérience pour ton CV', '🪪 Badge « Équipe BST »', '⭐ Accès premium aux événements'], cta: 'Je deviens bénévole', lim: '⚠️ Places limitées dans l’équipe', komT: '5 commissions', bTeam: 'ÉQUIPE BST', bRole: 'BÉNÉVOLE', bName: 'Ton nom ici', bDate: '22.11.2026 · CAP-HAÏTIEN',
+    koms: [['🙋', 'Accueil', 'Recevoir et orienter les participants'], ['📸', 'Médias', 'Photos, vidéos et témoignages'], ['📦', 'Logistique', 'Matériel, installation, rangement'], ['🎤', 'Programme', 'Temps de parole, micro, intervenants'], ['📣', 'Communication', 'Publications en direct sur les réseaux']] },
   ht: { kick: 'Nou bezwen w', title: 'Vin <em>volontè</em> 22 novanm nan', lead: 'Bwat Sekrèm Talks, se yon ekip tou. Akeyi patisipan yo, kaptire bèl moman yo, fè evènman an mache dèyè sèn nan… epi viv eksperyans lan anndan l.',
-    gains: ['🎓 Sètifika volontè', '💼 Eksperyans pou CV w', '🪪 Badj « Ekip BST »', '⭐ Aksè premium nan evènman yo'], cta: 'Mwen vle vin volontè', lim: '⚠️ Plas nan ekip la limite', komT: '5 komisyon',
-    koms: [['🙋', 'Akèy', 'Resevwa ak oryante patisipan yo'], ['📸', 'Medya', 'Foto, videyo ak temwayaj'], ['📦', 'Lojistik', 'Materyèl, enstalasyon, ranje'], ['🎤', 'Pwogram ak entèvenan', 'Tan pou pale, mikwo, entèvenan'], ['📣', 'Kominikasyon', 'Piblikasyon an dirèk sou rezo yo']] },
+    gains: ['🎓 Sètifika volontè', '💼 Eksperyans pou CV w', '🪪 Badj « Ekip BST »', '⭐ Aksè premium nan evènman yo'], cta: 'Mwen vle vin volontè', lim: '⚠️ Plas nan ekip la limite', komT: '5 komisyon', bTeam: 'EKIP BST', bRole: 'VOLONTÈ', bName: 'Non w isit la', bDate: '22.11.2026 · OKAP',
+    koms: [['🙋', 'Akèy', 'Resevwa ak oryante patisipan yo'], ['📸', 'Medya', 'Foto, videyo ak temwayaj'], ['📦', 'Lojistik', 'Materyèl, enstalasyon, ranje'], ['🎤', 'Pwogram', 'Tan pou pale, mikwo, entèvenan'], ['📣', 'Kominikasyon', 'Piblikasyon an dirèk sou rezo yo']] },
   en: { kick: 'We’re recruiting', title: 'Become a <em>volunteer</em> on November 22', lead: 'Bwat Sekrèm Talks is also a team. Welcome participants, capture the best moments, run the event behind the scenes… and live the experience from the inside.',
-    gains: ['🎓 Volunteer certificate', '💼 Experience for your CV', '🪪 “BST Team” badge', '⭐ Premium access to events'], cta: 'I want to volunteer', lim: '⚠️ Team spots are limited', komT: '5 committees',
-    koms: [['🙋', 'Welcome', 'Greet and guide participants'], ['📸', 'Media', 'Photos, videos and testimonials'], ['📦', 'Logistics', 'Equipment, setup, teardown'], ['🎤', 'Program & speakers', 'Timekeeping, mic, speakers'], ['📣', 'Communication', 'Live posts on social media']] },
+    gains: ['🎓 Volunteer certificate', '💼 Experience for your CV', '🪪 “BST Team” badge', '⭐ Premium access to events'], cta: 'I want to volunteer', lim: '⚠️ Team spots are limited', komT: '5 committees', bTeam: 'BST TEAM', bRole: 'VOLUNTEER', bName: 'Your name here', bDate: '22.11.2026 · CAP-HAÏTIEN',
+    koms: [['🙋', 'Welcome', 'Greet and guide participants'], ['📸', 'Media', 'Photos, videos and testimonials'], ['📦', 'Logistics', 'Equipment, setup, teardown'], ['🎤', 'Program', 'Timekeeping, mic, speakers'], ['📣', 'Communication', 'Live posts on social media']] },
 };
 const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L];
 document.documentElement.lang = L;
 const $ = (id) => document.getElementById(id), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead; $('ctaT').textContent = t.cta; $('lim').textContent = t.lim; $('komT').textContent = t.komT;
+$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead; $('ctaT').textContent = t.cta; $('lim').textContent = t.lim; 
 $('gains').innerHTML = t.gains.map((g) => `<li>${esc(g)}</li>`).join('');
-$('koms').innerHTML = t.koms.map(([e, n, d]) => `<div class="kom"><b>${e}</b><div>${esc(n)}<small>${esc(d)}</small></div></div>`).join('');
+$('chips').innerHTML = t.koms.map(([e, n]) => `<span class="chip"><b>${e}</b><span>${esc(n)}</span></span>`).join('');
+$('bTeam').textContent = t.bTeam; $('bRole').textContent = t.bRole; $('bName').textContent = t.bName; $('bDate').textContent = t.bDate;
 const lien = q.get('lien'); $('cta').href = lien && /^https?:\/\//i.test(lien) ? lien : 'https://bwatsekremtalks.com/benevole';
 // Hauteur exacte envoyée à la page qui intègre (le script du site ajuste l'iframe)
 const sendH = () => { try { parent.postMessage({ bstH: Math.ceil(document.getElementById('s').getBoundingClientRect().height) + 2, bstW: 'benevole' }, '*'); } catch {} };

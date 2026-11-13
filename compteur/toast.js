@@ -23,6 +23,14 @@
   var DONE = 'bst_a_reserve', MINI = 'bst_toast_mini';
   var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
   var ss = { get: function (k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+  /* ---- Ajuste la hauteur des iframes BST (compteur, section b\u00e9n\u00e9vole) selon leur contenu r\u00e9el ---- */
+  addEventListener('message', function (e) {
+    try {
+      if (!/bwatsekremtalks\.github\.io$/.test(new URL(e.origin).hostname) || !e.data || !(e.data.bstH > 50 && e.data.bstH < 3000)) return;
+      var fr = [].slice.call(document.querySelectorAll('iframe')).filter(function (f) { return f.contentWindow === e.source; })[0];
+      if (fr) { fr.style.setProperty('height', e.data.bstH + 'px', 'important'); fr.style.setProperty('overflow', 'hidden'); }
+    } catch (x) {}
+  });
   /* ---- Compteur de visites anonyme : sans cookie, sans IP ; un identifiant al\u00e9atoire par onglet (sessionStorage) ---- */
   (function () {
     try {
@@ -153,6 +161,8 @@
     sh.querySelector('.a').addEventListener('click', go);
     pill.addEventListener('click', go);
     // Pendant que le formulaire est visible a l'ecran, le popup s'efface pour ne pas le couvrir
+    var sect = document.querySelector('iframe[src*="benevole"]');
+    if (sect && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { if (!host) return; var v = es[0].isIntersecting; host.style.opacity = v ? '0' : '1'; host.style.pointerEvents = v ? 'none' : ''; }, { threshold: 0.2 }).observe(sect);
     var f = target();
     if (f && 'IntersectionObserver' in window) new IntersectionObserver(function (es) {
       if (!host) return; var vis = es[0].isIntersecting; host.style.opacity = vis ? '0' : '1'; host.style.pointerEvents = vis ? 'none' : '';

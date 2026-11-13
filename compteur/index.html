@@ -93,6 +93,9 @@ async function load() {
   } catch {}
 }
 load(); setInterval(load, 60000);
+// Hauteur exacte envoyée à la page qui intègre (le script du site ajuste l'iframe)
+const sendH = () => { try { parent.postMessage({ bstH: Math.ceil(document.getElementById('box').getBoundingClientRect().height) + 4, bstW: 'compteur' }, '*'); } catch {} };
+addEventListener('resize', sendH); setTimeout(sendH, 300); setTimeout(sendH, 1800); document.fonts && document.fonts.ready.then(sendH);
 </script>
 </body>
 </html>

@@ -34,10 +34,12 @@
   .koms { display: grid; gap: 9px; }
   .kom { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.08); border: 1.5px solid rgba(122,193,66,.45); border-radius: 16px; padding: 11px 14px; }
   .kom b { font-size: 22px; width: 30px; text-align: center; flex: none; } .kom div { font-weight: 700; font-size: 15.5px; } .kom small { display: block; font-weight: 400; font-size: 13px; color: rgba(255,255,255,.72); margin-top: 1px; }
-  @media (max-width: 760px) { .s { grid-template-columns: 1fr; padding: 26px 20px; gap: 20px; border-radius: 24px; } .cta { width: 100%; justify-content: center; } .lim { text-align: center; } p.l { font-size: 15.5px; } }
+  @media (max-width: 760px) { .s { grid-template-columns: minmax(0, 1fr); padding: 26px 20px; gap: 20px; border-radius: 24px; } .cta { width: 100%; justify-content: center; } .lim { text-align: center; } p.l { font-size: 15.5px; } }
   @media (max-width: 560px) { .g { gap: 6px; } .g li { font-size: 13px; padding: 6px 10px; } .box { padding: 14px; border-radius: 18px; }
-    .koms { grid-template-columns: 1fr 1fr; gap: 7px; } .kom { padding: 9px 10px; gap: 8px; border-radius: 14px; } .kom:last-child { grid-column: 1 / -1; justify-content: center; }
+    .koms { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 7px; } .kom { padding: 9px 10px; gap: 8px; border-radius: 14px; } .kom:last-child { grid-column: 1 / -1; justify-content: center; }
     .kom b { font-size: 18px; width: 22px; } .kom div { font-size: 13.5px; line-height: 1.25; } .kom small { display: none; } h2 { margin: 10px 0 10px; } p.l { margin-bottom: 14px; } }
+  @media (max-width: 400px) { .s { padding: 22px 14px; border-radius: 20px; } h2 { font-size: 26px; } p.l { font-size: 14.5px; }
+    .g li { font-size: 12.5px; padding: 6px 10px; white-space: normal; max-width: 100%; } .cta { font-size: 15.5px; padding: 14px 16px; gap: 8px; } .box { padding: 12px; } .koms { grid-template-columns: minmax(0, 1fr); } .kom:last-child { justify-content: flex-start; } .kom div { font-size: 13.5px; } }
   @media (prefers-reduced-motion: reduce) { .k i { animation: none; } .cta, .cta span { transition: none; } }
 </style>
 </head>
@@ -72,6 +74,9 @@ $('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textCo
 $('gains').innerHTML = t.gains.map((g) => `<li>${esc(g)}</li>`).join('');
 $('koms').innerHTML = t.koms.map(([e, n, d]) => `<div class="kom"><b>${e}</b><div>${esc(n)}<small>${esc(d)}</small></div></div>`).join('');
 const lien = q.get('lien'); $('cta').href = lien && /^https?:\/\//i.test(lien) ? lien : 'https://bwatsekremtalks.com/benevole';
+// Hauteur exacte envoyée à la page qui intègre (le script du site ajuste l'iframe)
+const sendH = () => { try { parent.postMessage({ bstH: Math.ceil(document.getElementById('s').getBoundingClientRect().height) + 2, bstW: 'benevole' }, '*'); } catch {} };
+addEventListener('load', sendH); addEventListener('resize', sendH); setTimeout(sendH, 300); document.fonts && document.fonts.ready.then(sendH);
 $('cta').addEventListener('click', () => { try { window.top.gtag && window.top.gtag('event', 'section_benevole_clic'); } catch {} });
 </script>
 </body>

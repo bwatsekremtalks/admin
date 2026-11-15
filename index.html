@@ -1285,9 +1285,10 @@ function uniCount(raw) {
 }
 function uniText(raw) {
   const k = normUni(raw); if (!k) return '';
-  const n = Math.max(1, uniCount(raw)), nom = uniNom(raw), lien = 'https://bwatsekremtalks.com/reserver';
-  if (n <= 1) return `\n🎓 Vous êtes le premier ou la première étudiant(e) de ${nom} à vous inscrire ! Partagez ce lien avec vos camarades pour venir à 10 au moins : ${lien}\n`;
-  return `\n🎓 Vous êtes déjà ${n} étudiant(e)s de ${nom} inscrit(e)s à Bwat Sekrèm Talks ! Partagez ce lien avec vos camarades pour que vous soyez ${n + 10} le 22 novembre : ${lien}\n`;
+  const nm = uniNom(raw), nom = /^Universit/i.test(nm) ? `l’${nm}` : /^Campus/i.test(nm) ? `du ${nm}`.replace('de du', 'du') : /^Facult/i.test(nm) ? `la ${nm}` : nm;
+  const n = Math.max(1, uniCount(raw)), lien = 'https://bwatsekremtalks.com/reserver';
+  if (n <= 1) return `\n🎓 Vous êtes le premier ou la première étudiant(e) ${nom.startsWith('du ') ? nom : 'de ' + nom} à vous inscrire ! Partagez ce lien avec vos camarades pour venir à 10 au moins : ${lien}\n`;
+  return `\n🎓 Vous êtes déjà ${n} étudiant(e)s ${nom.startsWith('du ') ? nom : 'de ' + nom} inscrit(e)s à Bwat Sekrèm Talks ! Partagez ce lien avec vos camarades pour que vous soyez ${n + 10} le 22 novembre : ${lien}\n`;
 }
 function fillTpl(tpl, r) {
   const acc = (r.accompagnants || []).map((a) => a.nom).filter(Boolean);

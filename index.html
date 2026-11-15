@@ -394,10 +394,22 @@
           <p class="sub" style="margin:0 0 10px">1) La personne paie 500 G par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp avec son nom et son numéro. 2) Vérifie le paiement. 3) Cherche la personne ci-dessous (nom ou numéro) et clique « Créer le code ». Le code est lié à cette personne : le certificat s’ouvre le 22 novembre dès que sa présence est pointée.</p>
           <input type="search" id="kQ" placeholder="Nom ou numéro de la personne (réservation ou accompagnant)…" style="width:100%;max-width:520px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
           <div id="kFind" style="margin-top:10px"></div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #d8dee9">
+            <b>🎥 Code pour quelqu’un qui suivra le Live</b> <span class="sub">(pas besoin de réservation)</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <input id="kLNom" maxlength="100" placeholder="Nom complet sur le certificat" style="flex:1;min-width:220px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+              <input id="kLTel" maxlength="25" inputmode="tel" placeholder="WhatsApp (ex. 3727 4672)" style="width:200px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+              <button class="btn" type="button" id="kLB" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Créer le code Live</button>
+            </div>
+          </div>
           <div id="kOut" style="margin-top:10px"></div>
         </div>
+        <div class="card" style="margin-top:12px"><h2>🔑 Mot secret du Live</h2>
+          <p class="sub" style="margin:0 0 8px">À annoncer 2 fois pendant le Live (au milieu et à la fin), et à afficher à l’écran. Les personnes « Live » l’entrent avec leur code pour débloquer leur certificat, jusqu’au 23 novembre à minuit. Majuscules et accents ne comptent pas.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="kMot" maxlength="30" style="width:240px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:700 18px monospace;letter-spacing:.08em;text-transform:uppercase" />
+            <button class="btn" type="button" id="kMotB">Enregistrer</button><span class="sub" id="kMotS"></span></div></div>
         <div class="card" style="margin-top:12px"><h2>Codes vendus <span class="sub" id="kN"></span></h2>
-          <div class="table-wrap" style="border:0"><table><thead><tr><th>Créé</th><th>Code</th><th>Nom</th><th>Téléphone</th><th>Présence</th><th>Ouvertures</th><th></th></tr></thead><tbody id="kRows"></tbody></table></div>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Créé</th><th>Code</th><th>Nom</th><th>Téléphone</th><th>Mode · présence</th><th>Ouvertures</th><th></th></tr></thead><tbody id="kRows"></tbody></table></div>
           <p class="note">Page publique : <a href="certificat/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/certificat/</a>. Le certificat ne s’affiche qu’après le début de l’événement (22 nov., 14 h 30) et seulement si la présence est pointée (onglet ✅ Pointage).</p></div>
       </div>
       <div id="panelW" class="hidden">
@@ -1579,22 +1591,24 @@ $('tabK').addEventListener('click', () => setTab('K'));
 let KROWS = [];
 const kIdx = (pp) => (pp.kind === 'p' ? -1 : pp.idx);
 async function loadCerts() {
+  sb.from('talks_config').select('valeur').eq('cle', 'mot_live').maybeSingle().then(({ data: m }) => { if (m && document.activeElement !== $('kMot')) $('kMot').value = m.valeur; });
   const { data, error } = await sb.from('talks_cert_coupons').select('*').order('cree_le', { ascending: false }).limit(3000);
   if (error) { notify('Certificats : ' + friendly(error), 'warn'); return; }
   KROWS = data || []; renderCerts(); renderKFind();
 }
 function renderCerts() {
-  const pres = (r) => !!PRES[`${r.inscription_id}:${r.idx}`];
+  const pres = (r) => (r.mode === 'live' ? !!r.live_valide : !!PRES[`${r.inscription_id}:${r.idx}`]);
   const nPres = people(rowsForEdition().filter((r) => !r.annule)).filter(isPres).length;
-  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${(KROWS.length * 500).toLocaleString('fr-FR')} G encaissés`], ['Présents (pointés)', KROWS.filter(pres).length, 'peuvent télécharger'], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
+  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${(KROWS.length * 500).toLocaleString('fr-FR')} G encaissés`], ['Débloqués', KROWS.filter(pres).length, `${KROWS.filter((r) => r.mode === 'live').length} code(s) Live`], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('kN').textContent = `· ${KROWS.length}`;
   $('kRows').innerHTML = KROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(r.code)}</strong></td><td>${esc(r.nom)}</td>
-    <td>${r.tel ? `<a href="https://wa.me/509${esc(String(r.tel).slice(-8))}" target="_blank" rel="noopener">${esc(r.tel)}</a>` : '—'}</td><td>${pres(r) ? '✅ Présent' : '<span class="sub">Pas encore pointé</span>'}</td>
+    <td>${r.tel ? `<a href="https://wa.me/509${esc(String(r.tel).slice(-8))}" target="_blank" rel="noopener">${esc(r.tel)}</a>` : '—'}</td><td>${r.mode === 'live' ? (pres(r) ? '🎥 Live · ✅ mot validé' : '🎥 Live · <span class="sub">mot pas encore entré</span>') : (pres(r) ? '🏛️ Salle · ✅ Présent' : '🏛️ Salle · <span class="sub">pas encore pointé</span>')}</td>
     <td class="sub">${r.nb_ouvertures || 0}</td><td><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener" title="Renvoyer le code sur WhatsApp">💬</a></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun code pour le moment.</td></tr>';
 }
 function kWa(r) {
-  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 Merci, votre paiement est bien reçu. Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\nLe 22 novembre, dès que votre présence est enregistrée à l’entrée, ouvrez https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
+  const quand = r.mode === 'live' ? 'Le 22 novembre, suivez le Live jusqu’au bout : un mot secret sera annoncé. Entrez-le avec votre code sur' : 'Le 22 novembre, dès que votre présence est enregistrée à l’entrée, ouvrez';
+  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 Merci, votre paiement est bien reçu. Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\n${quand} https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
   const d = String(r.tel || '').replace(/\D/g, '').slice(-8);
   return d.length === 8 ? `https://wa.me/509${d}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
@@ -1607,6 +1621,27 @@ function renderKFind() {
       <span style="margin-left:auto">${ex ? `<span class="sub">Déjà : <b>${esc(ex.code)}</b></span>` : `<button class="btn" type="button" data-kc="${pp.resa.id}:${kIdx(pp)}" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Créer le code</button>`}</span></div>`; }).join('') || '<p class="sub">Aucune personne trouvée dans les réservations.</p>';
 }
 $('kQ').addEventListener('input', renderKFind);
+function kShowCode(code, nom, tel, mode) {
+  const r = { code, nom, tel, mode };
+  $('kOut').innerHTML = `<div style="background:#eef9e6;border:1px solid #b9e09a;border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span style="font:800 22px monospace;letter-spacing:.08em">${esc(code)}</span><span>${esc(nom)}${mode === 'live' ? ' · 🎥 Live' : ''}</span>
+    <button class="btn" type="button" id="kCp">📋 Copier</button><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a></div>`;
+  $('kCp').onclick = () => navigator.clipboard?.writeText(code);
+}
+$('kLB').addEventListener('click', async () => {
+  const nom = $('kLNom').value.trim(), tel = $('kLTel').value.trim();
+  if (nom.length < 3) { notify('Écris le nom complet.', 'warn'); return; }
+  $('kLB').disabled = true;
+  const { data, error } = await sb.rpc('talks_cert_creer_live', { p_nom: nom, p_tel: tel || null, p_note: null });
+  $('kLB').disabled = false;
+  if (error) { notify('Impossible de créer le code. ' + friendly(error), 'warn'); return; }
+  kShowCode(data.code, data.nom, tel, 'live'); $('kLNom').value = ''; $('kLTel').value = ''; loadCerts();
+});
+$('kMotB').addEventListener('click', async () => {
+  const v = $('kMot').value.trim().toUpperCase(); if (v.length < 3) { notify('Mot trop court.', 'warn'); return; }
+  const { error } = await sb.from('talks_config').upsert({ cle: 'mot_live', valeur: v, maj: new Date().toISOString() });
+  if (error) { notify('Enregistrement impossible. ' + friendly(error), 'warn'); return; }
+  $('kMotS').textContent = '✓ Enregistré'; notify('Mot secret enregistré : ' + v);
+});
 $('kFind').addEventListener('click', async (e) => {
   const b = e.target.closest('[data-kc]'); if (!b) return;
   const [id, idx] = b.dataset.kc.split(':').map(Number); b.disabled = true;
@@ -1615,9 +1650,7 @@ $('kFind').addEventListener('click', async (e) => {
   if (error) { notify('Impossible de créer le code. ' + friendly(error), 'warn'); return; }
   await loadCerts();
   const r = KROWS.find((x) => x.code === data.code) || { code: data.code, nom: data.nom, tel: '' };
-  $('kOut').innerHTML = `<div style="background:#eef9e6;border:1px solid #b9e09a;border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span style="font:800 22px monospace;letter-spacing:.08em">${esc(data.code)}</span><span>${esc(data.nom)}</span>
-    <button class="btn" type="button" id="kCp">📋 Copier</button><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a></div>`;
-  $('kCp').onclick = () => navigator.clipboard?.writeText(data.code);
+  kShowCode(r.code, r.nom, r.tel, 'salle');
 });
 $('goVisites').addEventListener('click', () => { setTab('W'); $('tabW').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 /* ---------- Visites du site (compteur anonyme intégré au script du popup) ---------- */

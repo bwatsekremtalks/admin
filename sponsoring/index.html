@@ -44,12 +44,16 @@
   .partners div { display: inline-flex; gap: 10mm; align-items: center; background: #fff; border: .5mm solid rgba(93,176,51,.55); border-radius: 7mm; padding: 4mm 9mm; margin-top: 2mm; }
   .partners img { height: 14mm; }
   .vis3 { display: flex; justify-content: center; gap: 3mm; margin: 0 0 4mm; flex-wrap: wrap; } .vis3 span { background: var(--navy); color: #fff; border-radius: 99px; padding: 2mm 5mm; font-size: 10pt; font-weight: 600; } .vis3 span:nth-child(2) { background: var(--green); } .vis3 span:nth-child(3) { background: var(--blue); }
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; margin: 6mm 0; }
-  .stat { background: #fff; border-radius: 6mm; padding: 5mm 3mm; text-align: center; box-shadow: 0 2mm 6mm rgba(13,45,74,.06); }
+  .comm { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1fr; gap: 3mm; align-items: center; background: linear-gradient(90deg, #f3e6ff, #ffe8f2 55%, #fff1df); border-radius: 6mm; padding: 3.5mm 5mm; margin: 0 0 5mm; }
+  .comm .ct { font-size: 10.5pt; line-height: 1.25; } .comm .ct b { display: block; font-weight: 700; }
+  .comm .cm { text-align: center; border-left: .4mm solid rgba(13,45,74,.12); } .comm .cm b { display: block; font-size: 17pt; font-weight: 800; background: linear-gradient(90deg, #8a3ab9, #e95950, #fccc63); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .comm .cm:last-child b { background: none; color: #25a244; -webkit-text-fill-color: #25a244; } .comm .cm span { font-size: 8pt; color: var(--mute); line-height: 1.3; display: block; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; margin: 4mm 0 4mm; }
+  .stat { background: #fff; border-radius: 6mm; padding: 3.5mm 3mm; text-align: center; box-shadow: 0 2mm 6mm rgba(13,45,74,.06); }
   .stat b { display: block; font-size: 21pt; font-weight: 700; }
   .stat span { font-size: 8.5pt; color: var(--mute); }
   .stat:nth-child(1) b { color: var(--green); } .stat:nth-child(2) b { color: var(--blue); } .stat:nth-child(3) b { color: #e2558d; } .stat:nth-child(4) b { color: #F5A623; }
-  .bar { margin: 2.6mm 0; } .bar div { display: flex; justify-content: space-between; font-size: 10pt; margin-bottom: 1mm; } .bar div b { color: var(--green); }
+  .bar { margin: 1.8mm 0; } .bar div { display: flex; justify-content: space-between; font-size: 10pt; margin-bottom: 1mm; } .bar div b { color: var(--green); }
   .bar i { display: block; height: 3mm; border-radius: 3mm; background: rgba(13,45,74,.1); overflow: hidden; } .bar i::after { content: ""; display: block; height: 100%; width: var(--w); background: var(--c, var(--green)); border-radius: 3mm; }
   .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
   ul.ck { list-style: none; padding: 0; margin: 0; } ul.ck li { padding-left: 6.5mm; position: relative; margin: 2.2mm 0; font-size: 10pt; line-height: 1.4; }
@@ -116,8 +120,8 @@
   <p class="k">Notre vision</p>
   <h2 style="margin-bottom:4mm">Bâtir le plus grand <em>espace d’échange</em><br>des professionnels d’Haïti</h2>
   <div class="vis3"><span>📈 Développement professionnel</span><span>🧭 Management</span><span>💡 Innovation</span></div>
-  <p class="lead" style="font-size:10.5pt;margin-bottom:6mm">Bwat Sekrèm Talks construit, édition après édition, un rendez-vous où les professionnels d’aujourd’hui et de demain partagent ce qui fait vraiment avancer une carrière, une équipe et une entreprise.</p>
-  <div class="sky" style="padding:6mm 8mm">
+  <p class="lead" style="font-size:10pt;margin-bottom:4mm">Bwat Sekrèm Talks construit, édition après édition, un rendez-vous où les professionnels d’aujourd’hui et de demain partagent ce qui fait vraiment avancer une carrière, une équipe et une entreprise.</p>
+  <div class="sky" style="padding:5mm 8mm">
     <p style="margin:0 0 3mm;font-weight:600">La 1<sup>re</sup> édition, le 22 novembre :</p>
     <ul class="ck">
       <li>Des intervenants qui partagent leur parcours sans filtre, autour du thème <b>« Du potentiel à la performance : comment se démarquer dans le monde professionnel ? »</b></li>
@@ -125,13 +129,19 @@
       <li>Des échanges directs avec le public, du networking, et une diffusion en direct.</li>
     </ul>
   </div>
-  <p class="k" style="margin-top:6mm">Votre public</p>
-  <h2 style="font-size:18pt;margin-bottom:2mm">Les talents de demain, <em>réunis dans une salle</em></h2>
+  <p class="k" style="margin-top:5mm">Votre public</p>
+  <h2 style="font-size:17pt;margin-bottom:0">Les talents de demain, <em>réunis dans une salle</em></h2>
   <div class="stats">
-    <div class="stat"><b>231</b><span>inscrits au 15 novembre 2026</span></div>
-    <div class="stat"><b>+10</b><span>universités représentées</span></div>
+    <div class="stat"><b>231</b><span>inscrits au 15 nov.</span></div>
+    <div class="stat"><b>+10</b><span>universités</span></div>
     <div class="stat"><b>63 %</b><span>de femmes</span></div>
-    <div class="stat"><b>Live</b><span>diffusion en direct pour les autres régions</span></div>
+    <div class="stat"><b>Live</b><span>diffusion en direct</span></div>
+  </div>
+  <div class="comm">
+    <div class="ct"><b>📱 Une communauté engagée</b></div>
+    <div class="cm"><b>5 000+</b><span>vues sur Instagram<br>en 3 semaines</span></div>
+    <div class="cm"><b>7 %</b><span>d’engagement<br>(2 à 3× la moyenne)</span></div>
+    <div class="cm"><b>50 %</b><span>des inscrits venus<br>par WhatsApp</span></div>
   </div>
   <div class="cols">
     <div class="sky" style="padding:6mm">

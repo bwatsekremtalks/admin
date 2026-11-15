@@ -312,6 +312,7 @@
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
         <button class="tab" role="tab" id="tabW" aria-selected="false" type="button">📈 Visites</button>
         <button class="tab" role="tab" id="tabK" aria-selected="false" type="button">🎓 Certificats</button>
+        <button class="tab" role="tab" id="tabJ" aria-selected="false" type="button">🎵 Jingle</button>
         <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
@@ -388,6 +389,27 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelJ" class="hidden">
+        <div class="tiles" id="jTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>🎵 Le jingle sur le site <span class="sub" id="jEtat"></span></h2>
+          <p class="sub" style="margin:0 0 12px">Tant que le jingle n’est pas publié, le site affiche « Bientôt disponible » avec un bouton « Me prévenir sur WhatsApp ». Quand vous publiez, le lecteur, les « J’aime » et les commentaires apparaissent tout de suite.</p>
+          <div style="display:grid;gap:12px;max-width:640px">
+            <label><b>1. Fichier audio</b> <span class="sub">(MP3 conseillé, 20 Mo max)</span><br>
+              <input type="file" id="jFile" accept="audio/*" style="margin-top:6px" /></label>
+            <div id="jUp" class="sub"></div>
+            <audio id="jAu" controls preload="none" style="width:100%" class="hidden"></audio>
+            <label><b>2. Titre</b><br><input id="jTit" maxlength="120" style="width:100%;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit;margin-top:6px" /></label>
+            <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="jAktif" /> <b>3. Publier le jingle sur le site</b></label>
+            <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="jKom" /> Autoriser les commentaires</label>
+            <div><button class="btn" type="button" id="jSave" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Enregistrer</button> <span class="sub" id="jSaveS"></span></div>
+          </div>
+          <p class="note">Aperçu public : <a href="jingle/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/jingle/</a> · sur le site : <a href="https://bwatsekremtalks.com/jingle" target="_blank" rel="noopener">bwatsekremtalks.com/jingle</a></p>
+        </div>
+        <div class="card" style="margin-top:12px"><h2>💬 Commentaires <span class="sub" id="jN"></span></h2>
+          <p class="sub" style="margin:0 0 8px">Les commentaires sont publiés tout de suite. Masquez ceux qui ne conviennent pas (ils disparaissent du site) ou supprimez-les.</p>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Nom</th><th>Commentaire</th><th>Sur le site</th><th></th></tr></thead><tbody id="jRows"></tbody></table></div>
+        </div>
+      </div>
       <div id="panelK" class="hidden">
         <div class="tiles" id="kTiles"></div>
         <div class="card" style="margin-top:12px"><h2>🎟️ Créer un code certificat (4 $ US · 550 G)</h2>
@@ -1592,9 +1614,9 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'K') loadCerts();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K', 'J']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K' || t === 'J');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'J') loadJingle(); if (t === 'K') loadCerts();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
@@ -1604,6 +1626,57 @@ $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
 $('tabK').addEventListener('click', () => setTab('K'));
+$('tabJ').addEventListener('click', () => setTab('J'));
+/* ---------- Jingle ---------- */
+let JCFG = {}, JROWS = [];
+async function loadJingle() {
+  const [c, s, k] = await Promise.all([
+    sb.from('talks_config').select('cle, valeur').like('cle', 'jingle_%'),
+    sb.from('talks_jingle_stat').select('*').eq('id', 1).maybeSingle(),
+    sb.from('talks_jingle_komante').select('*').order('cree_le', { ascending: false }).limit(2000),
+  ]);
+  if (c.error || k.error) { notify('Jingle : ' + friendly(c.error || k.error), 'warn'); return; }
+  JCFG = Object.fromEntries((c.data || []).map((r) => [r.cle, r.valeur])); JROWS = k.data || [];
+  const st = s.data || { ekoute: 0, renmen: 0 };
+  const pub = JCFG.jingle_aktif === '1' && !!JCFG.jingle_url;
+  $('jEtat').textContent = pub ? '· ✅ Publié' : JCFG.jingle_url ? '· 🔒 Fichier prêt, pas encore publié' : '· ⏳ Bientôt disponible (aucun fichier)';
+  $('jTiles').innerHTML = [['Écoutes', st.ekoute, 'une par visite'], ['J’aime', st.renmen, '❤️'], ['Commentaires', JROWS.filter((r) => r.vizib).length, `${JROWS.filter((r) => !r.vizib).length} masqué(s)`], ['Statut', pub ? 'Publié' : 'Bientôt', pub ? 'visible sur le site' : 'page « Bientôt disponible »']]
+    .map(([a, v, b]) => `<div class="tile"><div class="k">${esc(a)}</div><div class="v">${esc(v)}</div><div class="s">${esc(b)}</div></div>`).join('');
+  if (document.activeElement !== $('jTit')) $('jTit').value = JCFG.jingle_tit || '';
+  $('jAktif').checked = JCFG.jingle_aktif === '1'; $('jKom').checked = JCFG.jingle_komante !== '0';
+  if (JCFG.jingle_url) { if ($('jAu').dataset.src !== JCFG.jingle_url) { $('jAu').src = JCFG.jingle_url; $('jAu').dataset.src = JCFG.jingle_url; } $('jAu').classList.remove('hidden'); $('jUp').textContent = 'Fichier actuel : ' + decodeURIComponent(JCFG.jingle_url.split('/').pop()); }
+  else { $('jAu').classList.add('hidden'); $('jUp').textContent = 'Aucun fichier pour le moment.'; }
+  $('jN').textContent = `· ${JROWS.length}`;
+  $('jRows').innerHTML = JROWS.map((r) => `<tr${r.vizib ? '' : ' style="opacity:.55"'}><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong>${esc(r.non)}</strong></td><td style="max-width:420px;white-space:pre-wrap">${esc(r.mesaj)}</td>
+    <td>${r.vizib ? '✅ Visible' : '🙈 Masqué'}</td><td style="white-space:nowrap"><button class="btn" type="button" data-jv="${r.id}">${r.vizib ? 'Masquer' : 'Afficher'}</button> <button class="btn" type="button" data-jd="${r.id}" title="Supprimer">🗑️</button></td></tr>`).join('') || '<tr><td colspan="5" class="empty">Aucun commentaire pour le moment.</td></tr>';
+}
+async function jSet(rows) {
+  const now = new Date().toISOString();
+  const { error } = await sb.from('talks_config').upsert(rows.map(([cle, valeur]) => ({ cle, valeur, maj: now })));
+  if (error) { notify('Enregistrement impossible. ' + friendly(error), 'warn'); return false; }
+  return true;
+}
+$('jFile').addEventListener('change', async () => {
+  const f = $('jFile').files[0]; if (!f) return;
+  if (f.size > 20 * 1024 * 1024) { notify('Fichier trop lourd (20 Mo max).', 'warn'); return; }
+  const ext = (f.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g, '') || 'mp3';
+  const path = `jingle-${Date.now()}.${ext}`;
+  $('jUp').textContent = 'Envoi du fichier…';
+  const { error } = await sb.storage.from('jingle').upload(path, f, { contentType: f.type || 'audio/mpeg', cacheControl: '31536000', upsert: false });
+  if (error) { $('jUp').textContent = ''; notify('Envoi impossible. ' + friendly(error), 'warn'); return; }
+  const url = sb.storage.from('jingle').getPublicUrl(path).data.publicUrl;
+  if (await jSet([['jingle_url', url]])) { notify('Fichier enregistré. Écoutez l’aperçu, puis cochez « Publier » quand vous êtes prêt.'); $('jFile').value = ''; loadJingle(); }
+});
+$('jSave').addEventListener('click', async () => {
+  if ($('jAktif').checked && !JCFG.jingle_url) { notify('Ajoutez d’abord le fichier audio du jingle.', 'warn'); $('jAktif').checked = false; return; }
+  const ok = await jSet([['jingle_tit', $('jTit').value.trim() || 'Le jingle officiel de Bwat Sekrèm Talks'], ['jingle_aktif', $('jAktif').checked ? '1' : '0'], ['jingle_komante', $('jKom').checked ? '1' : '0']]);
+  if (ok) { $('jSaveS').textContent = '✓ Enregistré'; setTimeout(() => { $('jSaveS').textContent = ''; }, 3000); notify($('jAktif').checked ? '🎵 Le jingle est publié sur le site.' : 'Enregistré. Le site affiche « Bientôt disponible ».'); loadJingle(); }
+});
+$('jRows').addEventListener('click', async (e) => {
+  const v = e.target.closest('[data-jv]'), d = e.target.closest('[data-jd]');
+  if (v) { const r = JROWS.find((x) => x.id === Number(v.dataset.jv)); const { error } = await sb.from('talks_jingle_komante').update({ vizib: !r.vizib }).eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadJingle(); }
+  if (d) { if (!confirm('Supprimer définitivement ce commentaire ?')) return; const { error } = await sb.from('talks_jingle_komante').delete().eq('id', Number(d.dataset.jd)); if (error) notify(friendly(error), 'warn'); loadJingle(); }
+});
 /* ---------- Certificats payants (550 G = 4 $ US) ---------- */
 let KROWS = [];
 const kIdx = (pp) => (pp.kind === 'p' ? -1 : pp.idx);

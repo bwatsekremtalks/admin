@@ -39,9 +39,19 @@
   .btn.li { background: #0a66c2; box-shadow: none; } .btn.wa { background: #25D366; box-shadow: none; }
   .btn:disabled { opacity: .6; cursor: wait; transform: none; }
   .hbtns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .cta-box { display: grid; gap: 12px; max-width: 520px; }
+  .bigcta { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; border: 0; cursor: pointer; background: var(--green); color: #fff; border-radius: 20px; padding: 14px 18px; font-family: Lexend, sans-serif; box-shadow: 0 14px 34px rgba(93,176,51,.4); transition: transform .15s, box-shadow .15s; }
+  .bigcta:hover { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(93,176,51,.5); }
+  .bigcta .ic { flex: none; width: 50px; height: 50px; border-radius: 14px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 26px; }
+  .bigcta .tx { flex: 1; display: grid; gap: 2px; } .bigcta .tx b { font-size: 18px; font-weight: 700; line-height: 1.2; }
+  .bigcta .tx small { font-size: 13.5px; color: rgba(255,255,255,.9); font-weight: 500; } .bigcta .tx small b { font-size: inherit; color: #fff; font-weight: 800; }
+  .bigcta .ar { flex: none; font-size: 22px; font-weight: 700; transition: transform .15s; } .bigcta:hover .ar { transform: translateX(4px); }
+  .have { justify-self: start; color: #dff3d0; font-weight: 600; font-size: 15px; text-decoration: none; border-bottom: 1.5px solid rgba(223,243,208,.4); padding-bottom: 2px; }
+  .have:hover { color: #fff; border-color: #fff; }
+  @media (max-width: 860px) { .cta-box { margin: 0 auto; } .have { justify-self: center; } }
   .price { margin-top: 14px; font-size: 14px; color: rgba(255,255,255,.75); }
   .price b { color: #ffd28a; }
-  .themes { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; } .themes span { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 500; }
+  .themes { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 6px; } .themes span { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 5px 11px; font-size: 13px; font-weight: 500; }
   @media (max-width: 860px) { .themes { justify-content: center; } }
   .mock { position: relative; transform: rotate(2.5deg); }
   .mock canvas { width: 100%; height: auto; display: block; border-radius: 10px; box-shadow: 0 30px 70px rgba(0,0,0,.45); }
@@ -106,8 +116,10 @@
       <div class="k"><i></i><span data-t="kick"></span></div>
       <h1 data-th="title"></h1>
       <p data-t="lead"></p>
-      <div class="hbtns"><button class="btn" type="button" id="openPay" data-t="cta"></button><a class="btn ghost" href="#codeCard" data-t="haveCode"></a></div>
-      <div class="price" data-th="priceLine"></div>
+      <div class="cta-box">
+        <button class="bigcta" type="button" id="openPay"><span class="ic">🎓</span><span class="tx"><b data-t="cta"></b><small data-th="ctaSub"></small></span><span class="ar">→</span></button>
+        <a class="have" href="#codeCard"><span data-t="haveCode"></span> →</a>
+      </div>
       <div class="themes" data-th="themes"></div>
     </div>
     <div class="mock"><canvas id="mockCv" width="1754" height="1240"></canvas><span class="seal" data-t="seal"></span></div>
@@ -177,7 +189,7 @@ const T = {
     eMot: 'Ce n’est pas le bon mot secret. Réécoutez la fin du Live.', eDelai: 'Le délai pour entrer le mot secret est dépassé (23 novembre, minuit). Écrivez-nous sur WhatsApp.',
     avantLive: (n) => `✅ Code valide${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Le 22 novembre, suivez le Live jusqu’au bout : un mot secret sera annoncé. Entrez-le ici avec votre code pour débloquer votre certificat.`,
     mSalle: '🏛️ Je serai dans la salle', mLive: '🎥 Je suivrai le Live', pTelLive: 'Votre numéro WhatsApp', kick: '22 novembre 2026 · Cap-Haïtien', title: 'Participez et repartez avec votre <em>certificat</em>', lead: 'Participez à Bwat Sekrèm Talks et obtenez votre certificat de participation : à votre nom, vérifiable par QR code, prêt pour votre CV et LinkedIn.',
-    cta: '🎓 Demandez la préparation de votre certificat à l’avance', haveCode: 'J’ai déjà mon code', priceLine: 'Frais de préparation : <b>4 $ US</b> <i>(550 gourdes)</i> · pour les participants du 22 novembre, <b>en salle ou en Live</b>', seal: 'Vérifiable par QR code',
+    cta: 'Demandez votre certificat à l’avance', ctaSub: '<b>4 $ US</b> <i>(550 gourdes)</i> · en salle ou en Live', haveCode: 'J’ai déjà mon code certificat', priceLine: 'Frais de préparation : <b>4 $ US</b> <i>(550 gourdes)</i> · pour les participants du 22 novembre, <b>en salle ou en Live</b>', seal: 'Vérifiable par QR code',
     codeT: 'J’ai mon <em>code certificat</em>', codeS: 'Entrez le code reçu sur WhatsApp. Vous pouvez revenir et télécharger votre certificat autant de fois que vous le souhaitez.', go: 'Ouvrir mon certificat',
     eCode: 'Ce code n’existe pas. Vérifiez-le (format CERT-XXXX-XXXX).', eNet: 'Connexion impossible. Réessayez.',
     avant: (n) => `✅ Code valide${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Votre certificat est réservé. Il sera disponible ici le 22 novembre, dès que votre présence aura été enregistrée à l’entrée. Gardez bien votre code.`,
@@ -197,7 +209,7 @@ const T = {
     eMot: 'Se pa bon mo sekrè a. Reekoute fen Live la.', eDelai: 'Dat limit pou antre mo sekrè a pase (23 novanm, minwi). Ekri nou sou WhatsApp.',
     avantLive: (n) => `✅ Kòd la bon${n ? ', ' + esc(n.split(' ')[0]) : ''} ! 22 novanm, swiv Live la jiska lafen : y ap anonse yon mo sekrè. Antre l isit la ak kòd ou pou debloke sètifika w.`,
     mSalle: '🏛️ M ap nan sal la', mLive: '🎥 M ap swiv Live la', pTelLive: 'Nimewo WhatsApp ou', kick: '22 novanm 2026 · Okap', title: 'Patisipe epi ale ak <em>sètifika</em> w', lead: 'Patisipe nan Bwat Sekrèm Talks epi jwenn sètifika patisipasyon w : ak non w, yo ka verifye l ak yon kòd QR, li pare pou CV w ak LinkedIn.',
-    cta: '🎓 Mande pou yo prepare sètifika w davans', haveCode: 'Mwen gen kòd mwen deja', priceLine: 'Frè preparasyon : <b>4 $ US</b> <i>(550 goud)</i> · pou patisipan 22 novanm yo, <b>nan sal la oswa sou Live la</b>', seal: 'Ka verifye ak kòd QR',
+    cta: 'Mande sètifika w davans', ctaSub: '<b>4 $ US</b> <i>(550 goud)</i> · nan sal la oswa sou Live', haveCode: 'Mwen gen kòd sètifika m deja', priceLine: 'Frè preparasyon : <b>4 $ US</b> <i>(550 goud)</i> · pou patisipan 22 novanm yo, <b>nan sal la oswa sou Live la</b>', seal: 'Ka verifye ak kòd QR',
     codeT: 'Mwen gen <em>kòd sètifika</em> mwen', codeS: 'Antre kòd ou resevwa sou WhatsApp la. Ou ka retounen telechaje sètifika w otan fwa ou vle.', go: 'Louvri sètifika mwen',
     eCode: 'Kòd sa a pa egziste. Verifye l (fòma CERT-XXXX-XXXX).', eNet: 'Pa ka konekte. Eseye ankò.',
     avant: (n) => `✅ Kòd la bon${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Sètifika w rezève. L ap disponib isit la 22 novanm, depi yo anrejistre prezans ou nan antre a. Kenbe kòd ou byen.`,
@@ -217,7 +229,7 @@ const T = {
     eMot: 'That is not the right secret word. Rewatch the end of the Live.', eDelai: 'The deadline to enter the secret word has passed (November 23, midnight). Message us on WhatsApp.',
     avantLive: (n) => `✅ Valid code${n ? ', ' + esc(n.split(' ')[0]) : ''}! On November 22, watch the Live until the end: a secret word will be announced. Enter it here with your code to unlock your certificate.`,
     mSalle: '🏛️ I’ll be in the room', mLive: '🎥 I’ll watch the Live', pTelLive: 'Your WhatsApp number', kick: 'November 22, 2026 · Cap-Haïtien', title: 'Attend and leave with your <em>certificate</em>', lead: 'Attend Bwat Sekrèm Talks and get your certificate of participation: in your name, verifiable by QR code, ready for your CV and LinkedIn.',
-    cta: '🎓 Request your certificate in advance', haveCode: 'I already have my code', priceLine: 'Preparation fee: <b>US$4</b> <i>(550 gourdes)</i> · for November 22 participants, <b>in the room or on the Live</b>', seal: 'Verifiable by QR code',
+    cta: 'Request your certificate in advance', ctaSub: '<b>US$4</b> <i>(550 gourdes)</i> · in the room or on the Live', haveCode: 'I already have my code', priceLine: 'Preparation fee: <b>US$4</b> <i>(550 gourdes)</i> · for November 22 participants, <b>in the room or on the Live</b>', seal: 'Verifiable by QR code',
     codeT: 'I have my <em>certificate code</em>', codeS: 'Enter the code you received on WhatsApp. You can come back and download your certificate as many times as you like.', go: 'Open my certificate',
     eCode: 'This code does not exist. Check it (format CERT-XXXX-XXXX).', eNet: 'Cannot connect. Try again.',
     avant: (n) => `✅ Valid code${n ? ', ' + esc(n.split(' ')[0]) : ''}! Your certificate is reserved. It will be available here on November 22, as soon as your attendance is recorded at the entrance. Keep your code.`,

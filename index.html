@@ -390,8 +390,8 @@
 
       <div id="panelK" class="hidden">
         <div class="tiles" id="kTiles"></div>
-        <div class="card" style="margin-top:12px"><h2>🎟️ Créer un code certificat (500 G)</h2>
-          <p class="sub" style="margin:0 0 10px">1) La personne paie 500 G par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp avec son nom et son numéro. 2) Vérifie le paiement. 3) Cherche la personne ci-dessous (nom ou numéro) et clique « Créer le code ». Le code est lié à cette personne : le certificat s’ouvre le 22 novembre dès que sa présence est pointée.</p>
+        <div class="card" style="margin-top:12px"><h2>🎟️ Créer un code certificat (4 $ US · 550 G)</h2>
+          <p class="sub" style="margin:0 0 10px">1) La personne paie 550 G (4 $ US) par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp avec son nom et son numéro. 2) Vérifie le paiement. 3) Cherche la personne ci-dessous (nom ou numéro) et clique « Créer le code ». Le code est lié à cette personne : le certificat s’ouvre le 22 novembre dès que sa présence est pointée.</p>
           <input type="search" id="kQ" placeholder="Nom ou numéro de la personne (réservation ou accompagnant)…" style="width:100%;max-width:520px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
           <div id="kFind" style="margin-top:10px"></div>
           <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #d8dee9">
@@ -1587,7 +1587,7 @@ $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
 $('tabK').addEventListener('click', () => setTab('K'));
-/* ---------- Certificats payants (500 G) ---------- */
+/* ---------- Certificats payants (550 G = 4 $ US) ---------- */
 let KROWS = [];
 const kIdx = (pp) => (pp.kind === 'p' ? -1 : pp.idx);
 async function loadCerts() {
@@ -1599,7 +1599,7 @@ async function loadCerts() {
 function renderCerts() {
   const pres = (r) => (r.mode === 'live' ? !!r.live_valide : !!PRES[`${r.inscription_id}:${r.idx}`]);
   const nPres = people(rowsForEdition().filter((r) => !r.annule)).filter(isPres).length;
-  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${(KROWS.length * 500).toLocaleString('fr-FR')} G encaissés`], ['Débloqués', KROWS.filter(pres).length, `${KROWS.filter((r) => r.mode === 'live').length} code(s) Live`], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
+  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${KROWS.reduce((a, r) => a + (r.prix_htg || 550), 0).toLocaleString('fr-FR')} G encaissés`], ['Débloqués', KROWS.filter(pres).length, `${KROWS.filter((r) => r.mode === 'live').length} code(s) Live`], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('kN').textContent = `· ${KROWS.length}`;
   $('kRows').innerHTML = KROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(r.code)}</strong></td><td>${esc(r.nom)}</td>

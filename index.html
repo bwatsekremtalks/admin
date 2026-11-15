@@ -311,6 +311,7 @@
         <button class="tab pt" role="tab" id="tabC" aria-selected="false" type="button" title="Jour J : noter les personnes qui arrivent">✅ Pointage</button>
         <button class="tab" role="tab" id="tabQ" aria-selected="false" type="button">🧬 ADN Pro</button>
         <button class="tab" role="tab" id="tabW" aria-selected="false" type="button">📈 Visites</button>
+        <button class="tab" role="tab" id="tabK" aria-selected="false" type="button">🎓 Certificats</button>
         <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
@@ -387,6 +388,18 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelK" class="hidden">
+        <div class="tiles" id="kTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>🎟️ Créer un code certificat (500 G)</h2>
+          <p class="sub" style="margin:0 0 10px">1) La personne paie 500 G par MonCash au +509 4872-2671 et envoie la capture sur WhatsApp avec son nom et son numéro. 2) Vérifie le paiement. 3) Cherche la personne ci-dessous (nom ou numéro) et clique « Créer le code ». Le code est lié à cette personne : le certificat s’ouvre le 22 novembre dès que sa présence est pointée.</p>
+          <input type="search" id="kQ" placeholder="Nom ou numéro de la personne (réservation ou accompagnant)…" style="width:100%;max-width:520px;padding:9px 12px;border:1px solid #d8dee9;border-radius:10px;font:inherit" />
+          <div id="kFind" style="margin-top:10px"></div>
+          <div id="kOut" style="margin-top:10px"></div>
+        </div>
+        <div class="card" style="margin-top:12px"><h2>Codes vendus <span class="sub" id="kN"></span></h2>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Créé</th><th>Code</th><th>Nom</th><th>Téléphone</th><th>Présence</th><th>Ouvertures</th><th></th></tr></thead><tbody id="kRows"></tbody></table></div>
+          <p class="note">Page publique : <a href="certificat/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/certificat/</a>. Le certificat ne s’affiche qu’après le début de l’événement (22 nov., 14 h 30) et seulement si la présence est pointée (onglet ✅ Pointage).</p></div>
+      </div>
       <div id="panelW" class="hidden">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
           <label class="sub">Période <select id="wPer" style="padding:8px 10px;border:1px solid #d8dee9;border-radius:10px;font:inherit;margin-left:4px"><option value="7">7 derniers jours</option><option value="14" selected>14 derniers jours</option><option value="30">30 derniers jours</option><option value="1">Aujourd’hui</option></select></label>
@@ -1550,9 +1563,9 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'K') loadCerts();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
@@ -1561,6 +1574,51 @@ $('tabM').addEventListener('click', () => setTab('M'));
 $('tabI').addEventListener('click', () => setTab('I'));
 $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
+$('tabK').addEventListener('click', () => setTab('K'));
+/* ---------- Certificats payants (500 G) ---------- */
+let KROWS = [];
+const kIdx = (pp) => (pp.kind === 'p' ? -1 : pp.idx);
+async function loadCerts() {
+  const { data, error } = await sb.from('talks_cert_coupons').select('*').order('cree_le', { ascending: false }).limit(3000);
+  if (error) { notify('Certificats : ' + friendly(error), 'warn'); return; }
+  KROWS = data || []; renderCerts(); renderKFind();
+}
+function renderCerts() {
+  const pres = (r) => !!PRES[`${r.inscription_id}:${r.idx}`];
+  const nPres = people(rowsForEdition().filter((r) => !r.annule)).filter(isPres).length;
+  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${(KROWS.length * 500).toLocaleString('fr-FR')} G encaissés`], ['Présents (pointés)', KROWS.filter(pres).length, 'peuvent télécharger'], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  $('kN').textContent = `· ${KROWS.length}`;
+  $('kRows').innerHTML = KROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(r.code)}</strong></td><td>${esc(r.nom)}</td>
+    <td>${r.tel ? `<a href="https://wa.me/509${esc(String(r.tel).slice(-8))}" target="_blank" rel="noopener">${esc(r.tel)}</a>` : '—'}</td><td>${pres(r) ? '✅ Présent' : '<span class="sub">Pas encore pointé</span>'}</td>
+    <td class="sub">${r.nb_ouvertures || 0}</td><td><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener" title="Renvoyer le code sur WhatsApp">💬</a></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun code pour le moment.</td></tr>';
+}
+function kWa(r) {
+  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 Merci, votre paiement est bien reçu. Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\nLe 22 novembre, dès que votre présence est enregistrée à l’entrée, ouvrez https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
+  const d = String(r.tel || '').replace(/\D/g, '').slice(-8);
+  return d.length === 8 ? `https://wa.me/509${d}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+}
+function renderKFind() {
+  const q = ($('kQ').value || '').trim().toLowerCase();
+  if (q.length < 2) { $('kFind').innerHTML = ''; return; }
+  const L = people(rowsForEdition().filter((r) => !r.annule)).filter((pp) => String(pp.nom || '').toLowerCase().includes(q) || phoneMatch(pp.tel || '', q) || phoneMatch(pp.resa.telephone || '', q)).slice(0, 12);
+  $('kFind').innerHTML = L.map((pp) => { const ex = KROWS.find((r) => r.inscription_id === pp.resa.id && r.idx === kIdx(pp));
+    return `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid #eef2f7"><strong>${esc(pp.nom || '—')}</strong><span class="sub">${esc(pp.tel || pp.resa.telephone || '')}${pp.by ? ` · avec ${esc(pp.by)}` : ''}</span>${isPres(pp) ? '<span class="sub">✅ présent</span>' : ''}
+      <span style="margin-left:auto">${ex ? `<span class="sub">Déjà : <b>${esc(ex.code)}</b></span>` : `<button class="btn" type="button" data-kc="${pp.resa.id}:${kIdx(pp)}" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:700">Créer le code</button>`}</span></div>`; }).join('') || '<p class="sub">Aucune personne trouvée dans les réservations.</p>';
+}
+$('kQ').addEventListener('input', renderKFind);
+$('kFind').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-kc]'); if (!b) return;
+  const [id, idx] = b.dataset.kc.split(':').map(Number); b.disabled = true;
+  const { data, error } = await sb.rpc('talks_cert_creer', { p_inscription_id: id, p_idx: idx, p_note: null });
+  b.disabled = false;
+  if (error) { notify('Impossible de créer le code. ' + friendly(error), 'warn'); return; }
+  await loadCerts();
+  const r = KROWS.find((x) => x.code === data.code) || { code: data.code, nom: data.nom, tel: '' };
+  $('kOut').innerHTML = `<div style="background:#eef9e6;border:1px solid #b9e09a;border-radius:12px;padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center"><span style="font:800 22px monospace;letter-spacing:.08em">${esc(data.code)}</span><span>${esc(data.nom)}</span>
+    <button class="btn" type="button" id="kCp">📋 Copier</button><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a></div>`;
+  $('kCp').onclick = () => navigator.clipboard?.writeText(data.code);
+});
 $('goVisites').addEventListener('click', () => { setTab('W'); $('tabW').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 /* ---------- Visites du site (compteur anonyme intégré au script du popup) ---------- */
 const WPAGE = { '/': 'Accueil', '/reserver': 'Réserver', '/benevole': 'Devenir bénévole', '/cv': 'CV pro', '/portrait': 'Portrait IA', '/profil': 'ADN Pro', '/editions': 'Éditions', '/partenaires': 'Partenaires' };

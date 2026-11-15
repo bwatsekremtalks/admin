@@ -4,9 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Certificat de participation — Bwat Sekrèm Talks</title>
-<meta name="description" content="Téléchargez votre certificat de participation à Bwat Sekrèm Talks, 22 novembre 2026, Cap-Haïtien." />
-<meta property="og:title" content="Mon certificat · Bwat Sekrèm Talks" />
-<meta property="og:description" content="Participants du 22 novembre 2026 : téléchargez votre certificat de participation." />
+<meta name="description" content="Participez à Bwat Sekrèm Talks le 22 novembre 2026 à Cap-Haïtien et obtenez votre certificat de participation, vérifiable et prêt pour LinkedIn." />
+<meta property="og:title" content="Votre certificat de participation · Bwat Sekrèm Talks" />
+<meta property="og:description" content="Demandez dès maintenant la préparation de votre certificat : vérifiable par QR code, prêt pour votre CV et LinkedIn." />
 <meta name="theme-color" content="#0D2D4A" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,67 +16,111 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EPBK3XEPPW"></script>
 <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-EPBK3XEPPW', { cookie_flags: 'SameSite=None;Secure' });</script>
 <style>
-  :root { --navy: #0D2D4A; --navy2: #0a1f38; --green: #5DB033; --green2: #7AC142; --blue: #1E8CF0; --mute: #5b6f8a; --line: #dfe7f0; }
+  :root { --navy: #0D2D4A; --navy2: #0a1f38; --green: #5DB033; --green2: #7AC142; --blue: #1E8CF0; --mute: #5b6f8a; --line: #dfe7f0; --soft: #f3f7fb; }
   * { box-sizing: border-box; }
-  body { margin: 0; font: 16px/1.5 Lexend, system-ui, sans-serif; color: var(--navy); background: #eef2f7; }
+  body { margin: 0; font: 16px/1.55 Lexend, system-ui, sans-serif; color: var(--navy); background: #eef2f7; }
   .hidden { display: none !important; }
-  .hero { background: radial-gradient(circle at 88% 10%, rgba(122,193,66,.35), transparent 40%), linear-gradient(135deg, var(--navy2), #1d4a7c); color: #fff; padding: 30px 16px 86px; text-align: center; position: relative; }
-  .langs { position: absolute; top: 12px; right: 14px; display: flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
+  .hero { position: relative; overflow: hidden; color: #fff; padding: 46px 20px 110px;
+          background: radial-gradient(circle at 88% 10%, rgba(122,193,66,.35), transparent 40%), radial-gradient(circle at 0% 100%, rgba(30,140,240,.25), transparent 45%), linear-gradient(135deg, var(--navy2), #1d4a7c); }
+  .hero::before { content: ""; position: absolute; inset: 0; opacity: .06; background-image: radial-gradient(#fff 1.2px, transparent 1.3px); background-size: 22px 22px; }
+  .hin { position: relative; max-width: 1040px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.05fr; gap: 36px; align-items: center; }
+  .langs { position: absolute; top: 12px; right: 14px; z-index: 3; display: flex; background: rgba(255,255,255,.1); border-radius: 999px; padding: 3px; }
   .langs button { border: 0; background: none; color: #fff; font: 600 13px Lexend, sans-serif; padding: 6px 11px; border-radius: 999px; cursor: pointer; }
   .langs button[aria-pressed="true"] { background: var(--green2); color: var(--navy2); }
-  .hero img { height: 46px; }
-  .hero .k { margin-top: 14px; font-weight: 600; font-size: 12.5px; letter-spacing: .2em; text-transform: uppercase; color: #cfe9bf; }
-  .hero h1 { font-weight: 800; font-size: clamp(28px, 6vw, 44px); line-height: 1.08; margin: 8px auto 10px; max-width: 700px; }
-  .hero h1 em { font-style: normal; color: var(--green2); }
-  .hero p { margin: 0 auto; max-width: 560px; color: rgba(255,255,255,.85); }
-  .wrap { max-width: 980px; margin: -56px auto 40px; padding: 0 16px; position: relative; display: grid; gap: 16px; }
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 22px; box-shadow: 0 10px 30px rgba(13,45,74,.07); }
-  .card h2 { font-weight: 700; font-size: 20px; margin: 0 0 4px; }
-  .sub { color: var(--mute); font-size: 14px; }
+  .k { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase; color: #dff3d0; }
+  .k i { width: 8px; height: 8px; border-radius: 50%; background: var(--green2); }
+  h1 { font-weight: 800; font-size: clamp(32px, 5vw, 50px); line-height: 1.04; margin: 16px 0 14px; }
+  h1 em { font-style: normal; color: var(--green2); }
+  .hero p { margin: 0 0 22px; color: rgba(255,255,255,.86); font-size: 17px; max-width: 520px; }
+  .btn { border: 0; background: var(--green); color: #fff; font: 700 16px Lexend, sans-serif; border-radius: 999px; padding: 15px 24px; cursor: pointer; display: inline-flex; gap: 10px; align-items: center; justify-content: center; text-decoration: none; box-shadow: 0 12px 30px rgba(93,176,51,.35); transition: transform .15s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.alt { background: #fff; color: var(--navy); border: 1.5px solid var(--line); box-shadow: none; }
+  .btn.ghost { background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.3); box-shadow: none; }
+  .btn.li { background: #0a66c2; box-shadow: none; } .btn.wa { background: #25D366; box-shadow: none; }
+  .btn:disabled { opacity: .6; cursor: wait; transform: none; }
+  .hbtns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .price { margin-top: 14px; font-size: 14px; color: rgba(255,255,255,.75); }
+  .price b { color: #ffd28a; }
+  .mock { position: relative; transform: rotate(2.5deg); }
+  .mock canvas { width: 100%; height: auto; display: block; border-radius: 10px; box-shadow: 0 30px 70px rgba(0,0,0,.45); }
+  .mock .seal { position: absolute; right: -10px; top: -18px; background: #ffd28a; color: #6b4e00; font-weight: 800; font-size: 13px; border-radius: 999px; padding: 8px 14px; transform: rotate(-6deg); box-shadow: 0 10px 20px rgba(0,0,0,.25); }
+  .wrap { max-width: 1040px; margin: -64px auto 40px; padding: 0 16px; position: relative; display: grid; gap: 18px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 24px; box-shadow: 0 10px 30px rgba(13,45,74,.07); }
+  .card h2 { font-weight: 800; font-size: 22px; margin: 0 0 4px; }
+  .card h2 em { font-style: normal; color: var(--green); }
+  .sub { color: var(--mute); font-size: 14.5px; }
   .row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
   input.t { flex: 1; min-width: 200px; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: 14px; font: 18px Lexend, sans-serif; color: var(--navy); }
+  input.t.code { text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
   input.t:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(93,176,51,.2); }
-  .btn { border: 0; background: var(--green); color: #fff; font: 600 16px Lexend, sans-serif; border-radius: 999px; padding: 14px 24px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; justify-content: center; text-decoration: none; }
-  .btn.alt { background: #fff; color: var(--navy); border: 1.5px solid var(--line); }
-  .btn.li { background: #0a66c2; }
-  .btn:disabled { opacity: .6; cursor: wait; }
   .msg { margin: 12px 0 0; font-weight: 500; }
   .msg.err { color: #b3261e; } .msg.info { color: #8a4b00; background: #fff4e0; border: 1px solid #f5d9a8; border-radius: 12px; padding: 12px 14px; }
-  .who { display: grid; gap: 8px; margin-top: 12px; }
-  .who button { text-align: left; border: 1.5px solid var(--line); background: #fff; border-radius: 14px; padding: 12px 14px; font: 600 16px Lexend, sans-serif; color: var(--navy); cursor: pointer; }
-  .who button:hover { border-color: var(--green); background: #f4fbef; }
-  .prev { background: #dfe6ee; border-radius: 16px; padding: 12px; }
+  .msg.ok { color: #22631a; background: #eef9e6; border: 1px solid #b9e09a; border-radius: 12px; padding: 12px 14px; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 14px; counter-reset: s; }
+  .steps div { background: var(--soft); border-radius: 16px; padding: 16px; position: relative; counter-increment: s; }
+  .steps div::before { content: counter(s); position: absolute; top: -10px; left: 14px; width: 28px; height: 28px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 800; display: grid; place-items: center; font-size: 14px; }
+  .steps b { display: block; margin: 8px 0 4px; } .steps span { font-size: 14px; color: var(--mute); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .why { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+  .why li { display: flex; gap: 12px; align-items: flex-start; }
+  .why li b.e { flex: none; width: 40px; height: 40px; border-radius: 12px; background: var(--soft); display: grid; place-items: center; font-size: 20px; }
+  .why li div { font-size: 14.5px; } .why li strong { display: block; font-size: 15.5px; }
+  .tips { counter-reset: t; list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 10px; }
+  .tips li { counter-increment: t; background: var(--soft); border-radius: 14px; padding: 12px 14px 12px 50px; position: relative; font-size: 14.5px; }
+  .tips li::before { content: counter(t); position: absolute; left: 14px; top: 12px; width: 26px; height: 26px; border-radius: 8px; background: var(--navy); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 13px; }
+  .tips li strong { display: block; font-size: 15px; }
+  .tips code { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-size: 13px; }
+  .prev { background: #dfe6ee; border-radius: 16px; padding: 12px; margin-top: 12px; }
   .prev canvas { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 10px 30px rgba(13,45,74,.2); }
   .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-  .ok { background: #eef9e6; border: 1px solid #b9e09a; border-radius: 14px; padding: 16px; display: flex; gap: 12px; align-items: center; }
-  .ok b { font-size: 26px; }
-  @media (max-width: 560px) { .card { padding: 16px; } .btn { width: 100%; } .acts .btn { flex: 1 1 100%; } }
+  .acts .btn { box-shadow: none; }
+  .ver { display: flex; gap: 12px; align-items: center; } .ver b { font-size: 28px; }
+  /* Popup */
+  dialog { border: 0; padding: 0; border-radius: 24px; width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 24px); color: var(--navy); box-shadow: 0 30px 80px rgba(0,0,0,.35); }
+  dialog::backdrop { background: rgba(8,20,36,.6); }
+  .dh { background: linear-gradient(135deg, #1d5a2c, var(--navy) 45%, #0a2238); color: #fff; padding: 22px 22px 18px; position: relative; }
+  .dh h3 { margin: 0; font-weight: 800; font-size: 22px; } .dh p { margin: 6px 0 0; color: rgba(255,255,255,.8); font-size: 14px; }
+  .dh .x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 20px; cursor: pointer; }
+  .db { padding: 20px 22px 22px; }
+  .fee { display: flex; align-items: baseline; gap: 10px; justify-content: center; background: var(--soft); border-radius: 16px; padding: 14px; }
+  .fee b { font-size: 36px; font-weight: 800; color: var(--green); } .fee span { color: var(--mute); }
+  .just { margin: 12px 0 4px; font-size: 14px; color: var(--mute); text-align: center; }
+  .pay { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: p; }
+  .pay li { counter-increment: p; display: flex; gap: 12px; font-size: 14.5px; }
+  .pay li::before { content: counter(p); flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-weight: 700; display: grid; place-items: center; font-size: 13px; margin-top: 1px; }
+  label.f { display: block; font-weight: 600; font-size: 13.5px; margin: 12px 0 4px; }
+  @media (max-width: 860px) { .hin { grid-template-columns: 1fr; text-align: center; } .hero p { margin: 0 auto 22px; } .hbtns { justify-content: center; } .mock { max-width: 520px; margin: 10px auto 0; transform: rotate(1.5deg); } .steps { grid-template-columns: 1fr 1fr; } .grid2 { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) { .card { padding: 18px; } .btn { width: 100%; } .steps { grid-template-columns: 1fr; } .hero { padding-top: 54px; } }
 </style>
 </head>
 <body>
 <section class="hero">
   <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
-  <img src="../portrait/logos/bst-blanc.png" alt="Bwat Sekrèm Talks" />
-  <div class="k" data-t="kick"></div>
-  <h1 data-th="title"></h1>
-  <p data-t="lead"></p>
+  <div class="hin">
+    <div>
+      <div class="k"><i></i><span data-t="kick"></span></div>
+      <h1 data-th="title"></h1>
+      <p data-t="lead"></p>
+      <div class="hbtns"><button class="btn" type="button" id="openPay" data-t="cta"></button><a class="btn ghost" href="#codeCard" data-t="haveCode"></a></div>
+      <div class="price" data-th="priceLine"></div>
+    </div>
+    <div class="mock"><canvas id="mockCv" width="1754" height="1240"></canvas><span class="seal" data-t="seal"></span></div>
+  </div>
 </section>
 <main class="wrap">
-  <!-- Vérification d'un certificat (?v=CODE) -->
-  <div class="card hidden" id="verView"><div class="ok" id="verBox"></div></div>
+  <div class="card hidden" id="verView"><div class="ver" id="verBox"></div></div>
 
-  <div class="card" id="askView">
-    <h2 data-t="askT"></h2>
-    <div class="sub" data-t="askS"></div>
-    <div class="row"><input class="t" id="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 3727 4672" maxlength="25" /><button class="btn" type="button" id="go" data-t="go"></button></div>
+  <div class="card" id="codeCard" style="scroll-margin-top:16px">
+    <h2 data-th="codeT"></h2>
+    <div class="sub" data-t="codeS"></div>
+    <div class="row"><input class="t code" id="code" maxlength="16" placeholder="CERT-XXXX-XXXX" autocomplete="off" spellcheck="false" /><button class="btn" type="button" id="go" data-t="go"></button></div>
     <p class="msg" id="msg"></p>
-    <div class="who" id="who"></div>
   </div>
 
   <div class="card hidden" id="certView">
     <h2 id="certT"></h2>
     <div class="sub" data-t="certS"></div>
-    <div class="prev" style="margin-top:12px"><canvas id="cv" width="1754" height="1240"></canvas></div>
+    <div class="prev"><canvas id="cv" width="1754" height="1240"></canvas></div>
     <div class="acts">
       <button class="btn" type="button" id="dlPdf" data-t="dlPdf"></button>
       <button class="btn alt" type="button" id="dlPng" data-t="dlPng"></button>
@@ -84,49 +128,106 @@
       <button class="btn alt" type="button" id="share" data-t="share"></button>
     </div>
   </div>
+
+  <div class="card">
+    <h2 data-th="howT"></h2>
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h2 data-th="whyT"></h2><ul class="why" id="why"></ul></div>
+    <div class="card"><h2 data-th="tipsT"></h2><ol class="tips" id="tips"></ol></div>
+  </div>
 </main>
+
+<dialog id="pay" aria-labelledby="payT">
+  <div class="dh"><h3 id="payT" data-t="payT"></h3><p data-t="payS"></p><button class="x" type="button" id="payX" aria-label="Fermer">×</button></div>
+  <div class="db">
+    <div class="fee"><b>500 G</b><span data-t="feeUsd"></span></div>
+    <p class="just" data-t="just"></p>
+    <ol class="pay" id="payList"></ol>
+    <label class="f" for="pNom" data-t="pNom"></label><input class="t" id="pNom" maxlength="100" autocomplete="name" style="width:100%" />
+    <label class="f" for="pTel" data-t="pTel"></label><input class="t" id="pTel" maxlength="25" inputmode="tel" autocomplete="tel" placeholder="ex. 3727 4672" style="width:100%" />
+    <p class="msg" id="pMsg"></p>
+    <a class="btn wa" id="waBtn" target="_blank" rel="noopener" style="width:100%;margin-top:14px" data-t="waBtn"></a>
+    <p class="sub" style="text-align:center;margin:10px 0 0" data-t="payAfter"></p>
+  </div>
+</dialog>
+
 <script>
 const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
 const PAGE = 'https://bwatsekremtalks.github.io/admin/certificat/';
-const WA = '50948722671';
+const WA = '50948722671', MONCASH = '+509 4872-2671';
+const KEEP = 'bst_cert_code';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const T = {
-  fr: { kick: '22 novembre 2026 · Cap-Haïtien', title: 'Votre <em>certificat</em> de participation', lead: 'Merci d’avoir été présent(e) à la 1re édition de Bwat Sekrèm Talks. Téléchargez votre certificat et ajoutez-le à votre CV et à LinkedIn.',
-    askT: 'Retrouver mon certificat', askS: 'Entrez le numéro WhatsApp utilisé pour votre réservation.', go: 'Afficher mon certificat',
-    eTel: 'Entrez un numéro valide (8 chiffres).', eNet: 'Connexion impossible. Réessayez.',
-    pasOuvert: 'Les certificats seront disponibles le 22 novembre 2026, à partir de 14 h 30, pour les personnes dont la présence a été enregistrée à l’entrée.',
-    pasInscrit: 'Ce numéro ne correspond à aucune réservation. Essayez le numéro de la personne qui a fait la réservation.',
-    pasPresent: 'Nous n’avons pas trouvé de présence enregistrée pour ce numéro. Si vous étiez présent(e), écrivez-nous sur WhatsApp : nous corrigerons cela.',
-    choisir: 'Plusieurs participants sont liés à ce numéro. Choisissez votre nom :', certT: (n) => `Certificat de ${n}`, certS: 'Vérifiez votre nom. Une faute ? Écrivez-nous sur WhatsApp avant de le partager.',
+  fr: { kick: '22 novembre 2026 · Cap-Haïtien', title: 'Participez et repartez avec votre <em>certificat</em>', lead: 'Participez à Bwat Sekrèm Talks et obtenez votre certificat de participation : à votre nom, vérifiable par QR code, prêt pour votre CV et LinkedIn.',
+    cta: '🎓 Demandez la préparation de votre certificat à l’avance', haveCode: 'J’ai déjà mon code', priceLine: 'Frais de préparation : <b>500 gourdes</b> · réservé aux participants présents le 22 novembre', seal: 'Vérifiable par QR code',
+    codeT: 'J’ai mon <em>code certificat</em>', codeS: 'Entrez le code reçu sur WhatsApp. Vous pouvez revenir et télécharger votre certificat autant de fois que vous le souhaitez.', go: 'Ouvrir mon certificat',
+    eCode: 'Ce code n’existe pas. Vérifiez-le (format CERT-XXXX-XXXX).', eNet: 'Connexion impossible. Réessayez.',
+    avant: (n) => `✅ Code valide${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Votre certificat est réservé. Il sera disponible ici le 22 novembre, dès que votre présence aura été enregistrée à l’entrée. Gardez bien votre code.`,
+    absent: 'Votre code est valide, mais votre présence n’a pas encore été enregistrée. Présentez-vous à l’accueil, ou écrivez-nous sur WhatsApp si vous étiez présent(e).',
+    certT: (n) => `🎓 Certificat de ${n}`, certS: 'Vérifiez votre nom. Une faute ? Écrivez-nous sur WhatsApp avant de le partager.',
     dlPdf: '⬇️ Télécharger en PDF', dlPng: '🖼️ Télécharger l’image', li: '➕ Ajouter à LinkedIn', share: '📤 Partager', shareTxt: 'J’ai participé à Bwat Sekrèm Talks « Du potentiel à la performance » ! 🎓',
-    verOk: (n) => `Certificat authentique : <b>${esc(n)}</b> a participé à Bwat Sekrèm Talks, le 22 novembre 2026, à Cap-Haïtien.`, verNo: 'Ce code de certificat n’existe pas.', waTxt: 'Bonjour, j’étais présent(e) à Bwat Sekrèm Talks le 22 novembre mais je ne trouve pas mon certificat. Mon numéro : ' },
-  ht: { kick: '22 novanm 2026 · Okap', title: '<em>Sètifika</em> patisipasyon w', lead: 'Mèsi paske w te la nan 1ye edisyon Bwat Sekrèm Talks la. Telechaje sètifika w epi mete l sou CV w ak sou LinkedIn.',
-    askT: 'Jwenn sètifika mwen', askS: 'Antre nimewo WhatsApp ou te itilize pou rezèvasyon an.', go: 'Montre sètifika mwen',
-    eTel: 'Antre yon nimewo ki bon (8 chif).', eNet: 'Pa ka konekte. Eseye ankò.',
-    pasOuvert: 'Sètifika yo ap disponib 22 novanm 2026, apati 2 è 30, pou moun yo te anrejistre prezans yo nan antre a.',
-    pasInscrit: 'Nimewo sa a pa koresponn ak okenn rezèvasyon. Eseye nimewo moun ki te fè rezèvasyon an.',
-    pasPresent: 'Nou pa jwenn prezans pou nimewo sa a. Si w te la, ekri nou sou WhatsApp : n ap korije sa.',
-    choisir: 'Gen plizyè patisipan ki mare ak nimewo sa a. Chwazi non w :', certT: (n) => `Sètifika ${n}`, certS: 'Verifye non w. Gen yon fòt ? Ekri nou sou WhatsApp anvan w pataje l.',
+    verOk: (n) => `Certificat authentique : <b>${esc(n)}</b> a participé à Bwat Sekrèm Talks, le 22 novembre 2026, à Cap-Haïtien.`, verNo: 'Ce code de certificat n’existe pas ou n’est pas valide.',
+    howT: 'Comment <em>ça marche</em>', steps: [['Demandez-le', 'Cliquez sur « Demandez la préparation » et payez 500 G par MonCash.'], ['Recevez votre code', 'Envoyez la capture sur WhatsApp : vous recevez un code CERT-XXXX-XXXX.'], ['Participez', 'Le 22 novembre, votre présence est enregistrée à l’entrée.'], ['Téléchargez', 'Dès 14 h 30, entrez votre code ici : PDF, image, LinkedIn, autant de fois que vous voulez.']],
+    whyT: 'Ce que ce certificat <em>dit de vous</em>', why: [['🚀', 'Vous investissez en vous', 'Vous avez pris un dimanche pour apprendre et échanger sur votre carrière : les recruteurs remarquent cette initiative.'], ['🧭', 'Vous suivez les sujets qui comptent', 'Développement professionnel, management, innovation : la preuve que vous restez à jour.'], ['🤝', 'Vous faites partie d’un réseau', 'Une communauté de professionnels et d’entrepreneurs du Nord, et des intervenants de haut niveau.'], ['🔐', 'C’est vérifiable', 'Le QR code et le code unique permettent à un employeur de confirmer votre participation en un clic.']],
+    tipsT: 'Valorisez votre <em>profil pro</em>', tips: [['Ajoutez-le à LinkedIn', 'Bouton « Ajouter à LinkedIn » : il apparaît dans « Licences et certifications ».'], ['Mettez-le sur votre CV', 'Rubrique « Formations et événements » : <code>Bwat Sekrèm Talks — Du potentiel à la performance, Cap-Haïtien, nov. 2026</code>.'], ['Publiez ce que vous avez appris', 'Un post avec votre certificat et 3 idées retenues : c’est ce qui montre votre réflexion, pas seulement votre présence.'], ['Parlez-en en entretien', '« Récemment, à Bwat Sekrèm Talks, j’ai retenu que… » : une réponse concrète à « Comment vous formez-vous ? ».'], ['Entretenez le réseau', 'Contactez sur LinkedIn les intervenants et les personnes rencontrées, dans la semaine qui suit.']],
+    payT: 'Préparation de votre certificat', payS: 'Certificat de participation · Bwat Sekrèm Talks, 22 novembre 2026', feeUsd: '≈ 3,70 $ US · paiement unique',
+    just: 'Ces frais servent à soutenir l’organisation de l’événement et à offrir de meilleures éditions à l’avenir.',
+    pay: [`Envoyez <b>500 gourdes</b> par <b>MonCash</b> au <b>${MONCASH}</b> (Bwat Sekrèm Talks).`, 'Remplissez votre nom (tel qu’il doit apparaître sur le certificat) et le numéro de votre réservation.', 'Envoyez la capture du paiement sur WhatsApp avec le bouton ci-dessous.', 'Vous recevez votre code <b>CERT-XXXX-XXXX</b>. Le jour J, entrez-le sur cette page pour télécharger votre certificat.'],
+    pNom: 'Nom complet sur le certificat', pTel: 'Numéro WhatsApp utilisé pour la réservation', waBtn: '💬 Envoyer la capture sur WhatsApp', payAfter: 'Le certificat n’est délivré qu’aux personnes présentes à l’événement.', ePay: 'Écrivez votre nom et votre numéro (8 chiffres).',
+    waMsg: (n, t) => `Bonjour ! Je souhaite mon certificat de participation Bwat Sekrèm Talks (500 G). Voici ma capture de paiement MonCash.\nNom sur le certificat : ${n}\nNuméro de réservation : ${t}` },
+  ht: { kick: '22 novanm 2026 · Okap', title: 'Patisipe epi ale ak <em>sètifika</em> w', lead: 'Patisipe nan Bwat Sekrèm Talks epi jwenn sètifika patisipasyon w : ak non w, yo ka verifye l ak yon kòd QR, li pare pou CV w ak LinkedIn.',
+    cta: '🎓 Mande pou yo prepare sètifika w davans', haveCode: 'Mwen gen kòd mwen deja', priceLine: 'Frè preparasyon : <b>500 goud</b> · pou moun ki te la 22 novanm sèlman', seal: 'Ka verifye ak kòd QR',
+    codeT: 'Mwen gen <em>kòd sètifika</em> mwen', codeS: 'Antre kòd ou resevwa sou WhatsApp la. Ou ka retounen telechaje sètifika w otan fwa ou vle.', go: 'Louvri sètifika mwen',
+    eCode: 'Kòd sa a pa egziste. Verifye l (fòma CERT-XXXX-XXXX).', eNet: 'Pa ka konekte. Eseye ankò.',
+    avant: (n) => `✅ Kòd la bon${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Sètifika w rezève. L ap disponib isit la 22 novanm, depi yo anrejistre prezans ou nan antre a. Kenbe kòd ou byen.`,
+    absent: 'Kòd ou a bon, men yo poko anrejistre prezans ou. Pase nan akèy la, oswa ekri nou sou WhatsApp si w te la.',
+    certT: (n) => `🎓 Sètifika ${n}`, certS: 'Verifye non w. Gen yon fòt ? Ekri nou sou WhatsApp anvan w pataje l.',
     dlPdf: '⬇️ Telechaje an PDF', dlPng: '🖼️ Telechaje imaj la', li: '➕ Mete l sou LinkedIn', share: '📤 Pataje', shareTxt: 'Mwen te patisipe nan Bwat Sekrèm Talks « Du potentiel à la performance » ! 🎓',
-    verOk: (n) => `Sètifika otantik : <b>${esc(n)}</b> te patisipe nan Bwat Sekrèm Talks, 22 novanm 2026, Okap.`, verNo: 'Kòd sètifika sa a pa egziste.', waTxt: 'Bonjou, mwen te la nan Bwat Sekrèm Talks 22 novanm men mwen pa jwenn sètifika m. Nimewo m : ' },
-  en: { kick: 'November 22, 2026 · Cap-Haïtien', title: 'Your participation <em>certificate</em>', lead: 'Thank you for attending the 1st edition of Bwat Sekrèm Talks. Download your certificate and add it to your CV and LinkedIn.',
-    askT: 'Find my certificate', askS: 'Enter the WhatsApp number used for your booking.', go: 'Show my certificate',
-    eTel: 'Enter a valid number (8 digits).', eNet: 'Cannot connect. Try again.',
-    pasOuvert: 'Certificates will be available on November 22, 2026, from 2:30 pm, for people whose attendance was recorded at the entrance.',
-    pasInscrit: 'This number does not match any booking. Try the number of the person who made the booking.',
-    pasPresent: 'We could not find a recorded attendance for this number. If you attended, message us on WhatsApp and we will fix it.',
-    choisir: 'Several participants are linked to this number. Choose your name:', certT: (n) => `Certificate for ${n}`, certS: 'Check your name. A typo? Message us on WhatsApp before sharing.',
+    verOk: (n) => `Sètifika otantik : <b>${esc(n)}</b> te patisipe nan Bwat Sekrèm Talks, 22 novanm 2026, Okap.`, verNo: 'Kòd sètifika sa a pa egziste oswa li pa valab.',
+    howT: 'Kijan sa <em>mache</em>', steps: [['Mande l', 'Klike sou « Mande pou yo prepare l » epi peye 500 G pa MonCash.'], ['Resevwa kòd ou', 'Voye kaptur la sou WhatsApp : w ap resevwa yon kòd CERT-XXXX-XXXX.'], ['Patisipe', '22 novanm, yo anrejistre prezans ou nan antre a.'], ['Telechaje', 'Apati 2 è 30, antre kòd ou isit la : PDF, imaj, LinkedIn, otan fwa ou vle.']],
+    whyT: 'Sa sètifika sa a <em>di sou ou</em>', why: [['🚀', 'Ou envesti nan tèt ou', 'Ou pran yon dimanch pou aprann ak pataje sou karyè w : rekritè yo remake inisyativ sa a.'], ['🧭', 'Ou swiv sijè ki enpòtan yo', 'Devlopman pwofesyonèl, jesyon, inovasyon : prèv ou rete a jou.'], ['🤝', 'Ou fè pati yon rezo', 'Yon kominote pwofesyonèl ak antreprenè nan Nò a, ak entèvenan gwo nivo.'], ['🔐', 'Yo ka verifye l', 'Kòd QR la ak kòd inik la pèmèt yon anplwayè konfime patisipasyon w nan yon klik.']],
+    tipsT: 'Mete <em>pwofil pwofesyonèl</em> ou an valè', tips: [['Mete l sou LinkedIn', 'Bouton « Mete l sou LinkedIn » : li parèt nan « Licences et certifications ».'], ['Mete l sou CV w', 'Nan seksyon « Fòmasyon ak evènman » : <code>Bwat Sekrèm Talks — Du potentiel à la performance, Okap, nov. 2026</code>.'], ['Pibliye sa w aprann', 'Yon pòs ak sètifika w ak 3 lide ou retni : se sa ki montre refleksyon w, pa sèlman prezans ou.'], ['Pale de li nan antrevi', '« Dènyèman, nan Bwat Sekrèm Talks, mwen retni ke… » : yon repons konkrè pou « Kijan w fòme tèt ou ? ».'], ['Kenbe rezo a vivan', 'Kontakte entèvenan yo ak moun ou rankontre yo sou LinkedIn, nan semèn ki vin apre a.']],
+    payT: 'Preparasyon sètifika w', payS: 'Sètifika patisipasyon · Bwat Sekrèm Talks, 22 novanm 2026', feeUsd: '≈ 3,70 $ US · yon sèl peman',
+    just: 'Frè sa yo sèvi pou sipòte òganizasyon evènman an ak pou ofri pi bon edisyon nan lavni.',
+    pay: [`Voye <b>500 goud</b> pa <b>MonCash</b> nan <b>${MONCASH}</b> (Bwat Sekrèm Talks).`, 'Ekri non w (jan l dwe parèt sou sètifika a) ak nimewo rezèvasyon w.', 'Voye kaptur peman an sou WhatsApp ak bouton ki anba a.', 'W ap resevwa kòd ou <b>CERT-XXXX-XXXX</b>. Jou J a, antre l sou paj sa a pou telechaje sètifika w.'],
+    pNom: 'Non konplè sou sètifika a', pTel: 'Nimewo WhatsApp ou te itilize pou rezèvasyon an', waBtn: '💬 Voye kaptur la sou WhatsApp', payAfter: 'Sètifika a bay sèlman moun ki te la nan evènman an.', ePay: 'Ekri non w ak nimewo w (8 chif).',
+    waMsg: (n, t) => `Bonjou ! Mwen vle sètifika patisipasyon Bwat Sekrèm Talks mwen (500 G). Men kaptur peman MonCash la.\nNon sou sètifika a : ${n}\nNimewo rezèvasyon : ${t}` },
+  en: { kick: 'November 22, 2026 · Cap-Haïtien', title: 'Attend and leave with your <em>certificate</em>', lead: 'Attend Bwat Sekrèm Talks and get your certificate of participation: in your name, verifiable by QR code, ready for your CV and LinkedIn.',
+    cta: '🎓 Request your certificate in advance', haveCode: 'I already have my code', priceLine: 'Preparation fee: <b>500 gourdes</b> · for participants present on November 22', seal: 'Verifiable by QR code',
+    codeT: 'I have my <em>certificate code</em>', codeS: 'Enter the code you received on WhatsApp. You can come back and download your certificate as many times as you like.', go: 'Open my certificate',
+    eCode: 'This code does not exist. Check it (format CERT-XXXX-XXXX).', eNet: 'Cannot connect. Try again.',
+    avant: (n) => `✅ Valid code${n ? ', ' + esc(n.split(' ')[0]) : ''}! Your certificate is reserved. It will be available here on November 22, as soon as your attendance is recorded at the entrance. Keep your code.`,
+    absent: 'Your code is valid, but your attendance has not been recorded yet. Go to the welcome desk, or message us on WhatsApp if you attended.',
+    certT: (n) => `🎓 Certificate for ${n}`, certS: 'Check your name. A typo? Message us on WhatsApp before sharing.',
     dlPdf: '⬇️ Download PDF', dlPng: '🖼️ Download image', li: '➕ Add to LinkedIn', share: '📤 Share', shareTxt: 'I attended Bwat Sekrèm Talks “Du potentiel à la performance”! 🎓',
-    verOk: (n) => `Authentic certificate: <b>${esc(n)}</b> attended Bwat Sekrèm Talks on November 22, 2026, in Cap-Haïtien.`, verNo: 'This certificate code does not exist.', waTxt: 'Hello, I attended Bwat Sekrèm Talks on November 22 but I cannot find my certificate. My number: ' },
+    verOk: (n) => `Authentic certificate: <b>${esc(n)}</b> attended Bwat Sekrèm Talks on November 22, 2026, in Cap-Haïtien.`, verNo: 'This certificate code does not exist or is not valid.',
+    howT: 'How it <em>works</em>', steps: [['Request it', 'Click “Request your certificate” and pay 500 G with MonCash.'], ['Get your code', 'Send the screenshot on WhatsApp: you receive a code CERT-XXXX-XXXX.'], ['Attend', 'On November 22, your attendance is recorded at the entrance.'], ['Download', 'From 2:30 pm, enter your code here: PDF, image, LinkedIn, as often as you like.']],
+    whyT: 'What this certificate <em>says about you</em>', why: [['🚀', 'You invest in yourself', 'You took a Sunday to learn and exchange about your career: recruiters notice this initiative.'], ['🧭', 'You follow what matters', 'Professional development, management, innovation: proof you stay up to date.'], ['🤝', 'You belong to a network', 'A community of professionals and entrepreneurs from the North, and high-level speakers.'], ['🔐', 'It is verifiable', 'The QR code and unique code let an employer confirm your attendance in one click.']],
+    tipsT: 'Boost your <em>professional profile</em>', tips: [['Add it to LinkedIn', '“Add to LinkedIn” button: it appears under “Licenses & certifications”.'], ['Put it on your CV', 'Section “Training and events”: <code>Bwat Sekrèm Talks — Du potentiel à la performance, Cap-Haïtien, Nov 2026</code>.'], ['Share what you learned', 'A post with your certificate and 3 key ideas: it shows your thinking, not just your attendance.'], ['Mention it in interviews', '“Recently, at Bwat Sekrèm Talks, I learned that…”: a concrete answer to “How do you keep learning?”.'], ['Grow the network', 'Connect on LinkedIn with the speakers and people you met, within the following week.']],
+    payT: 'Certificate preparation', payS: 'Certificate of participation · Bwat Sekrèm Talks, November 22, 2026', feeUsd: '≈ US$3.70 · one-time payment',
+    just: 'This fee supports the organization of the event and helps us deliver even better editions in the future.',
+    pay: [`Send <b>500 gourdes</b> with <b>MonCash</b> to <b>${MONCASH}</b> (Bwat Sekrèm Talks).`, 'Enter your name (as it should appear on the certificate) and your booking number.', 'Send the payment screenshot on WhatsApp with the button below.', 'You receive your code <b>CERT-XXXX-XXXX</b>. On the day, enter it on this page to download your certificate.'],
+    pNom: 'Full name on the certificate', pTel: 'WhatsApp number used for the booking', waBtn: '💬 Send the screenshot on WhatsApp', payAfter: 'The certificate is only issued to people present at the event.', ePay: 'Enter your name and number (8 digits).',
+    waMsg: (n, t) => `Hello! I would like my Bwat Sekrèm Talks certificate of participation (500 G). Here is my MonCash payment screenshot.\nName on the certificate: ${n}\nBooking number: ${t}` },
 };
 let L = 'fr', CUR = null;
 const t = () => T[L];
+function renderLists() {
+  $('steps').innerHTML = t().steps.map(([b, s]) => `<div><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join('');
+  $('why').innerHTML = t().why.map(([e, b, s]) => `<li><b class="e">${e}</b><div><strong>${esc(b)}</strong>${esc(s)}</div></li>`).join('');
+  $('tips').innerHTML = t().tips.map(([b, s]) => `<li><strong>${esc(b)}</strong>${s}</li>`).join('');
+  $('payList').innerHTML = t().pay.map((x) => `<li><span>${x}</span></li>`).join('');
+}
 function setLang(l) {
   L = T[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
   document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
   document.querySelectorAll('[data-t]').forEach((el) => { const v = t()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
   document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
+  renderLists(); updWa();
   if (CUR) $('certT').textContent = t().certT(CUR.nom);
 }
 document.addEventListener('click', (e) => { const l = e.target.closest('[data-l]'); if (l) setLang(l.dataset.l); });
@@ -135,8 +236,8 @@ document.addEventListener('click', (e) => { const l = e.target.closest('[data-l]
 const load = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
 function rr(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
 function fitFont(c, txt, weight, size, family, maxW, min) { let s = size; c.font = `${weight} ${s}px ${family}`; while (c.measureText(txt).width > maxW && s > min) { s -= 2; c.font = `${weight} ${s}px ${family}`; } return s; }
-async function draw(nom, code) {
-  const cv = $('cv'), c = cv.getContext('2d'), W = cv.width, H = cv.height, NAVY = '#0D2D4A', GREEN = '#5DB033', BLUE = '#1E8CF0', LX = 'Lexend, sans-serif';
+async function draw(nom, code, demo, target) {
+  const cv = target || $('cv'), c = cv.getContext('2d'), W = cv.width, H = cv.height, NAVY = '#0D2D4A', GREEN = '#5DB033', BLUE = '#1E8CF0', LX = 'Lexend, sans-serif';
   await Promise.all(['300 40px Lexend', '400 40px Lexend', '600 40px Lexend', '700 40px Lexend', '800 40px Lexend', 'italic 600 40px "Playfair Display"', '700 40px "Playfair Display"'].map((f) => document.fonts.load(f).catch(() => {})));
   const [logo, zl, ml] = await Promise.all([load('../portrait/logos/bst-couleur.png'), load('../portrait/logos/zero-loss.png'), load('../portrait/logos/mache-lokal-no.png')]);
   // fond
@@ -161,7 +262,7 @@ async function draw(nom, code) {
   fitFont(c, nom, 'italic 600', 104, '"Playfair Display", serif', W - 560, 54); c.fillStyle = NAVY; c.fillText(nom, cx, 600);
   c.strokeStyle = GREEN; c.lineWidth = 3; c.beginPath(); c.moveTo(cx - 420, 640); c.lineTo(cx + 420, 640); c.stroke();
   c.fillStyle = NAVY; c.font = `400 30px ${LX}`;
-  c.fillText('pour sa participation à la 1ʳᵉ édition de Bwat Sekrèm Talks', cx, 712);
+  c.fillText('pour sa participation à la première édition de Bwat Sekrèm Talks', cx, 712);
   c.font = `700 32px ${LX}`; c.fillText('« Du potentiel à la performance : comment se démarquer dans le monde professionnel ? »', cx, 762, W - 420);
   c.font = `400 28px ${LX}`; c.fillStyle = '#5b6f8a'; c.fillText('Développement professionnel · Management · Innovation', cx, 812);
   c.fillStyle = BLUE; c.font = `600 34px ${LX}`; c.fillText('22 novembre 2026  ·  Auditorium Oswald Durand, Cap-Haïtien', cx, 880);
@@ -182,7 +283,9 @@ async function draw(nom, code) {
   c.textAlign = 'center'; c.fillStyle = '#5b6f8a'; c.font = `400 17px ${LX}`; c.fillText('Vérifier ce certificat', qx + qs / 2, qy + qs + 34);
   c.fillStyle = NAVY; c.font = `700 19px ${LX}`; c.fillText(code, qx + qs / 2, qy + qs + 60);
   c.textAlign = 'left';
+  if (demo) { c.save(); c.translate(W / 2 + 60, H / 2); c.rotate(-0.32); c.textAlign = 'center'; c.fillStyle = 'rgba(232,80,91,.16)'; c.font = `800 210px ${LX}`; c.fillText(demo, 0, 70); c.restore(); }
 }
+
 async function show(p) {
   CUR = p; await draw(p.nom, p.code);
   $('certT').textContent = t().certT(p.nom); $('certView').classList.remove('hidden');
@@ -206,31 +309,47 @@ $('share').addEventListener('click', async () => {
   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
 });
 
-/* ---------- Recherche par numéro ---------- */
+/* ---------- Popup de demande ---------- */
+function updWa() { const n = $('pNom').value.trim(), tl = $('pTel').value.trim(); $('waBtn').href = `https://wa.me/${WA}?text=${encodeURIComponent(t().waMsg(n || '…', tl || '…'))}`; }
+['pNom', 'pTel'].forEach((id) => $(id).addEventListener('input', () => { $('pMsg').textContent = ''; updWa(); }));
+$('waBtn').addEventListener('click', (e) => {
+  if ($('pNom').value.trim().length < 3 || $('pTel').value.replace(/\D/g, '').length < 8) { e.preventDefault(); $('pMsg').className = 'msg err'; $('pMsg').textContent = t().ePay; return; }
+  try { gtag('event', 'certificat_demande'); } catch {}
+});
+$('openPay').addEventListener('click', () => { $('pay').showModal(); try { gtag('event', 'certificat_popup'); } catch {} });
+$('payX').addEventListener('click', () => $('pay').close());
+$('pay').addEventListener('click', (e) => { if (e.target === $('pay')) $('pay').close(); });
+
+/* ---------- Code certificat ---------- */
 async function rpc(fn, body) { const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); if (!r.ok) throw new Error('net'); return r.json(); }
 $('go').addEventListener('click', async () => {
-  const tel = $('tel').value.trim(), m = $('msg'), say = (s, k) => { m.className = 'msg ' + (k || ''); m.innerHTML = s; };
-  $('who').innerHTML = ''; $('certView').classList.add('hidden'); CUR = null;
-  if (tel.replace(/\D/g, '').length < 8) return say(t().eTel, 'err');
+  const code = $('code').value.trim(), m = $('msg'), say = (s, k) => { m.className = 'msg ' + (k || ''); m.innerHTML = s; };
+  $('certView').classList.add('hidden'); CUR = null;
+  if (code.replace(/[^a-z0-9]/gi, '').length < 10) return say(t().eCode, 'err');
   $('go').disabled = true; say('…');
   try {
-    const j = await rpc('talks_certificat', { p_tel: tel });
-    if (!j.ok) say(t().eTel, 'err');
-    else if (!j.ouvert) say(t().pasOuvert, 'info');
-    else if (!j.inscrit) say(t().pasInscrit, 'info');
-    else if (!j.personnes.length) say(`${t().pasPresent} <a href="https://wa.me/${WA}?text=${encodeURIComponent(t().waTxt + tel)}" target="_blank" rel="noopener">WhatsApp</a>`, 'info');
-    else if (j.personnes.length === 1) { say(''); await show(j.personnes[0]); }
-    else { say(t().choisir); $('who').innerHTML = j.personnes.map((p, i) => `<button type="button" data-i="${i}">🎓 ${esc(p.nom)}</button>`).join(''); $('who').onclick = (e) => { const b = e.target.closest('[data-i]'); if (b) show(j.personnes[+b.dataset.i]); }; }
+    const j = await rpc('talks_cert_code', { p_code: code });
+    if (!j.ok) say(t().eCode, 'err');
+    else {
+      try { localStorage.setItem(KEEP, code.toUpperCase()); } catch {}
+      if (!j.ouvert) say(t().avant(j.nom), 'ok');
+      else if (!j.present) say(`${t().absent} <a href="https://wa.me/${WA}?text=${encodeURIComponent(code)}" target="_blank" rel="noopener">WhatsApp</a>`, 'info');
+      else { say(''); await show({ nom: j.nom, code: j.cert }); }
+    }
   } catch { say(t().eNet, 'err'); }
   $('go').disabled = false;
 });
-$('tel').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('go').click(); });
+$('code').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('go').click(); });
 
 /* ---------- Démarrage ---------- */
 const q = new URLSearchParams(location.search);
 let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
 setLang(l0 || 'fr');
-if (q.get('tel')) $('tel').value = q.get('tel').slice(0, 25);
+draw(L === 'ht' ? 'Non w isit la' : L === 'en' ? 'Your Name Here' : 'Votre Nom Ici', 'BST26-XXXXXXXX', 'EXEMPLE', $('mockCv'));
+let saved = q.get('code'); try { saved = saved || localStorage.getItem(KEEP); } catch {}
+if (saved) $('code').value = saved.slice(0, 16);
+if (q.get('tel')) $('pTel').value = q.get('tel').slice(0, 25);
+updWa();
 if (q.get('v')) {   // vérification d'un certificat (lien du QR code)
   $('verView').classList.remove('hidden');
   rpc('talks_certificat_verif', { p_code: q.get('v') }).then((j) => { $('verBox').innerHTML = j.ok ? `<b>✅</b><span>${t().verOk(j.nom)}</span>` : `<b>❌</b><span>${t().verNo}</span>`; }).catch(() => { $('verBox').textContent = t().eNet; });

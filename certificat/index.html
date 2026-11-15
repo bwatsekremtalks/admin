@@ -86,6 +86,17 @@
   .prev canvas { width: 100%; height: auto; display: block; border-radius: 6px; box-shadow: 0 10px 30px rgba(13,45,74,.2); }
   .acts { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
   .acts .btn { box-shadow: none; }
+  .vsec { background: linear-gradient(135deg, #0a1f38, #1d4a7c); padding: 40px 16px 30px; }
+  .vcard { max-width: 640px; margin: 0 auto; background: #fff; border-radius: 26px; padding: 30px 26px; text-align: center; box-shadow: 0 30px 70px rgba(0,0,0,.35); position: relative; overflow: hidden; }
+  .vcard::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 8px; background: linear-gradient(90deg, var(--green), var(--blue)); }
+  .vcard img { height: 54px; } .vcard .vb { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0 6px; padding: 8px 16px; border-radius: 999px; font-weight: 700; font-size: 15px; }
+  .vcard .vb.ok { background: #e9f7e1; color: #22631a; } .vcard .vb.no { background: #fdecec; color: #9b1c1c; }
+  .vcard .vn { font: italic 600 clamp(30px, 6vw, 44px)/1.15 "Playfair Display", serif; color: var(--navy); margin: 10px 0 6px; }
+  .vcard .vt { color: var(--mute); font-size: 15px; margin: 0 auto; max-width: 480px; }
+  .vcard .vt b { color: var(--navy); }
+  .vcard .vm { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 16px 0 6px; } .vcard .vm span { background: var(--soft); border-radius: 999px; padding: 6px 12px; font-size: 13.5px; font-weight: 600; }
+  .vcard .vc { font: 700 14px monospace; letter-spacing: .08em; color: var(--mute); margin-top: 10px; }
+  .vcard .vl { display: inline-block; margin-top: 16px; color: var(--green); font-weight: 600; text-decoration: none; }
   .ver { display: flex; gap: 12px; align-items: center; } .ver b { font-size: 28px; }
   /* Popup */
   dialog { border: 0; padding: 0; border-radius: 24px; width: min(560px, calc(100% - 24px)); max-height: calc(100dvh - 24px); color: var(--navy); box-shadow: 0 30px 80px rgba(0,0,0,.35); }
@@ -109,6 +120,7 @@
 </style>
 </head>
 <body>
+<section class="vsec hidden" id="verView"><div class="vcard" id="verBox"></div></section>
 <section class="hero">
   <div class="langs" role="group" aria-label="Langue"><button type="button" data-l="fr">FR</button><button type="button" data-l="ht">KR</button><button type="button" data-l="en">EN</button></div>
   <div class="hin">
@@ -126,7 +138,6 @@
   </div>
 </section>
 <main class="wrap">
-  <div class="card hidden" id="verView"><div class="ver" id="verBox"></div></div>
 
   <div class="card" id="codeCard" style="scroll-margin-top:16px">
     <h2 data-th="codeT"></h2>
@@ -185,7 +196,7 @@ const KEEP = 'bst_cert_code';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const T = {
-  fr: { themes: '<span>🧭 Management</span><span>🚀 Leadership</span><span>💡 Innovation</span><span>🤖 Intelligence artificielle</span><span>📈 Développement professionnel</span>', motT: '🎥 Vous avez suivi le Live ?', motS: 'Entrez le mot secret annoncé pendant le Live pour débloquer votre certificat (jusqu’au 23 novembre à minuit).', motPh: 'Mot secret', motGo: 'Valider',
+  fr: { vOk: 'Certificat authentique', vTxt: 'a participé à la première édition de <b>Bwat Sekrèm Talks</b> « Du potentiel à la performance ».', vSalle: '🏛️ En salle · Auditorium Oswald Durand, Cap-Haïtien', vLive: '🎥 En ligne · Live depuis Cap-Haïtien', vMore: 'Vous aussi, obtenez votre certificat →', vChk: 'Vérification…', themes: '<span>🧭 Management</span><span>🚀 Leadership</span><span>💡 Innovation</span><span>🤖 Intelligence artificielle</span><span>📈 Développement professionnel</span>', motT: '🎥 Vous avez suivi le Live ?', motS: 'Entrez le mot secret annoncé pendant le Live pour débloquer votre certificat (jusqu’au 23 novembre à minuit).', motPh: 'Mot secret', motGo: 'Valider',
     eMot: 'Ce n’est pas le bon mot secret. Réécoutez la fin du Live.', eDelai: 'Le délai pour entrer le mot secret est dépassé (23 novembre, minuit). Écrivez-nous sur WhatsApp.',
     avantLive: (n) => `✅ Code valide${n ? ', ' + esc(n.split(' ')[0]) : ''} ! Le 22 novembre, suivez le Live jusqu’au bout : un mot secret sera annoncé. Entrez-le ici avec votre code pour débloquer votre certificat.`,
     mSalle: '🏛️ Je serai dans la salle', mLive: '🎥 Je suivrai le Live', pTelLive: 'Votre numéro WhatsApp', kick: '22 novembre 2026 · Cap-Haïtien', title: 'Participez et repartez avec votre <em>certificat</em>', lead: 'Participez à Bwat Sekrèm Talks et obtenez votre certificat de participation : à votre nom, vérifiable par QR code, prêt pour votre CV et LinkedIn.',
@@ -205,7 +216,7 @@ const T = {
     pay: [`Envoyez <b>550 gourdes</b> <i>(4 $ US)</i> par <b>MonCash</b> au <b>${MONCASH}</b> (Bwat Sekrèm Talks).`, 'Remplissez votre nom (tel qu’il doit apparaître sur le certificat) et le numéro de votre réservation.', 'Envoyez la capture du paiement sur WhatsApp avec le bouton ci-dessous.', 'Vous recevez votre code <b>CERT-XXXX-XXXX</b>. Le jour J, entrez-le sur cette page pour télécharger votre certificat.'],
     pNom: 'Nom complet sur le certificat', pTel: 'Numéro WhatsApp utilisé pour la réservation', waBtn: '💬 Envoyer la capture sur WhatsApp', payAfter: 'Le certificat est délivré aux personnes présentes en salle ou qui ont suivi le Live (mot secret).', ePay: 'Écrivez votre nom et votre numéro (8 chiffres).',
     waMsg: (n, t, live) => `Bonjour ! Je souhaite mon certificat de participation Bwat Sekrèm Talks (4 $ US / 550 G) — ${live ? 'je suivrai le LIVE' : 'je serai dans la salle'}. Voici ma capture de paiement MonCash.\nNom sur le certificat : ${n}\nNuméro ${live ? 'WhatsApp' : 'de réservation'} : ${t}` },
-  ht: { themes: '<span>🧭 Jesyon</span><span>🚀 Lidèchip</span><span>💡 Inovasyon</span><span>🤖 Entèlijans atifisyèl</span><span>📈 Devlopman pwofesyonèl</span>', motT: '🎥 Ou te swiv Live la ?', motS: 'Antre mo sekrè yo te anonse pandan Live la pou debloke sètifika w (jiska 23 novanm a minwi).', motPh: 'Mo sekrè', motGo: 'Valide',
+  ht: { vOk: 'Sètifika otantik', vTxt: 'te patisipe nan premye edisyon <b>Bwat Sekrèm Talks</b> « Du potentiel à la performance ».', vSalle: '🏛️ Nan sal la · Oditoryòm Oswald Durand, Okap', vLive: '🎥 Sou entènèt · Live depi Okap', vMore: 'Ou menm tou, jwenn sètifika pa w →', vChk: 'Verifikasyon…', themes: '<span>🧭 Jesyon</span><span>🚀 Lidèchip</span><span>💡 Inovasyon</span><span>🤖 Entèlijans atifisyèl</span><span>📈 Devlopman pwofesyonèl</span>', motT: '🎥 Ou te swiv Live la ?', motS: 'Antre mo sekrè yo te anonse pandan Live la pou debloke sètifika w (jiska 23 novanm a minwi).', motPh: 'Mo sekrè', motGo: 'Valide',
     eMot: 'Se pa bon mo sekrè a. Reekoute fen Live la.', eDelai: 'Dat limit pou antre mo sekrè a pase (23 novanm, minwi). Ekri nou sou WhatsApp.',
     avantLive: (n) => `✅ Kòd la bon${n ? ', ' + esc(n.split(' ')[0]) : ''} ! 22 novanm, swiv Live la jiska lafen : y ap anonse yon mo sekrè. Antre l isit la ak kòd ou pou debloke sètifika w.`,
     mSalle: '🏛️ M ap nan sal la', mLive: '🎥 M ap swiv Live la', pTelLive: 'Nimewo WhatsApp ou', kick: '22 novanm 2026 · Okap', title: 'Patisipe epi ale ak <em>sètifika</em> w', lead: 'Patisipe nan Bwat Sekrèm Talks epi jwenn sètifika patisipasyon w : ak non w, yo ka verifye l ak yon kòd QR, li pare pou CV w ak LinkedIn.',
@@ -225,7 +236,7 @@ const T = {
     pay: [`Voye <b>550 goud</b> <i>(4 $ US)</i> pa <b>MonCash</b> nan <b>${MONCASH}</b> (Bwat Sekrèm Talks).`, 'Ekri non w (jan l dwe parèt sou sètifika a) ak nimewo rezèvasyon w.', 'Voye kaptur peman an sou WhatsApp ak bouton ki anba a.', 'W ap resevwa kòd ou <b>CERT-XXXX-XXXX</b>. Jou J a, antre l sou paj sa a pou telechaje sètifika w.'],
     pNom: 'Non konplè sou sètifika a', pTel: 'Nimewo WhatsApp ou te itilize pou rezèvasyon an', waBtn: '💬 Voye kaptur la sou WhatsApp', payAfter: 'Sètifika a bay moun ki te nan sal la oswa ki te swiv Live la (mo sekrè).', ePay: 'Ekri non w ak nimewo w (8 chif).',
     waMsg: (n, t, live) => `Bonjou ! Mwen vle sètifika patisipasyon Bwat Sekrèm Talks mwen (4 $ US / 550 G) — ${live ? 'm ap swiv LIVE la' : 'm ap nan sal la'}. Men kaptur peman MonCash la.\nNon sou sètifika a : ${n}\nNimewo ${live ? 'WhatsApp' : 'rezèvasyon'} : ${t}` },
-  en: { themes: '<span>🧭 Management</span><span>🚀 Leadership</span><span>💡 Innovation</span><span>🤖 Artificial intelligence</span><span>📈 Professional development</span>', motT: '🎥 Did you watch the Live?', motS: 'Enter the secret word announced during the Live to unlock your certificate (until November 23 at midnight).', motPh: 'Secret word', motGo: 'Validate',
+  en: { vOk: 'Authentic certificate', vTxt: 'attended the first edition of <b>Bwat Sekrèm Talks</b> “Du potentiel à la performance”.', vSalle: '🏛️ In the room · Auditorium Oswald Durand, Cap-Haïtien', vLive: '🎥 Online · Live from Cap-Haïtien', vMore: 'Get your own certificate →', vChk: 'Checking…', themes: '<span>🧭 Management</span><span>🚀 Leadership</span><span>💡 Innovation</span><span>🤖 Artificial intelligence</span><span>📈 Professional development</span>', motT: '🎥 Did you watch the Live?', motS: 'Enter the secret word announced during the Live to unlock your certificate (until November 23 at midnight).', motPh: 'Secret word', motGo: 'Validate',
     eMot: 'That is not the right secret word. Rewatch the end of the Live.', eDelai: 'The deadline to enter the secret word has passed (November 23, midnight). Message us on WhatsApp.',
     avantLive: (n) => `✅ Valid code${n ? ', ' + esc(n.split(' ')[0]) : ''}! On November 22, watch the Live until the end: a secret word will be announced. Enter it here with your code to unlock your certificate.`,
     mSalle: '🏛️ I’ll be in the room', mLive: '🎥 I’ll watch the Live', pTelLive: 'Your WhatsApp number', kick: 'November 22, 2026 · Cap-Haïtien', title: 'Attend and leave with your <em>certificate</em>', lead: 'Attend Bwat Sekrèm Talks and get your certificate of participation: in your name, verifiable by QR code, ready for your CV and LinkedIn.',
@@ -391,9 +402,16 @@ let saved = q.get('code'); try { saved = saved || localStorage.getItem(KEEP); } 
 if (saved) $('code').value = saved.slice(0, 16);
 if (q.get('tel')) $('pTel').value = q.get('tel').slice(0, 25);
 updWa();
-if (q.get('v')) {   // vérification d'un certificat (lien du QR code)
-  $('verView').classList.remove('hidden');
-  rpc('talks_certificat_verif', { p_code: q.get('v') }).then((j) => { $('verBox').innerHTML = j.ok ? `<b>✅</b><span>${t().verOk(j.nom)}</span>` : `<b>❌</b><span>${t().verNo}</span>`; }).catch(() => { $('verBox').textContent = t().eNet; });
+if (q.get('v')) {   // vérification d'un certificat (lien du QR code) : affichée en haut de la page
+  const code = q.get('v').toUpperCase().slice(0, 20);
+  $('verView').classList.remove('hidden'); $('verBox').innerHTML = `<p class="vt">${t().vChk}</p>`;
+  rpc('talks_certificat_verif', { p_code: code }).then((j) => {
+    $('verBox').innerHTML = j.ok
+      ? `<img src="../portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" /><br><span class="vb ok">✅ ${t().vOk}</span><div class="vn">${esc(j.nom)}</div><p class="vt">${t().vTxt}</p>
+         <div class="vm"><span>🎓 22 novembre 2026</span><span>${j.mode === 'live' ? t().vLive : t().vSalle}</span></div><div class="vc">${esc(code)}</div><a class="vl" href="./">${t().vMore}</a>`
+      : `<img src="../portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" /><br><span class="vb no">❌ ${t().verNo}</span><div class="vc">${esc(code)}</div>`;
+    try { gtag('event', 'certificat_verifie', { ok: !!j.ok }); } catch {}
+  }).catch(() => { $('verBox').innerHTML = `<p class="vt">${t().eNet}</p>`; });
 }
 if (q.has('demo')) show({ nom: q.get('demo') || 'Marie-Ange Joseph', code: 'BST26-DEMO0000', live: q.has('live') });
 </script>

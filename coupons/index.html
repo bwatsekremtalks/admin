@@ -112,7 +112,7 @@ let PACK = null, COUPONS = [];
 
 function waText(c) {
   const link = `${SITE}?code=${encodeURIComponent(c.code)}${c.tel_acheteur ? '&tel=' + c.tel_acheteur : ''}`;
-  return `Merci pour ton paiement ! 🙏\nVoici ton code pour ${c.photos} portrait${c.photos > 1 ? 's' : ''} IA : *${c.code}*\n\nOuvre ce lien pour les débloquer :\n${link}\n\nBwat Sekrèm Talks · Apprendre. Inspirer. Se démarquer.`;
+  return `Merci pour ton paiement ! 🙏\nVoici ton code pour ${c.photos} portrait${c.photos > 1 ? 's' : ''} IA : *${c.code}*\n\nOuvre ce lien pour les débloquer :\n${link}\n\nBwat Sekrèm Talks · Apprendre. Inspirer. Construire ensemble.`;
 }
 function renderPacks() {
   $('packs').innerHTML = Object.entries(PACKS).map(([n, p]) => `<button type="button" class="pack" data-pack="${n}" aria-pressed="${PACK === Number(n)}">${n} portrait${n > 1 ? 's' : ''}<span>${p} G</span></button>`).join('');

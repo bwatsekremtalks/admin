@@ -281,7 +281,7 @@
     <section id="tplPanel" class="card tpl no-print hidden" style="margin-top:20px">
       <h2>Message de confirmation WhatsApp</h2>
       <p class="sub" style="margin:0">Ce texte est utilisé par les boutons « Envoyer » de l’onglet Réservations. Les mots entre accolades sont remplacés automatiquement pour chaque personne :
-        <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code>. Les modifications sont gardées sur cet ordinateur.</p>
+        <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{etudiants}</code> (étudiants : nombre d’inscrits de la même université + invitation à partager). Les modifications sont gardées sur cet ordinateur.</p>
       <div class="cols">
         <div><label class="f" for="tpl">Modèle</label><textarea id="tpl"></textarea>
           <div style="margin-top:8px"><button class="btn" id="tplReset" type="button">Revenir au message par défaut</button></div></div>
@@ -1259,7 +1259,7 @@ C’est l’équipe de Bwat Sekrèm Talks. Nous avons bien reçu votre réservat
 
 📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30
 📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)
-{accompagnants}
+{accompagnants}{etudiants}
 Merci de nous confirmer votre présence en répondant « OUI » à ce message. En cas d’empêchement, prévenez-nous afin que nous puissions libérer votre place.
 
 À très bientôt !
@@ -1274,18 +1274,34 @@ function waNumber(tel) {
   if (d.length === 8) d = '509' + d;            // numéro haïtien sans indicatif
   return d.length >= 10 && d.length <= 15 ? d : '';
 }
+/* Étudiants : « Vous êtes déjà N étudiant(e)s de [université] inscrit(e)s… partagez pour être N+10 » */
+function uniNom(raw) {
+  const k = normUni(raw); if (!k) return '';
+  return UNIVERSITES[k] ? `${UNIVERSITES[k]} (${k})` : String(raw).trim();
+}
+function uniCount(raw) {
+  const k = normUni(raw); if (!k) return 0;
+  return people(rowsForEdition()).filter((p) => pst(p) !== 'x' && normUni(p.universite) === k).length;
+}
+function uniText(raw) {
+  const k = normUni(raw); if (!k) return '';
+  const n = Math.max(1, uniCount(raw)), nom = uniNom(raw), lien = 'https://bwatsekremtalks.com/reserver';
+  if (n <= 1) return `\n🎓 Vous êtes le premier ou la première étudiant(e) de ${nom} à vous inscrire ! Partagez ce lien avec vos camarades pour venir à 10 au moins : ${lien}\n`;
+  return `\n🎓 Vous êtes déjà ${n} étudiant(e)s de ${nom} inscrit(e)s à Bwat Sekrèm Talks ! Partagez ce lien avec vos camarades pour que vous soyez ${n + 10} le 22 novembre : ${lien}\n`;
+}
 function fillTpl(tpl, r) {
   const acc = (r.accompagnants || []).map((a) => a.nom).filter(Boolean);
   const n = r.places || 1 + acc.length;
   const prenom = String(r.nom || '').trim().split(/\s+/)[0] || '';
   const accTxt = acc.length ? `\n👥 Personnes inscrites avec vous : ${acc.join(', ')}\n` : '';
-  return tpl.replaceAll('{prenom}', prenom).replaceAll('{nom}', String(r.nom || '').trim())
+  if (!tpl.includes('{etudiants}')) tpl = tpl.includes('{accompagnants}') ? tpl.replace('{accompagnants}', '{accompagnants}{etudiants}') : tpl + '\n{etudiants}';
+  return tpl.replaceAll('{etudiants}', uniText(r.universite)).replaceAll('{prenom}', prenom).replaceAll('{nom}', String(r.nom || '').trim())
     .replaceAll('{places}', n > 1 ? `${n} places` : '1 place').replaceAll('{accompagnants}', accTxt)
     .replace(/\n{3,}/g, '\n\n');
 }
 function accText(r, a) {
   const prenom = String(a.nom || '').trim().split(/\s+/)[0];
-  return `Bonjour ${prenom} 👋\n\n${String(r.nom || '').trim()} vous a inscrit(e) à Bwat Sekrèm Talks :\n\n📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)\n\nMerci de nous confirmer votre présence en répondant « OUI » à ce message.\n\nÀ très bientôt !\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire ensemble.`;
+  return `Bonjour ${prenom} 👋\n\n${String(r.nom || '').trim()} vous a inscrit(e) à Bwat Sekrèm Talks :\n\n📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)\n${uniText(a.universite)}\nMerci de nous confirmer votre présence en répondant « OUI » à ce message.\n\nÀ très bientôt !\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire ensemble.`;
 }
 function waCell(r) {
   const num = waNumber(r.telephone);
@@ -1295,7 +1311,7 @@ function waCell(r) {
   return `<a class="wa${r.contacte_le ? ' again' : ''}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wa="${r.id}">${WA_ICON}${r.contacte_le ? 'Renvoyer' : 'Envoyer'}</a>${sent}`;
 }
 function previewTpl() {
-  $('tplPreview').textContent = fillTpl($('tpl').value, { nom: 'Marie Joseph', places: 3, accompagnants: [{ nom: 'Paul Joseph' }, { nom: 'Ana Louis' }] });
+  $('tplPreview').textContent = fillTpl($('tpl').value, { nom: 'Marie Joseph', places: 3, accompagnants: [{ nom: 'Paul Joseph' }, { nom: 'Ana Louis' }], universite: 'UNDH' });
 }
 $('tpl').value = getTpl(); previewTpl();
 $('tpl').addEventListener('input', () => { setTpl($('tpl').value); previewTpl(); renderLists(rowsForEdition()); });

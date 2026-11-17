@@ -104,6 +104,7 @@
   .back .bk1 { font-size: 15px; } .back .bk2 { display: flex; gap: 8px; } .back .bk2 .btn { flex: 1; min-height: 46px; } .back .btn.nowa, .btn.nowa { background: #fdecec; color: #b42318; border-color: #f3c0ba; }
   .btn.nowa1 { padding: 0 10px; opacity: .55; } .btn.nowa1:hover { opacity: 1; background: #fdecec; }
   .nwrem { margin-top: 12px; background: #fdecec; border: 1px solid #f3c0ba; color: #8f1d14; border-radius: 16px; padding: 10px 14px; font-size: 14.5px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .bdg.lib { background: #eef2f7; color: #45556c; border: 1px dashed #b8c4d4; } .libban { margin: 8px 0 4px; background: #f3f6fa; border: 1px dashed #b8c4d4; border-radius: 14px; padding: 10px 12px; font-size: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .bdg.nowa { background: #fdecec; color: #b42318; border: 1px solid #f3c0ba; } .bdg.att { background: #fff1e0; color: #b4530a; border: 1px solid #f5d9a8; } .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
   .dots { display: flex; flex-wrap: wrap; gap: 4px; max-width: 196px; justify-content: flex-end; } .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #f3f6fa; filter: grayscale(1); opacity: .45; }
   .dot.ok { background: var(--okbg); box-shadow: inset 0 0 0 1.5px #a9dcb6; filter: none; opacity: 1; } .dot.na { display: none; }
@@ -218,7 +219,7 @@
         <input type="search" id="q" placeholder="Nom, numéro, université…" aria-label="Rechercher" /></div>
       <div class="filters">
         <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
-        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option><option value="att">⏳ Liste d’attente</option><option value="nowa">📵 Pas de WhatsApp</option><option value="inscrit">🎟️ Places confirmées (hors attente)</option></select>
+        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option><option value="att">⏳ Liste d’attente</option><option value="nowa">📵 Pas de WhatsApp</option><option value="libre">🪑 Places libérées (conservées)</option><option value="inscrit">🎟️ Places confirmées (hors attente)</option></select>
         <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
         <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
         <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
@@ -543,6 +544,17 @@ async function load() {
   for (const p of P) if (p.ukey && NU[String(p.uni).trim()]) p.nUni = NU[String(p.uni).trim()];
   render();
 }
+const libDate = (p) => { const n = NOTES.find((x) => x.inscription_id === p.rid && x.idx === p.idx && x.rezilta === 'Ne viendra pas'); return n ? new Date(n.le).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : ''; };
+async function retablir(p) {
+  const L = p.idx === -1 ? P.filter((x) => x.rid === p.rid && x.annule) : [p];
+  const plein = CAP && P.filter((x) => !x.annule).length >= CAP;
+  if (!(await ask({ icon: '↩️', tone: 'green', title: L.length > 1 ? `Rétablir ${L.length} places ?` : 'Rétablir sa place ?', person: p.nom,
+    text: `La réservation redevient active, à sa date d’inscription d’origine : rien n’avait été supprimé.${plein ? `\n\n⚠️ La salle est complète (${CAP} places) : rétablir cette place fera passer la dernière personne inscrite sur la liste d’attente.` : ''}`, ok: '↩️ Rétablir', okTone: 'green', cancel: 'Annuler' }))) return;
+  const { error } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'a' });
+  if (error) { toast(friendly(error)); return; }
+  await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: 'Place rétablie', teks: null, pa: ME });
+  toast(`✓ Place rétablie pour ${String(p.nom || '').split(' ')[0]}`); if ($('dlg').open) $('dlg').close(); await load();
+}
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
 const modeOf = (p) => MODE[pk(p)] || null;
 const ATT_OK = ['atant', 'atant2', 'otm', 'etidyan', 'mesi'];   // messages autorisés pour les personnes sur liste d'attente
@@ -602,13 +614,15 @@ addEventListener('blur', () => { if (LAST) LAST.away = true; });
 function filtered() {
   const q = plain($('q').value.trim()), kote = $('fKote').value, mo = $('fMode').value;
   return P.filter((p) => {
-    if (p.annule) return false;
+    const LIB_ = $('fSuivi').value === 'libre';
+    if (LIB_ ? !p.annule : p.annule) return false;
     if (q && !plain(`${p.nom} ${p.tel} ${p.uni || ''} ${p.ville} ${p.by || ''}`).includes(q) && !String(p.num).includes(q.replace(/\D/g, '') || '§')) return false;
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
     const rf = $('fResp').value; if (rf === '?' ? RESP[pk(p)] : rf && RESP[pk(p)] !== rf) return false;
-    const fs = $('fSuivi').value; if (fs === 'nowa') { if (!noWA(p)) return false; } else if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
+    const fs = $('fSuivi').value; if (fs === 'libre') { /* déjà filtré */ } else if (fs === 'nowa') { if (!noWA(p)) return false; } else if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
+    if (LIB_) return true;
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
   });
 }
@@ -625,9 +639,9 @@ function render() {
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
-      <div class="info2">${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="info2">${p.annule ? `<span class="bdg lib">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''}</span>` : ''}${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
-      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
+      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${p.annule ? `<button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : (p.annule ? '' : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`)}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
   if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
   renderSerie(); renderEkip(); renderDash();
@@ -640,6 +654,7 @@ document.addEventListener('click', (e) => {
   const af = e.target.closest('[data-af]'); if (af) { const p = byKey(af.dataset.af); if (p) shareAf(p, af.dataset.aftip); return; }
   const s = e.target.closest('[data-send]'); if (s) { const p = byKey(s.dataset.send); if (p) markSent(p, s.dataset.tip || TIP, s.dataset.how); return; }
   const nw = e.target.closest('[data-nowa]'); if (nw) { const p = byKey(nw.dataset.nowa); if (!p) return; const L0 = LAST && LAST.k === pk(p) ? LAST : (() => { const m = sent(p, TIP)[0]; return m ? { id: m.id } : null; })(); hideBack(); LAST = null; marqueNoWA(p, L0); return; }
+  const rt = e.target.closest('[data-retab]'); if (rt) { const p = byKey(rt.dataset.retab); if (p) retablir(p); return; }
   const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }
 });
 $('etat').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ETAT = b.dataset.v; [...$('etat').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });
@@ -787,7 +802,7 @@ function openPerson(p) {
   const hist = [...MES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.voye_le, h: `${TIPS.find((t) => t.k === x.tip)?.e || ''} Message « ${esc(TIPS.find((t) => t.k === x.tip)?.n || x.tip)} » envoyé${x.pa ? ' par ' + esc(x.pa) : ''} <button class="btn sm" type="button" data-undo="${x.id}" title="Annuler (envoyé par erreur)">↩︎</button>` })),
     ...NOTES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.le, h: `📝 ${x.rezilta ? `<b>${esc(x.rezilta)}</b> — ` : ''}${esc(x.teks || '')}${x.pa ? ` <span class="sub">(${esc(x.pa)})</span>` : ''}` }))]
     .sort((a, b) => new Date(b.le) - new Date(a.le));
-  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>${p.att ? `<span class="bdg att" style="font-size:13px">⏳ Liste d’attente · n° ${p.att} — ne pas envoyer la confirmation</span>` : ''}
+  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>${p.annule ? `<div class="libban">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''} — toutes ses informations sont conservées. <button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button></div>` : ''}${p.att ? `<span class="bdg att" style="font-size:13px">⏳ Liste d’attente · n° ${p.att} — ne pas envoyer la confirmation</span>` : ''}
       <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.uni)} (${p.nUni} étudiant${p.nUni > 1 ? 's' : ''})` : ''}</div></div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
     <div style="margin-top:12px"><b>Responsable du suivi</b> <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>
@@ -846,7 +861,7 @@ function lastRes(p) { const n = NOTES.find((x) => x.inscription_id === p.rid && 
 function noWA(p) { const n = NOTES.find((x) => x.inscription_id === p.rid && x.idx === p.idx && WAFLAG.includes(x.rezilta)); return !!n && n.rezilta === 'Pas de WhatsApp'; }
 const smsLink = (p, k) => `sms:+${p.num}?&body=${encodeURIComponent(text(p, k))}`;
 function suivi(p) {
-  const r = lastRes(p);
+  let r = lastRes(p); if (r === 'Place rétablie') r = null;
   if (r === 'Ne viendra pas') return 'non';
   if (['Présentiel', 'Live', 'Confirmé(e)'].includes(r) || modeOf(p) || p.adminOK) return 'vient';
   if (r === 'Question' || r === 'Autre') return 'repondu';
@@ -865,7 +880,7 @@ function renderDash() {
     + tile('g', 'vient', vient, '✅ Viennent', `🏛️ ${sal} salle · 🎥 ${liv} Live · ❔ ${vient - sal - liv}`)
     + tile('g', 'salle', sal, '🏛️ En salle', `${pct(sal, vient)} % de ceux qui viennent`)
     + tile('', 'live', liv, '🎥 En Live', `${pct(liv, vient)} % de ceux qui viennent`)
-    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('r', 'nowa', c(noWA), '📵 Pas de WhatsApp', 'numéros sans WhatsApp · SMS ou appel') + (CAP ? tile('y', 'att', c((p) => p.att), '⏳ Liste d’attente', `${new Set(base.filter((p) => p.att).map((p) => p.rid)).size} réservation(s) au-delà des ${CAP} places`) : '') + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
+    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'libre', P.filter((p) => p.annule && (rf === '?' ? !RESP[pk(p)] : !rf || RESP[pk(p)] === rf)).length, '🪑 Places libérées', 'conservées · rétablissables') + tile('r', 'nowa', c(noWA), '📵 Pas de WhatsApp', 'numéros sans WhatsApp · SMS ou appel') + (CAP ? tile('y', 'att', c((p) => p.att), '⏳ Liste d’attente', `${new Set(base.filter((p) => p.att).map((p) => p.rid)).size} réservation(s) au-delà des ${CAP} places`) : '') + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
   $('dashTeamW').classList.toggle('hidden', !!rf);
   $('dashTeam').innerHTML = rf ? '' : `<div class="tmw"><table class="tm"><thead><tr><th>Responsable</th><th>Participants</th><th>Contactés</th><th>Ont répondu</th><th>✅ Viennent</th><th>🏛️ Salle</th><th>🎥 Live</th><th>❌ Non</th><th>🔇 Sans réponse</th><th>📵 Sans WhatsApp</th></tr></thead><tbody>${
     [...EKIP.map((x) => x.non), null].map((n) => { const L = P.filter((p) => !p.annule && (n ? RESP[pk(p)] === n : !RESP[pk(p)])); if (!n && !L.length) return '';

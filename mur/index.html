@@ -67,7 +67,7 @@
   .dtr { display: none; height: 4px; border-radius: 4px; background: #dfe6ef; margin: 4px auto 0; width: 90px; position: relative; overflow: hidden; }
   .dtr b { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 4px; background: var(--green2); transition: left .12s linear; }
   .addt { break-inside: avoid; display: grid; place-items: center; text-align: center; gap: 4px; width: 100%; border: 2px dashed #b9e09a; background: #f4fbee; border-radius: 18px; padding: 22px 12px; cursor: pointer; color: var(--ink); font-weight: 800; font-size: 15px; }
-  .addt .e { font-size: 30px; } .addt small { font-weight: 600; color: var(--mute); font-size: 12.5px; }
+  .addt { margin-bottom: 12px; } .addt .e { font-size: 30px; } .addt small { font-weight: 600; color: var(--mute); font-size: 12.5px; }
   .score { margin-top: 10px; font-size: 13.5px; font-weight: 700; color: #2f6a14; }
   @media (max-width: 900px) { .dhd { margin: 12px 0 6px; } .swp, .dtr, .dwrap .fade, .dwrap .nx { display: block; } .swp { display: inline-flex; } body.embed .dwrap .fade { right: 0; } .drow2 { display: flex; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; } .drow2::-webkit-scrollbar { display: none; } .df { flex: 0 0 142px; scroll-snap-align: start; min-height: 132px; } body.embed .drow2 { margin: 0; padding: 2px 0 8px; } }
   /* Grille */
@@ -258,7 +258,7 @@ function render() {
   renderDefis();
   const V = FILTER ? P.map((p, i) => [p, i]).filter(([p]) => p.defi === FILTER) : P.map((p, i) => [p, i]);
   $('empty').classList.toggle('hidden', V.length > 0);
-  $('grid').innerHTML = (D.ouvert && !FILTER ? `<button class="addt" type="button" data-add="1"><span class="e">📸</span>Ajouter mes photos<small>Salle ou Live, jusqu’à 12 photos</small></button>` : '') + V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
+  $('grid').innerHTML = (D.ouvert && !FILTER ? `<button class="addt" type="button" data-add="1"><span class="e">📸</span>Ajouter mes photos<small>Jusqu’à 12 photos par personne</small></button>` : '') + V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
       <img src="${esc(img(p.path))}" alt="Photo de ${esc(p.non)}" loading="lazy" ${p.w && p.h ? `width="${p.w}" height="${p.h}"` : ''} />
       <figcaption class="cap"><div class="who"><div><b>${esc(p.non)}</b> <small>${esc(ago(p.le))}</small></div><button class="heart ${LIKED.has(p.id) ? 'on' : ''}" type="button" data-like="${p.id}">❤️ ${p.renmen || 0}</button></div>
       ${p.lejand ? `<div class="tx">${esc(p.lejand)}</div>` : ''}${p.mode === 'live' ? '<span class="tag live">🎥 En Live</span> ' : ''}${p.defi && DF[p.defi] ? `<span class="tag">🎯 ${DF[p.defi].e} ${esc(DF[p.defi].t)}</span>` : ''}</figcaption></figure>`).join('');

@@ -239,7 +239,7 @@
       <div id="ekStat" style="margin-top:10px"></div>
     </details>
     <details class="card tpl" style="margin-top:16px" id="libBox">
-      <summary>📋 Textes à copier — Live &amp; mur photos</summary>
+      <summary>📋 Textes &amp; affiches à copier — mur photos &amp; Live</summary>
       <p class="sub">Textes prêts à publier (chat du Live, réseaux sociaux, statut WhatsApp). Ils ne sont envoyés à personne : copiez-les ou partagez-les. Le mot secret n’est jamais enregistré : tapez-le ici seulement au moment de publier.</p>
       <label class="sub" for="libMot">Mot secret du Live <input class="t" id="libMot" autocomplete="off" placeholder="[MOT SECRET]" maxlength="40" style="width:200px;display:inline-block;padding:6px 8px;text-transform:uppercase;font-weight:800" /></label>
       <div id="libList"></div>
@@ -262,6 +262,8 @@
   .lib { border: 1px solid var(--line, #e3e8ef); border-radius: 14px; padding: 12px; margin-top: 12px; }
   .lib h4 { margin: 0 0 2px; font: 800 15px "Bricolage Grotesque", sans-serif; } .lib .sub { margin: 0 0 8px; }
   .lib pre { white-space: pre-wrap; word-break: break-word; font: 14px/1.5 "DM Sans", sans-serif; background: #f6f8fb; border-radius: 10px; padding: 10px 12px; margin: 0 0 8px; max-height: 260px; overflow: auto; }
+  .libimg { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 10px; } .libimg figure { margin: 0; width: 150px; display: grid; gap: 6px; }
+  .libimg img { width: 150px; height: 180px; object-fit: cover; object-position: top; border-radius: 10px; border: 1px solid var(--line, #e3e8ef); } .libimg figcaption { font-size: 12px; color: var(--mute, #6b7f99); }
   .lib .bb { display: flex; gap: 8px; flex-wrap: wrap; }
 </style>
 
@@ -270,6 +272,25 @@ const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.c
 const EDITION = '2026-11-22-cap-haitien';
 const $ = (id) => document.getElementById(id);
 const LIB = [
+  { t: '📸 Annonce du Mur des participants + affiches', w: 'Avant le 22 — réseaux sociaux, statut WhatsApp, groupes', img: [['Affiche publication (1080×1350)', './afiches/mur-participants-post.jpg'], ['Affiche story (1080×1920)', './afiches/mur-participants-story.jpg']], v: `📸 NOUVEAU — Le Mur des participants de Bwat Sekrèm Talks !
+
+Le 22 novembre, vos photos font l’événement ✨
+Partagez vos meilleurs moments de la 1re édition et revivez-les avec toute la communauté.
+
+🎯 10 défis photo à relever : à l’entrée, un selfie avec la salle, avec un intervenant, avec un collègue, devant la bannière… Combien en ferez-vous ?
+
+Comment participer ?
+1️⃣ Ouvrez bwatsekremtalks.com/mur
+2️⃣ Entrez le numéro WhatsApp de votre réservation
+3️⃣ Publiez jusqu’à 12 photos et aimez celles des autres ❤️
+
+📅 Dès le 22 novembre · 14 h 30
+📍 Auditorium Oswald Durand, Cap-Haïtien
+
+Pas encore de place ? Réservez dès maintenant 👉 bwatsekremtalks.com/reserver
+
+#BwatSekremTalks #BST2026 #CapHaïtien
+Apprendre. Inspirer. Construire ensemble.` },
   { t: '🎙️ À lire ou afficher pendant le Live', w: 'Pendant le Live, après le 1er intervenant ou à une pause', v: `📸 Vous suivez Bwat Sekrèm Talks en Live ? Vous aussi, vous avez votre place sur le Mur des participants !
 
 👉 bwatsekremtalks.com/mur
@@ -300,13 +321,17 @@ Apprendre. Inspirer. Construire ensemble.` },
 ];
 const libTxt = (i) => { const m = (document.getElementById('libMot')?.value || '').trim().toUpperCase(); return m ? LIB[i].v.replaceAll('[MOT SECRET]', m) : LIB[i].v; };
 function renderLib() {
-  $('libList').innerHTML = LIB.map((x, i) => `<div class="lib"><h4>${esc(x.t)}</h4><p class="sub">${esc(x.w)}</p><pre>${esc(libTxt(i))}</pre>
+  $('libList').innerHTML = LIB.map((x, i) => `<div class="lib"><h4>${esc(x.t)}</h4><p class="sub">${esc(x.w)}</p>${x.img ? `<div class="libimg">${x.img.map(([n, u], j) => `<figure><img src="${esc(u)}" alt="${esc(n)}" loading="lazy" /><figcaption>${esc(n)}</figcaption><button class="btn sm" type="button" data-libi="${i}:${j}">⬇️ Enregistrer / partager</button></figure>`).join('')}</div>` : ''}<pre>${esc(libTxt(i))}</pre>
     <div class="bb"><button class="btn sm p" type="button" data-libc="${i}">📋 Copier</button><button class="btn sm" type="button" data-libs="${i}">↗️ Partager</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(libTxt(i))}">WhatsApp</a></div></div>`).join('');
 }
 document.addEventListener('DOMContentLoaded', () => {
   renderLib(); $('libMot').addEventListener('input', renderLib);
   $('libList').addEventListener('click', async (e) => {
-    const c = e.target.closest('[data-libc]'), s = e.target.closest('[data-libs]');
+    const c = e.target.closest('[data-libc]'), s = e.target.closest('[data-libs]'), im = e.target.closest('[data-libi]');
+    if (im) { const [i, j] = im.dataset.libi.split(':').map(Number), [n, u] = LIB[i].img[j];
+      try { const bl = await (await fetch(u)).blob(), f = new File([bl], u.split('/').pop(), { type: bl.type || 'image/jpeg' });
+        if (canShareFiles(f)) { await navigator.share({ files: [f] }).catch(() => {}); return; } } catch {}
+      const a = document.createElement('a'); a.href = u; a.download = u.split('/').pop(); a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove(); return; }
     if (c) { const v = libTxt(+c.dataset.libc); if (v.includes('[MOT SECRET]')) toast('⚠️ Pensez à remplacer [MOT SECRET]'); try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch { toast('Copie impossible : sélectionnez le texte.'); } }
     if (s) { const v = libTxt(+s.dataset.libs); if (navigator.share) { try { await navigator.share({ text: v }); } catch {} } else { try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch {} } }
   });

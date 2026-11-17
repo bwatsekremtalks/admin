@@ -157,6 +157,9 @@
   .vip .vl li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: #fff; border-radius: 14px; padding: 8px 10px; border: 1px solid #f3e3b5; }
   .vip .vl .av { width: 36px; height: 36px; font-size: 13px; }
   .vip .st { font-size: 12.5px; font-weight: 800; white-space: nowrap; } .vip .st.ok { color: var(--ok); } .vip .st.wait { color: #a07000; }
+  .vip .vn { display: block; margin-top: 2px; border: 0; background: none; padding: 0; text-align: left; font-size: 12.5px; color: #8a6400; cursor: pointer; overflow-wrap: anywhere; }
+  .vip .vn:hover { text-decoration: underline; }
+  #noteX:focus { border-color: var(--green) !important; background: #fff !important; }
   .vip .empty2 { font-size: 13.5px; color: var(--mute); }
   .bell { border: 0; background: #0D2D4A; color: #fff; border-radius: 12px; padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
   .star { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; font-size: 20px; cursor: pointer; color: #c9a227; }
@@ -227,6 +230,13 @@
   <button class="fab" type="button" id="fab">＋ Inscription sur place</button>
 </div>
 
+<dialog id="noteDlg"><form class="sheet" id="noteF" novalidate>
+  <h2 id="noteT">⭐ Invité VIP</h2>
+  <p class="sub" id="noteS">Vous serez prévenu(e) sur votre téléphone dès son arrivée à l’entrée.</p>
+  <label class="l" for="noteX">Note pour l’équipe <span style="font-weight:500;color:var(--mute)">(facultatif — affichée dans la notification)</span></label>
+  <textarea class="t" id="noteX" maxlength="300" rows="3" placeholder="ex. Accueillir au premier rang · Invité d’honneur · Prévenir Steve" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:#f7fafd;font:16px/1.4 'DM Sans',system-ui,sans-serif;resize:vertical;outline:none"></textarea>
+  <div class="acts"><button type="button" class="b2" id="noteNo">Annuler</button><button type="submit" class="b1" id="noteOk">⭐ Marquer VIP</button></div>
+</form></dialog>
 <dialog id="vipDlg"><div class="sheet setup">
   <h2>🔔 Être prévenu(e) des arrivées VIP</h2>
   <p class="sub">Dès qu’un invité marqué ⭐ est pointé à l’entrée, votre téléphone sonne et vibre, où que vous soyez — même l’écran éteint.</p>
@@ -377,7 +387,9 @@ function renderRes() {
 function renderVip() {
   const L = ALLP.filter((p) => VIP[kOf(p)]).sort((a, b) => (isIn(a) ? 1 : 0) - (isIn(b) ? 1 : 0) || String(a.nom).localeCompare(String(b.nom)));
   $('vipList').innerHTML = L.map((p) => { const pr = isIn(p);
-    return `<li><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div><div><b>${esc(p.nom)}</b>${p.by ? `<div class="ds" style="font-size:12px;color:var(--mute)">avec ${esc(p.by)}</div>` : ''}</div>
+    const nt = VIP[kOf(p)].not_;
+    return `<li><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div><div style="min-width:0"><b>${esc(p.nom)}</b>${p.by ? `<div class="ds" style="font-size:12px;color:var(--mute)">avec ${esc(p.by)}</div>` : ''}
+        <button type="button" data-vnote="${kOf(p)}" class="vn">${nt ? '📝 ' + esc(nt) : '＋ Ajouter une note'}</button></div>
       <span class="st ${pr ? 'ok' : 'wait'}">${pr ? '✓ arrivé(e) ' + esc(hm(pr.present_le)) : '⏳ attendu(e)'}</span></li>`; }).join('')
     || '<li style="display:block" class="empty2">Aucun VIP pour le moment. Cherchez la personne puis touchez ☆ pour être prévenu(e) de son arrivée.</li>';
 }
@@ -421,11 +433,9 @@ document.addEventListener('click', async (e) => {
     if (VIP[kOf(p)]) {
       const { error } = await sb.from('talks_vip').delete().eq('inscription_id', p.rid).eq('idx', p.idx);
       if (error) toast(friendly(error)); else { delete VIP[kOf(p)]; toast(`${p.nom} retiré(e) des VIP`); }
-    } else {
-      const { data, error } = await sb.from('talks_vip').insert({ inscription_id: p.rid, idx: p.idx }).select().single();
-      if (error) toast(friendly(error)); else { VIP[kOf(p)] = data; toast(`⭐ ${p.nom} est VIP : vous serez prévenu(e) à son arrivée`, 5000); }
-    }
+    } else { sv.disabled = false; editNote(p); return; }
     render(); return; }
+  const en = e.target.closest('[data-vnote]'); if (en) { const p = byK(en.dataset.vnote); if (p) editNote(p); return; }
   const o = e.target.closest('[data-out]');
   if (o) { const p = byK(o.dataset.out); if (p && (await ask({ icon: '↩️', tone: 'red', title: 'Retirer la présence ?', text: `Arrivé(e) à ${hm(isIn(p).present_le)}. À utiliser seulement en cas d’erreur de pointage.`, person: p.nom, ok: 'Retirer', okTone: 'red', cancel: 'Garder' }))) { await setIn(p, false); toast(`Présence de ${p.nom} retirée`); } return; }
   const g = e.target.closest('[data-grp]');
@@ -434,6 +444,27 @@ document.addEventListener('click', async (e) => {
     if (n) { flash(`${n} personne${n > 1 ? 's' : ''}`, `Groupe de ${L[0].r.nom}`); nextOne(Number(g.dataset.grp)); } }
 });
 $('q').addEventListener('input', renderRes);
+/* VIP : marquer avec une note, ou modifier la note */
+let NOTE_P = null;
+function editNote(p) {
+  NOTE_P = p; const ex = VIP[kOf(p)];
+  $('noteT').textContent = ex ? `📝 Note pour ${p.nom}` : `⭐ ${p.nom} devient VIP`;
+  $('noteS').textContent = ex ? 'La note apparaît dans la notification reçue à son arrivée.' : 'Vous serez prévenu(e) sur votre téléphone dès son arrivée à l’entrée.';
+  $('noteX').value = ex?.not_ || ''; $('noteOk').textContent = ex ? 'Enregistrer la note' : '⭐ Marquer VIP';
+  $('noteDlg').showModal(); setTimeout(() => $('noteX').focus(), 50);
+}
+$('noteNo').addEventListener('click', () => $('noteDlg').close());
+$('noteF').addEventListener('submit', async (e) => {
+  e.preventDefault(); const p = NOTE_P; if (!p) return;
+  const not_ = $('noteX').value.trim() || null, ex = VIP[kOf(p)];
+  $('noteOk').disabled = true;
+  const { data, error } = ex ? await sb.from('talks_vip').update({ not_ }).eq('inscription_id', p.rid).eq('idx', p.idx).select().single()
+    : await sb.from('talks_vip').insert({ inscription_id: p.rid, idx: p.idx, not_ }).select().single();
+  $('noteOk').disabled = false;
+  if (error) { toast(friendly(error)); return; }
+  VIP[kOf(p)] = data || { ...(ex || {}), inscription_id: p.rid, idx: p.idx, not_ }; $('noteDlg').close(); render();
+  toast(ex ? '✓ Note enregistrée' : `⭐ ${p.nom} est VIP : vous serez prévenu(e) à son arrivée`, 5000);
+});
 /* Réglage des notifications VIP (application ntfy) */
 $('vipSet').addEventListener('click', () => {
   $('vipTopic').textContent = TOPIC || '—';

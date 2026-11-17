@@ -76,6 +76,15 @@
   .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
   .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--navy); color: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 600; z-index: 50; max-width: calc(100% - 24px); }
+  .dtiles { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+  .dt { text-align: left; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface-2); cursor: pointer; }
+  .dt b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; } .dt span { font-size: 12.5px; color: var(--ink-2); font-weight: 600; } .dt small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .dt.g { background: #e7f6dd; border-color: #b9e09a; } .dt.r { background: #fde8e6; border-color: #f5b5ad; } .dt.y { background: #fff3dc; border-color: #ffd58a; }
+  @media (prefers-color-scheme: dark) { .dt.g, .dt.r, .dt.y { color: #0a1f38; } .dt.g span, .dt.r span, .dt.y span { color: #0a1f38; } }
+  table.tm { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; } table.tm th, table.tm td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  table.tm th:first-child, table.tm td:first-child { text-align: left; } table.tm th { font-size: 12px; color: var(--muted); }
+  .quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; } .quick .btn { flex: 1 1 auto; }
+  @media (max-width: 860px) { .dtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; } .dt { padding: 8px 10px; } .dt b { font-size: 20px; } .dt small { font-size: 11px; } .tmw { overflow-x: auto; } #dash summary { font-size: 15px !important; } }
   details.tpl summary { cursor: pointer; font-weight: 700; } details.tpl .k { font-weight: 700; margin: 14px 0 4px; }
   header .hbtn { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   @media (max-width: 860px) {
@@ -128,12 +137,15 @@
   <main class="wrap">
     <div class="card hidden" id="a2hs" style="margin-top:12px;border-color:#b9e09a;background:#f3fbec"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
       <div><b>📲 Installez-la comme une application</b><div class="sub" id="a2hsT" style="margin-top:2px"></div></div><button class="btn sm" type="button" id="a2hsX" aria-label="Fermer">✕</button></div></div>
+    <details class="card" id="dash" open style="margin-top:12px"><summary style="cursor:pointer;font-weight:800;font-size:16px">📊 Suivi des réponses <span class="sub" id="dashSub"></span></summary>
+      <div id="dashTiles" class="dtiles"></div><div id="dashTeam"></div></details>
     <div class="tips" id="tips"></div>
     <div class="card serie hidden" id="serie"></div>
     <div class="filters">
       <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
       <input class="t" type="search" id="q" placeholder="Nom, numéro, université, ville…" />
       <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
+      <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option></select>
       <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
       <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
       <button class="btn p" id="go" type="button">▶ Envoi en série</button>
@@ -253,9 +265,9 @@ async function load() {
   for (const r of ins.data || []) {
     const acc = r.accompagnants || [];
     P.push({ rid: r.id, idx: -1, nom: r.nom, tel: r.telephone, ville: r.ville || '', uni: (r.profils || []).includes('etudiant') ? r.universite : null, profils: r.profils || [],
-      annule: !!r.annule, places: r.places || 1 + acc.length, accs: acc.map((a) => a.nom).filter(Boolean), by: null, created: r.created_at });
+      annule: !!r.annule, adminOK: !!r.confirme, places: r.places || 1 + acc.length, accs: acc.map((a) => a.nom).filter(Boolean), by: null, created: r.created_at });
     acc.forEach((a, i) => P.push({ rid: r.id, idx: i, nom: a.nom, tel: a.telephone || '', ville: r.ville || '', uni: a.profil === 'etudiant' ? a.universite : null, profils: a.profil ? [a.profil] : [],
-      annule: !!r.annule || SUI[`${r.id}:${i}`]?.statut === 'x', places: 1, accs: [], by: r.nom, created: r.created_at }));
+      annule: !!r.annule || SUI[`${r.id}:${i}`]?.statut === 'x', adminOK: SUI[`${r.id}:${i}`]?.statut === 'c', places: 1, accs: [], by: r.nom, created: r.created_at }));
   }
   // nombre d'étudiants actifs par université
   const U = {}; for (const p of P) { const k = !p.annule && uniKey(p.uni); if (k) U[k] = (U[k] || 0) + 1; }
@@ -298,6 +310,7 @@ function filtered() {
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
     const rf = $('fResp').value; if (rf === '?' ? RESP[pk(p)] : rf && RESP[pk(p)] !== rf) return false;
+    const fs = $('fSuivi').value; if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
   });
@@ -311,12 +324,12 @@ function render() {
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row"><div><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div>
-      <div class="info2">${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="info2">${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
       <div style="display:flex;gap:6px">${el && AF[TIP] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
   if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
-  renderSerie(); renderEkip();
+  renderSerie(); renderEkip(); renderDash();
   const me = myTeam(), nq = serieList().length;
   $('go').textContent = me ? `▶ Envoi en série · mon groupe (${nq})` : `▶ Envoi en série (${nq})`;
 }
@@ -328,7 +341,7 @@ document.addEventListener('click', (e) => {
   const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }
 });
 $('etat').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ETAT = b.dataset.v; [...$('etat').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });
-['q', 'fKote', 'fMode', 'fResp'].forEach((id) => $(id).addEventListener('input', render));
+['q', 'fKote', 'fMode', 'fResp', 'fSuivi'].forEach((id) => $(id).addEventListener('input', render));
 
 $('bulk').addEventListener('click', async () => {
   const L = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length), t = TIPS.find((x) => x.k === TIP);
@@ -481,6 +494,8 @@ function openPerson(p) {
     <div style="margin-top:14px"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
       return `<div class="mrow"><div>${t.e} ${esc(t.n)} <span class="sub">· ${ss.length ? `envoyé le ${fmtDate(ss[0].voye_le)}${ss.length > 1 ? ` (${ss.length} fois)` : ''}` : el ? 'pas encore envoyé' : 'non concerné'}</span></div>
         ${el ? `<span style="display:flex;gap:6px">${ss.length ? '' : `<button class="btn sm" type="button" data-mark="${t.k}" title="Déjà envoyé à la main">✓ Déjà envoyé</button>`}${AF[t.k] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${t.k}" title="Envoyer avec l’affiche">🖼️</button>` : ''}<a class="btn sm ${ss.length ? '' : 'wa'}" href="${esc(waLink(p, t.k))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${t.k}">${ss.length ? '↻ Renvoyer' : '💬 Envoyer'}</a></span>` : '<span></span>'}</div>`; }).join('')}</div>
+    <div style="margin-top:14px"><b>Sa réponse</b> <span class="sub">· un toucher suffit${(() => { const s = suivi(p); return s === 'pas' ? '' : ` — actuellement : ${{ vient: '✅ vient' + (modeOf(p) ? (modeOf(p) === 'live' ? ' (Live)' : ' (en salle)') : ''), non: '❌ ne vient pas', repondu: '💬 a répondu', sans: '🔇 pas de réponse' }[s]}`; })()}</span>
+      <div class="quick"><button class="btn sm" type="button" data-q="Présentiel">🏛️ Vient en salle</button><button class="btn sm" type="button" data-q="Live">🎥 Suivra le Live</button><button class="btn sm" type="button" data-q="Confirmé(e)">✅ Vient</button><button class="btn sm" type="button" data-q="Ne viendra pas">❌ Ne vient pas</button><button class="btn sm" type="button" data-q="Pas de réponse">🔇 Pas de réponse</button></div></div>
     <div style="margin-top:14px"><b>Ajouter un suivi</b>
       <div style="display:grid;gap:8px;margin-top:6px"><select class="t" id="nRes"><option value="">Résultat…</option>${RES.map((r) => `<option>${r}</option>`).join('')}</select>
       <textarea class="t" id="nTxt" maxlength="2000" placeholder="Ce que la personne a répondu, ce qui a été convenu…"></textarea>
@@ -493,14 +508,50 @@ function openPerson(p) {
   $('dX').onclick = () => $('dlg').close();
   $('nSave').onclick = async () => {
     const rezilta = $('nRes').value, teks = $('nTxt').value.trim(); if (!rezilta && !teks) { toast('Choisissez un résultat ou écrivez une note.'); return; }
-    $('nSave').disabled = true;
-    const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();
-    $('nSave').disabled = false; if (error) { toast(friendly(error)); return; }
-    NOTES.unshift(data);
-    if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
-    toast('✓ Suivi enregistré'); render(); openPerson(p);
+    $('nSave').disabled = true; await saveNote(p, rezilta, teks); $('nSave').disabled = false;
   };
+  $('dlgIn').querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => saveNote(p, b.dataset.q, ''); });
 }
+async function saveNote(p, rezilta, teks) {
+  const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();
+  if (error) { toast(friendly(error)); return; }
+  NOTES.unshift(data);
+  if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
+  if (['Présentiel', 'Live', 'Confirmé(e)'].includes(rezilta) && !p.adminOK) {   // même statut « Confirmée » dans l'espace inscriptions
+    const { error: e2 } = p.idx === -1 ? await sb.from('talks_inscriptions').update({ confirme: true }).eq('id', p.rid)
+      : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'c', updated_at: new Date().toISOString() });
+    if (!e2) p.adminOK = true;
+  }
+  toast('✓ Réponse enregistrée'); render(); openPerson(p);
+}
+/* Statut de suivi d'une personne : vient / non / repondu / sans (contactée, pas de réponse) / pas (pas encore contactée) */
+function lastRes(p) { const n = NOTES.find((x) => x.inscription_id === p.rid && x.idx === p.idx && x.rezilta); return n ? n.rezilta : null; }
+function suivi(p) {
+  const r = lastRes(p);
+  if (r === 'Ne viendra pas') return 'non';
+  if (['Présentiel', 'Live', 'Confirmé(e)'].includes(r) || modeOf(p) || p.adminOK) return 'vient';
+  if (r === 'Question' || r === 'Autre') return 'repondu';
+  return MES.some((m) => m.inscription_id === p.rid && m.idx === p.idx) ? 'sans' : 'pas';
+}
+function renderDash() {
+  const rf = $('fResp').value, base = P.filter((p) => !p.annule && (rf === '?' ? !RESP[pk(p)] : !rf || RESP[pk(p)] === rf));
+  const c = (f) => base.filter(f).length, S = (s) => c((p) => suivi(p) === s);
+  const vient = S('vient'), non = S('non'), rep = vient + non + S('repondu'), sans = S('sans'), pas = S('pas'), cont = base.length - pas;
+  const sal = c((p) => suivi(p) === 'vient' && modeOf(p) === 'salle'), liv = c((p) => suivi(p) === 'vient' && modeOf(p) === 'live'), pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
+  $('dashSub').textContent = `· ${rf ? (rf === '?' ? 'sans responsable' : 'groupe de ' + rf) : 'tous les participants'} (${base.length}) · ✅ ${vient} · ❌ ${non} · 🔇 ${sans}`;
+  const tile = (cls, f, n, lab, sm) => `<button type="button" class="dt ${cls}" data-fs="${f}"><b>${n}</b><span>${lab}</span><small>${sm}</small></button>`;
+  $('dashTiles').innerHTML = tile('y', 'pas', cont, '✉️ Contactés', `${pct(cont, base.length)} % · voir les ${pas} pas encore contactés`)
+    + tile('', 'repondu', rep, '💬 Ont répondu', `${pct(rep, cont)} % des contactés`)
+    + tile('g', 'vient', vient, '✅ Viennent', `🏛️ ${sal} salle · 🎥 ${liv} Live · ❔ ${vient - sal - liv}`)
+    + tile('g', 'salle', sal, '🏛️ En salle', `${pct(sal, vient)} % de ceux qui viennent`)
+    + tile('', 'live', liv, '🎥 En Live', `${pct(liv, vient)} % de ceux qui viennent`)
+    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
+  $('dashTeam').innerHTML = rf ? '' : `<div class="tmw"><table class="tm"><thead><tr><th>Responsable</th><th>Participants</th><th>Contactés</th><th>Ont répondu</th><th>✅ Viennent</th><th>🏛️ Salle</th><th>🎥 Live</th><th>❌ Non</th><th>🔇 Sans réponse</th></tr></thead><tbody>${
+    [...EKIP.map((x) => x.non), null].map((n) => { const L = P.filter((p) => !p.annule && (n ? RESP[pk(p)] === n : !RESP[pk(p)])); if (!n && !L.length) return '';
+      const s = (k) => L.filter((p) => suivi(p) === k).length, v = s('vient');
+      return `<tr><td><b>${esc(n || 'Sans responsable')}</b></td><td>${L.length}</td><td>${L.length - s('pas')}</td><td>${v + s('non') + s('repondu')}</td><td>${v}</td><td>${L.filter((p) => suivi(p) === 'vient' && modeOf(p) === 'salle').length}</td><td>${L.filter((p) => suivi(p) === 'vient' && modeOf(p) === 'live').length}</td><td>${s('non')}</td><td>${s('sans')}</td></tr>`; }).join('')}</tbody></table></div>`;
+}
+$('dashTiles').addEventListener('click', (e) => { const b = e.target.closest('[data-fs]'); if (!b) return; $('fSuivi').value = b.dataset.fs; ETAT = 'tout'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'tout')); render(); $('count').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 async function setMode(p, mode, quiet) {
   const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode: mode || null, maj: new Date().toISOString(), pa: ME });
   if (error) { toast(friendly(error)); return; }
@@ -547,6 +598,7 @@ $('loginForm').addEventListener('submit', async (e) => {
 $('logout').addEventListener('click', async () => { await sb.auth.signOut(); show(null); });
 $('reload').addEventListener('click', load);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').classList.contains('hidden') && !$('dlg').open) load(); });
+if (matchMedia('(max-width: 860px)').matches) $('dash').open = false;   // téléphone : tableau replié (résumé visible)
 /* Proposer l'installation sur l'écran d'accueil (téléphone) */
 (() => {
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;

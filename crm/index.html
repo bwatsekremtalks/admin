@@ -119,6 +119,21 @@
   dialog::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
   .dlg { padding: 22px; } .dlg h2 { font-size: 22px; margin: 0; }
   .dlg .seg { display: inline-flex; }
+  /* Fiche : en-tête et pied fixes, réponse choisie bien visible */
+  #dlg { overflow: auto; overscroll-behavior: contain; } .dlg { padding-top: 0; padding-bottom: 0; }
+  .dhead { position: sticky; top: 0; z-index: 3; background: #fff; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; padding: 18px 0 10px; border-bottom: 1px solid #eef2f7; }
+  .dfoot { position: sticky; bottom: 0; z-index: 3; background: #fff; display: flex; gap: 8px; padding: 12px 0 calc(14px + env(safe-area-inset-bottom)); margin-top: 16px; border-top: 1px solid #eef2f7; } .dfoot .btn { flex: 1; min-height: 48px; }
+  .quick .qb { transition: transform .1s, box-shadow .15s; } .quick .qb:active { transform: scale(.97); }
+  .qb.sel { border-width: 2.5px !important; font-weight: 900; box-shadow: 0 0 0 4px rgba(93,176,51,.18); }
+  .quick .qb.sel[data-q="Présentiel"], .quick .qb.sel[data-q="Confirmé(e)"] { background: #2e8b3e; border-color: #2e8b3e; color: #fff; }
+  .quick .qb.sel[data-q="Live"] { background: #6b45d1; border-color: #6b45d1; color: #fff; box-shadow: 0 0 0 4px rgba(107,69,209,.18); }
+  .quick .qb.sel[data-q="Ne viendra pas"] { background: #c0352b; border-color: #c0352b; color: #fff; box-shadow: 0 0 0 4px rgba(192,53,43,.18); }
+  .quick .qb.sel[data-q="Pas de réponse"] { background: #45556c; border-color: #45556c; color: #fff; box-shadow: 0 0 0 4px rgba(69,85,108,.18); }
+  .qb.sel[data-q="WhatsApp OK"] { background: #fdecec; border-color: #c0352b; color: #b42318; box-shadow: none; }
+  .qb.busy { opacity: .7; pointer-events: none; }
+  .crow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .crow .btn { flex: 1 1 auto; }
+  .btn.xs { min-height: 34px; padding: 0 10px; font-size: 13px; border-radius: 10px; } .mact { display: flex; gap: 6px; }
+  .mrow.done > div:first-child { color: var(--mute); } .mrow .ok { color: var(--ok); font-weight: 900; }
   .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid #eef2f7; }
   .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 9px 12px; border-radius: 12px; background: #f6f9fc; }
   .quick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .quick .btn { flex: 1 1 auto; border-radius: 14px; }
@@ -175,7 +190,7 @@
     .serie { top: 0; margin: 12px -16px 0; border-radius: 0 0 20px 20px; border-width: 0 0 3px; } .serie .btn { flex: 1 1 100%; min-height: 50px; }
     dialog#dlg { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; }
     .dlg { padding: 18px 16px calc(20px + env(safe-area-inset-bottom)); } .dlg .seg { display: flex; } .dlg .seg button { flex: 1; padding: 10px 4px; }
-    .mrow { grid-template-columns: 1fr; } .mrow > span .btn, .mrow > a { flex: 1; }
+    .mrow { grid-template-columns: 1fr; } .mrow > span .btn, .mrow > a { flex: 1; } .mrow.done { grid-template-columns: minmax(0, 1fr) auto; } .mrow.done > span .btn { flex: none; min-width: 44px; }
     .quick .btn { flex: 1 1 calc(50% - 8px); min-height: 46px; }
   }
   @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none !important; } }
@@ -847,37 +862,46 @@ function renderSerie() {
 let DLG = null;
 const RES = ['Présentiel', 'Live', 'Confirmé(e)', 'Pas de réponse', 'Ne viendra pas', 'Question', 'Autre'];
 function openPerson(p) {
-  DLG = p; const m = modeOf(p);
-  const hist = [...MES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.voye_le, h: `${TIPS.find((t) => t.k === x.tip)?.e || ''} Message « ${esc(TIPS.find((t) => t.k === x.tip)?.n || x.tip)} » envoyé${x.pa ? ' par ' + esc(x.pa) : ''} <button class="btn sm" type="button" data-undo="${x.id}" title="Annuler (envoyé par erreur)">↩︎</button>` })),
-    ...NOTES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.le, h: `📝 ${x.rezilta ? `<b>${esc(x.rezilta)}</b> — ` : ''}${esc(x.teks || '')}${x.pa ? ` <span class="sub">(${esc(x.pa)})</span>` : ''}` }))]
+  DLG = p; const m = modeOf(p), s0 = suivi(p), lr = lastRes(p);
+  // réponse actuelle → bouton mis en évidence
+  const cur = s0 === 'non' ? 'Ne viendra pas' : s0 === 'vient' ? (m === 'live' ? 'Live' : m === 'salle' ? 'Présentiel' : 'Confirmé(e)') : lr === 'Pas de réponse' ? 'Pas de réponse' : '';
+  const qb = (q, lab) => `<button class="btn qb ${cur === q ? 'sel' : ''}" type="button" data-q="${q}" aria-pressed="${cur === q}">${cur === q ? '✓ ' : ''}${lab}</button>`;
+  // historique sans doublons successifs (ex. « Présentiel » touché plusieurs fois)
+  const raw = [...MES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.voye_le, key: 'm' + x.id, h: `${TIPS.find((t) => t.k === x.tip)?.e || ''} Message « ${esc(TIPS.find((t) => t.k === x.tip)?.n || x.tip)} » envoyé${x.pa ? ` <span class="sub">par ${esc(String(x.pa).replace(/@.*$/, ''))}</span>` : ''} <button class="btn xs" type="button" data-undo="${x.id}" title="Annuler (envoyé par erreur)">↩︎</button>` })),
+    ...NOTES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.le, key: 'n' + (x.rezilta || '') + '|' + (x.teks || ''), h: `📝 ${x.rezilta ? `<b>${esc(x.rezilta)}</b>` : ''}${x.rezilta && x.teks ? ' — ' : ''}${esc(x.teks || '')}${x.pa ? ` <span class="sub">par ${esc(String(x.pa).replace(/@.*$/, ''))}</span>` : ''}` }))]
     .sort((a, b) => new Date(b.le) - new Date(a.le));
-  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>${p.annule ? `<div class="libban">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''} — toutes ses informations sont conservées. <button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button></div>` : ''}${p.att ? `<span class="bdg att" style="font-size:13px">⏳ Liste d’attente · n° ${p.att} · utilisez le message « ⏳ Liste d’attente »</span>` : ''}
-      <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.uni)} (${p.nUni} étudiant${p.nUni > 1 ? 's' : ''})` : ''}</div></div>
+  const hist = raw.filter((h, i) => !i || h.key.startsWith('m') || h.key !== raw[i - 1].key);
+  const tips = TIPS.filter((t) => eligible(p, t.k) || sent(p, t.k).length);   // on n'affiche que les messages qui la concernent
+  $('dlgIn').innerHTML = `<div class="dhead"><div style="min-width:0"><h2>${esc(p.nom)}</h2>
+      <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.ukey)}` : ''}</div>
+      ${p.annule ? `<div class="libban">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''} — informations conservées. <button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button></div>` : ''}${p.att ? `<div style="margin-top:6px"><span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span></div>` : ''}${noWA(p) ? '<div style="margin-top:6px"><span class="bdg nowa">📵 Pas de WhatsApp</span></div>' : ''}</div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
-    <div style="margin-top:12px"><b>Responsable du suivi</b> <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>
-    <div style="margin-top:12px"><b>Mode de participation</b> <span class="sub">(change les messages Certificat et Conseils)</span>
-      <div class="seg" style="margin-top:6px"><button type="button" data-mode="salle" class="${m === 'salle' ? 'on' : ''}">🏛️ En salle</button><button type="button" data-mode="live" class="${m === 'live' ? 'on' : ''}">🎥 Live</button><button type="button" data-mode="" class="${m ? '' : 'on'}">❔ Pas encore</button></div></div>
-    <div class="sec"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
-      return `<div class="mrow"><div>${t.e} ${esc(t.n)} <span class="sub">· ${ss.length ? `envoyé le ${fmtDate(ss[0].voye_le)}${ss.length > 1 ? ` (${ss.length} fois)` : ''}` : el ? 'pas encore envoyé' : 'non concerné'}</span></div>
-        ${el ? `<span style="display:flex;gap:6px">${ss.length ? '' : `<button class="btn sm" type="button" data-mark="${t.k}" title="Déjà envoyé à la main">✓ Déjà envoyé</button>`}${AF[t.k] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${t.k}" title="Envoyer avec l’affiche">🖼️</button>` : ''}<a class="btn sm ${ss.length ? '' : 'wa'}" href="${esc(waLink(p, t.k))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${t.k}">${ss.length ? '↻ Renvoyer' : '💬 Envoyer'}</a></span>` : '<span></span>'}</div>`; }).join('')}</div>
-    <div class="sec"><b>Sa réponse</b> <span class="sub">· un toucher suffit${(() => { const s = suivi(p); return s === 'pas' ? '' : ` — actuellement : ${{ vient: '✅ vient' + (modeOf(p) ? (modeOf(p) === 'live' ? ' (Live)' : ' (en salle)') : ''), non: '❌ ne vient pas', repondu: '💬 a répondu', sans: '🔇 pas de réponse' }[s]}`; })()}</span>
-      <div class="quick"><button class="btn sm" type="button" data-q="Présentiel">🏛️ Vient en salle</button><button class="btn sm" type="button" data-q="Live">🎥 Suivra le Live</button><button class="btn sm" type="button" data-q="Confirmé(e)">✅ Vient</button><button class="btn sm" type="button" data-q="Ne viendra pas">❌ Ne vient pas</button><button class="btn sm" type="button" data-q="Pas de réponse">🔇 Pas de réponse</button>${noWA(p) ? '<button class="btn sm" type="button" data-q="WhatsApp OK">✅ A finalement WhatsApp</button>' : '<button class="btn sm" type="button" data-q="Pas de WhatsApp">📵 Pas de WhatsApp</button>'}</div></div>
-    <div class="sec"><b>Ajouter un suivi</b>
-      <div style="display:grid;gap:8px;margin-top:6px"><select class="t" id="nRes"><option value="">Résultat…</option>${RES.map((r) => `<option>${r}</option>`).join('')}</select>
-      <textarea class="t" id="nTxt" maxlength="2000" placeholder="Ce que la personne a répondu, ce qui a été convenu…"></textarea>
-      <div><button class="btn p" type="button" id="nSave">Enregistrer le suivi</button></div></div></div>
-    ${p.num ? `<div class="sec" style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn sm" href="https://wa.me/${esc(p.num)}" target="_blank" rel="noopener">💬 Ouvrir la conversation WhatsApp</a><a class="btn sm" href="tel:+${esc(p.num)}">📞 Appeler</a>${p.att ? `<a class="btn sm att2" href="${esc(waLink(p, sent(p, 'atant').length ? 'atant2' : 'atant'))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${sent(p, 'atant').length ? 'atant2' : 'atant'}">⏳ Message ${sent(p, 'atant').length ? '« Attente : nouvelles »' : '« Liste d’attente »'}</a>` : ''}</div>` : ''}
-    <div class="sec"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>`;
+    <div class="sec"><b>Sa réponse</b>${cur ? '' : ' <span class="sub">· un toucher suffit</span>'}
+      <div class="quick">${qb('Présentiel', '🏛️ Vient en salle')}${qb('Live', '🎥 Suivra le Live')}${qb('Confirmé(e)', '✅ Vient')}${qb('Ne viendra pas', '❌ Ne vient pas')}${qb('Pas de réponse', '🔇 Pas de réponse')}</div></div>
+    ${p.num ? `<div class="sec"><b>Contacter</b><div class="crow"><a class="btn sm" href="https://wa.me/${esc(p.num)}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="btn sm" href="tel:+${esc(p.num)}">📞 Appeler</a>${noWA(p) ? '<button class="btn sm qb sel" type="button" data-q="WhatsApp OK" title="Toucher si ce numéro a finalement WhatsApp">✓ 📵 Pas de WhatsApp</button>' : '<button class="btn sm" type="button" data-q="Pas de WhatsApp">📵 Pas de WhatsApp</button>'}</div></div>` : ''}
+    <div class="sec"><b>Messages</b>${tips.map((t) => { const ss = sent(p, t.k), el = eligible(p, t.k);
+      return `<div class="mrow ${ss.length ? 'done' : ''}"><div>${ss.length ? '<span class="ok">✓</span>' : t.e} ${esc(t.n)} <span class="sub">${ss.length ? '· ' + fmtDate(ss[0].voye_le) : ''}</span></div>
+        ${el ? `<span class="mact">${ss.length ? '' : `<button class="btn xs" type="button" data-mark="${t.k}" title="Déjà envoyé à la main">✓ Déjà fait</button>`}${AF[t.k] && !noWA(p) ? `<button class="btn xs" type="button" data-af="${pk(p)}" data-aftip="${t.k}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${noWA(p) ? `<a class="btn xs ${ss.length ? '' : 'wa'}" href="${esc(smsLink(p, t.k))}" data-send="${pk(p)}" data-tip="${t.k}" data-how="SMS">${ss.length ? '↻' : '📱 SMS'}</a>` : `<a class="btn xs ${ss.length ? '' : 'wa'}" href="${esc(waLink(p, t.k))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${t.k}">${ss.length ? '↻' : '💬 Envoyer'}</a>`}</span>` : '<span></span>'}</div>`; }).join('') || '<div class="sub">Aucun message pour cette personne.</div>'}</div>
+    <div class="sec"><b>Note</b> <span class="sub">· ce qu’elle a dit, ce qui a été convenu</span>
+      <textarea class="t" id="nTxt" maxlength="2000" rows="2" placeholder="Ex. : arrivera à 15 h, vient avec un collègue…" style="margin-top:6px"></textarea></div>
+    <div class="sec"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>
+    ${WOL !== 'crm' ? `<div class="sec sub">Responsable du suivi <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>` : ''}
+    <div class="dfoot"><button class="btn p" type="button" id="nSave">Enregistrer la note</button><button class="btn" type="button" id="dX2">Fermer</button></div>`;
   if (!$('dlg').open) $('dlg').showModal();
-  $('pResp').onchange = async () => { const v = $('pResp').value || null;
+  if ($('pResp')) $('pResp').onchange = async () => { const v = $('pResp').value || null;
     const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, responsab: v, maj: new Date().toISOString(), pa: ME });
     if (error) { toast(friendly(error)); return; } if (v) RESP[pk(p)] = v; else delete RESP[pk(p)]; toast(v ? `✓ Confié à ${v}` : '✓ Sans responsable'); render(); };
-  $('dX').onclick = () => $('dlg').close();
+  $('dX').onclick = () => $('dlg').close(); $('dX2').onclick = () => $('dlg').close();
   $('nSave').onclick = async () => {
-    const rezilta = $('nRes').value, teks = $('nTxt').value.trim(); if (!rezilta && !teks) { toast('Choisissez un résultat ou écrivez une note.'); return; }
-    $('nSave').disabled = true; await saveNote(p, rezilta, teks); $('nSave').disabled = false;
+    const teks = $('nTxt').value.trim(); if (!teks) { toast('Écrivez la note avant d’enregistrer.'); $('nTxt').focus(); return; }
+    $('nSave').disabled = true; await saveNote(p, '', teks); $('nSave').disabled = false;
   };
-  $('dlgIn').querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => saveNote(p, b.dataset.q, ''); });
+  $('dlgIn').querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => {
+    const q = b.dataset.q;
+    if (q === cur) { toast('C’est déjà sa réponse ✓'); return; }   // pas de doublon dans l'historique
+    $('dlgIn').querySelectorAll('.quick .qb').forEach((x) => x.classList.toggle('sel', x === b && q !== 'Pas de WhatsApp' && q !== 'WhatsApp OK'));   // retour visuel immédiat
+    b.classList.add('busy'); saveNote(p, q, '');
+  }; });
 }
 async function saveNote(p, rezilta, teks) {
   const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();

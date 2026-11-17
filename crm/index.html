@@ -99,6 +99,11 @@
   .av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 800 15px "Bricolage Grotesque", sans-serif; color: #fff; }
   .row .nm { font-weight: 800; font-size: 16px; cursor: pointer; overflow-wrap: anywhere; } .row .nm:hover { color: var(--green2); }
   .bdg { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: var(--ink2); margin: 2px 4px 0 0; }
+  .back { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 90; width: min(520px, calc(100% - 20px)); background: #0D2D4A; color: #fff; border-radius: 18px; padding: 12px 14px; box-shadow: 0 18px 44px rgba(8,20,36,.4); display: grid; gap: 10px; animation: bkin .25s ease; }
+  @keyframes bkin { from { transform: translate(-50%, 20px); opacity: 0; } }
+  .back .bk1 { font-size: 15px; } .back .bk2 { display: flex; gap: 8px; } .back .bk2 .btn { flex: 1; min-height: 46px; } .back .btn.nowa, .btn.nowa { background: #fdecec; color: #b42318; border-color: #f3c0ba; }
+  .btn.nowa1 { padding: 0 10px; opacity: .55; } .btn.nowa1:hover { opacity: 1; background: #fdecec; }
+  .nwrem { margin-top: 12px; background: #fdecec; border: 1px solid #f3c0ba; color: #8f1d14; border-radius: 16px; padding: 10px 14px; font-size: 14.5px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   .bdg.nowa { background: #fdecec; color: #b42318; border: 1px solid #f3c0ba; } .bdg.att { background: #fff1e0; color: #b4530a; border: 1px solid #f5d9a8; } .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
   .dots { display: flex; flex-wrap: wrap; gap: 4px; max-width: 196px; justify-content: flex-end; } .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #f3f6fa; filter: grayscale(1); opacity: .45; }
   .dot.ok { background: var(--okbg); box-shadow: inset 0 0 0 1.5px #a9dcb6; filter: none; opacity: 1; } .dot.na { display: none; }
@@ -222,6 +227,7 @@
         <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button></div>
       <div class="card" id="afBar" style="padding:12px"></div>
     </div>
+    <div class="nwrem hidden" id="nwRem"></div>
     <p class="count" id="count"></p>
     <div class="list" id="list"></div>
 
@@ -258,6 +264,7 @@
   <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
 </div></dialog>
 <div class="toast hidden" id="toast" role="status"></div>
+<div class="back hidden" id="back" role="dialog" aria-live="polite"></div>
 <style>
   .lib { border: 1px solid var(--line, #e3e8ef); border-radius: 14px; padding: 12px; margin-top: 12px; }
   .lib h4 { margin: 0 0 2px; font: 800 15px "Bricolage Grotesque", sans-serif; } .lib .sub { margin: 0 0 8px; }
@@ -566,7 +573,30 @@ async function markSent(p, k, how) {
   const { data, error } = await sb.from('talks_crm_mesaj').insert(row).select().single();
   if (error) { toast('Message ouvert, mais non enregistré : ' + friendly(error), 6000); return; }
   MES.unshift(data); render(); if ($('dlg').open && DLG && pk(DLG) === pk(p)) openPerson(p);
+  if (how !== 'SMS' && how !== 'marqué à la main') { LAST = { k: pk(p), tip: k, id: data.id, at: Date.now(), away: false }; hideBack(); }
 }
+/* ---------- Retour de WhatsApp : « le message est parti ? » (pour ne pas oublier les numéros sans WhatsApp) ---------- */
+let LAST = null, BACKT = null;
+function hideBack() { clearTimeout(BACKT); $('back').classList.add('hidden'); }
+function askBack() {
+  if (!LAST || Date.now() - LAST.at > 20 * 60000) return; const p = byKey(LAST.k); if (!p) return;
+  $('back').innerHTML = `<div class="bk1">📨 <b>${esc(String(p.nom || '').split(' ')[0])}</b> : le message est bien parti sur WhatsApp&nbsp;?</div>
+    <div class="bk2"><button class="btn sm" type="button" id="bkOk">✅ Oui</button><button class="btn sm nowa" type="button" id="bkNo">📵 Pas de WhatsApp</button></div>`;
+  $('back').classList.remove('hidden'); clearTimeout(BACKT); BACKT = setTimeout(() => { hideBack(); LAST = null; }, 15000);
+  const L0 = LAST;
+  $('bkOk').onclick = () => { hideBack(); LAST = null; };
+  $('bkNo').onclick = async () => { hideBack(); LAST = null; await marqueNoWA(p, L0); };
+}
+async function marqueNoWA(p, L0) {
+  const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: 'Pas de WhatsApp', teks: null, pa: ME }).select().single();
+  if (error) { toast(friendly(error)); return; }
+  NOTES.unshift(data);
+  if (L0 && L0.id) { const { error: e2 } = await sb.from('talks_crm_mesaj').delete().eq('id', L0.id); if (!e2) MES = MES.filter((m) => m.id !== L0.id); }   // le message n'est pas parti : il reste « à envoyer » (SMS)
+  render(); toast(`📵 ${String(p.nom || '').split(' ')[0]} : pas de WhatsApp. Retrouvez ce numéro dans « 📵 Pas de WhatsApp » pour un SMS ou un appel.`, 6000);
+}
+document.addEventListener('visibilitychange', () => { if (!LAST) return; if (document.hidden) LAST.away = true; else if (LAST.away) setTimeout(askBack, 350); });
+addEventListener('focus', () => { if (LAST && LAST.away) setTimeout(askBack, 350); });
+addEventListener('blur', () => { if (LAST) LAST.away = true; });
 
 /* ---------- Affichage ---------- */
 function filtered() {
@@ -587,13 +617,17 @@ function render() {
     return `<button type="button" class="tip ${TIP === t.k ? 'on' : ''}" data-tipcard="${t.k}"><div class="n">${t.e} ${esc(t.n)}</div><div class="v">${s}<small> / ${el.length} envoyés</small></div><div class="d">${esc(t.d)}</div><div class="track"><i style="width:${pct}%"></i></div></button>`; }).join('');
   renderAf();
   const L = filtered(), t = TIPS.find((x) => x.k === TIP);
+  const nwPend = P.filter((p) => !p.annule && noWA(p) && eligible(p, TIP) && !sent(p, TIP).length).length;
+  $('nwRem').classList.toggle('hidden', !nwPend || $('fSuivi').value === 'nowa');
+  $('nwRem').innerHTML = `📵 <b>${nwPend}</b> personne${nwPend > 1 ? 's' : ''} sans WhatsApp attend${nwPend > 1 ? 'ent' : ''} encore ce message : SMS ou appel. <button class="btn sm" type="button" id="nwGo">Voir la liste</button>`;
+  if ($('nwGo')) $('nwGo').onclick = () => { $('fSuivi').value = 'nowa'; ETAT = 'reste'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'reste')); render(); };
   $('count').textContent = `${t.e} ${t.n} · ${L.length} personne${L.length > 1 ? 's' : ''} ${ETAT === 'reste' ? 'à qui envoyer ce message' : ETAT === 'voye' ? 'ont déjà reçu ce message' : 'dans la liste'}.`;
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
       <div class="info2">${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
-      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
+      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
   if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
   renderSerie(); renderEkip(); renderDash();
@@ -605,6 +639,7 @@ document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-tipcard]'); if (t) { TIP = t.dataset.tipcard; SERIE = null; render(); return; }
   const af = e.target.closest('[data-af]'); if (af) { const p = byKey(af.dataset.af); if (p) shareAf(p, af.dataset.aftip); return; }
   const s = e.target.closest('[data-send]'); if (s) { const p = byKey(s.dataset.send); if (p) markSent(p, s.dataset.tip || TIP, s.dataset.how); return; }
+  const nw = e.target.closest('[data-nowa]'); if (nw) { const p = byKey(nw.dataset.nowa); if (!p) return; const L0 = LAST && LAST.k === pk(p) ? LAST : (() => { const m = sent(p, TIP)[0]; return m ? { id: m.id } : null; })(); hideBack(); LAST = null; marqueNoWA(p, L0); return; }
   const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }
 });
 $('etat').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ETAT = b.dataset.v; [...$('etat').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });

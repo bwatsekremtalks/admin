@@ -1041,13 +1041,25 @@ const UNIVERSITES = {
   'UNATH': 'Université des Atlantes',
   'EMMAÜS': 'Université Emmaüs',
   'UGNH': 'Université du Grand Nord d’Haïti',
+  'HUJ': 'Hôpital Universitaire Justinien',
+  'UPH': 'Université Polyvalente d’Haïti',
+  'USPF': 'Université Saint-Pierre de Formation',
+  'USFAH': 'Université Saint-François d’Assise d’Haïti',
+  'IHECE': 'Institut des Hautes Études Commerciales et Économiques',
+  'ACFIS': 'Université ACFIS du Canada',
+  'ISCEPC': 'Institut Sacré-Cœur des Études Professionnelles et Commerciales',
+  'FERA': 'Faculté d’Éducation Regina Assumpta',
+  'ISSBAN': 'Institut Supérieur des Sciences et de Beaux-Arts du Nord',
 };
+const UNI_ALIAS = [[/JUSTINIEN|\bHUJ\b/, 'HUJ'], [/POLYVALENTE|\bUPH\b/, 'UPH'], [/S(AIN)?T\.?[- ]?PIERRE DE FORMATION|\bUSPF\b/, 'USPF'], [/FRANCOIS D'? ?ASSISE|\bUSFAH\b/, 'USFAH'], [/\bIHECE\b|HAUTES ETUDES COMMERCIALES ET ECONOMIQUES/, 'IHECE'], [/ACFIS/, 'ACFIS'], [/SACRE[- ]?C(OE|Œ|O)?UR|\bISCEPC\b/, 'ISCEPC'], [/REGINA ASSUMPTA|\bFERA\b/, 'FERA'], [/ISSBAN|BEAUX[- ]?ARTS DU NORD/, 'ISSBAN'], [/UNIVERSITE DES ATLANTES/, 'UNATH']];
+const uniAlias = (u) => { const p = String(u).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’]/g, "'").toUpperCase(); for (const [re, k] of UNI_ALIAS) if (re.test(p)) return k; return null; };
 /* Nom d'université « propre » pour les stats : « Aucune » ignoré, variantes regroupées (ex. « Université Emmüs (UE) » → EMMAÜS). */
 function normUni(s) {
   let u = String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
   if (!u || /^(AUCUNE?|NON|NONE|PAS|RIEN|N\/?A|[-—.]+)$/.test(u)) return null;
   const plain = (x) => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’']/g, "'");
   if (/EMM.?[AU]?[UÜ]?S\b|EMMAUS|EMMÜS/.test(plain(u)) || /EMM[AÜU]+S/.test(u)) return 'EMMAÜS';
+  const al = uniAlias(u); if (al) return al;
   for (const [k, v] of Object.entries(UNIVERSITES)) { if (u === k || plain(u) === plain(v.toUpperCase()) || plain(u).endsWith('(' + plain(k) + ')')) return k; }
   return u;
 }
@@ -1484,7 +1496,7 @@ function uniCount(raw) {
 }
 function uniText(raw) {
   const k = normUni(raw); if (!k) return '';
-  const nm = uniNom(raw), nom = /^Universit/i.test(nm) ? `l’${nm}` : /^Campus/i.test(nm) ? `du ${nm}`.replace('de du', 'du') : /^Facult/i.test(nm) ? `la ${nm}` : nm;
+  const nm = uniNom(raw), nom = /^(Universit|H[ôo]pital|Institut)/i.test(nm) ? `l’${nm}` : /^Campus/i.test(nm) ? `du ${nm}`.replace('de du', 'du') : /^Facult/i.test(nm) ? `la ${nm}` : nm;
   const n = Math.max(1, uniCount(raw)), lien = 'https://bwatsekremtalks.com/reserver';
   if (n <= 1) return `\n🎓 Vous êtes le premier ou la première étudiant(e) ${nom.startsWith('du ') ? nom : 'de ' + nom} à vous inscrire ! Partagez ce lien avec vos camarades pour venir à 10 au moins : ${lien}\n`;
   return `\n🎓 Vous êtes déjà ${n} étudiant(e)s ${nom.startsWith('du ') ? nom : 'de ' + nom} inscrit(e)s à Bwat Sekrèm Talks ! Partagez ce lien avec vos camarades pour que vous soyez ${n + 10} le 22 novembre : ${lien}\n`;

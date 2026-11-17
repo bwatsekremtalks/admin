@@ -327,7 +327,7 @@ const digits = (v) => String(v || '').replace(/\D/g, '');
 const local8 = (v) => { let d = digits(v); if (d.startsWith('00')) d = d.slice(2); if (d.length > 8 && d.startsWith('509')) d = d.slice(3); return d; };
 const hm = (d) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 const PROFILS = { etudiant: 'Étudiant(e)', employe: 'Employé(e)', cadre: 'Cadre / Dirigeant(e)', proprietaire: 'Propriétaire', autre: 'Autre' };
-const UNIS = ['UPNCH', 'URHC', 'UNDH', 'UCNH', 'CHCL/UEH', 'UNAF', 'FDSEG/UEH', 'UNATH', 'EMMAÜS', 'UGNH'];
+const UNIS = ['UPNCH', 'URHC', 'UNDH', 'UCNH', 'CHCL/UEH', 'UNAF', 'FDSEG/UEH', 'UNATH', 'EMMAÜS', 'UGNH', 'HUJ', 'UPH', 'USPF', 'USFAH', 'IHECE', 'ACFIS', 'ISCEPC', 'FERA', 'ISSBAN'];
 const COL = ['#2f8fe8', '#5DB033', '#7c4dff', '#ff8a00', '#e8436b', '#0D2D4A', '#0aa3a3'];
 const avc = (n) => COL[[...String(n || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % COL.length];
 const ini = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();

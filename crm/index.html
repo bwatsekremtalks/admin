@@ -14,7 +14,8 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Messages & suivi — BST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <!--
   CRM WhatsApp de Bwat Sekrèm Talks : 5 messages par participant, suivi de qui a reçu quoi,
@@ -22,139 +23,209 @@
   Même compte que l'espace inscriptions (table talks_admins). Tables : talks_crm_mesaj, talks_crm_not, talks_crm_moun.
 -->
 <style>
-  :root { --bg: #eef3f8; --surface: #fff; --surface-2: #f6f9fc; --ink: #123056; --ink-2: #3d5577; --muted: #6b7f99; --line: #d9e2ec;
-    --brand: #4f8f28; --green: #7AC142; --navy: #0E2A4A; --wa: #25D366; --err: #b42318; --ok: #2f7a12; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #0b1726; --surface: #12233a; --surface-2: #172b45; --ink: #e8eff8; --ink-2: #b9c8db; --muted: #8aa0bb; --line: #26405f; --navy: #e8eff8; --err: #ff8a7a; --ok: #a6e07f; } }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "DM Sans", system-ui, sans-serif; }
+  :root { --navy: #0D2D4A; --navy2: #123d66; --green: #7AC142; --green2: #5DB033; --ink: #0d2236; --ink2: #3d5577; --mute: #6b7f99; --line: #dfe7f0;
+    --bg: #f2f6fb; --card: #fff; --surface: #fff; --surface-2: #f6f9fc; --wa: #25D366; --ok: #1f8a43; --okbg: #e8f7ec; --warn: #b26b00; --warnbg: #fff4dd; --red: #c0352b; --redbg: #fdecea; --err: #c0352b; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15.5px/1.45 "DM Sans", system-ui, sans-serif; }
   button, input, select, textarea { font: inherit; color: inherit; }
   .hidden { display: none !important; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
-  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
-  .sub { color: var(--muted); font-size: 13px; }
-  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--brand); margin: 0; }
-  h1 { font-size: 22px; margin: 2px 0 0; } h2 { font-size: 17px; margin: 0 0 10px; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer; white-space: nowrap; text-decoration: none; color: var(--ink); }
-  .btn:hover { background: var(--surface-2); } .btn:disabled { opacity: .5; cursor: default; }
-  .btn.p { background: var(--green); border-color: var(--green); color: #0a1f38; font-weight: 700; }
-  .btn.wa { background: var(--wa); border-color: var(--wa); color: #06301a; font-weight: 700; }
-  .btn.sm { min-height: 30px; padding: 0 10px; font-size: 13px; }
-  input.t, select.t, textarea.t { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  h1, h2, h3 { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; }
+  .sub { color: var(--mute); font-size: 13.5px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 4px 14px rgba(13,45,74,.05); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 16px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; font-weight: 700; cursor: pointer; white-space: nowrap; text-decoration: none; color: var(--ink); }
+  .btn:hover { background: #f6f9fc; } .btn:disabled { opacity: .5; cursor: default; }
+  .btn.p { background: var(--green); border-color: var(--green); color: #0a1f38; box-shadow: 0 6px 16px rgba(122,193,66,.35); }
+  .btn.wa { background: var(--wa); border-color: var(--wa); color: #05331b; box-shadow: 0 6px 16px rgba(37,211,102,.3); }
+  .btn.sm { min-height: 38px; padding: 0 12px; font-size: 14px; border-radius: 12px; }
+  input.t, select.t, textarea.t { width: 100%; padding: 11px 13px; border-radius: 14px; border: 1.5px solid var(--line); background: #f7fafd; }
+  input.t:focus, select.t:focus, textarea.t:focus { outline: none; border-color: var(--green); background: #fff; }
   textarea.t { min-height: 90px; resize: vertical; }
-  header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-  header .in { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
-  .login { min-height: 100dvh; display: grid; place-items: center; padding: 16px; } .login .card { width: 100%; max-width: 400px; padding: 26px; }
-  .login label { display: block; font-weight: 700; margin: 14px 0 6px; font-size: 14px; }
-  .msg { font-size: 14px; color: var(--err); min-height: 1em; margin-top: 10px; }
-  /* Progression des 5 messages */
-  .tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
-  .tip { text-align: left; border: 2px solid var(--line); border-radius: 16px; padding: 12px; background: var(--surface); cursor: pointer; }
-  .tip.on { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent); }
-  .tip .n { font-weight: 800; font-size: 15px; } .tip .v { font-size: 22px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .tip .v small { font-size: 13px; color: var(--muted); font-weight: 600; } .tip .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .track { height: 7px; background: var(--line); border-radius: 9px; overflow: hidden; margin-top: 8px; } .track i { display: block; height: 100%; background: var(--green); border-radius: 9px; }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
-  .filters .t { width: auto; } .filters input.t { flex: 1 1 220px; }
-  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
-  .seg button { border: 0; background: none; padding: 8px 12px; cursor: pointer; font-weight: 600; font-size: 13px; }
-  .seg button.on { background: var(--navy); color: var(--surface); }
-  /* Liste */
+  .msg { font-size: 14px; color: var(--red); min-height: 1em; margin-top: 10px; }
+
+  /* ---------- En-tête ---------- */
+  .hero { color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 64px; border-radius: 0 0 30px 30px;
+    background: radial-gradient(circle at 92% 0%, rgba(122,193,66,.35), transparent 45%), radial-gradient(circle at 0% 100%, rgba(47,143,232,.25), transparent 50%), linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  .in { max-width: 1180px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; gap: 12px; }
+  .topbar img { height: 34px; }
+  .topbar .tt { flex: 1; min-width: 0; } .topbar .tt b { display: block; font: 800 20px "Bricolage Grotesque", sans-serif; }
+  .topbar .tt small { color: rgba(255,255,255,.72); font-size: 13px; overflow-wrap: anywhere; }
+  .ib { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 17px; text-decoration: none; flex: none; }
+  .ib:hover { background: rgba(255,255,255,.16); }
+  .dashw { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; margin-top: 18px; }
+  .dashw > div { min-width: 0; }
+  .ring { position: relative; width: 140px; height: 140px; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring .c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .ring .c b { display: block; font: 800 36px/1 "Bricolage Grotesque", sans-serif; } .ring .c small { font-size: 12px; color: rgba(255,255,255,.78); line-height: 1.25; display: block; margin-top: 4px; }
+  .dhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .dhead b { font: 800 16px "Bricolage Grotesque", sans-serif; } .dhead span { font-size: 12.5px; color: rgba(255,255,255,.72); }
+  .dtiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .dt { text-align: left; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 10px 12px; cursor: pointer; color: #fff; transition: background .15s; }
+  .dt:hover { background: rgba(255,255,255,.14); }
+  .dt b { display: block; font: 800 22px/1.1 "Bricolage Grotesque", sans-serif; font-variant-numeric: tabular-nums; }
+  .dt span { display: block; font-size: 12.5px; font-weight: 700; color: #fff; margin-top: 2px; } .dt small { display: block; font-size: 11.5px; color: rgba(255,255,255,.66); margin-top: 2px; line-height: 1.25; }
+  .dt.g { background: rgba(122,193,66,.2); border-color: rgba(122,193,66,.45); } .dt.r { background: rgba(255,107,94,.16); border-color: rgba(255,107,94,.38); } .dt.y { background: rgba(255,200,87,.14); border-color: rgba(255,200,87,.34); }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 0 16px calc(40px + env(safe-area-inset-bottom)); }
+  /* ---------- Les 5 messages ---------- */
+  .tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: -42px; position: relative; z-index: 2; }
+  .tip { text-align: left; border: 2px solid transparent; border-radius: 20px; padding: 12px 14px; background: #fff; cursor: pointer; box-shadow: 0 12px 28px rgba(13,45,74,.12); }
+  .tip.on { border-color: var(--green); box-shadow: 0 12px 28px rgba(122,193,66,.3); }
+  .tip .n { font-weight: 800; font-size: 14.5px; } .tip .v { font: 800 22px "Bricolage Grotesque", sans-serif; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .tip .v small { font: 600 12.5px "DM Sans", sans-serif; color: var(--mute); } .tip .d { font-size: 12px; color: var(--mute); margin-top: 2px; line-height: 1.3; }
+  .track { height: 7px; background: #e7edf4; border-radius: 9px; overflow: hidden; margin-top: 8px; } .track i { display: block; height: 100%; background: linear-gradient(90deg, var(--green2), var(--green)); border-radius: 9px; }
+
+  /* ---------- Recherche & filtres ---------- */
+  .tools { margin-top: 16px; display: grid; gap: 10px; }
+  .search { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid transparent; border-radius: 18px; padding: 4px 6px 4px 16px; box-shadow: 0 6px 18px rgba(13,45,74,.08); }
+  .search:focus-within { border-color: var(--green); }
+  .search svg { flex: none; width: 21px; height: 21px; color: var(--mute); }
+  .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 17px; padding: 12px 0; }
+  input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .seg { display: inline-flex; background: #e8eef5; border-radius: 14px; padding: 4px; gap: 2px; }
+  .seg button { border: 0; background: none; padding: 8px 14px; border-radius: 11px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--ink2); }
+  .seg button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(13,45,74,.12); }
+  .filters select.t { width: auto; min-height: 42px; padding: 8px 12px; border-radius: 14px; background: #fff; font-weight: 600; font-size: 14px; }
+  .acts2 { display: flex; gap: 8px; flex-wrap: wrap; }
+  .count { margin: 14px 4px 8px; font-weight: 700; color: var(--ink2); font-size: 14px; }
+
+  /* ---------- Liste ---------- */
   .list { display: grid; gap: 8px; }
-  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
-  .row .nm { font-weight: 700; cursor: pointer; } .row .nm:hover { text-decoration: underline; }
-  .bdg { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); margin: 2px 4px 0 0; color: var(--ink-2); }
-  .bdg.live { background: #efe7ff; border-color: #cdb8ff; color: #4b2a9a; } .bdg.salle { background: #e7f6dd; border-color: #b9e09a; color: #2f6a14; } .bdg.hors { background: #fff3dc; border-color: #ffd58a; color: #8a5300; }
-  .dots { display: flex; gap: 4px; } .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: var(--surface-2); border: 1px dashed var(--line); filter: grayscale(1); opacity: .55; }
-  .dot.ok { background: #e7f6dd; border: 1px solid #b9e09a; filter: none; opacity: 1; } .dot.na { visibility: hidden; }
-  .empty { text-align: center; color: var(--muted); padding: 30px; }
-  /* Série */
-  .serie { position: sticky; top: 62px; z-index: 4; border: 2px solid var(--green); margin-bottom: 12px; }
-  .serie pre, .prev { white-space: pre-wrap; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 13.5px/1.45 "DM Sans", sans-serif; max-height: 220px; overflow: auto; margin: 8px 0; }
-  dialog { width: min(720px, calc(100% - 20px)); max-height: calc(100dvh - 20px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
-  dialog::backdrop { background: rgba(8, 20, 36, .55); }
-  .dlg { padding: 20px; } .dlg h2 { font-size: 19px; margin: 0; }
-  .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
-  .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
-  .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--navy); color: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 600; z-index: 50; max-width: calc(100% - 24px); }
-  .dtiles { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
-  .dt { text-align: left; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--surface-2); cursor: pointer; }
-  .dt b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; } .dt span { font-size: 12.5px; color: var(--ink-2); font-weight: 600; } .dt small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-  .dt.g { background: #e7f6dd; border-color: #b9e09a; } .dt.r { background: #fde8e6; border-color: #f5b5ad; } .dt.y { background: #fff3dc; border-color: #ffd58a; }
-  @media (prefers-color-scheme: dark) { .dt.g, .dt.r, .dt.y { color: #0a1f38; } .dt.g span, .dt.r span, .dt.y span { color: #0a1f38; } }
-  table.tm { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; } table.tm th, table.tm td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-  table.tm th:first-child, table.tm td:first-child { text-align: left; } table.tm th { font-size: 12px; color: var(--muted); }
-  .quick { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; } .quick .btn { flex: 1 1 auto; }
-  @media (max-width: 860px) { .dtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; } .dt { padding: 8px 10px; } .dt b { font-size: 20px; } .dt small { font-size: 11px; } .tmw { overflow-x: auto; } #dash summary { font-size: 15px !important; } }
-  details.tpl summary { cursor: pointer; font-weight: 700; } details.tpl .k { font-weight: 700; margin: 14px 0 4px; }
-  header .hbtn { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  @media (max-width: 860px) {
-    body { font-size: 15.5px; }
-    header.top { position: static; } header .in { padding: 10px 12px; flex-wrap: nowrap; }
-    header .eyebrow, #who, .lbl { display: none; } h1 { font-size: 19px; }
-    header .hbtn .btn { width: 40px; height: 40px; padding: 0; font-size: 17px; }
-    .wrap { padding: 12px 12px calc(24px + env(safe-area-inset-bottom)); }
-    .tips { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin: 10px -12px 12px; padding: 2px 12px 6px; scrollbar-width: none; }
-    .tips::-webkit-scrollbar { display: none; }
-    .tip { flex: 0 0 auto; width: 138px; padding: 10px; scroll-snap-align: start; border-radius: 14px; } .tip .d { display: none; } .tip .n { font-size: 14px; } .tip .v { font-size: 20px; }
-    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .filters .seg { grid-column: 1 / -1; display: flex; } .filters .seg button { flex: 1; padding: 10px 6px; }
-    .filters input.t { grid-column: 1 / -1; width: 100%; } .filters select.t { width: 100%; min-width: 0; padding: 10px 8px; }
-    #go { grid-column: 1 / -1; min-height: 46px; font-size: 16px; } #bulk { grid-column: 1 / -1; font-size: 13px; white-space: normal; }
-    .row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 10px 12px; }
-    .row .info2 { grid-column: 1; order: 3; min-width: 0; } .row .dots { order: 4; grid-column: 2; align-self: end; gap: 3px; } .row .dot { width: 24px; height: 24px; font-size: 12px; } .row > div:last-child { order: 2; }
-    .row .btn { min-height: 42px; padding: 0 14px; }
-    .btn.sm { min-height: 40px; }
-    .serie { position: sticky; top: 0; border-radius: 0 0 16px 16px; margin: 0 -12px 12px; }
-    .serie .btn { flex: 1 1 100%; min-height: 46px; }
-    dialog { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 22px 22px 0 0; border-bottom: 0; }
-    dialog[open] { animation: up .22s ease-out; } @keyframes up { from { transform: translateY(40px); opacity: .4; } }
-    .dlg { padding: 16px 14px calc(18px + env(safe-area-inset-bottom)); } .dlg .seg { display: flex; } .dlg .seg button { flex: 1; padding: 10px 4px; }
-    .mrow { grid-template-columns: 1fr; } .mrow > span { justify-content: stretch; } .mrow > span .btn, .mrow > a { flex: 1; }
-    #dX { position: sticky; top: 0; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.2fr) auto auto; gap: 12px; align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 10px 12px; transition: box-shadow .15s; }
+  .row:hover { box-shadow: 0 6px 18px rgba(13,45,74,.08); }
+  .pn { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 800 15px "Bricolage Grotesque", sans-serif; color: #fff; }
+  .row .nm { font-weight: 800; font-size: 16px; cursor: pointer; overflow-wrap: anywhere; } .row .nm:hover { color: var(--green2); }
+  .bdg { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: var(--ink2); margin: 2px 4px 0 0; }
+  .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
+  .dots { display: flex; gap: 4px; } .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #f3f6fa; filter: grayscale(1); opacity: .45; }
+  .dot.ok { background: var(--okbg); box-shadow: inset 0 0 0 1.5px #a9dcb6; filter: none; opacity: 1; } .dot.na { visibility: hidden; }
+  .empty { text-align: center; color: var(--mute); padding: 36px 16px; background: #fff; border-radius: 20px; border: 1px dashed var(--line); }
+
+  /* ---------- Série ---------- */
+  .serie { position: sticky; top: 8px; z-index: 6; margin-top: 12px; border: 2px solid var(--green); box-shadow: 0 16px 34px rgba(13,45,74,.16); }
+  .serie pre, .prev { white-space: pre-wrap; background: #f6f9fc; border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; font: 13.5px/1.45 "DM Sans", sans-serif; max-height: 220px; overflow: auto; margin: 8px 0; }
+
+  /* ---------- Fiche ---------- */
+  dialog { width: min(720px, calc(100% - 20px)); max-height: calc(100dvh - 20px); border: 0; border-radius: 26px; padding: 0; background: #fff; color: var(--ink); box-shadow: 0 30px 80px rgba(8,20,36,.35); }
+  dialog::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
+  .dlg { padding: 22px; } .dlg h2 { font-size: 22px; margin: 0; }
+  .dlg .seg { display: inline-flex; }
+  .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid #eef2f7; }
+  .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 9px 12px; border-radius: 12px; background: #f6f9fc; }
+  .quick { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .quick .btn { flex: 1 1 auto; border-radius: 14px; }
+  .quick [data-q="Présentiel"], .quick [data-q="Confirmé(e)"] { background: var(--okbg); border-color: #b7e2c2; color: var(--ok); }
+  .quick [data-q="Live"] { background: #f1ebff; border-color: #d6c7ff; color: #4b2a9a; }
+  .quick [data-q="Ne viendra pas"] { background: var(--redbg); border-color: #f3c0ba; color: var(--red); }
+  .sec { margin-top: 18px; } .sec > b { font: 800 15px "Bricolage Grotesque", sans-serif; }
+
+  /* ---------- Fenêtre de confirmation ---------- */
+  dialog.ask { width: min(440px, calc(100% - 32px)); text-align: center; }
+  dialog.ask[open], dialog#dlg[open] { animation: askIn .22s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes askIn { from { transform: translateY(14px) scale(.97); opacity: 0; } }
+  .ask .bx { padding: 28px 22px 20px; }
+  .ask .ic { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 14px; font-size: 34px; }
+  .ask .ic.warn { background: var(--warnbg); } .ask .ic.red { background: var(--redbg); } .ask .ic.blue { background: #e8f1fb; } .ask .ic.green { background: var(--okbg); }
+  .ask h3 { margin: 0; font-size: 22px; line-height: 1.2; } .ask p { margin: 8px 0 0; color: var(--ink2); font-size: 15px; white-space: pre-line; }
+  .ask .who2 { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 6px 14px 6px 6px; border-radius: 999px; background: #f2f6fb; font-weight: 800; }
+  .ask .who2 .av { width: 34px; height: 34px; font-size: 13px; }
+  .ask .bb { display: flex; gap: 10px; margin-top: 22px; } .ask .bb button { flex: 1; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .ask .no { border: 1.5px solid var(--line); background: #fff; } .ask .yes { border: 0; background: var(--navy); color: #fff; }
+  .ask .yes.red { background: var(--red); } .ask .yes.green { background: var(--green); color: #0a1f38; }
+
+  /* ---------- Divers ---------- */
+  .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 700; z-index: 80; max-width: calc(100% - 24px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  details.tpl summary { cursor: pointer; font: 800 16px "Bricolage Grotesque", sans-serif; } details.tpl .k { font-weight: 800; margin: 14px 0 4px; }
+  table.tm { width: 100%; border-collapse: collapse; font-size: 13.5px; } table.tm th, table.tm td { padding: 9px 8px; border-bottom: 1px solid #eef2f7; text-align: right; white-space: nowrap; }
+  table.tm th:first-child, table.tm td:first-child { text-align: left; } table.tm th { font-size: 12px; color: var(--mute); }
+  .tmw { overflow-x: auto; }
+  .login { min-height: 100dvh; display: grid; place-items: center; padding: 20px; background: linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  .login form { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 26px; }
+  .login img { height: 44px; } .login h1 { margin: 12px 0 4px; font-size: 26px; }
+  .login label { display: block; font-weight: 800; font-size: 14px; margin: 14px 0 6px; }
+  .login input { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; background: #f7fafd; font-size: 17px; }
+  .login button { width: 100%; margin-top: 18px; min-height: 52px; border: 0; border-radius: 16px; background: var(--green); font-weight: 800; font-size: 17px; cursor: pointer; }
+  .a2hs { margin-top: 12px; border-color: #b9e09a; background: #f3fbec; }
+
+  @media (max-width: 900px) {
+    .hero { padding-bottom: 58px; border-radius: 0 0 26px 26px; }
+    .topbar .tt b { font-size: 18px; } .topbar .tt small { display: none; } .topbar img { height: 30px; } .ib { width: 40px; height: 40px; }
+    .dhead span { width: 100%; }
+    .dashw { grid-template-columns: minmax(0, 1fr); gap: 12px; } .ring { display: none; }
+    .dtiles { display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px; padding: 0 16px 4px; scroll-padding-inline: 16px; scroll-snap-type: x mandatory; scrollbar-width: none; } .dtiles::-webkit-scrollbar { display: none; }
+    .dt { flex: 0 0 auto; width: 146px; scroll-snap-align: start; }
+    .tips { display: flex; overflow-x: auto; margin: -40px -16px 0; padding: 4px 16px 10px; scroll-padding-inline: 16px; scroll-snap-type: x mandatory; scrollbar-width: none; } .tips::-webkit-scrollbar { display: none; }
+    .tip { flex: 0 0 auto; width: 150px; scroll-snap-align: start; } .tip .d { display: none; }
+    .filters { display: grid; grid-template-columns: 1fr 1fr; } .filters .seg { grid-column: 1 / -1; display: flex; } .filters .seg button { flex: 1; padding: 9px 6px; }
+    .filters select.t { width: 100%; min-width: 0; }
+    .acts2 { display: grid; grid-template-columns: 1fr; } #go { min-height: 50px; font-size: 16px; } #bulk { white-space: normal; font-size: 13.5px; }
+    .row { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 10px; padding: 12px; }
+    .row .info2 { grid-column: 1; order: 3; min-width: 0; } .row .dots { order: 4; grid-column: 2; align-self: end; gap: 3px; } .row .dot { width: 24px; height: 24px; font-size: 12px; }
+    .row > div:last-child { order: 2; } .row .btn { min-height: 44px; }
+    .av { width: 40px; height: 40px; font-size: 14px; }
+    .serie { top: 0; margin: 12px -16px 0; border-radius: 0 0 20px 20px; border-width: 0 0 3px; } .serie .btn { flex: 1 1 100%; min-height: 50px; }
+    dialog#dlg { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; }
+    .dlg { padding: 18px 16px calc(20px + env(safe-area-inset-bottom)); } .dlg .seg { display: flex; } .dlg .seg button { flex: 1; padding: 10px 4px; }
+    .mrow { grid-template-columns: 1fr; } .mrow > span .btn, .mrow > a { flex: 1; }
+    .quick .btn { flex: 1 1 calc(50% - 8px); min-height: 46px; }
   }
+  @media (prefers-reduced-motion: reduce) { dialog[open] { animation: none !important; } }
 </style>
 </head>
 <body>
 <section id="login" class="login hidden">
-  <form id="loginForm" class="card">
-    <p class="eyebrow">Bwat Sekrèm Talks</p>
+  <form id="loginForm">
+    <img src="../portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" />
     <h1>Messages & suivi</h1>
-    <p class="sub" style="margin:4px 0 0">Même compte que l’espace inscriptions.</p>
-    <label for="email">E-mail</label><input class="t" id="email" type="email" autocomplete="username" required />
-    <label for="password">Mot de passe</label><input class="t" id="password" type="password" autocomplete="current-password" required />
-    <div style="margin-top:16px"><button class="btn p" type="submit" id="loginBtn">Se connecter</button></div>
+    <p class="sub" style="margin:0">Même compte que l’espace inscriptions.</p>
+    <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required />
+    <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required />
+    <button type="submit" id="loginBtn">Se connecter</button>
     <p class="msg" id="loginMsg" role="alert"></p>
     <p class="sub" style="margin-top:6px">Mot de passe oublié ? Utilisez le lien sur <a href="../">l’espace inscriptions</a>.</p>
   </form>
 </section>
 
 <div id="app" class="hidden">
-  <header class="top"><div class="in">
-    <div class="ttl"><p class="eyebrow">Bwat Sekrèm Talks · 22 novembre 2026</p><h1>💬 Messages <span class="lbl">& suivi WhatsApp</span></h1></div>
-    <div class="hbtn"><span class="sub" id="who"></span>
-      <button class="btn sm" id="reload" type="button" aria-label="Actualiser">↻<span class="lbl"> Actualiser</span></button><a class="btn sm hidden" id="toAdmin" href="../" aria-label="Inscriptions">←<span class="lbl"> Inscriptions</span></a><button class="btn sm" id="logout" type="button" aria-label="Déconnexion">⏻<span class="lbl"> Déconnexion</span></button></div>
-  </div></header>
-  <main class="wrap">
-    <div class="card hidden" id="a2hs" style="margin-top:12px;border-color:#b9e09a;background:#f3fbec"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
-      <div><b>📲 Installez-la comme une application</b><div class="sub" id="a2hsT" style="margin-top:2px"></div></div><button class="btn sm" type="button" id="a2hsX" aria-label="Fermer">✕</button></div></div>
-    <details class="card" id="dash" open style="margin-top:12px"><summary style="cursor:pointer;font-weight:800;font-size:16px">📊 Suivi des réponses <span class="sub" id="dashSub"></span></summary>
-      <div id="dashTiles" class="dtiles"></div><div id="dashTeam"></div></details>
-    <div class="tips" id="tips"></div>
-    <div class="card serie hidden" id="serie"></div>
-    <div class="filters">
-      <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
-      <input class="t" type="search" id="q" placeholder="Nom, numéro, université, ville…" />
-      <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
-      <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option></select>
-      <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
-      <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
-      <button class="btn p" id="go" type="button">▶ Envoi en série</button>
-      <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button>
+  <header class="hero"><div class="in">
+    <div class="topbar">
+      <img src="../portrait/logos/bst-blanc.png" alt="BST" />
+      <div class="tt"><b>Messages & suivi</b><small id="who"></small></div>
+      <button class="ib" id="reload" type="button" title="Actualiser" aria-label="Actualiser">↻</button>
+      <a class="ib hidden" id="toAdmin" href="../" title="Espace inscriptions" aria-label="Espace inscriptions">↩</a>
+      <button class="ib" id="logout" type="button" title="Déconnexion" aria-label="Déconnexion">⏻</button>
     </div>
-    <div class="card" id="afBar" style="margin:0 0 10px;padding:12px"></div>
-    <p class="sub" id="count" style="margin:0 0 8px"></p>
+    <div class="dashw" id="dash">
+      <div class="ring" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="12" /><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="#7AC142" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .6s" /></svg>
+        <div class="c"><div><b id="rN">0</b><small id="rOf">viennent</small></div></div></div>
+      <div><div class="dhead"><b>📊 Suivi des réponses</b><span id="dashSub"></span></div><div id="dashTiles" class="dtiles"></div></div>
+    </div>
+  </div></header>
+  <main>
+    <div class="tips" id="tips"></div>
+    <div class="card a2hs hidden" id="a2hs"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
+      <div><b>📲 Installez-la comme une application</b><div class="sub" id="a2hsT" style="margin-top:2px"></div></div><button class="btn sm" type="button" id="a2hsX" aria-label="Fermer">✕</button></div></div>
+    <div class="card serie hidden" id="serie"></div>
+    <div class="tools">
+      <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input type="search" id="q" placeholder="Nom, numéro, université…" aria-label="Rechercher" /></div>
+      <div class="filters">
+        <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
+        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option></select>
+        <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
+        <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
+        <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
+      </div>
+      <div class="acts2"><button class="btn p" id="go" type="button">▶ Envoi en série</button>
+        <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button></div>
+      <div class="card" id="afBar" style="padding:12px"></div>
+    </div>
+    <p class="count" id="count"></p>
     <div class="list" id="list"></div>
 
+    <div class="card" id="dashTeamW" style="margin-top:16px"><h3 style="margin:0 0 6px;font-size:17px">👥 Avancement par responsable</h3><div id="dashTeam"></div></div>
     <details class="card tpl hidden" style="margin-top:16px" id="ekBox">
       <summary>👥 Équipe et groupes de suivi <span class="sub" id="ekSum"></span></summary>
       <p class="sub">Chaque responsable suit un groupe de participants, dans l’ordre des inscriptions. Indiquez l’e-mail de connexion de chacun : il verra « Mes participants » en ouvrant la page.</p>
@@ -176,6 +247,10 @@
 </div>
 
 <dialog id="dlg"><div class="dlg" id="dlgIn"></div></dialog>
+<dialog class="ask" id="ask" aria-labelledby="askT"><div class="bx">
+  <div class="ic" id="askI"></div><h3 id="askT"></h3><p id="askP"></p><div id="askW"></div>
+  <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
+</div></dialog>
 <div class="toast hidden" id="toast" role="status"></div>
 
 <script>
@@ -184,6 +259,22 @@ const EDITION = '2026-11-22-cap-haitien';
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmtDate = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const COL = ['#2f8fe8', '#5DB033', '#7c4dff', '#ff8a00', '#e8436b', '#0D2D4A', '#0aa3a3'];
+const avc = (n) => COL[[...String(n || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % COL.length];
+const ini = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+/* Fenêtre de confirmation (remplace la boîte grise du navigateur) */
+function ask({ icon = '❔', tone = 'blue', title, text = '', person = null, ok = 'Confirmer', okTone = '', cancel = 'Annuler' }) {
+  return new Promise((resolve) => {
+    const d = $('ask');
+    $('askI').className = 'ic ' + tone; $('askI').textContent = icon; $('askT').textContent = title; $('askP').textContent = text; $('askP').classList.toggle('hidden', !text);
+    $('askW').innerHTML = person ? `<span class="who2"><span class="av" style="background:${avc(person)}">${esc(ini(person))}</span>${esc(person)}</span>` : '';
+    $('askYes').textContent = ok; $('askYes').className = 'yes ' + okTone; $('askNo').textContent = cancel;
+    const done = (v) => { d.close(); $('askYes').onclick = $('askNo').onclick = d.oncancel = d.onclick = null; resolve(v); };
+    $('askYes').onclick = () => done(true); $('askNo').onclick = () => done(false); d.oncancel = (e) => { e.preventDefault(); done(false); };
+    d.onclick = (e) => { if (e.target === d) done(false); };
+    d.showModal(); setTimeout(() => $('askYes').focus(), 30);
+  });
+}
 let TT = null; const toast = (m, ms = 3500) => { $('toast').textContent = m; $('toast').classList.remove('hidden'); clearTimeout(TT); TT = setTimeout(() => $('toast').classList.add('hidden'), ms); };
 const friendly = (e) => { const m = String(e?.message || e || ''); console.warn(e);
   if (/fetch|network/i.test(m)) return 'Connexion indisponible, réessayez.'; if (/jwt|session|expired/i.test(m)) return 'Session expirée : reconnectez-vous.';
@@ -328,7 +419,7 @@ function render() {
   $('count').textContent = `${t.e} ${t.n} · ${L.length} personne${L.length > 1 ? 's' : ''} ${ETAT === 'reste' ? 'à qui envoyer ce message' : ETAT === 'voye' ? 'ont déjà reçu ce message' : 'dans la liste'}.`;
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
-    return `<div class="row"><div><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div>
+    return `<div class="row"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
       <div class="info2">${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
       <div style="display:flex;gap:6px">${el && AF[TIP] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
@@ -351,7 +442,7 @@ $('etat').addEventListener('click', (e) => { const b = e.target.closest('button'
 $('bulk').addEventListener('click', async () => {
   const L = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length), t = TIPS.find((x) => x.k === TIP);
   if (!L.length) { toast('Personne à marquer dans cette liste.'); return; }
-  if (!confirm(`Marquer le message « ${t.n} » comme DÉJÀ ENVOYÉ pour ${L.length} personne${L.length > 1 ? 's' : ''} de la liste affichée ?\n\nÀ utiliser seulement pour les messages envoyés à la main avant cet outil. WhatsApp ne sera pas ouvert.`)) return;
+  if (!(await ask({ icon: '✓', tone: 'green', title: `Marquer ${L.length} message${L.length > 1 ? 's' : ''} comme envoyé${L.length > 1 ? 's' : ''} ?`, text: `Message « ${t.n} » pour ${L.length} personne${L.length > 1 ? 's' : ''} de la liste affichée.\nÀ utiliser seulement pour les messages déjà envoyés à la main. WhatsApp ne sera pas ouvert.`, ok: 'Marquer comme envoyé', okTone: 'green' }))) return;
   const rows = L.map((p) => ({ inscription_id: p.rid, idx: p.idx, tip: TIP, pa: `${ME} (marqué à la main)` }));
   const { data, error } = await sb.from('talks_crm_mesaj').insert(rows).select();
   if (error) { toast(friendly(error)); return; }
@@ -400,7 +491,7 @@ $('ekGo').onclick = async () => {
     if (!who) who = EKIP.reduce((a, b) => (load[b.non] < load[a.non] ? b : a));                      // tous pleins : au moins chargé
     load[who.non]++; return { p, who: who.non }; });
   const resume = EKIP.map((x) => `${x.non} : +${plan.filter((y) => y.who === x.non).length}`).join('\n');
-  if (!confirm(`Répartir ${todo.length} participant(s) sans responsable, dans l’ordre des inscriptions (groupes de ${size}) ?\n\n${resume}\n\nLes personnes déjà attribuées ne changent pas.`)) return;
+  if (!(await ask({ icon: '👥', title: `Répartir ${todo.length} participant${todo.length > 1 ? 's' : ''} ?`, text: `Dans l’ordre des inscriptions, groupes de ${size} :\n${resume}\n\nLes personnes déjà attribuées ne changent pas.`, ok: 'Répartir', okTone: 'green' }))) return;
   const now = new Date().toISOString();
   const { error } = await sb.from('talks_crm_moun').upsert(plan.map(({ p, who }) => ({ inscription_id: p.rid, idx: p.idx, responsab: who, maj: now, pa: ME })));
   if (error) { toast(friendly(error)); return; }
@@ -447,7 +538,7 @@ function renderAf() {
     if (error) { toast(friendly(error)); return; }
     AF[TIP] = url2; await prepAf(); toast('✓ Affiche ajoutée pour toute l’équipe'); render();
   };
-  if ($('afDel')) $('afDel').onclick = async () => { if (!confirm('Retirer l’affiche de ce message ?')) return;
+  if ($('afDel')) $('afDel').onclick = async () => { if (!(await ask({ icon: '🖼️', tone: 'red', title: 'Retirer l’affiche ?', text: `Le message « ${t.n} » sera de nouveau envoyé sans image.`, ok: 'Retirer', okTone: 'red' }))) return;
     const { error } = await sb.from('talks_config').delete().eq('cle', 'crm_afich_' + TIP); if (error) { toast(friendly(error)); return; }
     delete AF[TIP]; delete AFFILE[TIP]; render(); };
   if ($('afSave')) $('afSave').onclick = () => { const f = AFFILE[TIP]?.file;
@@ -496,16 +587,16 @@ function openPerson(p) {
     <div style="margin-top:12px"><b>Responsable du suivi</b> <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>
     <div style="margin-top:12px"><b>Mode de participation</b> <span class="sub">(change les messages Certificat et Conseils)</span>
       <div class="seg" style="margin-top:6px"><button type="button" data-mode="salle" class="${m === 'salle' ? 'on' : ''}">🏛️ En salle</button><button type="button" data-mode="live" class="${m === 'live' ? 'on' : ''}">🎥 Live</button><button type="button" data-mode="" class="${m ? '' : 'on'}">❔ Pas encore</button></div></div>
-    <div style="margin-top:14px"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
+    <div class="sec"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
       return `<div class="mrow"><div>${t.e} ${esc(t.n)} <span class="sub">· ${ss.length ? `envoyé le ${fmtDate(ss[0].voye_le)}${ss.length > 1 ? ` (${ss.length} fois)` : ''}` : el ? 'pas encore envoyé' : 'non concerné'}</span></div>
         ${el ? `<span style="display:flex;gap:6px">${ss.length ? '' : `<button class="btn sm" type="button" data-mark="${t.k}" title="Déjà envoyé à la main">✓ Déjà envoyé</button>`}${AF[t.k] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${t.k}" title="Envoyer avec l’affiche">🖼️</button>` : ''}<a class="btn sm ${ss.length ? '' : 'wa'}" href="${esc(waLink(p, t.k))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${t.k}">${ss.length ? '↻ Renvoyer' : '💬 Envoyer'}</a></span>` : '<span></span>'}</div>`; }).join('')}</div>
-    <div style="margin-top:14px"><b>Sa réponse</b> <span class="sub">· un toucher suffit${(() => { const s = suivi(p); return s === 'pas' ? '' : ` — actuellement : ${{ vient: '✅ vient' + (modeOf(p) ? (modeOf(p) === 'live' ? ' (Live)' : ' (en salle)') : ''), non: '❌ ne vient pas', repondu: '💬 a répondu', sans: '🔇 pas de réponse' }[s]}`; })()}</span>
+    <div class="sec"><b>Sa réponse</b> <span class="sub">· un toucher suffit${(() => { const s = suivi(p); return s === 'pas' ? '' : ` — actuellement : ${{ vient: '✅ vient' + (modeOf(p) ? (modeOf(p) === 'live' ? ' (Live)' : ' (en salle)') : ''), non: '❌ ne vient pas', repondu: '💬 a répondu', sans: '🔇 pas de réponse' }[s]}`; })()}</span>
       <div class="quick"><button class="btn sm" type="button" data-q="Présentiel">🏛️ Vient en salle</button><button class="btn sm" type="button" data-q="Live">🎥 Suivra le Live</button><button class="btn sm" type="button" data-q="Confirmé(e)">✅ Vient</button><button class="btn sm" type="button" data-q="Ne viendra pas">❌ Ne vient pas</button><button class="btn sm" type="button" data-q="Pas de réponse">🔇 Pas de réponse</button></div></div>
-    <div style="margin-top:14px"><b>Ajouter un suivi</b>
+    <div class="sec"><b>Ajouter un suivi</b>
       <div style="display:grid;gap:8px;margin-top:6px"><select class="t" id="nRes"><option value="">Résultat…</option>${RES.map((r) => `<option>${r}</option>`).join('')}</select>
       <textarea class="t" id="nTxt" maxlength="2000" placeholder="Ce que la personne a répondu, ce qui a été convenu…"></textarea>
       <div><button class="btn p" type="button" id="nSave">Enregistrer le suivi</button></div></div></div>
-    <div style="margin-top:14px"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>`;
+    <div class="sec"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>`;
   if (!$('dlg').open) $('dlg').showModal();
   $('pResp').onchange = async () => { const v = $('pResp').value || null;
     const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, responsab: v, maj: new Date().toISOString(), pa: ME });
@@ -535,7 +626,7 @@ async function liberer(p) {
   const q = p.idx >= 0 ? `Libérer la place de ${p.nom} ?\n\nSa place sera annulée dans l’espace inscriptions (la réservation de ${p.by} reste valable).`
     : autres.length ? `Libérer les places de cette réservation ?\n\n${p.nom} a réservé aussi pour : ${autres.map((x) => x.nom).join(', ')}.\nOK annule TOUTE la réservation (${autres.length + 1} places).\nSi les autres viennent quand même, choisissez « Annuler » et gérez-le dans l’espace inscriptions.`
     : `Libérer la place de ${p.nom} ?\n\nSa réservation sera annulée dans l’espace inscriptions et la place redeviendra disponible.`;
-  if (!confirm(q)) { toast('✓ Réponse enregistrée (place gardée)'); render(); openPerson(p); return; }
+  if (!(await ask({ icon: '🪑', tone: 'warn', title: autres.length ? 'Libérer toutes les places ?' : 'Libérer sa place ?', text: q.split('\n\n').slice(1).join('\n\n'), person: p.nom, ok: autres.length ? `Libérer ${autres.length + 1} places` : 'Libérer la place', okTone: 'red', cancel: 'Garder la place' }))) { toast('✓ Réponse enregistrée (place gardée)'); render(); openPerson(p); return; }
   const { error } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'x' });
   if (error) { toast('Réponse enregistrée, mais la place n’a pas pu être libérée : ' + friendly(error), 7000); render(); openPerson(p); return; }
   const n = p.idx === -1 ? autres.length + 1 : 1;
@@ -557,7 +648,8 @@ function renderDash() {
   const c = (f) => base.filter(f).length, S = (s) => c((p) => suivi(p) === s);
   const vient = S('vient'), non = S('non'), rep = vient + non + S('repondu'), sans = S('sans'), pas = S('pas'), cont = base.length - pas;
   const sal = c((p) => suivi(p) === 'vient' && modeOf(p) === 'salle'), liv = c((p) => suivi(p) === 'vient' && modeOf(p) === 'live'), pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
-  $('dashSub').textContent = `· ${rf ? (rf === '?' ? 'sans responsable' : 'groupe de ' + rf) : 'tous les participants'} (${base.length}) · ✅ ${vient} · ❌ ${non} · 🔇 ${sans}`;
+  $('dashSub').textContent = `${rf ? (rf === '?' ? 'Sans responsable' : 'Groupe de ' + rf) : 'Tous les participants'} · ${base.length} personnes`;
+  $('rN').textContent = vient; $('rOf').innerHTML = `viennent<br>sur ${base.length}`; $('arc').style.strokeDashoffset = String(326.7 * (1 - (base.length ? Math.min(1, vient / base.length) : 0)));
   const tile = (cls, f, n, lab, sm) => `<button type="button" class="dt ${cls}" data-fs="${f}"><b>${n}</b><span>${lab}</span><small>${sm}</small></button>`;
   $('dashTiles').innerHTML = tile('y', 'pas', cont, '✉️ Contactés', `${pct(cont, base.length)} % · voir les ${pas} pas encore contactés`)
     + tile('', 'repondu', rep, '💬 Ont répondu', `${pct(rep, cont)} % des contactés`)
@@ -565,6 +657,7 @@ function renderDash() {
     + tile('g', 'salle', sal, '🏛️ En salle', `${pct(sal, vient)} % de ceux qui viennent`)
     + tile('', 'live', liv, '🎥 En Live', `${pct(liv, vient)} % de ceux qui viennent`)
     + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
+  $('dashTeamW').classList.toggle('hidden', !!rf);
   $('dashTeam').innerHTML = rf ? '' : `<div class="tmw"><table class="tm"><thead><tr><th>Responsable</th><th>Participants</th><th>Contactés</th><th>Ont répondu</th><th>✅ Viennent</th><th>🏛️ Salle</th><th>🎥 Live</th><th>❌ Non</th><th>🔇 Sans réponse</th></tr></thead><tbody>${
     [...EKIP.map((x) => x.non), null].map((n) => { const L = P.filter((p) => !p.annule && (n ? RESP[pk(p)] === n : !RESP[pk(p)])); if (!n && !L.length) return '';
       const s = (k) => L.filter((p) => suivi(p) === k).length, v = s('vient');
@@ -580,7 +673,7 @@ async function setMode(p, mode, quiet) {
 $('dlgIn').addEventListener('click', async (e) => {
   const m = e.target.closest('[data-mode]'); if (m && DLG) { setMode(DLG, m.dataset.mode || null); return; }
   const mk = e.target.closest('[data-mark]'); if (mk && DLG) { markSent(DLG, mk.dataset.mark, 'marqué à la main'); return; }
-  const u = e.target.closest('[data-undo]'); if (u && DLG) { if (!confirm('Annuler cet envoi (par exemple s’il a été marqué par erreur) ?')) return;
+  const u = e.target.closest('[data-undo]'); if (u && DLG) { if (!(await ask({ icon: '↩️', tone: 'red', title: 'Annuler cet envoi ?', text: 'À utiliser si le message a été marqué par erreur.', person: DLG.nom, ok: 'Annuler l’envoi', okTone: 'red', cancel: 'Garder' }))) return;
     const { error } = await sb.from('talks_crm_mesaj').delete().eq('id', Number(u.dataset.undo)); if (error) { toast(friendly(error)); return; }
     MES = MES.filter((x) => x.id !== Number(u.dataset.undo)); render(); openPerson(DLG); }
 });
@@ -597,7 +690,7 @@ $('tplList').addEventListener('click', async (e) => {
   if (s) { const k = s.dataset.ts, v = document.querySelector(`[data-tk="${k}"]`).value;
     const { error } = await sb.from('talks_config').upsert({ cle: 'crm_tpl_' + k, valeur: v, maj: new Date().toISOString() }); if (error) { toast(friendly(error)); return; }
     TPL[k] = v; toast('✓ Modèle enregistré pour toute l’équipe'); renderTpl(); render(); }
-  if (r) { const k = r.dataset.tr; if (!confirm('Rétablir le texte d’origine de ce modèle ?')) return;
+  if (r) { const k = r.dataset.tr; if (!(await ask({ icon: '✏️', title: 'Rétablir le texte d’origine ?', text: `Modèle « ${DEF[k].t} ». Le texte modifié sera perdu pour toute l’équipe.`, ok: 'Rétablir' }))) return;
     const { error } = await sb.from('talks_config').delete().eq('cle', 'crm_tpl_' + k); if (error) { toast(friendly(error)); return; }
     delete TPL[k]; toast('✓ Texte d’origine rétabli'); renderTpl(); render(); }
 });

@@ -62,9 +62,9 @@
   if (ls.get(DONE)) return;
 
   var T = {
-    fr: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> places r\u00e9serv\u00e9es' : n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' disponible' + (r > 1 ? 's' : '') + '</span>' : '\u26d4 Complet') : '\u26a0\ufe0f Places limit\u00e9es') + ''; }, u: function (d) { return '\u25b2 +' + d + ' inscrit' + (d > 1 ? 's' : '') + ' aujourd\u2019hui'; }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', m: function (n, r) { return r != null ? 'Plus que ' + r + ' places \u00b7 R\u00e9server' : n + ' inscrits \u00b7 R\u00e9server'; } },
-    ht: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> plas rez\u00e8ve' : n + ' moun deja rez\u00e8ve plas yo'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Rete <b>' + r + '</b> plas s\u00e8lman</span>' : '\u26d4 Plen') : '\u26a0\ufe0f Plas yo limite') + ''; }, u: function (d) { return '\u25b2 +' + d + ' moun enskri jodi a'; }, b: 'Rez\u00e8ve plas mwen', x: 'F\u00e8 l piti', m: function (n, r) { return r != null ? 'Rete ' + r + ' plas \u00b7 Rez\u00e8ve' : n + ' enskri \u00b7 Rez\u00e8ve'; } },
-    en: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> seats booked' : n + ' people have already booked their seat'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Only <b>' + r + '</b> seat' + (r > 1 ? 's' : '') + ' left</span>' : '\u26d4 Full') : '\u26a0\ufe0f Limited seats') + ''; }, u: function (d) { return '\u25b2 +' + d + ' joined today'; }, b: 'Book my seat', x: 'Minimize', m: function (n, r) { return r != null ? 'Only ' + r + ' seats left \u00b7 Book' : n + ' booked \u00b7 Book now'; } },
+    fr: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> places r\u00e9serv\u00e9es' : n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' disponible' + (r > 1 ? 's' : '') + '</span>' : '\u26d4 Complet') : '\u26a0\ufe0f Places limit\u00e9es') + ''; }, u: function (d) { return '\u25b2 +' + d + ' inscrit' + (d > 1 ? 's' : '') + ' aujourd\u2019hui'; }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', wt: function (a) { return '<b>' + a + '</b> personne' + (a > 1 ? 's' : '') + ' sur la liste d\u2019attente'; }, ws: 'Tout n\u2019est pas encore jou\u00e9 : notre \u00e9quipe travaille pour accueillir plus de monde !', wb: 'Rejoindre la liste d\u2019attente', wm: function (a) { return 'Liste d\u2019attente \u00b7 ' + a + ' inscrit' + (a > 1 ? 's' : '') + ' \u00b7 Rejoindre'; }, m: function (n, r) { return r != null ? 'Plus que ' + r + ' places \u00b7 R\u00e9server' : n + ' inscrits \u00b7 R\u00e9server'; } },
+    ht: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> plas rez\u00e8ve' : n + ' moun deja rez\u00e8ve plas yo'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Rete <b>' + r + '</b> plas s\u00e8lman</span>' : '\u26d4 Plen') : '\u26a0\ufe0f Plas yo limite') + ''; }, u: function (d) { return '\u25b2 +' + d + ' moun enskri jodi a'; }, b: 'Rez\u00e8ve plas mwen', x: 'F\u00e8 l piti', wt: function (a) { return '<b>' + a + '</b> moun sou lis datant lan'; }, ws: 'Tout bagay poko fini : ekip la ap travay pou n ka akeyi plis moun !', wb: 'Enskri sou lis datant lan', wm: function (a) { return 'Lis datant \u00b7 ' + a + ' moun \u00b7 Enskri'; }, m: function (n, r) { return r != null ? 'Rete ' + r + ' plas \u00b7 Rez\u00e8ve' : n + ' enskri \u00b7 Rez\u00e8ve'; } },
+    en: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> seats booked' : n + ' people have already booked their seat'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Only <b>' + r + '</b> seat' + (r > 1 ? 's' : '') + ' left</span>' : '\u26d4 Full') : '\u26a0\ufe0f Limited seats') + ''; }, u: function (d) { return '\u25b2 +' + d + ' joined today'; }, b: 'Book my seat', x: 'Minimize', wt: function (a) { return '<b>' + a + '</b> ' + (a > 1 ? 'people' : 'person') + ' on the waiting list'; }, ws: 'It\u2019s not over yet: our team is working to welcome more people!', wb: 'Join the waiting list', wm: function (a) { return 'Waiting list \u00b7 ' + a + ' \u00b7 Join'; }, m: function (n, r) { return r != null ? 'Only ' + r + ' seats left \u00b7 Book' : n + ' booked \u00b7 Book now'; } },
   };
   function lang() { var l = (opt('lang') || document.documentElement.lang || 'fr').slice(0, 2).toLowerCase(); if (l === 'kr') l = 'ht'; return T[l] ? l : 'fr'; }
 
@@ -110,7 +110,17 @@
   function paint() {
     if (!sh || !data) return; var L = T[lang()];
     var n = +data.personnes || 0, c = +data.capacite || 0, r = c ? Math.max(0, c - n) : null;
-    var d = +data.aujourdhui || 0;
+    var d = +data.aujourdhui || 0, att = c && n > c ? n - c : 0;
+    sh.querySelector('.c').classList.toggle('w', !!att); sh.querySelector('.p').classList.toggle('w', !!att);
+    sh.querySelector('.i').textContent = att ? '\u23f3' : '\ud83d\udd25'; sh.querySelector('.p i').textContent = att ? '\u23f3' : '\ud83d\udd25';
+    sh.querySelector('.a').textContent = att ? L.wb : L.b;
+    if (att) {
+      var up = Math.min(att, d);
+      sh.querySelector('.t').innerHTML = L.t('<b class="full">' + c + '</b>', c) + '<span class="wl">' + L.wt(att) + '</span>' + (up > 0 ? '<span class="up">' + L.u(up) + '</span>' : '');
+      sh.querySelector('.s').innerHTML = L.ws; sh.querySelector('.p span').textContent = L.wm(att);
+      var bar0 = sh.querySelector('.g'), f0 = sh.querySelector('.g i'); bar0.style.display = ''; setTimeout(function () { f0.style.width = '100%'; }, 400); f0.className = 'tres';
+      return;
+    }
     sh.querySelector('.t').innerHTML = L.t('<b>' + n + '</b>', c || 0) + (d > 0 ? '<span class="up">' + L.u(d) + '</span>' : '');
     sh.querySelector('.s').innerHTML = L.s(+data.aujourdhui || 0, r);
     sh.querySelector('.p span').textContent = L.m(n, r);
@@ -148,6 +158,8 @@
       '.a:hover,.p:hover{filter:brightness(1.06)}.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:24px;line-height:1;color:#6b7f96;cursor:pointer;padding:4px 6px}' +
       '.p{position:relative;overflow:hidden;box-sizing:border-box;font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;background:#5DB033;color:#fff;border:0;border-radius:999px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 12px 30px rgba(13,45,74,.25)}' +
       '.p i{font-style:normal;display:inline-block}' +
+      '.c.w{border-color:rgba(232,80,91,.55)}.t b.full{color:#e8505b}.t .wl{display:block;margin-top:5px;font-size:13.5px;font-weight:600;color:#a3580b;background:#fff4e0;border:1px solid #f5d9a8;border-radius:12px;padding:5px 10px}.t .wl b{color:#c2410c;font-size:17px}.c.w .i{background:#fff1e0}.c.w .a,.p.w{background:#e8762b}' +
+      (reduce ? '' : '@keyframes glow2{0%,100%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 0 rgba(232,118,43,.45)}50%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 10px rgba(232,118,43,0)}}.c.on.bob.w,.p.w{animation:bob 2.6s cubic-bezier(.3,.7,.4,1) infinite,glow2 2.6s ease-out infinite}') +
       '</style>' +
       '<div class="c" role="status" aria-live="polite"><button class="x" type="button" aria-label="' + L.x + '" title="' + L.x + '">\u2013</button>' +
       '<div class="i">\ud83d\udd25</div><div class="t"></div><div class="s"></div><div class="g"><i></i></div><button class="a" type="button">' + L.b + '</button></div>' +

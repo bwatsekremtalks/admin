@@ -55,8 +55,21 @@
   .dchips { display: flex; flex-wrap: wrap; gap: 6px; }
   .dchips button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 11px; font-weight: 700; font-size: 13.5px; cursor: pointer; }
   .dchips button.on { background: var(--navy); border-color: var(--navy); color: #fff; } .dchips button.fait { border-color: #b9e09a; }
+  .dhd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 4px 0; }
+  .dhd .dgrp { margin: 0; } .dgrp i { font-style: normal; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--mute); opacity: .8; }
+  .swp { display: none; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 800; color: var(--green2); white-space: nowrap; }
+  .swp span { display: inline-block; animation: swp 1.4s ease-in-out infinite; }
+  @keyframes swp { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(0); } }
+  .dwrap { position: relative; }
+  .dwrap .fade { display: none; position: absolute; top: 0; bottom: 14px; right: -16px; width: 64px; pointer-events: none; background: linear-gradient(90deg, rgba(242,246,251,0), var(--bg) 85%); transition: opacity .25s; }
+  .dwrap .nx { display: none; position: absolute; right: 2px; top: calc(50% - 25px); width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--navy); color: #fff; font-size: 20px; font-weight: 800; box-shadow: 0 6px 16px rgba(13,45,74,.3); cursor: pointer; transition: opacity .25s, transform .25s; }
+  .dwrap.end .fade, .dwrap.end .nx { opacity: 0; pointer-events: none; transform: scale(.8); }
+  .dtr { display: none; height: 4px; border-radius: 4px; background: #dfe6ef; margin: 4px auto 0; width: 90px; position: relative; overflow: hidden; }
+  .dtr b { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 4px; background: var(--green2); transition: left .12s linear; }
+  .addt { break-inside: avoid; display: grid; place-items: center; text-align: center; gap: 4px; width: 100%; border: 2px dashed #b9e09a; background: #f4fbee; border-radius: 18px; padding: 22px 12px; cursor: pointer; color: var(--ink); font-weight: 800; font-size: 15px; }
+  .addt .e { font-size: 30px; } .addt small { font-weight: 600; color: var(--mute); font-size: 12.5px; }
   .score { margin-top: 10px; font-size: 13.5px; font-weight: 700; color: #2f6a14; }
-  @media (max-width: 900px) { .dgrp { margin: 10px 0 6px; } .drow2 { display: flex; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; } .drow2::-webkit-scrollbar { display: none; } .df { flex: 0 0 158px; scroll-snap-align: start; } body.embed .drow2 { margin: 0; padding: 2px 0 8px; } }
+  @media (max-width: 900px) { .dhd { margin: 12px 0 6px; } .swp, .dtr, .dwrap .fade, .dwrap .nx { display: block; } .swp { display: inline-flex; } body.embed .dwrap .fade { right: 0; } .drow2 { display: flex; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; } .drow2::-webkit-scrollbar { display: none; } .df { flex: 0 0 142px; scroll-snap-align: start; min-height: 132px; } body.embed .drow2 { margin: 0; padding: 2px 0 8px; } }
   /* Grille */
   .grid { columns: 4 240px; column-gap: 12px; margin-top: 16px; }
   .ph { break-inside: avoid; margin: 0 0 12px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px rgba(13,45,74,.08); cursor: zoom-in; position: relative; }
@@ -102,7 +115,7 @@
   .seg2 button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(13,45,74,.12); }
   .hello { background: #eef9e6; border: 1.5px solid #b9e09a; border-radius: 16px; padding: 12px 14px; font-weight: 700; }
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 700; z-index: 80; max-width: calc(100% - 24px); }
-  @media (max-width: 640px) { .heart { padding: 5px 8px; font-size: 12px; } .hero { padding: 24px 18px; border-radius: 24px; } .cta { width: 100%; } .grid { columns: 2 140px; column-gap: 8px; } .ph { margin-bottom: 8px; border-radius: 14px; } .ph .cap { padding: 8px 10px 10px; } .ph .tx { font-size: 13px; } }
+  @media (max-width: 640px) { .wrap { padding: 12px; } .drow2 { margin: 0 -12px; padding: 2px 12px 8px; scroll-padding-inline: 12px; } .dwrap .fade { right: -12px; } body.embed .drow2 { margin: 0; padding: 2px 0 8px; } body.embed .dwrap .fade { right: 0; } .hero h1 { font-size: 30px; } .hero p { font-size: 15px; } .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; } .st { padding: 9px 10px; border-radius: 14px; } .st b { font-size: 21px; } .st span { font-size: 11.5px; line-height: 1.2; display: block; } .cta { margin-top: 4px; padding: 15px 18px; } .defis h2 { font-size: 20px; } .addt { border-radius: 14px; padding: 18px 8px; margin-bottom: 8px; } .heart { padding: 5px 8px; font-size: 12px; } .hero { padding: 24px 18px; border-radius: 24px; } .cta { width: 100%; } .grid { columns: 2 140px; column-gap: 8px; } .ph { margin-bottom: 8px; border-radius: 14px; } .ph .cap { padding: 8px 10px 10px; } .ph .tx { font-size: 13px; } }
 </style>
 </head>
 <body>
@@ -207,10 +220,27 @@ function renderDefis() {
   const card = (d) => `<div class="df ${FILTER === d.k ? 'on' : ''}" data-df="${d.k}" role="button" tabindex="0"><span class="em">${d.e}</span><b>${esc(d.t)}</b><small>${esc(d.d)}</small>
       <span class="n">${cnt(d.k) ? `${cnt(d.k)} photo${cnt(d.k) > 1 ? 's' : ''}` : D.ouvert ? 'Soyez le premier !' : 'Le 22 nov.'}</span>
       ${D.ouvert ? `<button class="go2" type="button" data-relever="${d.k}" title="Relever ce défi" aria-label="Relever ce défi">＋</button>` : ''}</div>`;
-  $('drow').innerHTML = `<div class="dgrp">🏛️ En salle</div><div class="drow2">${DEFIS.filter((d) => !d.live).map(card).join('')}</div><div class="dgrp">🎥 En Live</div><div class="drow2">${DEFIS.filter((d) => d.live).map(card).join('')}</div>`;
+  const row = (lab, L) => `<div class="dhd"><div class="dgrp">${lab} <i>· ${L.length}</i></div><span class="swp">Glissez <span>→</span></span></div>
+    <div class="dwrap"><div class="drow2">${L.map(card).join('')}</div><div class="fade"></div><button class="nx" type="button" aria-label="Voir les défis suivants">›</button></div><div class="dtr"><b></b></div>`;
+  $('drow').innerHTML = row('🏛️ En salle', DEFIS.filter((d) => !d.live)) + row('🎥 En Live', DEFIS.filter((d) => d.live));
+  $('drow').querySelectorAll('.drow2').forEach((r) => { r.addEventListener('scroll', () => trk(r), { passive: true }); trk(r); });
   $('filt').classList.toggle('hidden', !FILTER);
   if (FILTER) $('filt').innerHTML = `Défi : <b>${DF[FILTER].e} ${esc(DF[FILTER].t)}</b> · ${cnt(FILTER)} photo${cnt(FILTER) > 1 ? 's' : ''} <button type="button" data-clear="1">✕ Toutes les photos</button>`;
 }
+function trk(r) {
+  const w = r.parentElement, t = w.nextElementSibling.firstElementChild, max = r.scrollWidth - r.clientWidth;
+  w.classList.toggle('end', max <= 4 || r.scrollLeft >= max - 4);
+  const f = max > 0 ? r.clientWidth / r.scrollWidth : 1; t.style.width = (f * 100) + '%'; t.style.left = (max > 0 ? (r.scrollLeft / max) * (1 - f) * 100 : 0) + '%';
+  if (r.scrollLeft > 20 && !r.dataset.nudge) w.previousElementSibling.querySelector('.swp')?.classList.add('hidden');
+}
+let NUDGED = false;
+function nudge() { // petit aperçu du glissement, une seule fois
+  if (NUDGED || !matchMedia('(max-width:900px)').matches) return; const r = document.querySelector('.drow2'); if (!r || r.scrollWidth <= r.clientWidth) return;
+  const go = () => { if (NUDGED) return; NUDGED = true; r.dataset.nudge = 1; r.style.scrollSnapType = 'none'; r.scrollTo({ left: 70, behavior: 'smooth' }); setTimeout(() => { r.scrollTo({ left: 0, behavior: 'smooth' }); setTimeout(() => { r.style.scrollSnapType = ''; delete r.dataset.nudge; }, 700); }, 650); };
+  if (EMBED || !('IntersectionObserver' in window)) { setTimeout(go, 1200); return; }
+  const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); setTimeout(go, 400); } }, { threshold: .6 }); io.observe(r);
+}
+document.addEventListener('click', (e) => { const b = e.target.closest('.dwrap .nx'); if (!b) return; const r = b.parentElement.querySelector('.drow2'); r.scrollBy({ left: Math.round(r.clientWidth * .8), behavior: 'smooth' }); });
 function renderChips() {
   const L = defisDe(MODE), sc = L.filter((d) => FAIT.includes(d.k)).length;
   $('dchips').innerHTML = L.map((d) => `<button type="button" class="${DEFI === d.k ? 'on' : ''} ${FAIT.includes(d.k) ? 'fait' : ''}" data-chip="${d.k}">${d.e} ${esc(d.t)}${FAIT.includes(d.k) ? ' ✓' : ''}</button>`).join('');
@@ -228,11 +258,11 @@ function render() {
   renderDefis();
   const V = FILTER ? P.map((p, i) => [p, i]).filter(([p]) => p.defi === FILTER) : P.map((p, i) => [p, i]);
   $('empty').classList.toggle('hidden', V.length > 0);
-  $('grid').innerHTML = V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
+  $('grid').innerHTML = (D.ouvert && !FILTER ? `<button class="addt" type="button" data-add="1"><span class="e">📸</span>Ajouter mes photos<small>Salle ou Live, jusqu’à 12 photos</small></button>` : '') + V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
       <img src="${esc(img(p.path))}" alt="Photo de ${esc(p.non)}" loading="lazy" ${p.w && p.h ? `width="${p.w}" height="${p.h}"` : ''} />
       <figcaption class="cap"><div class="who"><div><b>${esc(p.non)}</b> <small>${esc(ago(p.le))}</small></div><button class="heart ${LIKED.has(p.id) ? 'on' : ''}" type="button" data-like="${p.id}">❤️ ${p.renmen || 0}</button></div>
       ${p.lejand ? `<div class="tx">${esc(p.lejand)}</div>` : ''}${p.mode === 'live' ? '<span class="tag live">🎥 En Live</span> ' : ''}${p.defi && DF[p.defi] ? `<span class="tag">🎯 ${DF[p.defi].e} ${esc(DF[p.defi].t)}</span>` : ''}</figcaption></figure>`).join('');
-  sendH();
+  sendH(); nudge();
 }
 async function like(id) {
   const p = (D.photos || []).find((x) => x.id === id); if (!p) return;
@@ -245,6 +275,7 @@ document.addEventListener('click', (e) => {
   const rv = e.target.closest('[data-relever]'); if (rv) { e.stopPropagation(); DEFI = rv.dataset.relever; openUp(); return; }
   const cl = e.target.closest('[data-clear]'); if (cl) { FILTER = ''; render(); return; }
   const df = e.target.closest('[data-df]'); if (df) { FILTER = FILTER === df.dataset.df ? '' : df.dataset.df; render(); if (FILTER && !(D.photos || []).some((p) => p.defi === FILTER)) toast(D.ouvert ? 'Pas encore de photo pour ce défi : touchez ＋ pour le relever !' : 'Rendez-vous le 22 novembre pour relever ce défi 📸'); return; }
+  if (e.target.closest('[data-add]')) { DEFI = ''; openUp(); return; }
   const l = e.target.closest('[data-like]'); if (l) { e.stopPropagation(); like(Number(l.dataset.like)); return; }
   const f = e.target.closest('[data-i]'); if (f) showLb(Number(f.dataset.i));
 });

@@ -36,6 +36,25 @@
   .cta { border: 0; border-radius: 18px; background: var(--green); color: #0a1f38; font-weight: 800; font-size: 17px; padding: 16px 22px; cursor: pointer; box-shadow: 0 10px 26px rgba(122,193,66,.4); white-space: nowrap; }
   .cta:disabled { opacity: .6; cursor: default; }
   .soon { margin-top: 14px; display: inline-block; background: rgba(255,255,255,.1); border: 1px dashed rgba(255,255,255,.35); border-radius: 14px; padding: 10px 14px; font-weight: 700; }
+  /* Défis photo */
+  .defis { margin-top: 18px; }
+  .defis .hd { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 4px 10px; }
+  .defis h2 { margin: 0; font-size: 22px; } .defis .hd p { margin: 2px 0 0; color: var(--mute); font-size: 14.5px; }
+  .drow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+  .df { position: relative; text-align: left; border: 2px solid transparent; background: #fff; border-radius: 18px; padding: 12px 12px 10px; cursor: pointer; box-shadow: 0 6px 16px rgba(13,45,74,.07); display: flex; flex-direction: column; gap: 4px; min-height: 118px; }
+  .df:hover { box-shadow: 0 10px 24px rgba(13,45,74,.12); } .df.on { border-color: var(--green); background: #f4fbee; }
+  .df .em { font-size: 28px; line-height: 1; } .df b { font-size: 14.5px; line-height: 1.2; } .df small { color: var(--mute); font-size: 12px; line-height: 1.3; }
+  .df .n { margin-top: auto; font-size: 12px; font-weight: 800; color: var(--green2); }
+  .df .go2 { position: absolute; top: 8px; right: 8px; border: 0; background: var(--green); color: #0a1f38; width: 30px; height: 30px; border-radius: 50%; font-weight: 900; cursor: pointer; font-size: 16px; }
+  .df .done { position: absolute; top: 8px; right: 8px; background: var(--green2); color: #fff; border-radius: 999px; font-size: 11px; font-weight: 800; padding: 3px 8px; }
+  .filt { margin: 12px 4px 0; font-size: 14px; color: var(--ink2); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .filt button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 12px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  .tag { display: inline-block; margin-top: 6px; font-size: 11.5px; font-weight: 800; color: #2f6a14; background: #eef9e6; border-radius: 999px; padding: 3px 9px; }
+  .dchips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dchips button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 11px; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+  .dchips button.on { background: var(--navy); border-color: var(--navy); color: #fff; } .dchips button.fait { border-color: #b9e09a; }
+  .score { margin-top: 10px; font-size: 13.5px; font-weight: 700; color: #2f6a14; }
+  @media (max-width: 900px) { .drow { display: flex; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 8px; scroll-snap-type: x mandatory; scroll-padding-inline: 16px; scrollbar-width: none; } .drow::-webkit-scrollbar { display: none; } .df { flex: 0 0 158px; scroll-snap-align: start; } body.embed .drow { margin: 0; padding: 2px 0 8px; } }
   /* Grille */
   .grid { columns: 4 240px; column-gap: 12px; margin-top: 16px; }
   .ph { break-inside: avoid; margin: 0 0 12px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px rgba(13,45,74,.08); cursor: zoom-in; position: relative; }
@@ -88,12 +107,17 @@
       <div>
         <span class="k">📸 Bwat Sekrèm Talks · 22 novembre 2026</span>
         <h1>Le mur des <em>participants</em></h1>
-        <p>Vous étiez dans la salle ? Partagez vos meilleures photos de la 1re édition et revivez les moments forts avec toute la communauté.</p>
+        <p>Vous étiez dans la salle ? Relevez nos défis photo, partagez vos meilleurs moments de la 1re édition et revivez-les avec toute la communauté.</p>
         <div class="stats"><div class="st"><b id="nPh">0</b><span>photos</span></div><div class="st"><b id="nMo">0</b><span>participants</span></div></div>
       </div>
       <div><button class="cta" type="button" id="cta">📸 Partager mes photos</button></div>
     </div>
     <div class="soon hidden" id="soon">🔒 Le mur s’ouvre le 22 novembre à 14 h 30, dès le début de l’événement.</div>
+  </section>
+  <section class="defis">
+    <div class="hd"><div><h2>🎯 Les défis photo</h2><p id="dSub">Le 22 novembre, relevez un maximum de défis et publiez vos photos ici !</p></div></div>
+    <div class="drow" id="drow"></div>
+    <div class="filt hidden" id="filt"></div>
   </section>
   <div class="grid" id="grid"></div>
   <div class="empty hidden" id="empty"><div class="e">🖼️</div><b>Aucune photo pour le moment</b><br>Les premières photos des participants apparaîtront ici.</div>
@@ -120,6 +144,9 @@
     <label class="pick" for="files">📷 Choisir des photos<small>depuis votre galerie ou l’appareil photo</small></label>
     <input id="files" type="file" accept="image/*" multiple hidden />
     <div class="thumbs" id="thumbs"></div>
+    <label class="l">🎯 Quel défi relevez-vous ? <span style="font-weight:500;color:var(--mute)">(facultatif)</span></label>
+    <div class="dchips" id="dchips"></div>
+    <div class="score" id="score"></div>
     <label class="l" for="lej">Légende <span style="font-weight:500;color:var(--mute)">(facultatif)</span></label>
     <textarea id="lej" rows="2" maxlength="280" placeholder="ex. Quelle énergie dans la salle ! 🔥"></textarea>
     <label class="ok2"><input type="checkbox" id="ok" /> <span>J’accepte que ces photos soient publiées sur le mur de Bwat Sekrèm Talks. Je confirme avoir l’accord des personnes reconnaissables.</span></label>
@@ -146,6 +173,36 @@ const ago = (d) => { const m = Math.max(0, Math.floor((Date.now() - new Date(d))
 const sendH = () => { if (!EMBED) return; try { parent.postMessage({ bstH: Math.ceil($('s').getBoundingClientRect().height) + 2, bstW: 'mur' }, '*'); } catch {} };
 addEventListener('load', sendH); addEventListener('resize', sendH); new ResizeObserver(sendH).observe($('s'));
 
+/* ---------- Défis photo ---------- */
+const DEFIS = [
+  { k: 'entree', e: '🚪', t: 'À l’entrée', d: 'Votre photo devant l’entrée de Bwat Sekrèm Talks' },
+  { k: 'selfie', e: '🤳', t: 'Le selfie', d: 'Un selfie avec la salle derrière vous' },
+  { k: 'collegue', e: '🤝', t: 'Avec un collègue', d: 'Une photo avec un collègue ou un(e) ami(e)' },
+  { k: 'rencontre', e: '🆕', t: 'Nouvelle rencontre', d: 'Avec quelqu’un que vous venez de rencontrer' },
+  { k: 'intervenant', e: '🎤', t: 'Avec un intervenant', d: 'Une photo avec l’un des intervenants' },
+  { k: 'exposant', e: '🏢', t: 'Avec un exposant', d: 'Devant un stand ou avec un sponsor' },
+  { k: 'groupe', e: '👥', t: 'Photo de groupe', d: 'Votre université, votre équipe, votre bande' },
+  { k: 'idee', e: '💡', t: 'L’idée du jour', d: 'La phrase ou la slide qui vous a marqué(e)' },
+  { k: 'salle', e: '🏛️', t: 'Vue de ma place', d: 'La salle et la scène, vues de votre siège' },
+  { k: 'certificat', e: '🎓', t: 'Fier·e d’y être', d: 'Avec votre badge ou votre certificat' },
+];
+const DF = Object.fromEntries(DEFIS.map((d) => [d.k, d]));
+let FILTER = '', DEFI = '', FAIT = [];
+function renderDefis() {
+  const P = D.photos || [], cnt = (k) => P.filter((p) => p.defi === k).length;
+  $('dSub').textContent = D.ouvert ? 'Touchez un défi pour voir ses photos, ou ＋ pour le relever.' : 'Le 22 novembre, relevez un maximum de défis et publiez vos photos ici !';
+  $('drow').innerHTML = DEFIS.map((d) => `<div class="df ${FILTER === d.k ? 'on' : ''}" data-df="${d.k}" role="button" tabindex="0"><span class="em">${d.e}</span><b>${esc(d.t)}</b><small>${esc(d.d)}</small>
+      <span class="n">${cnt(d.k) ? `${cnt(d.k)} photo${cnt(d.k) > 1 ? 's' : ''}` : D.ouvert ? 'Soyez le premier !' : 'Le 22 nov.'}</span>
+      ${D.ouvert ? `<button class="go2" type="button" data-relever="${d.k}" title="Relever ce défi" aria-label="Relever ce défi">＋</button>` : ''}</div>`).join('');
+  $('filt').classList.toggle('hidden', !FILTER);
+  if (FILTER) $('filt').innerHTML = `Défi : <b>${DF[FILTER].e} ${esc(DF[FILTER].t)}</b> · ${cnt(FILTER)} photo${cnt(FILTER) > 1 ? 's' : ''} <button type="button" data-clear="1">✕ Toutes les photos</button>`;
+}
+function renderChips() {
+  $('dchips').innerHTML = DEFIS.map((d) => `<button type="button" class="${DEFI === d.k ? 'on' : ''} ${FAIT.includes(d.k) ? 'fait' : ''}" data-chip="${d.k}">${d.e} ${esc(d.t)}${FAIT.includes(d.k) ? ' ✓' : ''}</button>`).join('');
+  $('score').textContent = FAIT.length ? `🏅 Vous avez relevé ${FAIT.length} défi${FAIT.length > 1 ? 's' : ''} sur ${DEFIS.length}${FAIT.length >= DEFIS.length ? ' — bravo, tous les défis !' : ' — continuez !'}` : '';
+}
+$('dchips').addEventListener('click', (e) => { const b = e.target.closest('[data-chip]'); if (!b) return; DEFI = DEFI === b.dataset.chip ? '' : b.dataset.chip; renderChips(); });
+
 /* ---------- Mur ---------- */
 let D = { ouvert: false, photos: [], moun: 0 }, LIKED = new Set(JSON.parse(ls.get('bst_mur_like') || '[]')), CUR = -1;
 async function load() { try { D = await rpc('talks_mur'); } catch {} render(); }
@@ -153,11 +210,13 @@ function render() {
   const P = D.photos || [];
   $('nPh').textContent = P.length; $('nMo').textContent = D.moun || 0;
   $('soon').classList.toggle('hidden', !!D.ouvert); $('cta').disabled = !D.ouvert;
-  $('empty').classList.toggle('hidden', P.length > 0);
-  $('grid').innerHTML = P.map((p, i) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
+  renderDefis();
+  const V = FILTER ? P.map((p, i) => [p, i]).filter(([p]) => p.defi === FILTER) : P.map((p, i) => [p, i]);
+  $('empty').classList.toggle('hidden', V.length > 0);
+  $('grid').innerHTML = V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
       <img src="${esc(img(p.path))}" alt="Photo de ${esc(p.non)}" loading="lazy" ${p.w && p.h ? `width="${p.w}" height="${p.h}"` : ''} />
       <figcaption class="cap"><div class="who"><div><b>${esc(p.non)}</b> <small>${esc(ago(p.le))}</small></div><button class="heart ${LIKED.has(p.id) ? 'on' : ''}" type="button" data-like="${p.id}">❤️ ${p.renmen || 0}</button></div>
-      ${p.lejand ? `<div class="tx">${esc(p.lejand)}</div>` : ''}</figcaption></figure>`).join('');
+      ${p.lejand ? `<div class="tx">${esc(p.lejand)}</div>` : ''}${p.defi && DF[p.defi] ? `<span class="tag">🎯 ${DF[p.defi].e} ${esc(DF[p.defi].t)}</span>` : ''}</figcaption></figure>`).join('');
   sendH();
 }
 async function like(id) {
@@ -168,13 +227,16 @@ async function like(id) {
   if (on) ga('mur_jaime');
 }
 document.addEventListener('click', (e) => {
+  const rv = e.target.closest('[data-relever]'); if (rv) { e.stopPropagation(); DEFI = rv.dataset.relever; openUp(); return; }
+  const cl = e.target.closest('[data-clear]'); if (cl) { FILTER = ''; render(); return; }
+  const df = e.target.closest('[data-df]'); if (df) { FILTER = FILTER === df.dataset.df ? '' : df.dataset.df; render(); if (FILTER && !(D.photos || []).some((p) => p.defi === FILTER)) toast(D.ouvert ? 'Pas encore de photo pour ce défi : touchez ＋ pour le relever !' : 'Rendez-vous le 22 novembre pour relever ce défi 📸'); return; }
   const l = e.target.closest('[data-like]'); if (l) { e.stopPropagation(); like(Number(l.dataset.like)); return; }
   const f = e.target.closest('[data-i]'); if (f) showLb(Number(f.dataset.i));
 });
 function showLb(i) {
   const P = D.photos || []; if (!P.length) return; CUR = (i + P.length) % P.length; const p = P[CUR];
   $('lbI').src = img(p.path); $('lbI').alt = `Photo de ${p.non}`; $('lbN').textContent = `${CUR + 1} / ${P.length}`;
-  $('lbW').textContent = `${p.non} · ${ago(p.le)}`; $('lbT').textContent = p.lejand || '';
+  $('lbW').textContent = `${p.non} · ${ago(p.le)}`; $('lbT').textContent = [p.defi && DF[p.defi] ? `🎯 ${DF[p.defi].e} ${DF[p.defi].t}` : '', p.lejand || ''].filter(Boolean).join(' — ');
   $('lbH').className = 'heart' + (LIKED.has(p.id) ? ' on' : ''); $('lbH').textContent = `❤️ ${p.renmen || 0}`; $('lbH').dataset.id = p.id;
   $('lbWa').href = `https://wa.me/?text=${encodeURIComponent('📸 Les photos de Bwat Sekrèm Talks, partagées par les participants : ' + PAGE)}`;
   $('lb').classList.remove('hidden');
@@ -188,7 +250,13 @@ $('lb').addEventListener('touchend', (e) => { if (X0 == null) return; const dx =
 
 /* ---------- Publier ---------- */
 let TOK = null, FILES = [];
-$('cta').onclick = () => { $('st1').classList.remove('hidden'); $('st2').classList.add('hidden'); $('e1').textContent = ''; $('up').showModal(); setTimeout(() => $('tel').focus(), 50); ga('mur_ouvrir'); };
+function openUp() {
+  ga('mur_ouvrir');
+  if (!D.ouvert) { toast('Le mur s’ouvre le 22 novembre à 14 h 30.'); return; }
+  if (TOK) { renderChips(); $('st1').classList.add('hidden'); $('st2').classList.remove('hidden'); $('up').showModal(); return; }
+  $('st1').classList.remove('hidden'); $('st2').classList.add('hidden'); $('e1').textContent = ''; $('up').showModal(); setTimeout(() => $('tel').focus(), 50);
+}
+$('cta').onclick = () => { DEFI = ''; openUp(); };
 $('c1').onclick = () => $('up').close(); $('c2').onclick = () => $('up').close();
 $('v1').onclick = async () => {
   const tel = $('tel').value.trim(); if (tel.replace(/\D/g, '').length < 8) { $('e1').textContent = 'Indiquez votre numéro WhatsApp (8 chiffres).'; return; }
@@ -196,7 +264,8 @@ $('v1').onclick = async () => {
   let r = null; try { r = await rpc('talks_mur_kle', { p_tel: tel }); } catch {}
   $('v1').disabled = false;
   if (!r || !r.ok) { $('e1').textContent = { absent: 'Ce numéro ne figure pas parmi les participants pointés à l’entrée. Essayez le numéro donné à la réservation, ou celui de la personne qui vous a inscrit·e.', ferme: 'Le mur s’ouvre le 22 novembre à 14 h 30.', bloque: 'Trop d’essais. Réessayez dans quelques minutes.', numero: 'Numéro invalide.' }[r && r.error] || 'Vérification impossible. Vérifiez votre connexion et réessayez.'; return; }
-  TOK = r.token; FILES = []; drawThumbs(); $('lej').value = ''; $('ok').checked = false; $('e2').textContent = ''; $('prog').classList.add('hidden');
+  TOK = r.token; FILES = []; drawThumbs();
+  FAIT = await rpc('talks_mur_mwen', { p_token: TOK }).catch(() => []) || []; renderChips(); $('lej').value = ''; $('ok').checked = false; $('e2').textContent = ''; $('prog').classList.add('hidden');
   $('hello').textContent = `Bonjour ${r.non} 👋 Merci d’avoir été là ! ${r.deja ? `(${r.deja} photo${r.deja > 1 ? 's' : ''} déjà publiée${r.deja > 1 ? 's' : ''})` : ''}`;
   $('st1').classList.add('hidden'); $('st2').classList.remove('hidden');
 };
@@ -228,14 +297,20 @@ $('v2').onclick = async () => {
       const path = `${TOK}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}.jpg`;
       const up = await fetch(`${SB}/storage/v1/object/mur/${path}`, { method: 'POST', headers: { ...H, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }, body: blob });
       if (!up.ok) throw new Error('upload ' + up.status);
-      const r = await rpc('talks_mur_poste', { p_token: TOK, p_path: path, p_lejand: $('lej').value.trim(), p_w: w, p_h: h });
+      const r = await rpc('talks_mur_poste', { p_token: TOK, p_path: path, p_lejand: $('lej').value.trim(), p_w: w, p_h: h, p_defi: DEFI || null });
       if (!r || !r.ok) { if (r && r.error === 'max') { $('e2').textContent = 'Vous avez atteint 12 photos : merci pour votre partage !'; break; } if (r && r.error === 'session') { $('e2').textContent = 'Session expirée : recommencez avec votre numéro.'; break; } throw new Error(r && r.error); }
       n++;
     } catch (err) { console.warn(err); $('e2').textContent = 'Une photo n’a pas pu être envoyée. Vérifiez votre connexion et réessayez.'; }
     $('progI').style.width = `${Math.round(((i + 1) / FILES.length) * 100)}%`;
   }
   $('c2').disabled = false;
-  if (n) { ga('mur_publier', { n }); FILES.forEach((x) => URL.revokeObjectURL(x.url)); FILES = []; drawThumbs(); $('up').close(); toast(`🎉 ${n} photo${n > 1 ? 's' : ''} publiée${n > 1 ? 's' : ''} sur le mur. Merci !`, 5000); await load(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  if (n) {
+    ga('mur_publier', { n, defi: DEFI || 'aucun' }); FILES.forEach((x) => URL.revokeObjectURL(x.url)); FILES = []; drawThumbs(); $('up').close();
+    if (DEFI && !FAIT.includes(DEFI)) FAIT.push(DEFI);
+    const reste = DEFIS.filter((d) => !FAIT.includes(d.k));
+    toast(DEFI ? `🎯 Défi « ${DF[DEFI].t} » relevé ! ${reste.length ? `Prochain défi : ${reste[0].e} ${reste[0].t}` : 'Vous avez relevé tous les défis 🏆'}` : `🎉 ${n} photo${n > 1 ? 's' : ''} publiée${n > 1 ? 's' : ''} sur le mur. Merci !`, 6000);
+    DEFI = ''; $('lej').value = ''; await load(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
   else $('v2').disabled = false;
 };
 

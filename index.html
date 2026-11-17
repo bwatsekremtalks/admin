@@ -402,6 +402,7 @@
         <button class="tab" role="tab" id="tabW" aria-selected="false" type="button">📈 Visites</button>
         <button class="tab" role="tab" id="tabK" aria-selected="false" type="button">🎓 Certificats</button>
         <button class="tab" role="tab" id="tabJ" aria-selected="false" type="button">🎵 Theme Music</button>
+        <button class="tab" role="tab" id="tabU" aria-selected="false" type="button">📸 Mur photos</button>
         <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
         <button class="tab" role="tab" id="tabV" aria-selected="false" type="button">📄 CV</button>
@@ -478,6 +479,20 @@
         <p class="note">Résultats de « Ton ADN Pro » <a href="https://bwatsekremtalks.com/profil" target="_blank" rel="noopener">bwatsekremtalks.com/profil</a> : depuis le 9 novembre, le prénom et le numéro sont enregistrés (sauf si la personne coche « Rester anonyme »), et le résultat est relié automatiquement à la réservation quand le numéro correspond. Les tests faits avant ne contiennent aucun nom. Le compteur public « Déjà N personnes ont découvert leur ADN Pro » s’affiche sur le test à partir de 30 tests.</p>
       </div>
 
+      <div id="panelU" class="hidden">
+        <div class="tiles" id="uTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>📸 Mur des participants</h2>
+          <p class="sub" style="margin:0 0 10px">Seules les personnes pointées présentes peuvent publier (vérification par leur numéro WhatsApp). Les photos apparaissent tout de suite : masquez celles qui ne conviennent pas.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <label for="uMode"><b>Publication</b></label>
+            <select class="t" id="uMode" style="width:auto;margin:0"><option value="auto">Automatique : ouvre le 22 nov. à 14 h 30</option><option value="1">Ouverte maintenant</option><option value="0">Fermée</option></select>
+            <a class="btn" href="mur/" target="_blank" rel="noopener">Voir le mur ↗</a>
+          </div>
+          <p class="note">Page publique : <a href="mur/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/mur/</a> · sur le site : bwatsekremtalks.com/mur</p>
+        </div>
+        <div class="card" style="margin-top:12px"><h2>Photos publiées <span class="sub" id="uN"></span></h2>
+          <div id="uGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px"></div></div>
+      </div>
       <div id="panelJ" class="hidden">
         <div class="tiles" id="jTiles"></div>
         <div class="card" style="margin-top:12px"><h2>🎵 L’Official Theme Music sur le site <span class="sub" id="jEtat"></span></h2>
@@ -1773,9 +1788,9 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K', 'J']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K' || t === 'J');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'J') loadJingle(); if (t === 'K') loadCerts();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K', 'J', 'U']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K' || t === 'J' || t === 'U');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'J') loadJingle(); if (t === 'U') loadMur(); if (t === 'K') loadCerts();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
@@ -1786,6 +1801,36 @@ $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
 $('tabK').addEventListener('click', () => setTab('K'));
 $('tabJ').addEventListener('click', () => setTab('J'));
+$('tabU').addEventListener('click', () => setTab('U'));
+/* ---------- Mur photos ---------- */
+let UROWS = [];
+const murImg = (path) => `${SUPABASE_URL}/storage/v1/object/public/mur/${path}`;
+async function loadMur() {
+  const [m, c] = await Promise.all([sb.from('talks_mur').select('*').order('kreye_le', { ascending: false }).limit(2000), sb.from('talks_config').select('valeur').eq('cle', 'mur_aktif').maybeSingle()]);
+  if (m.error) { notify('Mur : ' + friendly(m.error), 'warn'); return; }
+  UROWS = m.data || []; if (c.data) $('uMode').value = c.data.valeur || 'auto';
+  const vis = UROWS.filter((r) => r.vizib);
+  $('uTiles').innerHTML = [['Photos visibles', vis.length, `${UROWS.length - vis.length} masquée(s)`], ['Participants', new Set(vis.map((r) => `${r.inscription_id}:${r.idx}`)).size, 'ont publié'], ['J’aime', vis.reduce((s, r) => s + (r.renmen || 0), 0), 'au total']]
+    .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
+  $('uN').textContent = `· ${UROWS.length}`;
+  $('uGrid').innerHTML = UROWS.map((r) => `<div style="border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);${r.vizib ? '' : 'opacity:.5'}">
+      <a href="${esc(murImg(r.path))}" target="_blank" rel="noopener"><img src="${esc(murImg(r.path))}" alt="" loading="lazy" style="display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#e6edf5" /></a>
+      <div style="padding:8px 10px"><b>${esc(r.non)}</b> <span class="sub">· ❤️ ${r.renmen || 0}</span><div class="sub">${esc(fmtDate(r.kreye_le))}</div>${r.lejand ? `<div style="font-size:13px;margin-top:2px;overflow-wrap:anywhere">${esc(r.lejand)}</div>` : ''}
+      <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" type="button" data-uv="${r.id}" style="flex:1;min-height:34px;padding:0 8px">${r.vizib ? 'Masquer' : 'Afficher'}</button><button class="btn" type="button" data-ud="${r.id}" title="Supprimer" style="min-height:34px;padding:0 10px">🗑️</button></div></div></div>`).join('')
+    || '<p class="sub">Aucune photo pour le moment.</p>';
+}
+$('uMode').addEventListener('change', async () => {
+  const { error } = await sb.from('talks_config').upsert({ cle: 'mur_aktif', valeur: $('uMode').value, maj: new Date().toISOString() });
+  notify(error ? 'Enregistrement impossible. ' + friendly(error) : $('uMode').value === '1' ? '📸 Le mur est ouvert aux publications.' : $('uMode').value === '0' ? 'Le mur est fermé aux publications.' : 'Ouverture automatique le 22 novembre à 14 h 30.', error ? 'warn' : 'info', 5000);
+});
+$('uGrid').addEventListener('click', async (e) => {
+  const v = e.target.closest('[data-uv]'), d = e.target.closest('[data-ud]');
+  if (v) { const r = UROWS.find((x) => x.id === Number(v.dataset.uv)); const { error } = await sb.from('talks_mur').update({ vizib: !r.vizib }).eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadMur(); }
+  if (d) { const r = UROWS.find((x) => x.id === Number(d.dataset.ud));
+    if (!(await ask({ icon: '🗑️', tone: 'red', title: 'Supprimer cette photo ?', text: `Photo de ${r.non}. Elle sera effacée définitivement du mur.`, ok: 'Supprimer', okTone: 'red' }))) return;
+    await sb.storage.from('mur').remove([r.path]);
+    const { error } = await sb.from('talks_mur').delete().eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadMur(); }
+});
 /* ---------- Official Theme Music (tables talks_jingle_*) ---------- */
 let JCFG = {}, JROWS = [];
 async function loadJingle() {

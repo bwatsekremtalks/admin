@@ -150,6 +150,24 @@
   .ask .bb button { flex: 1; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
   .ask .no { border: 1.5px solid var(--line); background: #fff; color: var(--ink); }
   .ask .yes { border: 0; background: var(--navy); color: #fff; } .ask .yes.red { background: var(--red); } .ask .yes.green { background: var(--green); color: #0a1f38; }
+  /* VIP */
+  .vip { background: linear-gradient(135deg, #fff8e1, #fff); border: 1.5px solid #f5d27a; border-radius: 20px; padding: 14px; margin-bottom: 4px; }
+  .vip h2 { margin: 0 0 8px !important; font-size: 18px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .vip .vl { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .vip .vl li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: #fff; border-radius: 14px; padding: 8px 10px; border: 1px solid #f3e3b5; }
+  .vip .vl .av { width: 36px; height: 36px; font-size: 13px; }
+  .vip .st { font-size: 12.5px; font-weight: 800; white-space: nowrap; } .vip .st.ok { color: var(--ok); } .vip .st.wait { color: #a07000; }
+  .vip .empty2 { font-size: 13.5px; color: var(--mute); }
+  .bell { border: 0; background: #0D2D4A; color: #fff; border-radius: 12px; padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
+  .star { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; font-size: 20px; cursor: pointer; color: #c9a227; }
+  .star.on { background: #fff4cc; border-color: #f5d27a; }
+  .who .act { display: flex; gap: 8px; align-items: center; }
+  .vipb { display: inline-block; font-size: 11px; font-weight: 800; background: #ffe9a6; color: #7a5600; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+  .flash.gold { background: rgba(196,140,0,.94); } .flash.gold .ck { color: #b07d00; }
+  .setup ol { margin: 10px 0 0; padding-left: 20px; } .setup li { margin: 8px 0; }
+  .setup code { display: block; margin-top: 6px; background: #f2f6fb; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 700 14px ui-monospace, monospace; word-break: break-all; }
+  .setup .row2 { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; } .setup .row2 a, .setup .row2 button { flex: 1 1 auto; text-align: center; text-decoration: none; min-height: 46px; display: inline-flex; align-items: center; justify-content: center; border-radius: 14px; font-weight: 800; border: 1.5px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; padding: 0 12px; }
+  .setup .row2 .pri { background: var(--green); border-color: var(--green); color: #0a1f38; }
   @media (min-width: 900px) {
     .hero { padding-bottom: 34px; }
     .stats { grid-template-columns: auto minmax(0, 1fr); } .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -158,7 +176,7 @@
     .ring { width: 150px; height: 150px; }
   }
   @media (max-width: 420px) {
-    .who { grid-template-columns: 42px minmax(0, 1fr); } .who .act { grid-column: 1 / -1; } .who .act .go { width: 100%; } .done { text-align: left; display: flex; align-items: center; justify-content: space-between; }
+    .who { grid-template-columns: 42px minmax(0, 1fr); } .who .act { grid-column: 1 / -1; } .who .act .go { flex: 1; width: auto; } .who .act .done { flex: 1; } .done { text-align: left; display: flex; align-items: center; justify-content: space-between; }
     .av { width: 42px; height: 42px; } .ring { width: 116px; height: 116px; } .ring .c b { font-size: 30px; }
   }
   @media (prefers-reduced-motion: reduce) { .flash, .flash .ck, .live i { animation: none; } }
@@ -201,12 +219,29 @@
     </div>
     <div class="cols">
       <div class="grid" id="res"></div>
-      <section class="feed"><h2>Dernières arrivées <small id="rate"></small></h2><ul class="fl" id="feed"></ul></section>
+      <section class="feed">
+        <div class="vip" id="vipBox"><h2><span>⭐ Invités VIP</span><button class="bell" type="button" id="vipSet">🔔 Notifications</button></h2><ul class="vl" id="vipList"></ul></div>
+        <h2>Dernières arrivées <small id="rate"></small></h2><ul class="fl" id="feed"></ul></section>
     </div>
   </main>
   <button class="fab" type="button" id="fab">＋ Inscription sur place</button>
 </div>
 
+<dialog id="vipDlg"><div class="sheet setup">
+  <h2>🔔 Être prévenu(e) des arrivées VIP</h2>
+  <p class="sub">Dès qu’un invité marqué ⭐ est pointé à l’entrée, votre téléphone sonne et vibre, où que vous soyez — même l’écran éteint.</p>
+  <ol>
+    <li><b>Installez l’application gratuite « ntfy »</b>
+      <div class="row2"><a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">iPhone (App Store)</a><a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Android (Play Store)</a></div></li>
+    <li><b>Abonnez-vous au canal VIP de BST</b> : dans ntfy, touchez <b>＋</b> puis collez ce nom de sujet (serveur : ntfy.sh) :
+      <code id="vipTopic">…</code>
+      <div class="row2"><button type="button" id="vipCopy">📋 Copier le sujet</button><a id="vipOpen" href="#">Ouvrir dans ntfy</a></div></li>
+    <li><b>Autorisez les notifications</b> de ntfy, puis testez :
+      <div class="row2"><button type="button" class="pri" id="vipTest">🔔 Envoyer une notification de test</button></div></li>
+  </ol>
+  <p class="sub" style="margin-top:12px">Plusieurs personnes peuvent s’abonner au même sujet. Gardez ce nom de sujet pour l’équipe : toute personne qui le connaît reçoit les alertes.</p>
+  <div class="acts"><button type="button" class="b2" id="vipClose">Fermer</button></div>
+</div></dialog>
 <dialog id="dlg"><form class="sheet" id="sf" novalidate>
   <h2>Inscription sur place</h2>
   <p class="sub">La personne est inscrite et marquée présente tout de suite.</p>
@@ -264,7 +299,7 @@ function ask({ icon = '❔', tone = 'blue', title, text = '', person = null, ok 
 }
 
 /* ---------- Données ---------- */
-let ROWS = [], SUI = {}, PRES = {}, ONLINE = true;
+let ROWS = [], SUI = {}, PRES = {}, ONLINE = true, VIP = {}, TOPIC = '';
 const kOf = (p) => `${p.rid}:${p.idx}`;
 function people(rows) {
   const out = [];
@@ -280,11 +315,15 @@ function people(rows) {
 }
 let ALLP = [];
 async function load(quiet) {
-  const [ins, sui, pr] = await Promise.all([
+  const [ins, sui, pr, vp, tp] = await Promise.all([
     sb.from('talks_inscriptions').select('*').eq('edition', EDITION),
     sb.from('talks_suivi_accompagnants').select('*'),
     sb.from('talks_presences').select('*'),
+    sb.from('talks_vip').select('*'),
+    TOPIC ? Promise.resolve({ data: null }) : sb.from('talks_config').select('valeur').eq('cle', 'vip_ntfy_topic').maybeSingle(),
   ]);
+  if (!vp.error) VIP = Object.fromEntries((vp.data || []).map((x) => [`${x.inscription_id}:${x.idx}`, x]));
+  if (tp && tp.data && tp.data.valeur) TOPIC = tp.data.valeur;
   const err = ins.error || pr.error;
   setOnline(!err);
   if (err) { if (!quiet) toast(friendly(err), 6000); return; }
@@ -315,8 +354,8 @@ function personHTML(p, q) {
   const pr = isIn(p);
   const ds = [p.sexe === 'femme' ? 'Femme' : p.sexe === 'homme' ? 'Homme' : '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.tel, p.det].filter(Boolean).join(' · ');
   return `<div class="who ${pr ? 'in' : ''}"><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div>
-    <div><div class="nm">${esc(p.nom || '—')}</div><div class="ds">${esc(ds || (p.by ? 'avec ' + p.by : ''))}</div></div>
-    <div class="act">${pr ? `<div class="done"><b>✓ Arrivé(e) · ${esc(hm(pr.present_le))}</b><button type="button" data-out="${kOf(p)}">Annuler la présence</button></div>`
+    <div><div class="nm">${esc(p.nom || '—')}${VIP[kOf(p)] ? '<span class="vipb">⭐ VIP</span>' : ''}</div><div class="ds">${esc(ds || (p.by ? 'avec ' + p.by : ''))}</div></div>
+    <div class="act"><button class="star ${VIP[kOf(p)] ? 'on' : ''}" type="button" data-vip="${kOf(p)}" title="${VIP[kOf(p)] ? 'Retirer des VIP' : 'Marquer comme VIP (notification à son arrivée)'}" aria-label="VIP">${VIP[kOf(p)] ? '★' : '☆'}</button>${pr ? `<div class="done"><b>✓ Arrivé(e) · ${esc(hm(pr.present_le))}</b><button type="button" data-out="${kOf(p)}">Annuler la présence</button></div>`
       : `<button class="go" type="button" data-in="${kOf(p)}">✓ Présent</button>`}</div></div>`;
 }
 function renderRes() {
@@ -335,7 +374,15 @@ function renderRes() {
       ${grp.length > 1 && miss.length > 1 ? `<button class="grp" type="button" data-grp="${id}">✓ Tout le groupe est là (${miss.length})</button>` : ''}</article>`;
   }).join('');
 }
+function renderVip() {
+  const L = ALLP.filter((p) => VIP[kOf(p)]).sort((a, b) => (isIn(a) ? 1 : 0) - (isIn(b) ? 1 : 0) || String(a.nom).localeCompare(String(b.nom)));
+  $('vipList').innerHTML = L.map((p) => { const pr = isIn(p);
+    return `<li><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div><div><b>${esc(p.nom)}</b>${p.by ? `<div class="ds" style="font-size:12px;color:var(--mute)">avec ${esc(p.by)}</div>` : ''}</div>
+      <span class="st ${pr ? 'ok' : 'wait'}">${pr ? '✓ arrivé(e) ' + esc(hm(pr.present_le)) : '⏳ attendu(e)'}</span></li>`; }).join('')
+    || '<li style="display:block" class="empty2">Aucun VIP pour le moment. Cherchez la personne puis touchez ☆ pour être prévenu(e) de son arrivée.</li>';
+}
 function renderFeed() {
+  renderVip();
   const L = ALLP.filter(isIn).sort((a, b) => new Date(isIn(b).present_le) - new Date(isIn(a).present_le)).slice(0, 12);
   $('feed').innerHTML = L.map((p) => `<li><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div><div><b>${esc(p.nom)}</b>${p.by ? `<div class="ds" style="font-size:12.5px;color:var(--mute)">avec ${esc(p.by)}</div>` : ''}</div><span class="tm">${esc(hm(isIn(p).present_le))}</span></li>`).join('')
     || '<li style="display:block;text-align:center;color:var(--mute)">Personne n’est encore arrivé.</li>';
@@ -357,8 +404,8 @@ async function setIn(p, on) {
   }
   setOnline(true); return true;
 }
-function flash(t, s) {
-  const d = document.createElement('div'); d.className = 'flash'; d.innerHTML = `<div><div class="ck">✓</div><b>${esc(t)}</b><span>${esc(s || 'Bienvenue à Bwat Sekrèm Talks !')}</span></div>`;
+function flash(t, s, gold) {
+  const d = document.createElement('div'); d.className = 'flash' + (gold ? ' gold' : ''); d.innerHTML = `<div><div class="ck">✓</div><b>${esc(t)}</b><span>${esc(s || 'Bienvenue à Bwat Sekrèm Talks !')}</span></div>`;
   document.body.appendChild(d); setTimeout(() => d.remove(), 950);
   try { navigator.vibrate && navigator.vibrate(60); } catch {}
 }
@@ -368,7 +415,17 @@ document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-in]');
   if (a) { const p = byK(a.dataset.in); if (!p) return;
     if (p.st === 'x' && !(await ask({ icon: '⚠️', tone: 'warn', title: 'Réservation annulée', text: 'Sa place avait été libérée. Voulez-vous quand même la marquer présente ?', person: p.nom, ok: '✓ Pointer', okTone: 'green' }))) return;
-    a.disabled = true; if (await setIn(p, true)) { flash(p.nom.split(' ')[0], p.by ? `avec ${p.by}` : ''); nextOne(p.rid); } return; }
+    a.disabled = true; if (await setIn(p, true)) { if (VIP[kOf(p)]) flash(`⭐ ${p.nom.split(' ')[0]}`, 'Invité(e) VIP — l’équipe est prévenue', true); else flash(p.nom.split(' ')[0], p.by ? `avec ${p.by}` : ''); nextOne(p.rid); } return; }
+  const sv = e.target.closest('[data-vip]');
+  if (sv) { const p = byK(sv.dataset.vip); if (!p) return; sv.disabled = true;
+    if (VIP[kOf(p)]) {
+      const { error } = await sb.from('talks_vip').delete().eq('inscription_id', p.rid).eq('idx', p.idx);
+      if (error) toast(friendly(error)); else { delete VIP[kOf(p)]; toast(`${p.nom} retiré(e) des VIP`); }
+    } else {
+      const { data, error } = await sb.from('talks_vip').insert({ inscription_id: p.rid, idx: p.idx }).select().single();
+      if (error) toast(friendly(error)); else { VIP[kOf(p)] = data; toast(`⭐ ${p.nom} est VIP : vous serez prévenu(e) à son arrivée`, 5000); }
+    }
+    render(); return; }
   const o = e.target.closest('[data-out]');
   if (o) { const p = byK(o.dataset.out); if (p && (await ask({ icon: '↩️', tone: 'red', title: 'Retirer la présence ?', text: `Arrivé(e) à ${hm(isIn(p).present_le)}. À utiliser seulement en cas d’erreur de pointage.`, person: p.nom, ok: 'Retirer', okTone: 'red', cancel: 'Garder' }))) { await setIn(p, false); toast(`Présence de ${p.nom} retirée`); } return; }
   const g = e.target.closest('[data-grp]');
@@ -377,6 +434,18 @@ document.addEventListener('click', async (e) => {
     if (n) { flash(`${n} personne${n > 1 ? 's' : ''}`, `Groupe de ${L[0].r.nom}`); nextOne(Number(g.dataset.grp)); } }
 });
 $('q').addEventListener('input', renderRes);
+/* Réglage des notifications VIP (application ntfy) */
+$('vipSet').addEventListener('click', () => {
+  $('vipTopic').textContent = TOPIC || '—';
+  $('vipOpen').href = TOPIC ? `ntfy://ntfy.sh/${TOPIC}` : '#';
+  $('vipDlg').showModal();
+});
+$('vipClose').addEventListener('click', () => $('vipDlg').close());
+$('vipCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(TOPIC); toast('📋 Sujet copié : collez-le dans ntfy'); } catch { toast('Copiez le sujet à la main : ' + TOPIC, 8000); } });
+$('vipTest').addEventListener('click', async () => {
+  $('vipTest').disabled = true; const { error } = await sb.rpc('talks_vip_test'); $('vipTest').disabled = false;
+  toast(error ? 'Envoi impossible : ' + friendly(error) : '🔔 Notification envoyée : votre téléphone devrait sonner dans quelques secondes.', 6000);
+});
 $('q').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const b = document.querySelectorAll('[data-in]'); if (b.length === 1) b[0].click(); } });
 $('clr').addEventListener('click', () => { $('q').value = ''; renderRes(); $('q').focus(); });
 

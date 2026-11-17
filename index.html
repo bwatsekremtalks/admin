@@ -1050,8 +1050,9 @@ const UNIVERSITES = {
   'ISCEPC': 'Institut Sacré-Cœur des Études Professionnelles et Commerciales',
   'FERA': 'Faculté d’Éducation Regina Assumpta',
   'ISSBAN': 'Institut Supérieur des Sciences et de Beaux-Arts du Nord',
+  'UNEXHN': 'Université Excellence d’Haïti Nord',
 };
-const UNI_ALIAS = [[/JUSTINIEN|\bHUJ\b/, 'HUJ'], [/POLYVALENTE|\bUPH\b/, 'UPH'], [/S(AIN)?T\.?[- ]?PIERRE DE FORMATION|\bUSPF\b/, 'USPF'], [/FRANCOIS D'? ?ASSISE|\bUSFAH\b/, 'USFAH'], [/\bIHECE\b|HAUTES ETUDES COMMERCIALES ET ECONOMIQUES/, 'IHECE'], [/ACFIS/, 'ACFIS'], [/SACRE[- ]?C(OE|Œ|O)?UR|\bISCEPC\b/, 'ISCEPC'], [/REGINA ASSUMPTA|\bFERA\b/, 'FERA'], [/ISSBAN|BEAUX[- ]?ARTS DU NORD/, 'ISSBAN'], [/UNIVERSITE DES ATLANTES/, 'UNATH']];
+const UNI_ALIAS = [[/JUSTINIEN|\bHUJ\b/, 'HUJ'], [/POLYVALENTE|\bUPH\b/, 'UPH'], [/S(AIN)?T\.?[- ]?PIERRE DE FORMATION|\bUSPF\b/, 'USPF'], [/FRANCOIS D'? ?ASSISE|\bUSFAH\b/, 'USFAH'], [/\bIHECE\b|HAUTES ETUDES COMMERCIALES ET ECONOMIQUES/, 'IHECE'], [/ACFIS/, 'ACFIS'], [/SACRE[- ]?C(OE|Œ|O)?UR|\bISCEPC\b/, 'ISCEPC'], [/REGINA ASSUMPTA|\bFERA\b/, 'FERA'], [/ISSBAN|BEAUX[- ]?ARTS DU NORD/, 'ISSBAN'], [/UNIVERSITE DES ATLANTES/, 'UNATH'], [/EXCELLENCE D'? ?HAITI|\bUNEXHN\b/, 'UNEXHN']];
 const uniAlias = (u) => { const p = String(u).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’]/g, "'").toUpperCase(); for (const [re, k] of UNI_ALIAS) if (re.test(p)) return k; return null; };
 /* Nom d'université « propre » pour les stats : « Aucune » ignoré, variantes regroupées (ex. « Université Emmüs (UE) » → EMMAÜS). */
 function normUni(s) {

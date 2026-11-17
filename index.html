@@ -244,7 +244,20 @@
     <input class="t" id="password" type="password" autocomplete="current-password" required />
     <div style="margin-top:18px"><button class="btn primary" id="loginBtn" type="submit">Se connecter</button></div>
     <p class="msg" id="loginMsg" role="alert"></p>
+    <p style="margin:10px 0 0"><button type="button" id="forgot" style="background:none;border:0;padding:0;color:#3d7520;font:inherit;font-weight:600;text-decoration:underline;cursor:pointer">Mot de passe oublié ?</button></p>
     <p class="devise">Apprendre. Inspirer. Construire ensemble.</p>
+  </form>
+  <form id="resetForm" class="card hidden" novalidate>
+    <p class="eyebrow">Bwat Sekrèm Talks</p>
+    <h1>Nouveau mot de passe</h1>
+    <p class="sub" id="resetWho" style="margin:0 0 6px"></p>
+    <label class="f" for="np1">Nouveau mot de passe <span class="sub">(8 caractères minimum)</span></label>
+    <input class="t" id="np1" type="password" autocomplete="new-password" minlength="8" required />
+    <label class="f" for="np2">Confirmez le mot de passe</label>
+    <input class="t" id="np2" type="password" autocomplete="new-password" minlength="8" required />
+    <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="npShow" /> Afficher les mots de passe</label>
+    <div style="margin-top:18px"><button class="btn primary" id="resetBtn" type="submit">Enregistrer et me connecter</button></div>
+    <p class="msg" id="resetMsg" role="alert"></p>
   </form>
 </section>
 
@@ -807,13 +820,49 @@ async function showApp(session) {
 }
 $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  $('loginMsg').textContent = ''; $('loginBtn').disabled = true;
+  $('loginMsg').textContent = ''; $('loginMsg').style.color = ''; $('loginBtn').disabled = true;
   const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
   $('loginBtn').disabled = false;
   if (error) { $('loginMsg').textContent = 'Connexion impossible : e-mail ou mot de passe incorrect.'; return; }
   showApp(data.session);
 });
 $('logout').addEventListener('click', async () => { await sb.auth.signOut(); ALL = []; showApp(null); });
+/* Mot de passe oublié : e-mail de réinitialisation → retour ici → choix d'un nouveau mot de passe */
+let RECOVERY = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
+function showReset(session) {
+  RECOVERY = true;
+  $('login').classList.remove('hidden'); $('app').classList.add('hidden');
+  $('loginForm').classList.add('hidden'); $('resetForm').classList.remove('hidden');
+  $('resetWho').textContent = session?.user?.email ? `Compte : ${session.user.email}` : '';
+  setTimeout(() => $('np1').focus(), 50);
+}
+$('forgot').addEventListener('click', async () => {
+  const email = $('email').value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) { $('loginMsg').style.color = ''; $('loginMsg').textContent = 'Écrivez d’abord votre adresse e-mail ci-dessus, puis cliquez sur « Mot de passe oublié ? ».'; $('email').focus(); return; }
+  $('forgot').disabled = true;
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname });
+  $('forgot').disabled = false;
+  const rl = error && /rate|seconds/i.test(error.message);
+  $('loginMsg').style.color = rl ? '' : '#2f7a12';
+  $('loginMsg').textContent = rl
+    ? 'Un e-mail vient déjà d’être envoyé. Patientez une minute avant de réessayer.'
+    : `📧 Si un compte existe pour ${email}, un e-mail avec un lien vient d’être envoyé. Ouvrez-le (pensez aux spams) pour choisir un nouveau mot de passe.`;
+});
+$('npShow').addEventListener('change', () => { $('np1').type = $('np2').type = $('npShow').checked ? 'text' : 'password'; });
+$('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const a = $('np1').value, b = $('np2').value;
+  if (a.length < 8) { $('resetMsg').textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return; }
+  if (a !== b) { $('resetMsg').textContent = 'Les deux mots de passe ne sont pas identiques.'; return; }
+  $('resetBtn').disabled = true;
+  const { error } = await sb.auth.updateUser({ password: a });
+  $('resetBtn').disabled = false;
+  if (error) { $('resetMsg').textContent = /expired|invalid|session/i.test(error.message) ? 'Le lien a expiré. Revenez à la connexion et cliquez à nouveau sur « Mot de passe oublié ? ».' : 'Enregistrement impossible : ' + error.message; return; }
+  RECOVERY = false; history.replaceState(null, '', location.pathname);
+  $('resetForm').classList.add('hidden'); $('loginForm').classList.remove('hidden'); $('np1').value = $('np2').value = '';
+  const { data } = await sb.auth.getSession(); showApp(data.session); notify('✅ Nouveau mot de passe enregistré.');
+});
+sb.auth.onAuthStateChange((ev, session) => { if (ev === 'PASSWORD_RECOVERY') showReset(session); });
 
 /* ---------- Data ---------- */
 let LAST_IDS = null;
@@ -2320,7 +2369,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && $(
 window.addEventListener('offline', () => { notify('Vous êtes hors ligne. La liste affichée reste consultable ; elle se mettra à jour dès le retour de la connexion.', 'warn'); $('lastRef').textContent = '· hors ligne'; $('lastRef').classList.add('off'); });
 window.addEventListener('online', () => { if (!$('app').classList.contains('hidden')) load({ silent: true }); });
 
-sb.auth.getSession().then(({ data }) => showApp(data.session));
+sb.auth.getSession().then(({ data }) => { if (RECOVERY) showReset(data.session); else showApp(data.session); });
 </script>
 </body>
 </html>

@@ -263,6 +263,7 @@
         <button class="btn" id="goVisites" type="button">📈 Visites du site</button>
         <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
         <button class="btn" id="csv" type="button">Exporter (Excel)</button>
+        <button class="btn" id="vcf" type="button" title="Fichier .vcf : ouvrez-le sur le téléphone pour enregistrer tous les numéros d’un coup">📇 Contacts téléphone</button>
         <button class="btn" id="newResa" type="button">+ Nouvelle inscription</button>
         <a class="btn" href="./coupons/" title="Coupons des portraits IA (ventes MonCash) et métiers demandés">🖼️ Coupons portraits</a>
         <button class="btn" id="logout" type="button">Déconnexion</button>
@@ -2027,6 +2028,26 @@ $('csv').addEventListener('click', () => {
   a.href = URL.createObjectURL(blob);
   a.download = `inscriptions-${$('edition').value || 'bst'}${$('fFrom').value || $('fTo').value ? `_${$('fFrom').value || 'debut'}_${$('fTo').value || 'fin'}` : ''}.csv`;
   a.click(); URL.revokeObjectURL(a.href);
+});
+
+/* Tous les numéros en un fichier vCard (.vcf) : à ouvrir sur le téléphone → « Importer / Ajouter tous les contacts » */
+$('vcf').addEventListener('click', () => {
+  const vesc = (s) => String(s ?? '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  const seen = new Set(), cards = [];
+  for (const p of filteredPeople(rowsForEdition())) {
+    if (pst(p) === 'x') continue;
+    const num = waNumber(p.tel); if (!num || seen.has(num)) continue; seen.add(num);
+    const nom = String(p.nom || '').trim().replace(/\s+/g, ' ') || 'Participant';
+    const note = [p.details || p.profils.map((k) => PROFILS[k] || k).join(', '), p.by ? `Inscrit(e) par ${p.by}` : ''].filter(Boolean).join(' · ');
+    cards.push(['BEGIN:VCARD', 'VERSION:3.0', `N:;${vesc(nom)} BST;;;`, `FN:${vesc(nom)} BST`, 'ORG:Bwat Sekrèm Talks 2026', `TEL;TYPE=CELL:+${num}`,
+      note ? `NOTE:${vesc(note)}` : '', 'CATEGORIES:BST 2026', 'END:VCARD'].filter(Boolean).join('\r\n'));
+  }
+  if (!cards.length) { notify('Aucun numéro valide dans cette liste.', 'info'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([cards.join('\r\n') + '\r\n'], { type: 'text/vcard;charset=utf-8' }));
+  a.download = `contacts-BST-${cards.length}.vcf`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  notify(`📇 ${cards.length} contact${cards.length > 1 ? 's' : ''} prêt${cards.length > 1 ? 's' : ''}. Ouvrez le fichier sur votre téléphone puis choisissez « Importer » / « Ajouter tous les contacts ».`, 'info', 9000);
 });
 
 /* ---------- Modifier / ajouter une inscription ---------- */

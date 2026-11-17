@@ -59,6 +59,10 @@
   .ring .c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
   .ring .c b { display: block; font: 800 36px/1 "Bricolage Grotesque", sans-serif; } .ring .c small { font-size: 12px; color: rgba(255,255,255,.78); line-height: 1.25; display: block; margin-top: 4px; }
   .dhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  #dashSub { margin-right: auto; }
+  .scope { display: inline-flex; gap: 4px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 3px; width: auto !important; }
+  .scope button { border: 0; background: none; color: rgba(255,255,255,.85); font: 700 12.5px "DM Sans", sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .scope button.on { background: #fff; color: #0D2D4A; }
   .dhead b { font: 800 16px "Bricolage Grotesque", sans-serif; } .dhead span { font-size: 12.5px; color: rgba(255,255,255,.72); }
   .dtiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .dt { text-align: left; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 10px 12px; cursor: pointer; color: #fff; transition: background .15s; }
@@ -121,7 +125,7 @@
   .dlg .seg { display: inline-flex; }
   /* Fiche : en-tête et pied fixes, réponse choisie bien visible */
   #dlg { overflow: auto; overscroll-behavior: contain; } .dlg { padding-top: 0; padding-bottom: 0; }
-  .dhead { position: sticky; top: 0; z-index: 3; background: #fff; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; padding: 18px 0 10px; border-bottom: 1px solid #eef2f7; }
+  .fhead { position: sticky; top: 0; z-index: 3; background: #fff; display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; padding: 18px 0 10px; border-bottom: 1px solid #eef2f7; }
   .dfoot { position: sticky; bottom: 0; z-index: 3; background: #fff; display: flex; gap: 8px; padding: 12px 0 calc(14px + env(safe-area-inset-bottom)); margin-top: 16px; border-top: 1px solid #eef2f7; } .dfoot .btn { flex: 1; min-height: 48px; }
   .quick .qb { transition: transform .1s, box-shadow .15s; } .quick .qb:active { transform: scale(.97); }
   .qb.sel { border-width: 2.5px !important; font-weight: 900; box-shadow: 0 0 0 4px rgba(93,176,51,.18); }
@@ -222,7 +226,7 @@
     <div class="dashw" id="dash">
       <div class="ring" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="12" /><circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="#7AC142" stroke-width="12" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition:stroke-dashoffset .6s" /></svg>
         <div class="c"><div><b id="rN">0</b><small id="rOf">viennent</small></div></div></div>
-      <div><div class="dhead"><b>📊 Suivi des réponses</b><span id="dashSub"></span></div><div id="dashTiles" class="dtiles"></div></div>
+      <div><div class="dhead"><b>📊 Suivi des réponses</b><span id="dashSub"></span><span class="scope hidden" id="scope"></span></div><div id="dashTiles" class="dtiles"></div></div>
     </div>
   </div></header>
   <main>
@@ -699,7 +703,7 @@ let RESP_INIT = false;
 function fillResp() {
   const cur = $('fResp').value, mine = EKIP.find((x) => x.email && x.email.toLowerCase() === ME.toLowerCase());
   $('fResp').innerHTML = `<option value="">Tous les responsables</option>${EKIP.map((x) => `<option value="${esc(x.non)}">👤 ${esc(x.non)}${mine && mine.non === x.non ? ' (moi)' : ''}</option>`).join('')}<option value="?">Sans responsable</option>`;
-  if (!RESP_INIT && mine) { $('fResp').value = mine.non; RESP_INIT = true; } else $('fResp').value = cur;
+  if (!RESP_INIT && mine) { $('fResp').value = WOL === 'crm' ? mine.non : ''; RESP_INIT = true; } else $('fResp').value = cur;   // admin : vue globale par défaut
   renderEkip();
 }
 function renderEkip() {
@@ -872,7 +876,7 @@ function openPerson(p) {
     .sort((a, b) => new Date(b.le) - new Date(a.le));
   const hist = raw.filter((h, i) => !i || h.key.startsWith('m') || h.key !== raw[i - 1].key);
   const tips = TIPS.filter((t) => eligible(p, t.k) || sent(p, t.k).length);   // on n'affiche que les messages qui la concernent
-  $('dlgIn').innerHTML = `<div class="dhead"><div style="min-width:0"><h2>${esc(p.nom)}</h2>
+  $('dlgIn').innerHTML = `<div class="fhead"><div style="min-width:0"><h2>${esc(p.nom)}</h2>
       <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.ukey)}` : ''}</div>
       ${p.annule ? `<div class="libban">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''} — informations conservées. <button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button></div>` : ''}${p.att ? `<div style="margin-top:6px"><span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span></div>` : ''}${noWA(p) ? '<div style="margin-top:6px"><span class="bdg nowa">📵 Pas de WhatsApp</span></div>' : ''}</div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
@@ -946,6 +950,9 @@ function renderDash() {
   const c = (f) => base.filter(f).length, S = (s) => c((p) => suivi(p) === s);
   const vient = S('vient'), non = S('non'), rep = vient + non + S('repondu'), sans = S('sans'), pas = S('pas'), cont = base.length - pas;
   const sal = c((p) => suivi(p) === 'vient' && modeOf(p) === 'salle'), liv = c((p) => suivi(p) === 'vient' && modeOf(p) === 'live'), pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
+  const mine = myTeam();
+  $('scope').classList.toggle('hidden', WOL === 'crm' || !mine);
+  if (mine && WOL !== 'crm') $('scope').innerHTML = `<button type="button" data-scope="" class="${!rf ? 'on' : ''}">🌐 Toute l’équipe</button><button type="button" data-scope="${esc(mine.non)}" class="${rf === mine.non ? 'on' : ''}">👤 Mon groupe</button>`;
   $('dashSub').textContent = `${rf ? (rf === '?' ? 'Sans responsable' : 'Groupe de ' + rf) : 'Tous les participants'} · ${base.length} personnes`;
   $('rN').textContent = vient; $('rOf').innerHTML = `viennent<br>sur ${base.length}`; $('arc').style.strokeDashoffset = String(326.7 * (1 - (base.length ? Math.min(1, vient / base.length) : 0)));
   const tile = (cls, f, n, lab, sm) => `<button type="button" class="dt ${cls}" data-fs="${f}"><b>${n}</b><span>${lab}</span><small>${sm}</small></button>`;
@@ -961,6 +968,7 @@ function renderDash() {
       const s = (k) => L.filter((p) => suivi(p) === k).length, v = s('vient');
       return `<tr><td><b>${esc(n || 'Sans responsable')}</b></td><td>${L.length}</td><td>${L.length - s('pas')}</td><td>${v + s('non') + s('repondu')}</td><td>${v}</td><td>${L.filter((p) => suivi(p) === 'vient' && modeOf(p) === 'salle').length}</td><td>${L.filter((p) => suivi(p) === 'vient' && modeOf(p) === 'live').length}</td><td>${s('non')}</td><td>${s('sans')}</td><td>${L.filter(noWA).length}</td></tr>`; }).join('')}</tbody></table></div>`;
 }
+$('scope').addEventListener('click', (e) => { const b = e.target.closest('[data-scope]'); if (!b) return; $('fResp').value = b.dataset.scope; render(); });
 $('dashTiles').addEventListener('click', (e) => { const b = e.target.closest('[data-fs]'); if (!b) return; $('fSuivi').value = b.dataset.fs; ETAT = 'tout'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'tout')); render(); $('count').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 async function setMode(p, mode, quiet) {
   const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode: mode || null, maj: new Date().toISOString(), pa: ME });

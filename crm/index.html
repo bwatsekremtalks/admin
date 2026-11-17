@@ -272,6 +272,11 @@ async function load() {
   // nombre d'étudiants actifs par université
   const U = {}; for (const p of P) { const k = !p.annule && uniKey(p.uni); if (k) U[k] = (U[k] || 0) + 1; }
   for (const p of P) { p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
+  if (WOL === 'crm') { const me = myTeam(); P = P.filter((p) => me && RESP[pk(p)] === me.non); }   // chacun ne voit que son groupe
+  // nombre d'étudiants par université compté sur TOUS les inscrits (fonction de la base, même règle que le site)
+  const raws = [...new Set(P.filter((p) => p.ukey).map((p) => String(p.uni).trim()))];
+  const NU = {}; await Promise.all(raws.map(async (u) => { const { data } = await sb.rpc('talks_etudiants_uni', { p_universite: u }); if (typeof data === 'number' && data > 0) NU[u] = data; }));
+  for (const p of P) if (p.ukey && NU[String(p.uni).trim()]) p.nUni = NU[String(p.uni).trim()];
   render();
 }
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
@@ -603,7 +608,7 @@ async function show(session) {
   ME = session.user.email || ''; $('who').textContent = ME;
   const { data: wol } = await sb.rpc('talks_mon_wol');
   if (!wol) { await sb.auth.signOut(); $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('loginMsg').textContent = 'Ce compte n’a pas accès au suivi des participants. Demandez l’accès à Steve.'; return; }
-  WOL = wol; $('toAdmin').classList.toggle('hidden', wol !== 'admin'); $('ekBox').classList.toggle('hidden', wol !== 'admin');
+  WOL = wol; $('toAdmin').classList.toggle('hidden', wol !== 'admin'); $('ekBox').classList.toggle('hidden', wol !== 'admin'); $('fResp').classList.toggle('hidden', wol === 'crm');
   $('login').classList.add('hidden'); $('app').classList.remove('hidden'); load();
 }
 let WOL = null;

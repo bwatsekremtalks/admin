@@ -99,6 +99,7 @@
   th[data-k][aria-sort="descending"]::after { content: '▼'; opacity: 1; }
   th[aria-sort] { color: var(--ink); }
   td.num { color: var(--muted); font-variant-numeric: tabular-nums; width: 36px; }
+  .pill.att { background: #fff1e0; color: #b4530a; border-color: #f5d9a8; font-weight: 700; }
   .pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); margin: 0 4px 4px 0; white-space: nowrap; }
   .pill.ok { background: var(--ok-bg); color: var(--ok-ink); border-color: transparent; }
   .sub { color: var(--muted); font-size: 12px; }
@@ -412,7 +413,7 @@
           <input class="t" id="q" type="search" placeholder="Rechercher un nom, une entreprise…" />
           <select class="t" id="fProfil" aria-label="Filtrer par catégorie"></select>
           <select class="t" id="fConf" aria-label="Filtrer par confirmation">
-            <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option><option value="pr">Présentes (pointées)</option><option value="ab">Absentes (inscrites, pas venues)</option>
+            <option value="">Actives (sans annulées)</option><option value="all">Toutes, y compris annulées</option><option value="1">Confirmées</option><option value="0">En attente</option><option value="nc">Pas encore contactées</option><option value="cn">Contactées, sans réponse</option><option value="x">Annulées</option><option value="pr">Présentes (pointées)</option><option value="ab">Absentes (inscrites, pas venues)</option><option value="att">⏳ Liste d’attente</option><option value="in">🎟️ Dans les places (hors attente)</option>
           </select>
           <span class="dates">
             <label for="fFrom">Du</label><input class="t" id="fFrom" type="date" />
@@ -982,11 +983,13 @@ let LAST_IDS = null;
 async function load(opts = {}) {
   if (!opts.silent) notify('');
   $('refresh').disabled = true;
-  const [{ data, error }, suivi, pres] = await Promise.all([
+  const [{ data, error }, suivi, pres, cpt] = await Promise.all([
     sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
     sb.from('talks_presences').select('*'),
+    sb.rpc('talks_compteur'),
   ]);
+  if (cpt && cpt.data && cpt.data.capacite) CAPA = +cpt.data.capacite;
   $('refresh').disabled = false;
   if (error) {
     // On garde la liste affichée ; on réessaie bientôt sans alarmer.
@@ -1017,6 +1020,15 @@ async function load(opts = {}) {
 }
 
 function rowsForEdition() { return ALL.filter((r) => r.edition === $('edition').value); }
+/* Liste d'attente : réservations non annulées (ordre d'arrivée) qui commencent au-delà de la capacité — même calcul que le compteur du site */
+let CAPA = 0;
+function attRang(r) {
+  if (!CAPA || !r || r.annule || r.edition !== '2026-11-22-cap-haitien') return 0;
+  let cum = 0, rang = 0;
+  for (const x of ALL) { if (x.edition !== r.edition || x.annule) continue; if (cum >= CAPA) rang++; if (x.id === r.id) return cum >= CAPA ? rang : 0; cum += 1 + (x.accompagnants || []).length; }
+  return 0;
+}
+const attPill = (r) => { const n = attRang(r); return n ? `<span class="pill att" title="Inscrit(e) après la ${CAPA}e place : ne pas envoyer la confirmation (voir le CRM, message « Liste d’attente »)">⏳ Liste d’attente n° ${n}</span>` : ''; };
 
 function profilsOf(r) { return r.profils && r.profils.length ? r.profils : []; }
 
@@ -1384,7 +1396,7 @@ function keepFn(fc) {
   return (r) => ({
     '': !r.annule, all: true, 1: r.confirme, 0: !r.confirme && !r.annule,
     nc: !r.contacte_le && !r.annule, cn: !!r.contacte_le && !r.confirme && !r.annule, x: r.annule,
-    pr: people([r]).some(isPres), ab: !r.annule && !people([r]).some(isPres),
+    pr: people([r]).some(isPres), ab: !r.annule && !people([r]).some(isPres), att: !!attRang(r), in: !r.annule && !attRang(r),
   })[fc] ?? true;
 }
 const localDay = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
@@ -1410,7 +1422,7 @@ function filteredResa(rows) {
 function keepPers(fc) {
   return (p) => {
     const s = pst(p), c = !!pcontact(p);
-    return ({ '': s !== 'x', all: true, 1: s === 'c', 0: s === 'a', nc: s === 'a' && !c && reachable(p), cn: s === 'a' && c, x: s === 'x', pr: !!isPres(p), ab: s !== 'x' && !isPres(p) })[fc] ?? true;
+    return ({ '': s !== 'x', all: true, 1: s === 'c', 0: s === 'a', nc: s === 'a' && !c && reachable(p), cn: s === 'a' && c, x: s === 'x', pr: !!isPres(p), ab: s !== 'x' && !isPres(p), att: !!attRang(p.resa), in: s !== 'x' && !attRang(p.resa) })[fc] ?? true;
   };
 }
 function filteredPeople(rows) {
@@ -1423,6 +1435,7 @@ function filteredPeople(rows) {
 function persWa(p, label) {
   const num = waNumber(p.tel);
   if (!num) return '';
+  if (attRang(p.resa)) return '<span class="sub no-print">⏳ liste d’attente : message dans le CRM</span>';
   const href = `https://wa.me/${num}?text=${encodeURIComponent(p.kind === 'p' ? fillTpl(getTpl(), p.resa) : accText(p.resa, p.acc))}`;
   const c = pcontact(p);
   return `<a class="no-print walink" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wap="${esc(pkey(p))}" title="${c ? 'Message déjà envoyé le ' + esc(fmtDate(c)) : 'Écrire sur WhatsApp'}">${label || (c ? 'Renvoyer ↗' : 'WhatsApp ↗')}</a>`;
@@ -1435,7 +1448,7 @@ function renderLists(rows) {
   $('rowsP').innerHTML = ppl.map((p, i) => `<tr>
     <td class="num">${i + 1}</td>
     <td class="sub" style="white-space:nowrap">${esc(fmtDate(p.resa.created_at))}</td>
-    <td><strong>${esc(p.nom)}</strong>${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}<div class="no-print"><button type="button" class="editlink" data-edit="${p.resa.id}">✎ Modifier</button></div></td>
+    <td><strong>${esc(p.nom)}</strong> ${attPill(p.resa)}${p.details ? `<div class="sub">${esc(p.details)}</div>` : ''}<div class="no-print"><button type="button" class="editlink" data-edit="${p.resa.id}">✎ Modifier</button></div></td>
     <td>${esc(SEXES[p.sexe] || '—')}</td>
     <td>${p.profils.map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('') || '—'}</td>
     <td>${esc(p.tel || '')}${p.tel ? `<div>${persWa(p)}</div>` : ''}${pcontact(p) ? `<div class="sub no-print">${p.kind === 'a' && !waNumber(p.tel) ? 'Prévenu(e) via ' + esc(p.by) : 'Envoyé le ' + esc(fmtDate(pcontact(p)))}</div>` : ''}</td>
@@ -1450,7 +1463,7 @@ function renderLists(rows) {
   $('rowsR').innerHTML = res.map((r, i) => `<tr>
     <td class="num">${i + 1}</td>
     <td class="sub">${esc(fmtDate(r.created_at))}</td>
-    <td><strong>${esc(r.nom)}</strong> <span class="sub">${esc(SEXES[r.sexe] || '')}</span> <button type="button" class="editlink no-print" data-edit="${r.id}">✎ Modifier</button>
+    <td><strong>${esc(r.nom)}</strong> ${attPill(r)}<span class="sub">${esc(SEXES[r.sexe] || '')}</span> <button type="button" class="editlink no-print" data-edit="${r.id}">✎ Modifier</button>
       <div class="sub">${esc(r.telephone)}${r.email ? ' · ' + esc(r.email) : ''}${r.ville ? ' · ' + esc(r.ville) : ''}</div>
       ${r.source ? `<div class="sub">Source : ${esc(r.source)}</div>` : ''}</td>
     <td>${profilsOf(r).map((k) => `<span class="pill">${esc(PROFILS[k] || k)}</span>`).join('')}<div class="sub">${esc(details(r))}</div></td>
@@ -1519,6 +1532,7 @@ function accText(r, a) {
 function waCell(r) {
   const num = waNumber(r.telephone);
   if (!num) return '<span class="sub">Numéro invalide</span>';
+  if (attRang(r)) return '<span class="sub">⏳ Liste d’attente : pas de confirmation.<br><a href="./crm/" target="_blank" rel="noopener">Message « Liste d’attente » dans le CRM ↗</a></span>';
   const href = `https://wa.me/${num}?text=${encodeURIComponent(fillTpl(getTpl(), r))}`;
   const sent = r.contacte_le ? `<div class="sub" style="margin-top:4px">Envoyé le ${esc(fmtDate(r.contacte_le))}</div>` : '';
   return `<a class="wa${r.contacte_le ? ' again' : ''}" href="${esc(href)}" target="_blank" rel="noopener noreferrer" data-wa="${r.id}">${WA_ICON}${r.contacte_le ? 'Renvoyer' : 'Envoyer'}</a>${sent}`;
@@ -1557,7 +1571,7 @@ document.addEventListener('click', async (e) => {
 let SERIE = null;
 function startSerie() {
   const list = sortBy(filteredPeople(rowsForEdition()), 'P', { ordre: (p) => p.ordre })
-    .filter((p) => !pcontact(p) && pst(p) === 'a' && waNumber(p.tel));
+    .filter((p) => !pcontact(p) && pst(p) === 'a' && waNumber(p.tel) && !attRang(p.resa));
   if (!list.length) { notify('Personne à contacter : toutes les personnes de cette liste ont déjà reçu le message (ou n’ont pas de numéro valide).', 'info', 8000); return; }
   notify('');
   const keep = SORT.P; SORT.P = { k: 'ordre', dir: 1 };

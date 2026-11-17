@@ -69,7 +69,7 @@
 
   main { max-width: 1180px; margin: 0 auto; padding: 0 16px calc(40px + env(safe-area-inset-bottom)); }
   /* ---------- Les 5 messages ---------- */
-  .tips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: -42px; position: relative; z-index: 2; }
+  .tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: -42px; position: relative; z-index: 2; }
   .tip { text-align: left; border: 2px solid transparent; border-radius: 20px; padding: 12px 14px; background: #fff; cursor: pointer; box-shadow: 0 12px 28px rgba(13,45,74,.12); }
   .tip.on { border-color: var(--green); box-shadow: 0 12px 28px rgba(122,193,66,.3); }
   .tip .n { font-weight: 800; font-size: 14.5px; } .tip .v { font: 800 22px "Bricolage Grotesque", sans-serif; margin-top: 2px; font-variant-numeric: tabular-nums; }
@@ -99,7 +99,7 @@
   .av { flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 800 15px "Bricolage Grotesque", sans-serif; color: #fff; }
   .row .nm { font-weight: 800; font-size: 16px; cursor: pointer; overflow-wrap: anywhere; } .row .nm:hover { color: var(--green2); }
   .bdg { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #f1f5f9; color: var(--ink2); margin: 2px 4px 0 0; }
-  .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
+  .bdg.att { background: #fff1e0; color: #b4530a; border: 1px solid #f5d9a8; } .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
   .dots { display: flex; gap: 4px; } .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #f3f6fa; filter: grayscale(1); opacity: .45; }
   .dot.ok { background: var(--okbg); box-shadow: inset 0 0 0 1.5px #a9dcb6; filter: none; opacity: 1; } .dot.na { visibility: hidden; }
   .empty { text-align: center; color: var(--mute); padding: 36px 16px; background: #fff; border-radius: 20px; border: 1px dashed var(--line); }
@@ -213,7 +213,7 @@
         <input type="search" id="q" placeholder="Nom, numéro, université…" aria-label="Rechercher" /></div>
       <div class="filters">
         <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
-        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option></select>
+        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option><option value="att">⏳ Liste d’attente</option><option value="inscrit">🎟️ Places confirmées (hors attente)</option></select>
         <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
         <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
         <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
@@ -246,7 +246,7 @@
     </details>
     <details class="card tpl" style="margin-top:16px" id="tplBox">
       <summary>✏️ Modifier les modèles de messages (partagés avec toute l’équipe)</summary>
-      <p class="sub">Variables : <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{n}</code> (étudiants de la même université) <code>{n10}</code> (n + 10) <code>{universite}</code> (« de l’Université … »).</p>
+      <p class="sub">Variables : <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{n}</code> (étudiants de la même université) <code>{n10}</code> (n + 10) <code>{universite}</code> (« de l’Université … ») <code>{rang}</code> (rang sur la liste d’attente).</p>
       <div id="tplList"></div>
     </details>
   </main>
@@ -434,6 +434,9 @@ const TIPS = [
   { k: 'otm', e: '🎵', n: 'Theme Music', d: 'Annonce de l’Official Theme Music' },
   { k: 'defi', e: '📸', n: 'Défis photo', d: 'Avant l’événement : les 10 défis du mur' },
   { k: 'mesi', e: '🙏', n: 'Merci + mur', d: 'Après l’événement : publier ses photos (salle et Live)' },
+  { k: 'atant', e: '⏳', n: 'Liste d’attente', d: 'Inscrits après 300 : « vous êtes n° X sur la liste »' },
+  { k: 'plas', e: '🎉', n: 'Place libérée', d: 'Sortis de la liste d’attente : place confirmée' },
+  { k: 'atant2', e: '📣', n: 'Attente : nouvelles', d: 'Avant le 22 : point sur la liste + Live garanti' },
 ];
 const SIGN = '\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire ensemble.';
 const QUAND = '📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)';
@@ -450,6 +453,9 @@ const DEF = {
   konsey_inconnu: { t: 'Conseils — mode pas encore connu', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour profiter pleinement de Bwat Sekrèm Talks :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, des questions-réponses et beaucoup d’échanges.\n\n🏛️ En salle :\n• Arrivez 20 à 30 minutes en avance pour l’accueil\n• Une tenue soignée est la bienvenue\n• Présentez-vous à au moins 3 nouvelles personnes\n\n🎥 En Live :\n• Connectez-vous 10 minutes avant 14 h 30, avec une bonne connexion\n• Restez jusqu’à la fin : le mot secret du certificat Live sera annoncé pendant le Live\n\n✍️ Dans les deux cas : préparez 1 ou 2 questions et notez une idée à appliquer dès le lendemain.\n\n${QUAND}\n\nÀ dimanche !${SIGN}` },
   defi: { t: 'Défis photo — la veille ou le matin du 22', v: `Bonjour {prenom} 👋\n\n📸 Demain, Bwat Sekrèm Talks, c’est aussi VOS photos !\n\nPendant l’événement, relevez nos 10 défis photo et publiez-les sur le Mur des participants :\n\n🚪 Une photo à l’entrée\n🤳 Un selfie avec la salle derrière vous\n🤝 Une photo avec un collègue\n🆕 Une photo avec quelqu’un que vous venez de rencontrer\n🎤 Une photo avec un intervenant\n🏢 Une photo avec un exposant ou un sponsor\n👥 Une photo de groupe (votre université, votre équipe)\n💡 L’idée ou la slide qui vous a marqué(e)\n🏛️ La salle vue de votre place\n🎓 Devant la bannière, avec votre badge ou votre certificat\n\n🎥 Vous suivez en Live ? 4 défis rien que pour vous : votre écran, votre coin Live, le Live entre amis et vos notes !\n\n👉 Publiez vos photos ici : https://bwatsekremtalks.com/mur\n(il suffit du numéro WhatsApp donné lors de votre réservation)\n\nCombien de défis allez-vous relever ? 🏅\n\nÀ demain, 14 h 30 !${SIGN}` },
   mesi: { t: 'Merci + mur photos — après l’événement (présents en salle et participants Live)', v: `Bonjour {prenom} 👋\n\nMerci d’avoir participé à la 1re édition de Bwat Sekrèm Talks, en salle ou en Live : vous en avez fait un moment inoubliable 🙏\n\n📸 Le Mur des participants est ouvert ! Revivez l’événement en photos et ajoutez les vôtres :\n👉 https://bwatsekremtalks.com/mur\n\n✅ Publiez jusqu’à 12 photos avec le numéro WhatsApp de votre réservation\n🎯 Relevez les défis photo (selfie, photo de groupe, l’idée du jour…)\n❤️ Aimez les photos des autres participants\n\nPartagez le lien avec les personnes rencontrées pendant l’événement : plus il y a de photos, plus le mur est beau !${SIGN}` },
+  atant: { t: 'Liste d’attente — inscription reçue', v: `Bonjour {prenom} 👋\n\nC’est l’équipe de Bwat Sekrèm Talks. Merci pour votre inscription ! 🙏\n\nToutes les places de la salle ont été réservées : vous êtes actuellement n° {rang} sur la liste d’attente ⏳ ({places}).\n\nNous recevons énormément de demandes et notre équipe logistique travaille déjà pour accueillir plus de monde. Dès qu’une place se libère pour vous, nous vous écrivons ici.\n\n📲 Pensez à enregistrer ce numéro dans vos contacts sous le nom « Bwat Sekrèm Talks » pour ne rien manquer.\n\n${QUAND}\n\nMerci de votre patience !${SIGN}` },
+  plas: { t: 'Place libérée — sortie de la liste d’attente', v: `Bonjour {prenom} 👋\n\n🎉 Bonne nouvelle : une place s’est libérée pour vous ! Vous n’êtes plus sur la liste d’attente : votre réservation pour Bwat Sekrèm Talks est confirmée ✅ ({places}).\n\n${QUAND}\n{accompagnants}\nMerci de répondre « OUI » pour confirmer votre présence. En cas d’empêchement, prévenez-nous afin que nous puissions offrir la place à la personne suivante.\n\nÀ très bientôt !${SIGN}` },
+  atant2: { t: 'Liste d’attente — dernières nouvelles avant le 22', v: `Bonjour {prenom} 👋\n\nPetit point sur la liste d’attente de Bwat Sekrèm Talks : vous êtes n° {rang} ⏳.\n\nNotre équipe fait tout son possible pour accueillir un maximum de personnes en salle. Si une place se libère pour vous, nous vous écrivons ici avant dimanche.\n\n🎥 Dans tous les cas, vous ne manquerez rien : vous pourrez suivre l’événement en Live, et nous vous enverrons le lien le dimanche 22 novembre avant 14 h 30.\n\nMerci de votre patience et à dimanche !${SIGN}` },
   otm: { t: 'Official Theme Music', v: `Bonjour {prenom} 👋\n\n🎵 Elle est là ! Découvrez l’Official Theme Music de Bwat Sekrèm Talks, le son qui va porter notre événement du 22 novembre.\n\n🎧 Écoutez-la ici 👉 https://bwatsekremtalks.com/theme-music\n\nDites-nous ce que vous en pensez en laissant un commentaire, et partagez-la autour de vous ! 🔥${SIGN}` },
 };
 let TPL = {};
@@ -481,10 +487,10 @@ function deUni(raw) {
 }
 
 /* ---------- Données ---------- */
-let PRES = {}, RESP = {}, EKIP = [], P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
+let CAP = 0, ATT = {}, PRES = {}, RESP = {}, EKIP = [], P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
 const pk = (p) => `${p.rid}:${p.idx}`;
 async function load() {
-  const [ins, sui, mes, not, mod, cfg, prs] = await Promise.all([
+  const [ins, sui, mes, not, mod, cfg, prs, cpt] = await Promise.all([
     sb.from('talks_inscriptions').select('*').eq('edition', EDITION).order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
     sb.from('talks_crm_mesaj').select('*').order('voye_le', { ascending: false }).limit(10000),
@@ -492,7 +498,9 @@ async function load() {
     sb.from('talks_crm_moun').select('*'),
     sb.from('talks_config').select('cle, valeur').like('cle', 'crm_%'),
     sb.from('talks_presences').select('inscription_id, idx'),
+    sb.rpc('talks_compteur'),
   ]);
+  CAP = +((cpt && cpt.data && cpt.data.capacite) || 0);
   PRES = Object.fromEntries(((prs && prs.data) || []).map((x) => [`${x.inscription_id}:${x.idx}`, 1]));
   const err = ins.error || mes.error || not.error || mod.error;
   if (err) { toast(friendly(err), 6000); return; }
@@ -508,6 +516,9 @@ async function load() {
   AF = Object.fromEntries((cfg.data || []).filter((c) => c.cle.startsWith('crm_afich_') && c.valeur).map((c) => [c.cle.replace('crm_afich_', ''), c.valeur]));
   prepAf();
   P = [];
+  // Liste d'attente : réservations (non annulées, par ordre d'arrivée) qui commencent au-delà de la capacité — même calcul que le compteur du site
+  ATT = {}; let cum = 0, rang = 0;
+  for (const r of ins.data || []) { if (r.annule) continue; if (CAP && cum >= CAP) ATT[r.id] = ++rang; cum += 1 + (r.accompagnants || []).length; }
   for (const r of ins.data || []) {
     const acc = r.accompagnants || [];
     P.push({ rid: r.id, idx: -1, nom: r.nom, tel: r.telephone, ville: r.ville || '', uni: (r.profils || []).includes('etudiant') ? r.universite : null, profils: r.profils || [],
@@ -517,7 +528,7 @@ async function load() {
   }
   // nombre d'étudiants actifs par université
   const U = {}; for (const p of P) { const k = !p.annule && uniKey(p.uni); if (k) U[k] = (U[k] || 0) + 1; }
-  for (const p of P) { p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
+  for (const p of P) { p.att = ATT[p.rid] || 0; p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
   if (WOL === 'crm') { const me = myTeam(); P = P.filter((p) => me && RESP[pk(p)] === me.non); }   // chacun ne voit que son groupe
   // nombre d'étudiants par université compté sur TOUS les inscrits (fonction de la base, même règle que le site)
   const raws = [...new Set(P.filter((p) => p.ukey).map((p) => String(p.uni).trim()))];
@@ -527,14 +538,18 @@ async function load() {
 }
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
 const modeOf = (p) => MODE[pk(p)] || null;
-function eligible(p, k) { if (p.annule || !p.num) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)] || modeOf(p) === 'live'; return true; }
+const ATT_OK = ['atant', 'atant2', 'otm', 'etidyan', 'mesi'];   // messages autorisés pour les personnes sur liste d'attente
+function eligible(p, k) { if (p.annule || !p.num) return false;
+  if (k === 'atant' || k === 'atant2') return !!p.att;
+  if (k === 'plas') return !p.att && MES.some((m) => m.tip === 'atant' && m.inscription_id === p.rid && m.idx === p.idx);
+  if (p.att && !ATT_OK.includes(k)) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)] || modeOf(p) === 'live'; return true; }
 function variant(p, k) {
   const m = modeOf(p) || (p.cap ? 'salle' : null);
   if (k === 'konfimasyon') return p.cap && modeOf(p) !== 'live' ? 'konfimasyon' : modeOf(p) ? 'konfimasyon' : 'konfimasyon_hors';
   if (k === 'etidyan') return p.nUni > 1 ? 'etidyan' : 'etidyan_premye';
   if (k === 'sertifika') return m === 'live' ? 'sertifika_live' : m === 'salle' ? 'sertifika_salle' : 'sertifika_inconnu';
   if (k === 'konsey') return m === 'live' ? 'konsey_live' : m === 'salle' ? 'konsey_salle' : 'konsey_inconnu';
-  if (k === 'defi' || k === 'mesi') return k;
+  if (['defi', 'mesi', 'atant', 'plas', 'atant2'].includes(k)) return k;
   return 'otm';
 }
 function text(p, k) {
@@ -542,7 +557,7 @@ function text(p, k) {
   const accTxt = p.idx === -1 ? (p.accs.length ? `\n👥 Personnes inscrites avec vous : ${p.accs.join(', ')}\n` : '') : `\n🙋 Réservation faite par ${p.by}\n`;
   return tpl(variant(p, k)).replaceAll('{prenom}', prenom).replaceAll('{nom}', String(p.nom || '').trim())
     .replaceAll('{places}', p.places > 1 ? `${p.places} places` : '1 place').replaceAll('{accompagnants}', accTxt)
-    .replaceAll('{n10}', String((p.nUni || 1) + 10)).replaceAll('{n}', String(p.nUni || 1)).replaceAll('{universite}', p.uni ? deUni(p.uni) : '')
+    .replaceAll('{rang}', String(p.att || '')).replaceAll('{n10}', String((p.nUni || 1) + 10)).replaceAll('{n}', String(p.nUni || 1)).replaceAll('{universite}', p.uni ? deUni(p.uni) : '')
     .replace(/\n{3,}/g, '\n\n');
 }
 const waLink = (p, k) => `https://wa.me/${p.num}?text=${encodeURIComponent(text(p, k))}`;
@@ -562,7 +577,7 @@ function filtered() {
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
     const rf = $('fResp').value; if (rf === '?' ? RESP[pk(p)] : rf && RESP[pk(p)] !== rf) return false;
-    const fs = $('fSuivi').value; if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
+    const fs = $('fSuivi').value; if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
   });
@@ -576,7 +591,7 @@ function render() {
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
-      <div class="info2">${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="info2">${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
       <div style="display:flex;gap:6px">${el && AF[TIP] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
@@ -737,7 +752,7 @@ function openPerson(p) {
   const hist = [...MES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.voye_le, h: `${TIPS.find((t) => t.k === x.tip)?.e || ''} Message « ${esc(TIPS.find((t) => t.k === x.tip)?.n || x.tip)} » envoyé${x.pa ? ' par ' + esc(x.pa) : ''} <button class="btn sm" type="button" data-undo="${x.id}" title="Annuler (envoyé par erreur)">↩︎</button>` })),
     ...NOTES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.le, h: `📝 ${x.rezilta ? `<b>${esc(x.rezilta)}</b> — ` : ''}${esc(x.teks || '')}${x.pa ? ` <span class="sub">(${esc(x.pa)})</span>` : ''}` }))]
     .sort((a, b) => new Date(b.le) - new Date(a.le));
-  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>
+  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>${p.att ? `<span class="bdg att" style="font-size:13px">⏳ Liste d’attente · n° ${p.att} — ne pas envoyer la confirmation</span>` : ''}
       <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.uni)} (${p.nUni} étudiant${p.nUni > 1 ? 's' : ''})` : ''}</div></div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
     <div style="margin-top:12px"><b>Responsable du suivi</b> <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>
@@ -812,7 +827,7 @@ function renderDash() {
     + tile('g', 'vient', vient, '✅ Viennent', `🏛️ ${sal} salle · 🎥 ${liv} Live · ❔ ${vient - sal - liv}`)
     + tile('g', 'salle', sal, '🏛️ En salle', `${pct(sal, vient)} % de ceux qui viennent`)
     + tile('', 'live', liv, '🎥 En Live', `${pct(liv, vient)} % de ceux qui viennent`)
-    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
+    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + (CAP ? tile('y', 'att', c((p) => p.att), '⏳ Liste d’attente', `${new Set(base.filter((p) => p.att).map((p) => p.rid)).size} réservation(s) au-delà des ${CAP} places`) : '') + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
   $('dashTeamW').classList.toggle('hidden', !!rf);
   $('dashTeam').innerHTML = rf ? '' : `<div class="tmw"><table class="tm"><thead><tr><th>Responsable</th><th>Participants</th><th>Contactés</th><th>Ont répondu</th><th>✅ Viennent</th><th>🏛️ Salle</th><th>🎥 Live</th><th>❌ Non</th><th>🔇 Sans réponse</th></tr></thead><tbody>${
     [...EKIP.map((x) => x.non), null].map((n) => { const L = P.filter((p) => !p.annule && (n ? RESP[pk(p)] === n : !RESP[pk(p)])); if (!n && !L.length) return '';

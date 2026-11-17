@@ -132,7 +132,7 @@
   <header class="top"><div class="in">
     <div class="ttl"><p class="eyebrow">Bwat Sekrèm Talks · 22 novembre 2026</p><h1>💬 Messages <span class="lbl">& suivi WhatsApp</span></h1></div>
     <div class="hbtn"><span class="sub" id="who"></span>
-      <button class="btn sm" id="reload" type="button" aria-label="Actualiser">↻<span class="lbl"> Actualiser</span></button><a class="btn sm" href="../" aria-label="Inscriptions">←<span class="lbl"> Inscriptions</span></a><button class="btn sm" id="logout" type="button" aria-label="Déconnexion">⏻<span class="lbl"> Déconnexion</span></button></div>
+      <button class="btn sm" id="reload" type="button" aria-label="Actualiser">↻<span class="lbl"> Actualiser</span></button><a class="btn sm hidden" id="toAdmin" href="../" aria-label="Inscriptions">←<span class="lbl"> Inscriptions</span></a><button class="btn sm" id="logout" type="button" aria-label="Déconnexion">⏻<span class="lbl"> Déconnexion</span></button></div>
   </div></header>
   <main class="wrap">
     <div class="card hidden" id="a2hs" style="margin-top:12px;border-color:#b9e09a;background:#f3fbec"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
@@ -155,7 +155,7 @@
     <p class="sub" id="count" style="margin:0 0 8px"></p>
     <div class="list" id="list"></div>
 
-    <details class="card tpl" style="margin-top:16px" id="ekBox">
+    <details class="card tpl hidden" style="margin-top:16px" id="ekBox">
       <summary>👥 Équipe et groupes de suivi <span class="sub" id="ekSum"></span></summary>
       <p class="sub">Chaque responsable suit un groupe de participants, dans l’ordre des inscriptions. Indiquez l’e-mail de connexion de chacun : il verra « Mes participants » en ouvrant la page.</p>
       <div id="ekList"></div>
@@ -518,8 +518,7 @@ async function saveNote(p, rezilta, teks) {
   NOTES.unshift(data);
   if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
   if (['Présentiel', 'Live', 'Confirmé(e)'].includes(rezilta) && !p.adminOK) {   // même statut « Confirmée » dans l'espace inscriptions
-    const { error: e2 } = p.idx === -1 ? await sb.from('talks_inscriptions').update({ confirme: true }).eq('id', p.rid)
-      : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'c', updated_at: new Date().toISOString() }, { onConflict: 'inscription_id,idx' });
+    const { error: e2 } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'c' });
     if (!e2) p.adminOK = true;
   }
   if (rezilta === 'Ne viendra pas' && !p.annule) { await liberer(p); return; }
@@ -532,8 +531,7 @@ async function liberer(p) {
     : autres.length ? `Libérer les places de cette réservation ?\n\n${p.nom} a réservé aussi pour : ${autres.map((x) => x.nom).join(', ')}.\nOK annule TOUTE la réservation (${autres.length + 1} places).\nSi les autres viennent quand même, choisissez « Annuler » et gérez-le dans l’espace inscriptions.`
     : `Libérer la place de ${p.nom} ?\n\nSa réservation sera annulée dans l’espace inscriptions et la place redeviendra disponible.`;
   if (!confirm(q)) { toast('✓ Réponse enregistrée (place gardée)'); render(); openPerson(p); return; }
-  const { error } = p.idx === -1 ? await sb.from('talks_inscriptions').update({ annule: true, confirme: false }).eq('id', p.rid)
-    : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'x', updated_at: new Date().toISOString() }, { onConflict: 'inscription_id,idx' });
+  const { error } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'x' });
   if (error) { toast('Réponse enregistrée, mais la place n’a pas pu être libérée : ' + friendly(error), 7000); render(); openPerson(p); return; }
   const n = p.idx === -1 ? autres.length + 1 : 1;
   (p.idx === -1 ? [p, ...autres] : [p]).forEach((x) => { x.annule = true; x.adminOK = false; });
@@ -603,8 +601,12 @@ $('tplList').addEventListener('click', async (e) => {
 async function show(session) {
   if (!session) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); return; }
   ME = session.user.email || ''; $('who').textContent = ME;
+  const { data: wol } = await sb.rpc('talks_mon_wol');
+  if (!wol) { await sb.auth.signOut(); $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('loginMsg').textContent = 'Ce compte n’a pas accès au suivi des participants. Demandez l’accès à Steve.'; return; }
+  WOL = wol; $('toAdmin').classList.toggle('hidden', wol !== 'admin'); $('ekBox').classList.toggle('hidden', wol !== 'admin');
   $('login').classList.add('hidden'); $('app').classList.remove('hidden'); load();
 }
+let WOL = null;
 $('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault(); $('loginBtn').disabled = true; $('loginMsg').textContent = '';
   const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });

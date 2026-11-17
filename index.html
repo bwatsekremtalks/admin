@@ -815,6 +815,9 @@ function paintSort() {
 /* ---------- Auth ---------- */
 async function showApp(session) {
   if (!session) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); return; }
+  const { data: wol } = await sb.rpc('talks_mon_wol');
+  if (wol === 'crm') { location.replace('./crm/'); return; }   // équipe de suivi : seulement la page Messages & suivi
+  if (wol !== 'admin') { await sb.auth.signOut(); $('login').classList.remove('hidden'); $('app').classList.add('hidden'); $('loginMsg').textContent = 'Ce compte n’a pas accès à l’espace inscriptions.'; return; }
   $('login').classList.add('hidden'); $('app').classList.remove('hidden');
   $('who').textContent = session.user.email;
   await load();

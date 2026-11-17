@@ -242,6 +242,7 @@
         <label class="sub">Taille d’un groupe <input class="t" id="ekSize" type="number" min="5" max="500" value="75" style="width:80px;display:inline-block;padding:6px 8px" /></label>
         <button class="btn sm" type="button" id="ekSave">Enregistrer l’équipe</button>
         <button class="btn sm p" type="button" id="ekGo">Répartir les participants sans responsable</button>
+        <button class="btn sm" type="button" id="ekBal" title="Donne au(x) nouveau(x) responsable(s) une part égale, en ne déplaçant que des personnes encore jamais contactées">⚖️ Rééquilibrer les groupes</button>
       </div>
       <div id="ekStat" style="margin-top:10px"></div>
     </details>
@@ -717,6 +718,32 @@ $('ekGo').onclick = async () => {
   const { error } = await sb.from('talks_crm_moun').upsert(plan.map(({ p, who }) => ({ inscription_id: p.rid, idx: p.idx, responsab: who, maj: now, pa: ME })));
   if (error) { toast(friendly(error)); return; }
   plan.forEach(({ p, who }) => { RESP[pk(p)] = who; }); toast(`✓ ${plan.length} participant(s) réparti(s)`); render(); renderEkip();
+};
+
+/* Rééquilibrer : chaque responsable reçoit ~la même part ; on ne déplace QUE des réservations jamais contactées (ni message ni note), les plus récentes d'abord */
+$('ekBal').onclick = async () => {
+  if (!(await saveEkip())) return;
+  const act = P.filter((p) => !p.annule && RESP[pk(p)]), names = EKIP.map((x) => x.non).filter(Boolean);
+  if (names.length < 2) { toast('Ajoutez au moins deux responsables.'); return; }
+  const cible = Math.ceil(act.length / names.length), load = Object.fromEntries(names.map((n) => [n, act.filter((p) => RESP[pk(p)] === n).length]));
+  const touche = (p) => MES.some((m) => m.inscription_id === p.rid && m.idx === p.idx) || NOTES.some((m) => m.inscription_id === p.rid && m.idx === p.idx);
+  // réservations entières (titulaire + accompagnants restent ensemble), jamais contactées, des groupes trop chargés
+  const resa = {}; for (const p of act) (resa[p.rid] = resa[p.rid] || []).push(p);
+  const libres = Object.values(resa).filter((L) => L.every((p) => !touche(p)) && new Set(L.map((p) => RESP[pk(p)])).size === 1)
+    .sort((a, b) => String(b[0].created).localeCompare(String(a[0].created)));
+  const plan = [];
+  for (const L of libres) {
+    const de = RESP[pk(L[0])]; if (!(de in load) || load[de] - L.length < cible) continue;
+    const vers = names.filter((n) => n !== de && load[n] + L.length <= cible).sort((a, b) => load[a] - load[b])[0]; if (!vers) continue;
+    load[de] -= L.length; load[vers] += L.length; L.forEach((p) => plan.push({ p, de, who: vers }));
+  }
+  if (!plan.length) { toast('Les groupes sont déjà équilibrés (ou il ne reste personne de jamais contacté à déplacer).', 6000); return; }
+  const resume = names.map((n) => { const plus = plan.filter((x) => x.who === n).length, moins = plan.filter((x) => x.de === n).length; return `${n} : ${load[n]} participants${plus ? ` (+${plus})` : ''}${moins ? ` (−${moins})` : ''}`; }).join('\n');
+  if (!(await ask({ icon: '⚖️', title: `Déplacer ${plan.length} participant${plan.length > 1 ? 's' : ''} ?`, text: `Objectif : environ ${cible} par responsable.\n${resume}\n\nSeules des personnes jamais contactées changent de groupe (réservations entières). Personne déjà en conversation n’est déplacé.`, ok: 'Rééquilibrer', okTone: 'green' }))) return;
+  const now = new Date().toISOString();
+  const { error } = await sb.from('talks_crm_moun').upsert(plan.map(({ p, who }) => ({ inscription_id: p.rid, idx: p.idx, responsab: who, maj: now, pa: `${ME} (rééquilibrage)` })));
+  if (error) { toast(friendly(error)); return; }
+  plan.forEach(({ p, who }) => { RESP[pk(p)] = who; }); toast(`✓ ${plan.length} participant(s) déplacé(s)`); render(); renderEkip();
 };
 
 /* ---------- Affiche jointe au message ---------- */

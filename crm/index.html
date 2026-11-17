@@ -519,8 +519,10 @@ async function load() {
   MODE = Object.fromEntries((mod.data || []).filter((m) => m.mode).map((m) => [`${m.inscription_id}:${m.idx}`, m.mode]));
   RESP = Object.fromEntries((mod.data || []).filter((m) => m.responsab).map((m) => [`${m.inscription_id}:${m.idx}`, m.responsab]));
   const ek = (cfg.data || []).find((c) => c.cle === 'crm_ekip');
+  const EKIP_EDIT = EKDIRTY ? ekRows() : null;
   try { EKIP = ek ? JSON.parse(ek.valeur) : null; } catch { EKIP = null; }
-  if (!Array.isArray(EKIP) || !EKIP.length) EKIP = DEF_EKIP.map((x) => ({ ...x }));
+  if (EKDIRTY && Array.isArray(EKIP_EDIT)) EKIP = EKIP_EDIT;
+  else if (!Array.isArray(EKIP) || !EKIP.length) EKIP = DEF_EKIP.map((x) => ({ ...x }));
   fillResp();
   TPL = Object.fromEntries((cfg.data || []).filter((c) => c.cle.startsWith('crm_tpl_')).map((c) => [c.cle.replace('crm_tpl_', ''), c.valeur]));
   AF = Object.fromEntries((cfg.data || []).filter((c) => c.cle.startsWith('crm_afich_') && c.valeur).map((c) => [c.cle.replace('crm_afich_', ''), c.valeur]));
@@ -696,16 +698,22 @@ function renderEkip() {
   $('ekStat').innerHTML = orTxt + EKIP.map((x) => { const n = cnt(x.non), s = act.filter((p) => RESP[pk(p)] === x.non && sent(p, 'konfimasyon').length).length;
     return `<div class="sub" style="margin-top:4px">👤 <b style="color:var(--ink)">${esc(x.non)}</b> : ${n} participant${n > 1 ? 's' : ''} · ${s} confirmation${s > 1 ? 's' : ''} envoyée${s > 1 ? 's' : ''}</div>`; }).join('');
 }
-function readEkip() { return EKIP.map((x, i) => ({ non: (document.querySelector(`[data-ekn="${i}"]`)?.value || '').trim(), email: (document.querySelector(`[data-eke="${i}"]`)?.value || '').trim().toLowerCase() })).filter((x) => x.non); }
+// lit l'équipe directement dans les champs affichés (y compris les lignes qui viennent d'être ajoutées)
+function ekRows() { return [...document.querySelectorAll('[data-ekn]')].map((el) => { const i = el.dataset.ekn; return { non: el.value.trim(), email: (document.querySelector(`[data-eke="${i}"]`)?.value || '').trim().toLowerCase() }; }); }
+function readEkip() { return ekRows().filter((x) => x.non); }
+let EKDIRTY = false;   // modifications de l'équipe pas encore enregistrées : on ne les écrase pas au rechargement
 async function saveEkip() {
+  const rows = ekRows(), bad = rows.find((x) => !x.non && x.email); if (bad) { toast('Indiquez le nom du nouveau responsable avant d’enregistrer.'); return false; }
   EKIP = readEkip(); if (!EKIP.length) { toast('Ajoutez au moins un responsable.'); return false; }
+  const dbl = EKIP.map((x) => x.non.toLowerCase()).find((n, i, a) => a.indexOf(n) !== i); if (dbl) { toast(`Le nom « ${dbl} » est en double : chaque responsable doit avoir un nom différent.`); return false; }
   const { error } = await sb.from('talks_config').upsert({ cle: 'crm_ekip', valeur: JSON.stringify(EKIP), maj: new Date().toISOString() });
-  if (error) { toast(friendly(error)); return false; } fillResp(); return true;
+  if (error) { toast(friendly(error)); return false; } EKDIRTY = false; fillResp(); renderEkip(); return true;
 }
-$('ekAdd').onclick = () => { EKIP = readEkip(); EKIP.push({ non: '', email: '' }); renderEkip(); };
+$('ekAdd').onclick = () => { EKIP = ekRows(); EKIP.push({ non: '', email: '' }); EKDIRTY = true; renderEkip(); const l = document.querySelectorAll('[data-ekn]'); l[l.length - 1]?.focus(); };
+$('ekList').addEventListener('input', () => { EKIP = ekRows(); EKDIRTY = true; });
 $('ekSave').onclick = async () => { if (await saveEkip()) toast('✓ Équipe enregistrée'); };
 $('ekList').addEventListener('click', (e) => {
-  const d = e.target.closest('[data-ekdel]'), u = e.target.closest('[data-ekup]'); EKIP = readEkip().concat([]);
+  const d = e.target.closest('[data-ekdel]'), u = e.target.closest('[data-ekup]'); if (!d && !u) return; EKIP = ekRows(); EKDIRTY = true;
   if (d) { const i = Number(d.dataset.ekdel); EKIP.splice(i, 1); renderEkip(); }
   if (u) { const i = Number(u.dataset.ekup); [EKIP[i - 1], EKIP[i]] = [EKIP[i], EKIP[i - 1]]; renderEkip(); }
 });

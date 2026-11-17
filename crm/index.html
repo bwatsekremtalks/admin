@@ -519,10 +519,26 @@ async function saveNote(p, rezilta, teks) {
   if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
   if (['Présentiel', 'Live', 'Confirmé(e)'].includes(rezilta) && !p.adminOK) {   // même statut « Confirmée » dans l'espace inscriptions
     const { error: e2 } = p.idx === -1 ? await sb.from('talks_inscriptions').update({ confirme: true }).eq('id', p.rid)
-      : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'c', updated_at: new Date().toISOString() });
+      : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'c', updated_at: new Date().toISOString() }, { onConflict: 'inscription_id,idx' });
     if (!e2) p.adminOK = true;
   }
+  if (rezilta === 'Ne viendra pas' && !p.annule) { await liberer(p); return; }
   toast('✓ Réponse enregistrée'); render(); openPerson(p);
+}
+/* « Ne viendra pas » : proposer de libérer la place (annulation dans l'espace inscriptions) */
+async function liberer(p) {
+  const autres = p.idx === -1 ? P.filter((x) => x.rid === p.rid && x.idx >= 0 && !x.annule) : [];
+  const q = p.idx >= 0 ? `Libérer la place de ${p.nom} ?\n\nSa place sera annulée dans l’espace inscriptions (la réservation de ${p.by} reste valable).`
+    : autres.length ? `Libérer les places de cette réservation ?\n\n${p.nom} a réservé aussi pour : ${autres.map((x) => x.nom).join(', ')}.\nOK annule TOUTE la réservation (${autres.length + 1} places).\nSi les autres viennent quand même, choisissez « Annuler » et gérez-le dans l’espace inscriptions.`
+    : `Libérer la place de ${p.nom} ?\n\nSa réservation sera annulée dans l’espace inscriptions et la place redeviendra disponible.`;
+  if (!confirm(q)) { toast('✓ Réponse enregistrée (place gardée)'); render(); openPerson(p); return; }
+  const { error } = p.idx === -1 ? await sb.from('talks_inscriptions').update({ annule: true, confirme: false }).eq('id', p.rid)
+    : await sb.from('talks_suivi_accompagnants').upsert({ inscription_id: p.rid, idx: p.idx, statut: 'x', updated_at: new Date().toISOString() }, { onConflict: 'inscription_id,idx' });
+  if (error) { toast('Réponse enregistrée, mais la place n’a pas pu être libérée : ' + friendly(error), 7000); render(); openPerson(p); return; }
+  const n = p.idx === -1 ? autres.length + 1 : 1;
+  (p.idx === -1 ? [p, ...autres] : [p]).forEach((x) => { x.annule = true; x.adminOK = false; });
+  $('dlg').close(); render();
+  toast(`✓ ${n} place${n > 1 ? 's' : ''} libérée${n > 1 ? 's' : ''}. Pour annuler ce choix : espace inscriptions → statut « En attente ».`, 8000);
 }
 /* Statut de suivi d'une personne : vient / non / repondu / sans (contactée, pas de réponse) / pas (pas encore contactée) */
 function lastRes(p) { const n = NOTES.find((x) => x.inscription_id === p.rid && x.idx === p.idx && x.rezilta); return n ? n.rezilta : null; }

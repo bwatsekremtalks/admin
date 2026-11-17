@@ -180,6 +180,7 @@
   .vip .vn { display: block; margin-top: 2px; border: 0; background: none; padding: 0; text-align: left; font-size: 12.5px; color: #8a6400; cursor: pointer; overflow-wrap: anywhere; }
   .vip .vn:hover { text-decoration: underline; }
   #noteX:focus { border-color: var(--green) !important; background: #fff !important; }
+  .vnote { margin-top: 4px; font-size: 13.5px; font-weight: 700; color: #8a6400; background: #fff6d8; border-radius: 10px; padding: 4px 8px; display: inline-block; overflow-wrap: anywhere; }
   .vip .empty2 { font-size: 13.5px; color: var(--mute); }
   .bell { border: 0; background: #0D2D4A; color: #fff; border-radius: 12px; padding: 8px 12px; font-weight: 800; font-size: 13px; cursor: pointer; }
   .star { flex: none; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: #fff; font-size: 20px; cursor: pointer; color: #c9a227; }
@@ -256,7 +257,7 @@
     <div class="cols">
       <div class="grid" id="res"></div>
       <section class="feed">
-        <div class="vip adminonly" id="vipBox"><h2><span>⭐ Invités VIP</span><button class="bell" type="button" id="vipSet">🔔 Notifications</button></h2><ul class="vl" id="vipList"></ul></div>
+        <div class="vip" id="vipBox"><h2><span>⭐ Invités VIP</span><button class="bell adminonly" type="button" id="vipSet">🔔 Notifications</button></h2><ul class="vl" id="vipList"></ul></div>
         <h2>Dernières arrivées <small id="rate"></small></h2><ul class="fl" id="feed"></ul></section>
     </div>
   </main>
@@ -422,7 +423,7 @@ function personHTML(p, q) {
   const pr = isIn(p);
   const ds = [p.sexe === 'femme' ? 'Femme' : p.sexe === 'homme' ? 'Homme' : '', p.profils.map((k) => PROFILS[k] || k).join(', '), p.tel, p.det].filter(Boolean).join(' · ');
   return `<div class="who ${pr ? 'in' : ''}"><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div>
-    <div><div class="nm">${esc(p.nom || '—')}${VIP[kOf(p)] ? '<span class="vipb">⭐ VIP</span>' : ''}</div><div class="ds">${esc(ds || (p.by ? 'avec ' + p.by : ''))}</div></div>
+    <div><div class="nm">${esc(p.nom || '—')}${VIP[kOf(p)] ? '<span class="vipb">⭐ VIP</span>' : ''}</div><div class="ds">${esc(ds || (p.by ? 'avec ' + p.by : ''))}</div>${VIP[kOf(p)]?.not_ ? `<div class="vnote">📝 ${esc(VIP[kOf(p)].not_)}</div>` : ''}</div>
     <div class="act"><button class="star adminonly ${VIP[kOf(p)] ? 'on' : ''}" type="button" data-vip="${kOf(p)}" title="${VIP[kOf(p)] ? 'Retirer des VIP' : 'Marquer comme VIP (notification à son arrivée)'}" aria-label="VIP">${VIP[kOf(p)] ? '★' : '☆'}</button>${pr ? `<div class="done"><b>✓ Arrivé(e) · ${esc(hm(pr.present_le))}</b><button type="button" data-out="${kOf(p)}">Annuler la présence</button></div>`
       : `<button class="go" type="button" data-in="${kOf(p)}">✓ Présent</button>`}</div></div>`;
 }
@@ -447,9 +448,9 @@ function renderVip() {
   $('vipList').innerHTML = L.map((p) => { const pr = isIn(p);
     const nt = VIP[kOf(p)].not_;
     return `<li><div class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</div><div style="min-width:0"><b>${esc(p.nom)}</b>${p.by ? `<div class="ds" style="font-size:12px;color:var(--mute)">avec ${esc(p.by)}</div>` : ''}
-        <button type="button" data-vnote="${kOf(p)}" class="vn">${nt ? '📝 ' + esc(nt) : '＋ Ajouter une note'}</button></div>
+        ${isPin() ? (nt ? `<div class="vn" style="cursor:default">📝 ${esc(nt)}</div>` : '') : `<button type="button" data-vnote="${kOf(p)}" class="vn">${nt ? '📝 ' + esc(nt) : '＋ Ajouter une note'}</button>`}</div>
       <span class="st ${pr ? 'ok' : 'wait'}">${pr ? '✓ arrivé(e) ' + esc(hm(pr.present_le)) : '⏳ attendu(e)'}</span></li>`; }).join('')
-    || '<li style="display:block" class="empty2">Aucun VIP pour le moment. Cherchez la personne puis touchez ☆ pour être prévenu(e) de son arrivée.</li>';
+    || `<li style="display:block" class="empty2">${isPin() ? 'Aucun invité VIP pour le moment.' : 'Aucun VIP pour le moment. Cherchez la personne puis touchez ☆ pour être prévenu(e) de son arrivée.'}</li>`;
 }
 function renderFeed() {
   renderVip();

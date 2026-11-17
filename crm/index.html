@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Messages & suivi — BST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!--
+  CRM WhatsApp de Bwat Sekrèm Talks : 5 messages par participant, suivi de qui a reçu quoi,
+  envoi en série, notes de suivi et mode de participation (salle / Live).
+  Même compte que l'espace inscriptions (table talks_admins). Tables : talks_crm_mesaj, talks_crm_not, talks_crm_moun.
+-->
+<style>
+  :root { --bg: #eef3f8; --surface: #fff; --surface-2: #f6f9fc; --ink: #123056; --ink-2: #3d5577; --muted: #6b7f99; --line: #d9e2ec;
+    --brand: #4f8f28; --green: #7AC142; --navy: #0E2A4A; --wa: #25D366; --err: #b42318; --ok: #2f7a12; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b1726; --surface: #12233a; --surface-2: #172b45; --ink: #e8eff8; --ink-2: #b9c8db; --muted: #8aa0bb; --line: #26405f; --navy: #e8eff8; --err: #ff8a7a; --ok: #a6e07f; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "DM Sans", system-ui, sans-serif; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  .hidden { display: none !important; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--brand); margin: 0; }
+  h1 { font-size: 22px; margin: 2px 0 0; } h2 { font-size: 17px; margin: 0 0 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 600; cursor: pointer; white-space: nowrap; text-decoration: none; color: var(--ink); }
+  .btn:hover { background: var(--surface-2); } .btn:disabled { opacity: .5; cursor: default; }
+  .btn.p { background: var(--green); border-color: var(--green); color: #0a1f38; font-weight: 700; }
+  .btn.wa { background: var(--wa); border-color: var(--wa); color: #06301a; font-weight: 700; }
+  .btn.sm { min-height: 30px; padding: 0 10px; font-size: 13px; }
+  input.t, select.t, textarea.t { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); }
+  textarea.t { min-height: 90px; resize: vertical; }
+  header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  header .in { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+  .login { min-height: 100dvh; display: grid; place-items: center; padding: 16px; } .login .card { width: 100%; max-width: 400px; padding: 26px; }
+  .login label { display: block; font-weight: 700; margin: 14px 0 6px; font-size: 14px; }
+  .msg { font-size: 14px; color: var(--err); min-height: 1em; margin-top: 10px; }
+  /* Progression des 5 messages */
+  .tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+  .tip { text-align: left; border: 2px solid var(--line); border-radius: 16px; padding: 12px; background: var(--surface); cursor: pointer; }
+  .tip.on { border-color: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 25%, transparent); }
+  .tip .n { font-weight: 800; font-size: 15px; } .tip .v { font-size: 22px; font-weight: 800; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tip .v small { font-size: 13px; color: var(--muted); font-weight: 600; } .tip .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .track { height: 7px; background: var(--line); border-radius: 9px; overflow: hidden; margin-top: 8px; } .track i { display: block; height: 100%; background: var(--green); border-radius: 9px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .filters .t { width: auto; } .filters input.t { flex: 1 1 220px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+  .seg button { border: 0; background: none; padding: 8px 12px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .seg button.on { background: var(--navy); color: var(--surface); }
+  /* Liste */
+  .list { display: grid; gap: 8px; }
+  .row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto auto; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+  .row .nm { font-weight: 700; cursor: pointer; } .row .nm:hover { text-decoration: underline; }
+  .bdg { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); margin: 2px 4px 0 0; color: var(--ink-2); }
+  .bdg.live { background: #efe7ff; border-color: #cdb8ff; color: #4b2a9a; } .bdg.salle { background: #e7f6dd; border-color: #b9e09a; color: #2f6a14; } .bdg.hors { background: #fff3dc; border-color: #ffd58a; color: #8a5300; }
+  .dots { display: flex; gap: 4px; } .dot { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: var(--surface-2); border: 1px dashed var(--line); filter: grayscale(1); opacity: .55; }
+  .dot.ok { background: #e7f6dd; border: 1px solid #b9e09a; filter: none; opacity: 1; } .dot.na { visibility: hidden; }
+  .empty { text-align: center; color: var(--muted); padding: 30px; }
+  /* Série */
+  .serie { position: sticky; top: 62px; z-index: 4; border: 2px solid var(--green); margin-bottom: 12px; }
+  .serie pre, .prev { white-space: pre-wrap; background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: 13.5px/1.45 "DM Sans", sans-serif; max-height: 220px; overflow: auto; margin: 8px 0; }
+  dialog { width: min(720px, calc(100% - 20px)); max-height: calc(100dvh - 20px); border: 1px solid var(--line); border-radius: 20px; padding: 0; background: var(--surface); color: var(--ink); }
+  dialog::backdrop { background: rgba(8, 20, 36, .55); }
+  .dlg { padding: 20px; } .dlg h2 { font-size: 19px; margin: 0; }
+  .mrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
+  .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--navy); color: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 600; z-index: 50; max-width: calc(100% - 24px); }
+  details.tpl summary { cursor: pointer; font-weight: 700; } details.tpl .k { font-weight: 700; margin: 14px 0 4px; }
+  @media (max-width: 860px) {
+    .tips { grid-template-columns: repeat(5, minmax(150px, 1fr)); overflow-x: auto; padding-bottom: 4px; }
+    .row { grid-template-columns: minmax(0, 1fr) auto; } .row .info2 { grid-column: 1 / -1; order: 3; } .row .dots { order: 4; grid-column: 1 / -1; }
+    .serie { top: 0; }
+  }
+</style>
+</head>
+<body>
+<section id="login" class="login hidden">
+  <form id="loginForm" class="card">
+    <p class="eyebrow">Bwat Sekrèm Talks</p>
+    <h1>Messages & suivi</h1>
+    <p class="sub" style="margin:4px 0 0">Même compte que l’espace inscriptions.</p>
+    <label for="email">E-mail</label><input class="t" id="email" type="email" autocomplete="username" required />
+    <label for="password">Mot de passe</label><input class="t" id="password" type="password" autocomplete="current-password" required />
+    <div style="margin-top:16px"><button class="btn p" type="submit" id="loginBtn">Se connecter</button></div>
+    <p class="msg" id="loginMsg" role="alert"></p>
+    <p class="sub" style="margin-top:6px">Mot de passe oublié ? Utilisez le lien sur <a href="../">l’espace inscriptions</a>.</p>
+  </form>
+</section>
+
+<div id="app" class="hidden">
+  <header class="top"><div class="in">
+    <div><p class="eyebrow">Bwat Sekrèm Talks · 22 novembre 2026</p><h1>💬 Messages & suivi WhatsApp</h1></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="sub" id="who"></span>
+      <button class="btn sm" id="reload" type="button">↻ Actualiser</button><a class="btn sm" href="../">← Inscriptions</a><button class="btn sm" id="logout" type="button">Déconnexion</button></div>
+  </div></header>
+  <main class="wrap">
+    <div class="tips" id="tips"></div>
+    <div class="card serie hidden" id="serie"></div>
+    <div class="filters">
+      <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
+      <input class="t" type="search" id="q" placeholder="Nom, numéro, université, ville…" />
+      <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
+      <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
+      <button class="btn p" id="go" type="button">▶ Envoi en série</button>
+      <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button>
+    </div>
+    <p class="sub" id="count" style="margin:0 0 8px"></p>
+    <div class="list" id="list"></div>
+
+    <details class="card tpl" style="margin-top:16px" id="tplBox">
+      <summary>✏️ Modifier les modèles de messages (partagés avec toute l’équipe)</summary>
+      <p class="sub">Variables : <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{n}</code> (étudiants de la même université) <code>{n10}</code> (n + 10) <code>{universite}</code> (« de l’Université … »).</p>
+      <div id="tplList"></div>
+    </details>
+  </main>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgIn"></div></dialog>
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script>
+const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.co', 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly');
+const EDITION = '2026-11-22-cap-haitien';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+let TT = null; const toast = (m, ms = 3500) => { $('toast').textContent = m; $('toast').classList.remove('hidden'); clearTimeout(TT); TT = setTimeout(() => $('toast').classList.add('hidden'), ms); };
+const friendly = (e) => { const m = String(e?.message || e || ''); console.warn(e);
+  if (/fetch|network/i.test(m)) return 'Connexion indisponible, réessayez.'; if (/jwt|session|expired/i.test(m)) return 'Session expirée : reconnectez-vous.';
+  if (/permission|row-level|42501/i.test(m)) return 'Votre compte n’a pas accès à cette action.'; return 'Erreur inattendue, réessayez.'; };
+
+/* ---------- Les 5 messages ---------- */
+const TIPS = [
+  { k: 'konfimasyon', e: '✅', n: 'Confirmation', d: 'Réservation confirmée · hors Cap : présentiel ou Live ?' },
+  { k: 'etidyan', e: '🎓', n: 'Étudiants', d: 'Combien d’étudiants de son université · partager' },
+  { k: 'sertifika', e: '📜', n: 'Certificat', d: 'Certificat de participation (salle ou Live)' },
+  { k: 'konsey', e: '💡', n: 'Conseils', d: 'Ambiance, préparation, en tirer le maximum' },
+  { k: 'otm', e: '🎵', n: 'Theme Music', d: 'Annonce de l’Official Theme Music' },
+];
+const SIGN = '\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire ensemble.';
+const QUAND = '📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)';
+const DEF = {
+  konfimasyon: { t: 'Confirmation — Cap-Haïtien', v: `Bonjour {prenom} 👋\n\nC’est l’équipe de Bwat Sekrèm Talks. Votre réservation est bien confirmée ✅ ({places}).\n\n${QUAND}\n{accompagnants}\nMerci de répondre « OUI » pour confirmer votre présence. En cas d’empêchement, prévenez-nous afin que nous puissions libérer votre place.\n\nÀ très bientôt !${SIGN}` },
+  konfimasyon_hors: { t: 'Confirmation — hors Cap-Haïtien (demande présentiel / Live)', v: `Bonjour {prenom} 👋\n\nC’est l’équipe de Bwat Sekrèm Talks. Votre réservation est bien confirmée ✅ ({places}).\n\n${QUAND}\n{accompagnants}\nPour bien nous organiser, dites-nous comment vous souhaitez participer :\n1️⃣ En présentiel, à l’auditorium\n2️⃣ En ligne, en suivant le Live\n\nRépondez simplement 1 ou 2 : cela nous aide à bien préparer la salle, ou à vous envoyer le lien du Live le jour J.\n\nÀ très bientôt !${SIGN}` },
+  etidyan: { t: 'Étudiants — déjà plusieurs inscrits', v: `Bonjour {prenom} 👋\n\n🎓 Bonne nouvelle : vous êtes déjà {n} étudiant(e)s {universite} inscrit(e)s à Bwat Sekrèm Talks !\n\nAidez-nous à réunir encore plus d’étudiants : partagez ce lien avec vos camarades pour que vous soyez {n10} le 22 novembre 👇\nhttps://bwatsekremtalks.com/reserver\n\nPlus vous serez nombreux, plus la conversation sera riche !${SIGN}` },
+  etidyan_premye: { t: 'Étudiants — premier inscrit de son université', v: `Bonjour {prenom} 👋\n\n🎓 Vous êtes le premier ou la première étudiant(e) {universite} à vous inscrire à Bwat Sekrèm Talks !\n\nInvitez vos camarades à vous rejoindre : partagez ce lien pour venir à 10 au moins le 22 novembre 👇\nhttps://bwatsekremtalks.com/reserver${SIGN}` },
+  sertifika_salle: { t: 'Certificat — en salle', v: `Bonjour {prenom} 👋\n\n📜 Bon à savoir : après Bwat Sekrèm Talks, vous pourrez obtenir votre certificat de participation officiel, à votre nom et vérifiable par QR code.\n\n🏛️ Vous participez en salle : votre certificat est débloqué dès que votre présence est enregistrée à l’entrée le 22 novembre.\n\n💳 4 $ US (550 gourdes), payable par MonCash.\nDemandez-le dès maintenant 👉 https://bwatsekremtalks.com/certificat${SIGN}` },
+  sertifika_live: { t: 'Certificat — en Live', v: `Bonjour {prenom} 👋\n\n📜 Bon à savoir : même en suivant Bwat Sekrèm Talks en Live, vous pourrez obtenir votre certificat de participation officiel, à votre nom et vérifiable par QR code.\n\n🎥 Restez connecté(e) jusqu’au bout : un mot secret sera annoncé pendant le Live. Il débloquera votre certificat Live.\n\n💳 4 $ US (550 gourdes), payable par MonCash.\nDemandez-le dès maintenant 👉 https://bwatsekremtalks.com/certificat${SIGN}` },
+  sertifika_inconnu: { t: 'Certificat — mode pas encore connu', v: `Bonjour {prenom} 👋\n\n📜 Bon à savoir : après Bwat Sekrèm Talks, vous pourrez obtenir votre certificat de participation officiel, à votre nom et vérifiable par QR code.\n\n🏛️ En salle : il est débloqué dès que votre présence est enregistrée à l’entrée.\n🎥 En Live : restez connecté(e) jusqu’au bout, un mot secret annoncé pendant le Live le débloquera.\n\n💳 4 $ US (550 gourdes), payable par MonCash.\nDemandez-le dès maintenant 👉 https://bwatsekremtalks.com/certificat${SIGN}` },
+  konsey_salle: { t: 'Conseils — en salle', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour profiter pleinement de Bwat Sekrèm Talks :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, des questions-réponses et beaucoup d’échanges entre participants.\n\n✅ Pour bien vous préparer :\n• Arrivez 20 à 30 minutes en avance pour l’accueil\n• Une tenue soignée est la bienvenue\n• Préparez 1 ou 2 questions pour les intervenants\n• Apportez de quoi prendre des notes et chargez votre téléphone\n\n🚀 Pour en tirer le maximum :\n• Présentez-vous à au moins 3 nouvelles personnes\n• Notez une idée concrète à appliquer dès le lendemain\n• Découvrez votre profil pro en 1 minute avant l’événement : https://bwatsekremtalks.com/profil\n\n${QUAND}\n\nÀ dimanche !${SIGN}` },
+  konsey_live: { t: 'Conseils — en Live', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour bien suivre Bwat Sekrèm Talks en Live :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, et des questions-réponses avec le public.\n\n✅ Pour bien vous préparer :\n• Connectez-vous 10 minutes avant 14 h 30 (le lien du Live vous sera envoyé avant le début)\n• Installez-vous au calme, avec une bonne connexion (écouteurs conseillés)\n• Préparez 1 ou 2 questions à poser en commentaire\n• Gardez de quoi prendre des notes\n\n🚀 Pour en tirer le maximum :\n• Restez jusqu’à la fin : le mot secret du certificat Live sera annoncé pendant le Live\n• Notez une idée concrète à appliquer dès le lendemain\n• Découvrez votre profil pro en 1 minute : https://bwatsekremtalks.com/profil\n\nÀ dimanche, 14 h 30 !${SIGN}` },
+  konsey_inconnu: { t: 'Conseils — mode pas encore connu', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour profiter pleinement de Bwat Sekrèm Talks :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, des questions-réponses et beaucoup d’échanges.\n\n🏛️ En salle :\n• Arrivez 20 à 30 minutes en avance pour l’accueil\n• Une tenue soignée est la bienvenue\n• Présentez-vous à au moins 3 nouvelles personnes\n\n🎥 En Live :\n• Connectez-vous 10 minutes avant 14 h 30, avec une bonne connexion\n• Restez jusqu’à la fin : le mot secret du certificat Live sera annoncé pendant le Live\n\n✍️ Dans les deux cas : préparez 1 ou 2 questions et notez une idée à appliquer dès le lendemain.\n\n${QUAND}\n\nÀ dimanche !${SIGN}` },
+  otm: { t: 'Official Theme Music', v: `Bonjour {prenom} 👋\n\n🎵 Elle est là ! Découvrez l’Official Theme Music de Bwat Sekrèm Talks, le son qui va porter notre événement du 22 novembre.\n\n🎧 Écoutez-la ici 👉 https://bwatsekremtalks.com/theme-music\n\nDites-nous ce que vous en pensez en laissant un commentaire, et partagez-la autour de vous ! 🔥${SIGN}` },
+};
+let TPL = {};
+const tpl = (k) => TPL[k] || DEF[k].v;
+
+/* ---------- Outils ---------- */
+const plain = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const isCap = (v) => /(^|\b)(cap|okap|o kap)(\b|$)|cap\s*-?\s*ha/.test(plain(v).trim());
+function waNumber(tel) { let d = String(tel || '').replace(/\D/g, ''); if (d.startsWith('00')) d = d.slice(2); if (d.length === 8) d = '509' + d; return d.length >= 10 && d.length <= 15 ? d : ''; }
+const UNIS = { UPNCH: 'Université Publique du Nord au Cap-Haïtien', URHC: 'Université Roi Henri Christophe', UNDH: 'Université Notre Dame d’Haïti', UCNH: 'Université Chrétienne du Nord d’Haïti',
+  'CHCL/UEH': 'Campus Henry Christophe de l’UEH', UNAF: 'Université Anténor Firmin', 'FDSEG/UEH': 'Faculté de Droit, des Sciences Économiques et de Gestion du Cap-Haïtien', UNATH: 'Université des Atlantes', EMMAUS: 'Université Emmaüs', UGNH: 'Université du Grand Nord d’Haïti' };
+/* même logique que private.uni_key (base de données) */
+function uniKey(s) {
+  let u = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’]/g, "'").trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!u || /^(AUCUNE?|NON|NONE|PAS|RIEN|N\/?A|[-.]+)$/.test(u)) return null;
+  if (/EMM[AU]*S/.test(u)) return 'EMMAUS';
+  const c = (u.match(/\(([A-Z/]+)\)\s*$/) || [])[1]; if (c && UNIS[c]) return c;
+  u = u.replace(/\s*\([^)]*\)\s*$/, '').trim(); if (UNIS[u]) return u;
+  for (const [k, v] of Object.entries(UNIS)) if (plain(v).toUpperCase().replace(/[’]/g, "'") === u) return k;
+  return u.replace(/[^A-Z0-9]/g, '');
+}
+function deUni(raw) {
+  const k = uniKey(raw); const nm = UNIS[k] ? `${UNIS[k]} (${k === 'EMMAUS' ? 'EMMAÜS' : k})` : String(raw || '').trim();
+  return /^Universit/i.test(nm) ? `de l’${nm}` : /^Campus/i.test(nm) ? `du ${nm}` : /^Facult/i.test(nm) ? `de la ${nm}` : `de ${nm}`;
+}
+
+/* ---------- Données ---------- */
+let P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
+const pk = (p) => `${p.rid}:${p.idx}`;
+async function load() {
+  const [ins, sui, mes, not, mod, cfg] = await Promise.all([
+    sb.from('talks_inscriptions').select('*').eq('edition', EDITION).order('created_at', { ascending: true }),
+    sb.from('talks_suivi_accompagnants').select('*'),
+    sb.from('talks_crm_mesaj').select('*').order('voye_le', { ascending: false }).limit(10000),
+    sb.from('talks_crm_not').select('*').order('le', { ascending: false }).limit(5000),
+    sb.from('talks_crm_moun').select('*'),
+    sb.from('talks_config').select('cle, valeur').like('cle', 'crm_tpl_%'),
+  ]);
+  const err = ins.error || mes.error || not.error || mod.error;
+  if (err) { toast(friendly(err), 6000); return; }
+  const SUI = Object.fromEntries((sui.data || []).map((s) => [`${s.inscription_id}:${s.idx}`, s]));
+  MES = mes.data || []; NOTES = not.data || [];
+  MODE = Object.fromEntries((mod.data || []).map((m) => [`${m.inscription_id}:${m.idx}`, m.mode]));
+  TPL = Object.fromEntries((cfg.data || []).map((c) => [c.cle.replace('crm_tpl_', ''), c.valeur]));
+  P = [];
+  for (const r of ins.data || []) {
+    const acc = r.accompagnants || [];
+    P.push({ rid: r.id, idx: -1, nom: r.nom, tel: r.telephone, ville: r.ville || '', uni: (r.profils || []).includes('etudiant') ? r.universite : null, profils: r.profils || [],
+      annule: !!r.annule, places: r.places || 1 + acc.length, accs: acc.map((a) => a.nom).filter(Boolean), by: null, created: r.created_at });
+    acc.forEach((a, i) => P.push({ rid: r.id, idx: i, nom: a.nom, tel: a.telephone || '', ville: r.ville || '', uni: a.profil === 'etudiant' ? a.universite : null, profils: a.profil ? [a.profil] : [],
+      annule: !!r.annule || SUI[`${r.id}:${i}`]?.statut === 'x', places: 1, accs: [], by: r.nom, created: r.created_at }));
+  }
+  // nombre d'étudiants actifs par université
+  const U = {}; for (const p of P) { const k = !p.annule && uniKey(p.uni); if (k) U[k] = (U[k] || 0) + 1; }
+  for (const p of P) { p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
+  render();
+}
+const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
+const modeOf = (p) => MODE[pk(p)] || null;
+function eligible(p, k) { if (p.annule || !p.num) return false; if (k === 'etidyan') return !!p.ukey; return true; }
+function variant(p, k) {
+  const m = modeOf(p) || (p.cap ? 'salle' : null);
+  if (k === 'konfimasyon') return p.cap && modeOf(p) !== 'live' ? 'konfimasyon' : modeOf(p) ? 'konfimasyon' : 'konfimasyon_hors';
+  if (k === 'etidyan') return p.nUni > 1 ? 'etidyan' : 'etidyan_premye';
+  if (k === 'sertifika') return m === 'live' ? 'sertifika_live' : m === 'salle' ? 'sertifika_salle' : 'sertifika_inconnu';
+  if (k === 'konsey') return m === 'live' ? 'konsey_live' : m === 'salle' ? 'konsey_salle' : 'konsey_inconnu';
+  return 'otm';
+}
+function text(p, k) {
+  const prenom = String(p.nom || '').trim().split(/\s+/)[0] || '';
+  const accTxt = p.idx === -1 ? (p.accs.length ? `\n👥 Personnes inscrites avec vous : ${p.accs.join(', ')}\n` : '') : `\n🙋 Réservation faite par ${p.by}\n`;
+  return tpl(variant(p, k)).replaceAll('{prenom}', prenom).replaceAll('{nom}', String(p.nom || '').trim())
+    .replaceAll('{places}', p.places > 1 ? `${p.places} places` : '1 place').replaceAll('{accompagnants}', accTxt)
+    .replaceAll('{n10}', String((p.nUni || 1) + 10)).replaceAll('{n}', String(p.nUni || 1)).replaceAll('{universite}', p.uni ? deUni(p.uni) : '')
+    .replace(/\n{3,}/g, '\n\n');
+}
+const waLink = (p, k) => `https://wa.me/${p.num}?text=${encodeURIComponent(text(p, k))}`;
+async function markSent(p, k, how) {
+  const row = { inscription_id: p.rid, idx: p.idx, tip: k, pa: how ? `${ME} (${how})` : ME };
+  const { data, error } = await sb.from('talks_crm_mesaj').insert(row).select().single();
+  if (error) { toast('Message ouvert, mais non enregistré : ' + friendly(error), 6000); return; }
+  MES.unshift(data); render(); if ($('dlg').open && DLG && pk(DLG) === pk(p)) openPerson(p);
+}
+
+/* ---------- Affichage ---------- */
+function filtered() {
+  const q = plain($('q').value.trim()), kote = $('fKote').value, mo = $('fMode').value;
+  return P.filter((p) => {
+    if (p.annule) return false;
+    if (q && !plain(`${p.nom} ${p.tel} ${p.uni || ''} ${p.ville} ${p.by || ''}`).includes(q) && !String(p.num).includes(q.replace(/\D/g, '') || '§')) return false;
+    if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
+    const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
+    const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
+    if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
+  });
+}
+function render() {
+  $('tips').innerHTML = TIPS.map((t) => { const el = P.filter((p) => eligible(p, t.k)); const s = el.filter((p) => sent(p, t.k).length).length; const pct = el.length ? Math.round((s / el.length) * 100) : 0;
+    return `<button type="button" class="tip ${TIP === t.k ? 'on' : ''}" data-tipcard="${t.k}"><div class="n">${t.e} ${esc(t.n)}</div><div class="v">${s}<small> / ${el.length} envoyés</small></div><div class="d">${esc(t.d)}</div><div class="track"><i style="width:${pct}%"></i></div></button>`; }).join('');
+  const L = filtered(), t = TIPS.find((x) => x.k === TIP);
+  $('count').textContent = `${t.e} ${t.n} · ${L.length} personne${L.length > 1 ? 's' : ''} ${ETAT === 'reste' ? 'à qui envoyer ce message' : ETAT === 'voye' ? 'ont déjà reçu ce message' : 'dans la liste'}.`;
+  $('list').innerHTML = L.slice(0, 400).map((p) => {
+    const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
+    return `<div class="row"><div><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div>
+      <div class="info2">${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
+      <div>${el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
+  }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
+  if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
+  renderSerie();
+}
+const byKey = (k) => P.find((p) => pk(p) === k);
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tipcard]'); if (t) { TIP = t.dataset.tipcard; SERIE = null; render(); return; }
+  const s = e.target.closest('[data-send]'); if (s) { const p = byKey(s.dataset.send); if (p) markSent(p, s.dataset.tip || TIP); return; }
+  const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }
+});
+$('etat').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ETAT = b.dataset.v; [...$('etat').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });
+['q', 'fKote', 'fMode'].forEach((id) => $(id).addEventListener('input', render));
+
+$('bulk').addEventListener('click', async () => {
+  const L = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length), t = TIPS.find((x) => x.k === TIP);
+  if (!L.length) { toast('Personne à marquer dans cette liste.'); return; }
+  if (!confirm(`Marquer le message « ${t.n} » comme DÉJÀ ENVOYÉ pour ${L.length} personne${L.length > 1 ? 's' : ''} de la liste affichée ?\n\nÀ utiliser seulement pour les messages envoyés à la main avant cet outil. WhatsApp ne sera pas ouvert.`)) return;
+  const rows = L.map((p) => ({ inscription_id: p.rid, idx: p.idx, tip: TIP, pa: `${ME} (marqué à la main)` }));
+  const { data, error } = await sb.from('talks_crm_mesaj').insert(rows).select();
+  if (error) { toast(friendly(error)); return; }
+  MES.unshift(...(data || [])); toast(`✓ ${L.length} marqué${L.length > 1 ? 's' : ''} comme déjà envoyé${L.length > 1 ? 's' : ''}`); render();
+});
+$('etat').addEventListener('click', () => $('bulk').classList.toggle('hidden', ETAT !== 'reste'));
+
+/* ---------- Envoi en série ---------- */
+$('go').addEventListener('click', () => {
+  const q = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length);
+  if (!q.length) { toast('Personne à qui envoyer ce message dans cette liste.'); return; }
+  SERIE = { tip: TIP, queue: q.map(pk), i: 0, done: 0 }; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+function renderSerie() {
+  const el = $('serie');
+  if (!SERIE || SERIE.tip !== TIP) { el.classList.add('hidden'); return; }
+  while (SERIE.i < SERIE.queue.length && sent(byKey(SERIE.queue[SERIE.i]) || {}, TIP).length) SERIE.i++;
+  const t = TIPS.find((x) => x.k === TIP);
+  if (SERIE.i >= SERIE.queue.length) { el.innerHTML = `<b>✅ Série terminée</b> — ${SERIE.done} message${SERIE.done > 1 ? 's' : ''} « ${esc(t.n)} » envoyé${SERIE.done > 1 ? 's' : ''}. <button class="btn sm" type="button" id="sStop">Fermer</button>`; el.classList.remove('hidden'); $('sStop').onclick = () => { SERIE = null; render(); }; return; }
+  const p = byKey(SERIE.queue[SERIE.i]);
+  el.innerHTML = `<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><b>▶ Envoi en série · ${esc(t.e + ' ' + t.n)} · ${SERIE.i + 1} / ${SERIE.queue.length}</b><span class="sub">${SERIE.done} envoyé(s)</span></div>
+    <div style="margin-top:6px"><b>${esc(p.nom)}</b> <span class="sub">${esc(p.tel)}${p.ville ? ' · ' + esc(p.ville) : ''}</span></div>
+    <details><summary class="sub" style="cursor:pointer">Voir le message</summary><pre>${esc(text(p, TIP))}</pre></details>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><a class="btn wa" id="sGo" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener">💬 Ouvrir WhatsApp et passer au suivant</a>
+    <button class="btn" type="button" id="sSkip">Passer</button><button class="btn" type="button" id="sStop">Arrêter</button></div>`;
+  el.classList.remove('hidden');
+  $('sGo').onclick = () => { SERIE.done++; SERIE.i++; markSent(p, TIP); };
+  $('sSkip').onclick = () => { SERIE.i++; renderSerie(); };
+  $('sStop').onclick = () => { SERIE = null; render(); };
+}
+
+/* ---------- Fiche personne ---------- */
+let DLG = null;
+const RES = ['Présentiel', 'Live', 'Confirmé(e)', 'Pas de réponse', 'Ne viendra pas', 'Question', 'Autre'];
+function openPerson(p) {
+  DLG = p; const m = modeOf(p);
+  const hist = [...MES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.voye_le, h: `${TIPS.find((t) => t.k === x.tip)?.e || ''} Message « ${esc(TIPS.find((t) => t.k === x.tip)?.n || x.tip)} » envoyé${x.pa ? ' par ' + esc(x.pa) : ''} <button class="btn sm" type="button" data-undo="${x.id}" title="Annuler (envoyé par erreur)">↩︎</button>` })),
+    ...NOTES.filter((x) => x.inscription_id === p.rid && x.idx === p.idx).map((x) => ({ le: x.le, h: `📝 ${x.rezilta ? `<b>${esc(x.rezilta)}</b> — ` : ''}${esc(x.teks || '')}${x.pa ? ` <span class="sub">(${esc(x.pa)})</span>` : ''}` }))]
+    .sort((a, b) => new Date(b.le) - new Date(a.le));
+  $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>
+      <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.uni)} (${p.nUni} étudiant${p.nUni > 1 ? 's' : ''})` : ''}</div></div>
+      <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
+    <div style="margin-top:12px"><b>Mode de participation</b> <span class="sub">(change les messages Certificat et Conseils)</span>
+      <div class="seg" style="margin-top:6px"><button type="button" data-mode="salle" class="${m === 'salle' ? 'on' : ''}">🏛️ En salle</button><button type="button" data-mode="live" class="${m === 'live' ? 'on' : ''}">🎥 Live</button><button type="button" data-mode="" class="${m ? '' : 'on'}">❔ Pas encore</button></div></div>
+    <div style="margin-top:14px"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
+      return `<div class="mrow"><div>${t.e} ${esc(t.n)} <span class="sub">· ${ss.length ? `envoyé le ${fmtDate(ss[0].voye_le)}${ss.length > 1 ? ` (${ss.length} fois)` : ''}` : el ? 'pas encore envoyé' : 'non concerné'}</span></div>
+        ${el ? `<span style="display:flex;gap:6px">${ss.length ? '' : `<button class="btn sm" type="button" data-mark="${t.k}" title="Déjà envoyé à la main">✓ Déjà envoyé</button>`}<a class="btn sm ${ss.length ? '' : 'wa'}" href="${esc(waLink(p, t.k))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${t.k}">${ss.length ? '↻ Renvoyer' : '💬 Envoyer'}</a></span>` : '<span></span>'}</div>`; }).join('')}</div>
+    <div style="margin-top:14px"><b>Ajouter un suivi</b>
+      <div style="display:grid;gap:8px;margin-top:6px"><select class="t" id="nRes"><option value="">Résultat…</option>${RES.map((r) => `<option>${r}</option>`).join('')}</select>
+      <textarea class="t" id="nTxt" maxlength="2000" placeholder="Ce que la personne a répondu, ce qui a été convenu…"></textarea>
+      <div><button class="btn p" type="button" id="nSave">Enregistrer le suivi</button></div></div></div>
+    <div style="margin-top:14px"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>`;
+  if (!$('dlg').open) $('dlg').showModal();
+  $('dX').onclick = () => $('dlg').close();
+  $('nSave').onclick = async () => {
+    const rezilta = $('nRes').value, teks = $('nTxt').value.trim(); if (!rezilta && !teks) { toast('Choisissez un résultat ou écrivez une note.'); return; }
+    $('nSave').disabled = true;
+    const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();
+    $('nSave').disabled = false; if (error) { toast(friendly(error)); return; }
+    NOTES.unshift(data);
+    if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
+    toast('✓ Suivi enregistré'); render(); openPerson(p);
+  };
+}
+async function setMode(p, mode, quiet) {
+  const { error } = mode ? await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode, maj: new Date().toISOString(), pa: ME })
+    : await sb.from('talks_crm_moun').delete().eq('inscription_id', p.rid).eq('idx', p.idx);
+  if (error) { toast(friendly(error)); return; }
+  if (mode) MODE[pk(p)] = mode; else delete MODE[pk(p)];
+  if (!quiet) { toast(mode ? `✓ ${mode === 'live' ? '🎥 Live' : '🏛️ En salle'}` : '✓ Mode effacé'); render(); openPerson(p); }
+}
+$('dlgIn').addEventListener('click', async (e) => {
+  const m = e.target.closest('[data-mode]'); if (m && DLG) { setMode(DLG, m.dataset.mode || null); return; }
+  const mk = e.target.closest('[data-mark]'); if (mk && DLG) { markSent(DLG, mk.dataset.mark, 'marqué à la main'); return; }
+  const u = e.target.closest('[data-undo]'); if (u && DLG) { if (!confirm('Annuler cet envoi (par exemple s’il a été marqué par erreur) ?')) return;
+    const { error } = await sb.from('talks_crm_mesaj').delete().eq('id', Number(u.dataset.undo)); if (error) { toast(friendly(error)); return; }
+    MES = MES.filter((x) => x.id !== Number(u.dataset.undo)); render(); openPerson(DLG); }
+});
+
+/* ---------- Modèles ---------- */
+function renderTpl() {
+  $('tplList').innerHTML = Object.entries(DEF).map(([k, d]) => `<div class="k">${esc(d.t)}${TPL[k] ? ' <span class="bdg">modifié</span>' : ''}</div>
+    <textarea class="t" data-tk="${k}" style="min-height:160px">${esc(tpl(k))}</textarea>
+    <div style="display:flex;gap:8px;margin-top:6px"><button class="btn sm p" type="button" data-ts="${k}">Enregistrer</button><button class="btn sm" type="button" data-tr="${k}">Rétablir le texte d’origine</button></div>`).join('');
+}
+$('tplBox').addEventListener('toggle', () => { if ($('tplBox').open) renderTpl(); });
+$('tplList').addEventListener('click', async (e) => {
+  const s = e.target.closest('[data-ts]'), r = e.target.closest('[data-tr]');
+  if (s) { const k = s.dataset.ts, v = document.querySelector(`[data-tk="${k}"]`).value;
+    const { error } = await sb.from('talks_config').upsert({ cle: 'crm_tpl_' + k, valeur: v, maj: new Date().toISOString() }); if (error) { toast(friendly(error)); return; }
+    TPL[k] = v; toast('✓ Modèle enregistré pour toute l’équipe'); renderTpl(); render(); }
+  if (r) { const k = r.dataset.tr; if (!confirm('Rétablir le texte d’origine de ce modèle ?')) return;
+    const { error } = await sb.from('talks_config').delete().eq('cle', 'crm_tpl_' + k); if (error) { toast(friendly(error)); return; }
+    delete TPL[k]; toast('✓ Texte d’origine rétabli'); renderTpl(); render(); }
+});
+
+/* ---------- Connexion ---------- */
+async function show(session) {
+  if (!session) { $('login').classList.remove('hidden'); $('app').classList.add('hidden'); return; }
+  ME = session.user.email || ''; $('who').textContent = ME;
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); load();
+}
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('loginBtn').disabled = true; $('loginMsg').textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  $('loginBtn').disabled = false; if (error) { $('loginMsg').textContent = 'Connexion impossible : e-mail ou mot de passe incorrect.'; return; }
+  show(data.session);
+});
+$('logout').addEventListener('click', async () => { await sb.auth.signOut(); show(null); });
+$('reload').addEventListener('click', load);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').classList.contains('hidden') && !$('dlg').open) load(); });
+sb.auth.getSession().then(({ data }) => show(data.session));
+</script>
+</body>
+</html>

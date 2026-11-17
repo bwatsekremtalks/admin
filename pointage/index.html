@@ -134,6 +134,22 @@
   .login button { width: 100%; margin-top: 18px; min-height: 52px; border: 0; border-radius: 16px; background: var(--green); font-weight: 800; font-size: 17px; cursor: pointer; }
   .toast { position: fixed; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 70; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 700; max-width: calc(100% - 24px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
 
+  /* Fenêtre de confirmation */
+  dialog.ask { width: min(420px, calc(100% - 32px)); border-radius: 26px; text-align: center; box-shadow: 0 30px 80px rgba(8,20,36,.35); }
+  dialog.ask[open] { animation: askIn .22s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes askIn { from { transform: translateY(14px) scale(.96); opacity: 0; } }
+  dialog.ask::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
+  .ask .bx { padding: 28px 22px 20px; }
+  .ask .ic { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 14px; font-size: 34px; }
+  .ask .ic.warn { background: var(--warnbg); } .ask .ic.red { background: var(--redbg); } .ask .ic.blue { background: #e8f1fb; }
+  .ask h3 { margin: 0; font: 800 22px/1.2 "Bricolage Grotesque", sans-serif; color: var(--ink); }
+  .ask p { margin: 8px 0 0; color: var(--ink2); font-size: 15.5px; }
+  .ask .who2 { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 8px 14px 8px 8px; border-radius: 999px; background: #f2f6fb; font-weight: 800; }
+  .ask .who2 .av { width: 34px; height: 34px; font-size: 13px; }
+  .ask .bb { display: flex; gap: 10px; margin-top: 22px; }
+  .ask .bb button { flex: 1; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .ask .no { border: 1.5px solid var(--line); background: #fff; color: var(--ink); }
+  .ask .yes { border: 0; background: var(--navy); color: #fff; } .ask .yes.red { background: var(--red); } .ask .yes.green { background: var(--green); color: #0a1f38; }
   @media (min-width: 900px) {
     .hero { padding-bottom: 34px; }
     .stats { grid-template-columns: auto minmax(0, 1fr); } .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -205,6 +221,10 @@
   <p class="err" id="sErr" role="alert"></p>
   <div class="acts"><button type="button" class="b2" id="sCancel">Annuler</button><button type="submit" class="b1" id="sOk">Inscrire et pointer ✓</button></div>
 </form></dialog>
+<dialog class="ask" id="ask" aria-labelledby="askT"><div class="bx">
+  <div class="ic" id="askI"></div><h3 id="askT"></h3><p id="askP"></p><div id="askW"></div>
+  <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
+</div></dialog>
 <div class="toast hidden" id="toast" role="status"></div>
 
 <script>
@@ -228,6 +248,20 @@ const friendly = (e) => { const m = String(e?.message || e || ''); console.warn(
   if (/permission|row-level|42501/i.test(m)) return 'Ce compte n’a pas l’autorisation de pointer.';
   if (/déjà|numéro|nom|téléphone|e-mail|réservation/i.test(m)) return m;
   return 'Erreur inattendue, réessayez.'; };
+
+/* Fenêtre de confirmation (remplace la boîte du navigateur) */
+function ask({ icon = '❔', tone = 'blue', title, text = '', person = null, ok = 'Confirmer', okTone = '', cancel = 'Annuler' }) {
+  return new Promise((resolve) => {
+    const d = $('ask');
+    $('askI').className = 'ic ' + tone; $('askI').textContent = icon; $('askT').textContent = title; $('askP').textContent = text; $('askP').classList.toggle('hidden', !text);
+    $('askW').innerHTML = person ? `<span class="who2"><span class="av" style="background:${avc(person)}">${esc(ini(person))}</span>${esc(person)}</span>` : '';
+    $('askYes').textContent = ok; $('askYes').className = 'yes ' + okTone; $('askNo').textContent = cancel;
+    const done = (v) => { d.close(); $('askYes').onclick = $('askNo').onclick = d.oncancel = null; resolve(v); };
+    $('askYes').onclick = () => done(true); $('askNo').onclick = () => done(false); d.oncancel = (e) => { e.preventDefault(); done(false); };
+    d.onclick = (e) => { if (e.target === d) done(false); };
+    d.showModal(); setTimeout(() => $('askYes').focus(), 30);
+  });
+}
 
 /* ---------- Données ---------- */
 let ROWS = [], SUI = {}, PRES = {}, ONLINE = true;
@@ -333,10 +367,10 @@ function nextOne(rid) { if (ALLP.filter((x) => x.rid === rid).every(isIn)) setTi
 document.addEventListener('click', async (e) => {
   const a = e.target.closest('[data-in]');
   if (a) { const p = byK(a.dataset.in); if (!p) return;
-    if (p.st === 'x' && !confirm(`${p.nom} : sa place était annulée. La pointer quand même ?`)) return;
+    if (p.st === 'x' && !(await ask({ icon: '⚠️', tone: 'warn', title: 'Réservation annulée', text: 'Sa place avait été libérée. Voulez-vous quand même la marquer présente ?', person: p.nom, ok: '✓ Pointer', okTone: 'green' }))) return;
     a.disabled = true; if (await setIn(p, true)) { flash(p.nom.split(' ')[0], p.by ? `avec ${p.by}` : ''); nextOne(p.rid); } return; }
   const o = e.target.closest('[data-out]');
-  if (o) { const p = byK(o.dataset.out); if (p && confirm(`Retirer la présence de ${p.nom} ?`)) { await setIn(p, false); toast(`Présence de ${p.nom} retirée`); } return; }
+  if (o) { const p = byK(o.dataset.out); if (p && (await ask({ icon: '↩️', tone: 'red', title: 'Retirer la présence ?', text: `Arrivé(e) à ${hm(isIn(p).present_le)}. À utiliser seulement en cas d’erreur de pointage.`, person: p.nom, ok: 'Retirer', okTone: 'red', cancel: 'Garder' }))) { await setIn(p, false); toast(`Présence de ${p.nom} retirée`); } return; }
   const g = e.target.closest('[data-grp]');
   if (g) { g.disabled = true; const L = ALLP.filter((p) => p.rid === Number(g.dataset.grp) && !isIn(p) && p.st !== 'x'); let n = 0;
     for (const p of L) if (await setIn(p, true)) n++;
@@ -403,7 +437,7 @@ $('loginForm').addEventListener('submit', async (e) => {
   $('loginBtn').disabled = false; if (error) { $('loginMsg').textContent = 'E-mail ou mot de passe incorrect.'; return; }
   show(data.session);
 });
-$('logout').addEventListener('click', async () => { if (!confirm('Se déconnecter du pointage ?')) return; await sb.auth.signOut(); show(null); });
+$('logout').addEventListener('click', async () => { if (!(await ask({ icon: '👋', title: 'Se déconnecter ?', text: 'Vous devrez vous reconnecter pour continuer à pointer.', ok: 'Se déconnecter' }))) return; await sb.auth.signOut(); show(null); });
 sb.auth.getSession().then(({ data }) => show(data.session));
 </script>
 </body>

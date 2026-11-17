@@ -69,7 +69,7 @@
 
   main { max-width: 1180px; margin: 0 auto; padding: 0 16px calc(40px + env(safe-area-inset-bottom)); }
   /* ---------- Les 5 messages ---------- */
-  .tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: -42px; position: relative; z-index: 2; }
+  .tips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: -42px; position: relative; z-index: 2; }
   .tip { text-align: left; border: 2px solid transparent; border-radius: 20px; padding: 12px 14px; background: #fff; cursor: pointer; box-shadow: 0 12px 28px rgba(13,45,74,.12); }
   .tip.on { border-color: var(--green); box-shadow: 0 12px 28px rgba(122,193,66,.3); }
   .tip .n { font-weight: 800; font-size: 14.5px; } .tip .v { font: 800 22px "Bricolage Grotesque", sans-serif; margin-top: 2px; font-variant-numeric: tabular-nums; }
@@ -287,6 +287,8 @@ const TIPS = [
   { k: 'sertifika', e: '📜', n: 'Certificat', d: 'Certificat de participation (salle ou Live)' },
   { k: 'konsey', e: '💡', n: 'Conseils', d: 'Ambiance, préparation, en tirer le maximum' },
   { k: 'otm', e: '🎵', n: 'Theme Music', d: 'Annonce de l’Official Theme Music' },
+  { k: 'defi', e: '📸', n: 'Défis photo', d: 'Avant l’événement : les 10 défis du mur' },
+  { k: 'mesi', e: '🙏', n: 'Merci + mur', d: 'Après l’événement : publier ses photos (présents)' },
 ];
 const SIGN = '\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire ensemble.';
 const QUAND = '📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)';
@@ -301,6 +303,8 @@ const DEF = {
   konsey_salle: { t: 'Conseils — en salle', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour profiter pleinement de Bwat Sekrèm Talks :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, des questions-réponses et beaucoup d’échanges entre participants.\n\n✅ Pour bien vous préparer :\n• Arrivez 20 à 30 minutes en avance pour l’accueil\n• Une tenue soignée est la bienvenue\n• Préparez 1 ou 2 questions pour les intervenants\n• Apportez de quoi prendre des notes et chargez votre téléphone\n\n🚀 Pour en tirer le maximum :\n• Présentez-vous à au moins 3 nouvelles personnes\n• Notez une idée concrète à appliquer dès le lendemain\n• Découvrez votre profil pro en 1 minute avant l’événement : https://bwatsekremtalks.com/profil\n\n${QUAND}\n\nÀ dimanche !${SIGN}` },
   konsey_live: { t: 'Conseils — en Live', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour bien suivre Bwat Sekrèm Talks en Live :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, et des questions-réponses avec le public.\n\n✅ Pour bien vous préparer :\n• Connectez-vous 10 minutes avant 14 h 30 (le lien du Live vous sera envoyé avant le début)\n• Installez-vous au calme, avec une bonne connexion (écouteurs conseillés)\n• Préparez 1 ou 2 questions à poser en commentaire\n• Gardez de quoi prendre des notes\n\n🚀 Pour en tirer le maximum :\n• Restez jusqu’à la fin : le mot secret du certificat Live sera annoncé pendant le Live\n• Notez une idée concrète à appliquer dès le lendemain\n• Découvrez votre profil pro en 1 minute : https://bwatsekremtalks.com/profil\n\nÀ dimanche, 14 h 30 !${SIGN}` },
   konsey_inconnu: { t: 'Conseils — mode pas encore connu', v: `Bonjour {prenom} 👋\n\nLe grand jour approche ! 💡 Quelques conseils pour profiter pleinement de Bwat Sekrèm Talks :\n\n🎤 L’ambiance : des conversations vraies et inspirantes avec des professionnels, des questions-réponses et beaucoup d’échanges.\n\n🏛️ En salle :\n• Arrivez 20 à 30 minutes en avance pour l’accueil\n• Une tenue soignée est la bienvenue\n• Présentez-vous à au moins 3 nouvelles personnes\n\n🎥 En Live :\n• Connectez-vous 10 minutes avant 14 h 30, avec une bonne connexion\n• Restez jusqu’à la fin : le mot secret du certificat Live sera annoncé pendant le Live\n\n✍️ Dans les deux cas : préparez 1 ou 2 questions et notez une idée à appliquer dès le lendemain.\n\n${QUAND}\n\nÀ dimanche !${SIGN}` },
+  defi: { t: 'Défis photo — la veille ou le matin du 22', v: `Bonjour {prenom} 👋\n\n📸 Demain, Bwat Sekrèm Talks, c’est aussi VOS photos !\n\nPendant l’événement, relevez nos 10 défis photo et publiez-les sur le Mur des participants :\n\n🚪 Une photo à l’entrée\n🤳 Un selfie avec la salle derrière vous\n🤝 Une photo avec un collègue\n🆕 Une photo avec quelqu’un que vous venez de rencontrer\n🎤 Une photo avec un intervenant\n🏢 Une photo avec un exposant ou un sponsor\n👥 Une photo de groupe (votre université, votre équipe)\n💡 L’idée ou la slide qui vous a marqué(e)\n🏛️ La salle vue de votre place\n🎓 Devant la bannière, avec votre badge ou votre certificat\n\n👉 Publiez vos photos ici : https://bwatsekremtalks.com/mur\n(il suffit du numéro WhatsApp donné lors de votre réservation)\n\nCombien de défis allez-vous relever ? 🏅\n\nÀ demain, 14 h 30 !${SIGN}` },
+  mesi: { t: 'Merci + mur photos — après l’événement (personnes présentes)', v: `Bonjour {prenom} 👋\n\nMerci d’avoir fait de la 1re édition de Bwat Sekrèm Talks un moment inoubliable 🙏\n\n📸 Le Mur des participants est ouvert ! Revivez l’événement en photos et ajoutez les vôtres :\n👉 https://bwatsekremtalks.com/mur\n\n✅ Publiez jusqu’à 12 photos avec le numéro WhatsApp de votre réservation\n🎯 Relevez les défis photo (selfie, photo de groupe, l’idée du jour…)\n❤️ Aimez les photos des autres participants\n\nPartagez le lien avec les personnes rencontrées pendant l’événement : plus il y a de photos, plus le mur est beau !${SIGN}` },
   otm: { t: 'Official Theme Music', v: `Bonjour {prenom} 👋\n\n🎵 Elle est là ! Découvrez l’Official Theme Music de Bwat Sekrèm Talks, le son qui va porter notre événement du 22 novembre.\n\n🎧 Écoutez-la ici 👉 https://bwatsekremtalks.com/theme-music\n\nDites-nous ce que vous en pensez en laissant un commentaire, et partagez-la autour de vous ! 🔥${SIGN}` },
 };
 let TPL = {};
@@ -328,17 +332,19 @@ function deUni(raw) {
 }
 
 /* ---------- Données ---------- */
-let RESP = {}, EKIP = [], P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
+let PRES = {}, RESP = {}, EKIP = [], P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
 const pk = (p) => `${p.rid}:${p.idx}`;
 async function load() {
-  const [ins, sui, mes, not, mod, cfg] = await Promise.all([
+  const [ins, sui, mes, not, mod, cfg, prs] = await Promise.all([
     sb.from('talks_inscriptions').select('*').eq('edition', EDITION).order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
     sb.from('talks_crm_mesaj').select('*').order('voye_le', { ascending: false }).limit(10000),
     sb.from('talks_crm_not').select('*').order('le', { ascending: false }).limit(5000),
     sb.from('talks_crm_moun').select('*'),
     sb.from('talks_config').select('cle, valeur').like('cle', 'crm_%'),
+    sb.from('talks_presences').select('inscription_id, idx'),
   ]);
+  PRES = Object.fromEntries(((prs && prs.data) || []).map((x) => [`${x.inscription_id}:${x.idx}`, 1]));
   const err = ins.error || mes.error || not.error || mod.error;
   if (err) { toast(friendly(err), 6000); return; }
   const SUI = Object.fromEntries((sui.data || []).map((s) => [`${s.inscription_id}:${s.idx}`, s]));
@@ -372,13 +378,14 @@ async function load() {
 }
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
 const modeOf = (p) => MODE[pk(p)] || null;
-function eligible(p, k) { if (p.annule || !p.num) return false; if (k === 'etidyan') return !!p.ukey; return true; }
+function eligible(p, k) { if (p.annule || !p.num) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)]; return true; }
 function variant(p, k) {
   const m = modeOf(p) || (p.cap ? 'salle' : null);
   if (k === 'konfimasyon') return p.cap && modeOf(p) !== 'live' ? 'konfimasyon' : modeOf(p) ? 'konfimasyon' : 'konfimasyon_hors';
   if (k === 'etidyan') return p.nUni > 1 ? 'etidyan' : 'etidyan_premye';
   if (k === 'sertifika') return m === 'live' ? 'sertifika_live' : m === 'salle' ? 'sertifika_salle' : 'sertifika_inconnu';
   if (k === 'konsey') return m === 'live' ? 'konsey_live' : m === 'salle' ? 'konsey_salle' : 'konsey_inconnu';
+  if (k === 'defi' || k === 'mesi') return k;
   return 'otm';
 }
 function text(p, k) {

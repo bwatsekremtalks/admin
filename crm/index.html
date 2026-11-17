@@ -238,6 +238,12 @@
       </div>
       <div id="ekStat" style="margin-top:10px"></div>
     </details>
+    <details class="card tpl" style="margin-top:16px" id="libBox">
+      <summary>📋 Textes à copier — Live &amp; mur photos</summary>
+      <p class="sub">Textes prêts à publier (chat du Live, réseaux sociaux, statut WhatsApp). Ils ne sont envoyés à personne : copiez-les ou partagez-les. Le mot secret n’est jamais enregistré : tapez-le ici seulement au moment de publier.</p>
+      <label class="sub" for="libMot">Mot secret du Live <input class="t" id="libMot" autocomplete="off" placeholder="[MOT SECRET]" maxlength="40" style="width:200px;display:inline-block;padding:6px 8px;text-transform:uppercase;font-weight:800" /></label>
+      <div id="libList"></div>
+    </details>
     <details class="card tpl" style="margin-top:16px" id="tplBox">
       <summary>✏️ Modifier les modèles de messages (partagés avec toute l’équipe)</summary>
       <p class="sub">Variables : <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{n}</code> (étudiants de la même université) <code>{n10}</code> (n + 10) <code>{universite}</code> (« de l’Université … »).</p>
@@ -252,11 +258,59 @@
   <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
 </div></dialog>
 <div class="toast hidden" id="toast" role="status"></div>
+<style>
+  .lib { border: 1px solid var(--line, #e3e8ef); border-radius: 14px; padding: 12px; margin-top: 12px; }
+  .lib h4 { margin: 0 0 2px; font: 800 15px "Bricolage Grotesque", sans-serif; } .lib .sub { margin: 0 0 8px; }
+  .lib pre { white-space: pre-wrap; word-break: break-word; font: 14px/1.5 "DM Sans", sans-serif; background: #f6f8fb; border-radius: 10px; padding: 10px 12px; margin: 0 0 8px; max-height: 260px; overflow: auto; }
+  .lib .bb { display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
 
 <script>
 const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.co', 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly');
 const EDITION = '2026-11-22-cap-haitien';
 const $ = (id) => document.getElementById(id);
+const LIB = [
+  { t: '🎙️ À lire ou afficher pendant le Live', w: 'Pendant le Live, après le 1er intervenant ou à une pause', v: `📸 Vous suivez Bwat Sekrèm Talks en Live ? Vous aussi, vous avez votre place sur le Mur des participants !
+
+👉 bwatsekremtalks.com/mur
+1. Touchez « Partager mes photos »
+2. Choisissez « 🎥 J’ai suivi le Live »
+3. Entrez votre nom, votre WhatsApp et le mot secret : [MOT SECRET]
+
+Défis Live : 📺 votre écran pendant le Live · 🏠 votre coin Live · 👨‍👩‍👧 le Live entre amis · 📝 vos notes · 💡 l’idée du jour` },
+  { t: '💬 Chat du Live / commentaire épinglé', w: 'YouTube, Facebook — pendant le Live', v: `📸 MUR DES PARTICIPANTS — ouvert aux spectateurs du Live !
+Partagez vos photos du Live : votre écran, votre coin, vos notes, vos amis…
+👉 https://bwatsekremtalks.com/mur
+Choisissez « 🎥 J’ai suivi le Live », puis entrez votre nom, votre WhatsApp et le mot secret : [MOT SECRET]
+Jusqu’à 12 photos par personne. Vos photos portent le badge 🎥 En Live !` },
+  { t: '🙏 Après le Live — réseaux sociaux / WhatsApp', w: 'Le soir du 22 ou le lendemain', v: `Merci à toutes celles et ceux qui ont suivi la 1re édition de Bwat Sekrèm Talks en Live 🙏🎥
+
+Vous étiez derrière votre écran ? Vous faites aussi partie de l’aventure !
+📸 Le Mur des participants vous est ouvert :
+👉 https://bwatsekremtalks.com/mur
+
+✅ Touchez « Partager mes photos », puis « 🎥 J’ai suivi le Live »
+✅ Entrez votre nom, votre WhatsApp et le mot secret annoncé pendant le Live : [MOT SECRET]
+🎯 Relevez les défis Live : votre écran, votre coin Live, le Live entre amis, vos notes, l’idée du jour
+❤️ Aimez les photos de la communauté
+
+Partagez ce message avec ceux qui ont suivi le Live avec vous !
+— L’équipe Bwat Sekrèm Talks
+Apprendre. Inspirer. Construire ensemble.` },
+];
+const libTxt = (i) => { const m = (document.getElementById('libMot')?.value || '').trim().toUpperCase(); return m ? LIB[i].v.replaceAll('[MOT SECRET]', m) : LIB[i].v; };
+function renderLib() {
+  $('libList').innerHTML = LIB.map((x, i) => `<div class="lib"><h4>${esc(x.t)}</h4><p class="sub">${esc(x.w)}</p><pre>${esc(libTxt(i))}</pre>
+    <div class="bb"><button class="btn sm p" type="button" data-libc="${i}">📋 Copier</button><button class="btn sm" type="button" data-libs="${i}">↗️ Partager</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(libTxt(i))}">WhatsApp</a></div></div>`).join('');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  renderLib(); $('libMot').addEventListener('input', renderLib);
+  $('libList').addEventListener('click', async (e) => {
+    const c = e.target.closest('[data-libc]'), s = e.target.closest('[data-libs]');
+    if (c) { const v = libTxt(+c.dataset.libc); if (v.includes('[MOT SECRET]')) toast('⚠️ Pensez à remplacer [MOT SECRET]'); try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch { toast('Copie impossible : sélectionnez le texte.'); } }
+    if (s) { const v = libTxt(+s.dataset.libs); if (navigator.share) { try { await navigator.share({ text: v }); } catch {} } else { try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch {} } }
+  });
+});
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmtDate = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const COL = ['#2f8fe8', '#5DB033', '#7c4dff', '#ff8a00', '#e8436b', '#0D2D4A', '#0aa3a3'];

@@ -261,7 +261,7 @@
         <h2>Dernières arrivées <small id="rate"></small></h2><ul class="fl" id="feed"></ul></section>
     </div>
   </main>
-  <button class="fab adminonly" type="button" id="fab">＋ Inscription sur place</button>
+  <button class="fab" type="button" id="fab">＋ Inscription sur place</button>
 </div>
 
 <dialog id="teamDlg"><div class="sheet team">
@@ -579,6 +579,13 @@ $('sf').addEventListener('submit', async (e) => {
   const row = { edition: EDITION, nom, telephone: tel, sexe: SF.sexe || null, ville: $('sVille').value.trim() || null, source: 'Sur place (jour J)',
     profils: SF.profils.length ? SF.profils : null, universite: uni || null, places: 1 + accs.length, accompagnants: accs.map((n) => ({ nom: n })) };
   $('sOk').disabled = true; $('sErr').textContent = '';
+  if (isPin()) {   // équipe d'accueil : inscription + pointage faits par la base
+    const { data: d, error: e2 } = await sb.rpc('talks_akey_enskri', { p_token: PIN_TOKEN, p_row: row });
+    $('sOk').disabled = false;
+    if (e2 || !d || !d.ok) { if (d && d.error === 'session') { $('dlg').close(); pinOut('Votre session a expiré. Entrez à nouveau votre PIN.'); return; } $('sErr').textContent = friendly(e2 || 'erreur'); return; }
+    $('dlg').close(); flash(nom.split(' ')[0], d.personnes > 1 ? `Inscrit(e) sur place avec ${d.personnes - 1} personne${d.personnes > 2 ? 's' : ''}` : 'Inscrit(e) sur place');
+    await load(true); $('q').value = nom; renderRes(); return;
+  }
   const { data, error } = await sb.from('talks_inscriptions').insert(row).select().single();
   $('sOk').disabled = false;
   if (error) { $('sErr').textContent = friendly(error); return; }

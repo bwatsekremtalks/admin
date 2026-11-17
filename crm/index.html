@@ -108,7 +108,8 @@
   .back .bk1 { font-size: 15px; } .back .bk2 { display: flex; gap: 8px; } .back .bk2 .btn { flex: 1; min-height: 46px; } .back .btn.nowa, .btn.nowa { background: #fdecec; color: #b42318; border-color: #f3c0ba; }
   .btn.nowa1 { padding: 0 10px; opacity: .55; } .btn.nowa1:hover { opacity: 1; background: #fdecec; }
   .nwrem { margin-top: 12px; background: #fdecec; border: 1px solid #f3c0ba; color: #8f1d14; border-radius: 16px; padding: 10px 14px; font-size: 14.5px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
-  .btn.att2 { background: #e8762b; border-color: #e8762b; color: #fff; } .bdg.lib { background: #eef2f7; color: #45556c; border: 1px dashed #b8c4d4; } .libban { margin: 8px 0 4px; background: #f3f6fa; border: 1px dashed #b8c4d4; border-radius: 14px; padding: 10px 12px; font-size: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn.att2 { background: #e8762b; border-color: #e8762b; color: #fff; } .bdg.staff { background: #e8f1ff; color: #1f4f99; border: 1px solid #bcd3f5; } .staffrow { margin-top: 12px; } .staffrow .btn { width: 100%; } .btn.staffon { background: #1f4f99; border-color: #1f4f99; color: #fff; }
+  .bdg.lib { background: #eef2f7; color: #45556c; border: 1px dashed #b8c4d4; } .libban { margin: 8px 0 4px; background: #f3f6fa; border: 1px dashed #b8c4d4; border-radius: 14px; padding: 10px 12px; font-size: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .bdg.nowa { background: #fdecec; color: #b42318; border: 1px solid #f3c0ba; } .bdg.att { background: #fff1e0; color: #b4530a; border: 1px solid #f5d9a8; } .bdg.live { background: #efe7ff; color: #4b2a9a; } .bdg.salle { background: var(--okbg); color: var(--ok); } .bdg.hors { background: var(--warnbg); color: var(--warn); }
   .dots { display: flex; flex-wrap: wrap; gap: 4px; max-width: 196px; justify-content: flex-end; } .dot { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; background: #f3f6fa; filter: grayscale(1); opacity: .45; }
   .dot.ok { background: var(--okbg); box-shadow: inset 0 0 0 1.5px #a9dcb6; filter: none; opacity: 1; } .dot.na { display: none; }
@@ -239,7 +240,7 @@
         <input type="search" id="q" placeholder="Nom, numéro, université…" aria-label="Rechercher" /></div>
       <div class="filters">
         <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
-        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option><option value="att">⏳ Liste d’attente</option><option value="nowa">📵 Pas de WhatsApp</option><option value="libre">🪑 Places libérées (conservées)</option><option value="inscrit">🎟️ Places confirmées (hors attente)</option></select>
+        <select class="t" id="fSuivi"><option value="">Toutes les réponses</option><option value="repondu">💬 Ont répondu</option><option value="vient">✅ Viennent</option><option value="salle">🏛️ En salle</option><option value="live">🎥 En Live</option><option value="non">❌ Ne viennent pas</option><option value="sans">🔇 Sans réponse</option><option value="pas">✉️ Pas encore contactés</option><option value="att">⏳ Liste d’attente</option><option value="nowa">📵 Pas de WhatsApp</option><option value="libre">🪑 Places libérées (conservées)</option><option value="staff">🧑‍💼 Membres du staff</option><option value="inscrit">🎟️ Places confirmées (hors attente)</option></select>
         <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
         <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
         <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
@@ -582,8 +583,9 @@ async function retablir(p) {
 }
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
 const modeOf = (p) => MODE[pk(p)] || null;
+const isStaff = (p) => MODE[pk(p)] === 'staff';
 const ATT_OK = ['atant', 'atant2', 'otm', 'etidyan', 'mesi'];   // messages autorisés pour les personnes sur liste d'attente
-function eligible(p, k) { if (p.annule || !p.num) return false;
+function eligible(p, k) { if (p.annule || !p.num || isStaff(p)) return false;
   if (k === 'atant' || k === 'atant2') return !!p.att;
   if (k === 'plas') return !p.att && modeOf(p) !== 'live' && MES.some((m) => m.tip === 'atant' && m.inscription_id === p.rid && m.idx === p.idx);
   if (p.att && !ATT_OK.includes(k)) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)] || modeOf(p) === 'live'; return true; }
@@ -645,7 +647,7 @@ function filtered() {
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
     const rf = $('fResp').value; if (rf === '?' ? own(p) : rf && RESP[pk(p)] !== rf) return false;
-    const fs = $('fSuivi').value; if (fs === 'libre') { /* déjà filtré */ } else if (fs === 'nowa') { if (!noWA(p)) return false; } else if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
+    const fs = $('fSuivi').value; if (fs === 'staff') { if (!isStaff(p)) return false; return true; } if (fs === 'libre') { /* déjà filtré */ } else if (fs === 'nowa') { if (!noWA(p)) return false; } else if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
     if (LIB_) return true;
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
@@ -664,7 +666,7 @@ function render() {
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row ${p.annule ? 'lib' : ''}"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
-      <div class="info2">${p.annule ? `<span class="bdg lib">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''}</span>` : ''}${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="info2">${isStaff(p) ? '<span class="bdg staff">🧑‍💼 Staff</span>' : ''}${p.annule ? `<span class="bdg lib">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''}</span>` : ''}${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
       <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${p.annule ? `<button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : (p.annule ? '' : p.att && p.num && !noWA(p) ? (() => { const k2 = sent(p, 'atant').length ? 'atant2' : 'atant', d2 = sent(p, k2).length; return `<a class="btn sm ${d2 ? '' : 'att2'}" href="${esc(waLink(p, k2))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${k2}" title="Message « ${k2 === 'atant' ? 'Liste d’attente' : 'Attente : nouvelles'} »">${d2 ? '↻ ' : ''}⏳ ${k2 === 'atant' ? 'Liste d’attente' : 'Nouvelles'}</a>`; })()
   : p.att && p.num && noWA(p) ? `<a class="btn sm" href="${esc(smsLink(p, sent(p, 'atant').length ? 'atant2' : 'atant'))}" data-send="${pk(p)}" data-tip="${sent(p, 'atant').length ? 'atant2' : 'atant'}" data-how="SMS">📱 SMS attente</a>`
@@ -881,8 +883,9 @@ function openPerson(p) {
       <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.ukey)}` : ''}</div>
       ${p.annule ? `<div class="libban">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''} — informations conservées. <button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button></div>` : ''}${p.att ? `<div style="margin-top:6px"><span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span></div>` : ''}${noWA(p) ? '<div style="margin-top:6px"><span class="bdg nowa">📵 Pas de WhatsApp</span></div>' : ''}</div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
-    <div class="sec"><b>Sa réponse</b>${cur ? '' : ' <span class="sub">· un toucher suffit</span>'}
-      <div class="quick">${qb('Présentiel', '🏛️ Vient en salle')}${qb('Live', '🎥 Suivra le Live')}${qb('Confirmé(e)', '✅ Vient')}${qb('Ne viendra pas', '❌ Ne vient pas')}${qb('Pas de réponse', '🔇 Pas de réponse')}</div></div>
+    <div class="sec staffrow"><button class="btn sm ${isStaff(p) ? 'staffon' : ''}" type="button" id="pStaff">${isStaff(p) ? '✓ 🧑‍💼 Membre du staff · ne prend pas de place' : '🧑‍💼 C’est un membre du staff'}</button></div>
+    ${isStaff(p) ? '' : `<div class="sec"><b>Sa réponse</b>${cur ? '' : ' <span class="sub">· un toucher suffit</span>'}
+      <div class="quick">${qb('Présentiel', '🏛️ Vient en salle')}${qb('Live', '🎥 Suivra le Live')}${qb('Confirmé(e)', '✅ Vient')}${qb('Ne viendra pas', '❌ Ne vient pas')}${qb('Pas de réponse', '🔇 Pas de réponse')}</div></div>`}
     ${p.num ? `<div class="sec"><b>Contacter</b><div class="crow"><a class="btn sm" href="https://wa.me/${esc(p.num)}" target="_blank" rel="noopener">💬 WhatsApp</a><a class="btn sm" href="tel:+${esc(p.num)}">📞 Appeler</a>${noWA(p) ? '<button class="btn sm qb sel" type="button" data-q="WhatsApp OK" title="Toucher si ce numéro a finalement WhatsApp">✓ 📵 Pas de WhatsApp</button>' : '<button class="btn sm" type="button" data-q="Pas de WhatsApp">📵 Pas de WhatsApp</button>'}</div></div>` : ''}
     <div class="sec"><b>Messages</b>${tips.map((t) => { const ss = sent(p, t.k), el = eligible(p, t.k);
       return `<div class="mrow ${ss.length ? 'done' : ''}"><div>${ss.length ? '<span class="ok">✓</span>' : t.e} ${esc(t.n)} <span class="sub">${ss.length ? '· ' + fmtDate(ss[0].voye_le) : ''}</span></div>
@@ -897,6 +900,10 @@ function openPerson(p) {
     const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, responsab: v, maj: new Date().toISOString(), pa: ME });
     if (error) { toast(friendly(error)); return; } if (v) RESP[pk(p)] = v; else delete RESP[pk(p)]; toast(v ? `✓ Confié à ${v}` : '✓ Sans responsable'); render(); };
   $('dX').onclick = () => $('dlg').close(); $('dX2').onclick = () => $('dlg').close();
+  $('pStaff').onclick = async () => { const on = !isStaff(p), k = pk(p);
+    if (on && !(await ask({ icon: '🧑‍💼', title: 'Membre du staff ?', person: p.nom, text: 'Sa place en salle est libérée pour la liste d’attente et il/elle ne recevra plus les messages destinés aux participants. Rien n’est supprimé.', ok: '🧑‍💼 Oui, staff', okTone: 'green' }))) return;
+    await setMode(p, on ? 'staff' : null, true); await load(); const q = byKey(k);
+    toast(on ? '🧑‍💼 Membre du staff : sa place est libérée.' : '✓ Redevenu(e) participant(e)'); if (q) openPerson(q); };
   $('nSave').onclick = async () => {
     const teks = $('nTxt').value.trim(); if (!teks) { toast('Écrivez la note avant d’enregistrer.'); $('nTxt').focus(); return; }
     $('nSave').disabled = true; await saveNote(p, '', teks); $('nSave').disabled = false;
@@ -912,9 +919,9 @@ async function saveNote(p, rezilta, teks) {
   const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();
   if (error) { toast(friendly(error)); return; }
   NOTES.unshift(data);
-  const modeAvant = modeOf(p);
+  const sansPlace = (x) => ['live', 'staff'].includes(modeOf(x)), modeAvant = sansPlace(p);
   if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
-  if ((modeAvant === 'live') !== (modeOf(p) === 'live')) { const k = pk(p); await load(); p = byKey(k) || p;   // Live / salle change les places : on recalcule la liste d'attente
+  if (modeAvant !== sansPlace(p)) { const k = pk(p); await load(); p = byKey(k) || p;   // Live / salle change les places : on recalcule la liste d'attente
   }
   if (['Présentiel', 'Live', 'Confirmé(e)'].includes(rezilta) && !p.adminOK) {   // même statut « Confirmée » dans l'espace inscriptions
     const { error: e2 } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'c' });
@@ -950,7 +957,7 @@ function suivi(p) {
   return MES.some((m) => m.inscription_id === p.rid && m.idx === p.idx) ? 'sans' : 'pas';
 }
 function renderDash() {
-  const rf = $('fResp').value, base = P.filter((p) => !p.annule && (rf === '?' ? !own(p) : !rf || RESP[pk(p)] === rf));
+  const rf = $('fResp').value, inRf = (p) => (rf === '?' ? !own(p) : !rf || RESP[pk(p)] === rf), base = P.filter((p) => !p.annule && !isStaff(p) && inRf(p));
   const c = (f) => base.filter(f).length, S = (s) => c((p) => suivi(p) === s);
   const vient = S('vient'), non = S('non'), rep = vient + non + S('repondu'), sans = S('sans'), pas = S('pas'), cont = base.length - pas;
   const sal = c((p) => suivi(p) === 'vient' && modeOf(p) === 'salle'), liv = c((p) => suivi(p) === 'vient' && modeOf(p) === 'live'), pct = (n, d) => (d ? Math.round((n / d) * 100) : 0);
@@ -965,7 +972,7 @@ function renderDash() {
     + tile('g', 'vient', vient, '✅ Viennent', `🏛️ ${sal} salle · 🎥 ${liv} Live · ❔ ${vient - sal - liv}`)
     + tile('g', 'salle', sal, '🏛️ En salle', `${pct(sal, vient)} % de ceux qui viennent`)
     + tile('', 'live', liv, '🎥 En Live', `${pct(liv, vient)} % de ceux qui viennent`)
-    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'libre', P.filter((p) => p.annule && (rf === '?' ? !own(p) : !rf || RESP[pk(p)] === rf)).length, '🪑 Places libérées', 'conservées · rétablissables') + tile('r', 'nowa', c(noWA), '📵 Pas de WhatsApp', 'numéros sans WhatsApp · SMS ou appel') + (CAP ? tile('y', 'att', c((p) => p.att), '⏳ Liste d’attente', `${new Set(base.filter((p) => p.att).map((p) => p.rid)).size} réservation(s) au-delà des ${CAP} places`) : '') + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
+    + tile('r', 'non', non, '❌ Ne viennent pas', `${pct(non, rep)} % des réponses`) + tile('', 'staff', P.filter((p) => !p.annule && isStaff(p) && inRf(p)).length, '🧑‍💼 Staff', 'ne prennent pas de place') + tile('', 'libre', P.filter((p) => p.annule && (rf === '?' ? !own(p) : !rf || RESP[pk(p)] === rf)).length, '🪑 Places libérées', 'conservées · rétablissables') + tile('r', 'nowa', c(noWA), '📵 Pas de WhatsApp', 'numéros sans WhatsApp · SMS ou appel') + (CAP ? tile('y', 'att', c((p) => p.att), '⏳ Liste d’attente', `${new Set(base.filter((p) => p.att).map((p) => p.rid)).size} réservation(s) au-delà des ${CAP} places`) : '') + tile('', 'sans', sans, '🔇 Sans réponse', 'contactés, pas encore répondu');
   $('dashTeamW').classList.toggle('hidden', !!rf);
   $('dashTeam').innerHTML = rf ? '' : `<div class="tmw"><table class="tm"><thead><tr><th>Responsable</th><th>Participants</th><th>Contactés</th><th>Ont répondu</th><th>✅ Viennent</th><th>🏛️ Salle</th><th>🎥 Live</th><th>❌ Non</th><th>🔇 Sans réponse</th><th>📵 Sans WhatsApp</th></tr></thead><tbody>${
     [...EKIP.map((x) => x.non), null].map((n) => { const L = P.filter((p) => !p.annule && (n ? RESP[pk(p)] === n : !own(p))); if (!n && !L.length) return '';
@@ -978,7 +985,7 @@ async function setMode(p, mode, quiet) {
   const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode: mode || null, maj: new Date().toISOString(), pa: ME });
   if (error) { toast(friendly(error)); return; }
   if (mode) MODE[pk(p)] = mode; else delete MODE[pk(p)];
-  if (!quiet) { toast(mode ? `✓ ${mode === 'live' ? '🎥 Live' : '🏛️ En salle'}` : '✓ Mode effacé'); render(); openPerson(p); }
+  if (!quiet) { toast(mode ? `✓ ${mode === 'live' ? '🎥 Live' : mode === 'staff' ? '🧑‍💼 Staff' : '🏛️ En salle'}` : '✓ Mode effacé'); render(); openPerson(p); }
 }
 $('dlgIn').addEventListener('click', async (e) => {
   const m = e.target.closest('[data-mode]'); if (m && DLG) { setMode(DLG, m.dataset.mode || null); return; }

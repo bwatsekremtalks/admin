@@ -982,8 +982,8 @@ function renderDash() {
 $('scope').addEventListener('click', (e) => { const b = e.target.closest('[data-scope]'); if (!b) return; $('fResp').value = b.dataset.scope; render(); });
 $('dashTiles').addEventListener('click', (e) => { const b = e.target.closest('[data-fs]'); if (!b) return; $('fSuivi').value = b.dataset.fs; ETAT = 'tout'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'tout')); render(); $('count').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
 async function setMode(p, mode, quiet) {
-  const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode: mode || null, maj: new Date().toISOString(), pa: ME });
-  if (error) { toast(friendly(error)); return; }
+  const { error } = await sb.rpc('talks_crm_mode', { p_inscription_id: p.rid, p_idx: p.idx, p_mode: mode || null });   // fonctionne pour les admins ET les responsables CRM
+  if (error) { toast('Mode non enregistré : ' + friendly(error), 7000); return false; }
   if (mode) MODE[pk(p)] = mode; else delete MODE[pk(p)];
   if (!quiet) { toast(mode ? `✓ ${mode === 'live' ? '🎥 Live' : mode === 'staff' ? '🧑‍💼 Staff' : '🏛️ En salle'}` : '✓ Mode effacé'); render(); openPerson(p); }
 }

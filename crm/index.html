@@ -2,7 +2,15 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0E2A4A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="BST CRM" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<link rel="icon" href="icon-192.png" />
 <meta name="robots" content="noindex, nofollow" />
 <title>Messages & suivi — BST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -69,10 +77,31 @@
   .tl { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; } .tl li { font-size: 13.5px; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); }
   .toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); background: var(--navy); color: var(--surface); padding: 10px 16px; border-radius: 12px; font-weight: 600; z-index: 50; max-width: calc(100% - 24px); }
   details.tpl summary { cursor: pointer; font-weight: 700; } details.tpl .k { font-weight: 700; margin: 14px 0 4px; }
+  header .hbtn { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   @media (max-width: 860px) {
-    .tips { grid-template-columns: repeat(5, minmax(150px, 1fr)); overflow-x: auto; padding-bottom: 4px; }
-    .row { grid-template-columns: minmax(0, 1fr) auto; } .row .info2 { grid-column: 1 / -1; order: 3; } .row .dots { order: 4; grid-column: 1 / -1; }
-    .serie { top: 0; }
+    body { font-size: 15.5px; }
+    header.top { position: static; } header .in { padding: 10px 12px; flex-wrap: nowrap; }
+    header .eyebrow, #who, .lbl { display: none; } h1 { font-size: 19px; }
+    header .hbtn .btn { width: 40px; height: 40px; padding: 0; font-size: 17px; }
+    .wrap { padding: 12px 12px calc(24px + env(safe-area-inset-bottom)); }
+    .tips { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin: 10px -12px 12px; padding: 2px 12px 6px; scrollbar-width: none; }
+    .tips::-webkit-scrollbar { display: none; }
+    .tip { flex: 0 0 auto; width: 138px; padding: 10px; scroll-snap-align: start; border-radius: 14px; } .tip .d { display: none; } .tip .n { font-size: 14px; } .tip .v { font-size: 20px; }
+    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .filters .seg { grid-column: 1 / -1; display: flex; } .filters .seg button { flex: 1; padding: 10px 6px; }
+    .filters input.t { grid-column: 1 / -1; width: 100%; } .filters select.t { width: 100%; min-width: 0; padding: 10px 8px; }
+    #go { grid-column: 1 / -1; min-height: 46px; font-size: 16px; } #bulk { grid-column: 1 / -1; font-size: 13px; white-space: normal; }
+    .row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 10px 12px; }
+    .row .info2 { grid-column: 1; order: 3; min-width: 0; } .row .dots { order: 4; grid-column: 2; align-self: end; gap: 3px; } .row .dot { width: 24px; height: 24px; font-size: 12px; } .row > div:last-child { order: 2; }
+    .row .btn { min-height: 42px; padding: 0 14px; }
+    .btn.sm { min-height: 40px; }
+    .serie { position: sticky; top: 0; border-radius: 0 0 16px 16px; margin: 0 -12px 12px; }
+    .serie .btn { flex: 1 1 100%; min-height: 46px; }
+    dialog { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 22px 22px 0 0; border-bottom: 0; }
+    dialog[open] { animation: up .22s ease-out; } @keyframes up { from { transform: translateY(40px); opacity: .4; } }
+    .dlg { padding: 16px 14px calc(18px + env(safe-area-inset-bottom)); } .dlg .seg { display: flex; } .dlg .seg button { flex: 1; padding: 10px 4px; }
+    .mrow { grid-template-columns: 1fr; } .mrow > span { justify-content: stretch; } .mrow > span .btn, .mrow > a { flex: 1; }
+    #dX { position: sticky; top: 0; }
   }
 </style>
 </head>
@@ -92,11 +121,13 @@
 
 <div id="app" class="hidden">
   <header class="top"><div class="in">
-    <div><p class="eyebrow">Bwat Sekrèm Talks · 22 novembre 2026</p><h1>💬 Messages & suivi WhatsApp</h1></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="sub" id="who"></span>
-      <button class="btn sm" id="reload" type="button">↻ Actualiser</button><a class="btn sm" href="../">← Inscriptions</a><button class="btn sm" id="logout" type="button">Déconnexion</button></div>
+    <div class="ttl"><p class="eyebrow">Bwat Sekrèm Talks · 22 novembre 2026</p><h1>💬 Messages <span class="lbl">& suivi WhatsApp</span></h1></div>
+    <div class="hbtn"><span class="sub" id="who"></span>
+      <button class="btn sm" id="reload" type="button" aria-label="Actualiser">↻<span class="lbl"> Actualiser</span></button><a class="btn sm" href="../" aria-label="Inscriptions">←<span class="lbl"> Inscriptions</span></a><button class="btn sm" id="logout" type="button" aria-label="Déconnexion">⏻<span class="lbl"> Déconnexion</span></button></div>
   </div></header>
   <main class="wrap">
+    <div class="card hidden" id="a2hs" style="margin-top:12px;border-color:#b9e09a;background:#f3fbec"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
+      <div><b>📲 Installez-la comme une application</b><div class="sub" id="a2hsT" style="margin-top:2px"></div></div><button class="btn sm" type="button" id="a2hsX" aria-label="Fermer">✕</button></div></div>
     <div class="tips" id="tips"></div>
     <div class="card serie hidden" id="serie"></div>
     <div class="filters">
@@ -388,6 +419,17 @@ $('loginForm').addEventListener('submit', async (e) => {
 $('logout').addEventListener('click', async () => { await sb.auth.signOut(); show(null); });
 $('reload').addEventListener('click', load);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').classList.contains('hidden') && !$('dlg').open) load(); });
+/* Proposer l'installation sur l'écran d'accueil (téléphone) */
+(() => {
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let hide = false; try { hide = localStorage.getItem('bst_crm_a2hs') === '1'; } catch {}
+  if (standalone || hide || !matchMedia('(max-width: 860px)').matches) return;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  $('a2hsT').innerHTML = ios ? 'Dans Safari, touchez <b>Partager</b> (carré avec une flèche) puis <b>« Sur l’écran d’accueil »</b>. La page s’ouvrira comme une app, déjà connectée.'
+    : 'Dans Chrome, touchez <b>⋮</b> puis <b>« Ajouter à l’écran d’accueil »</b> (ou « Installer l’application »). La page s’ouvrira comme une app, déjà connectée.';
+  $('a2hs').classList.remove('hidden');
+  $('a2hsX').onclick = () => { $('a2hs').classList.add('hidden'); try { localStorage.setItem('bst_crm_a2hs', '1'); } catch {} };
+})();
 sb.auth.getSession().then(({ data }) => show(data.session));
 </script>
 </body>

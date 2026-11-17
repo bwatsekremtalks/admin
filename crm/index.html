@@ -134,6 +134,7 @@
       <div class="seg" id="etat"><button type="button" data-v="reste" class="on">À envoyer</button><button type="button" data-v="voye">Déjà envoyé</button><button type="button" data-v="tout">Tous</button></div>
       <input class="t" type="search" id="q" placeholder="Nom, numéro, université, ville…" />
       <select class="t" id="fKote"><option value="">Toutes les villes</option><option value="cap">Cap-Haïtien</option><option value="hors">Hors Cap-Haïtien</option></select>
+      <select class="t" id="fResp"><option value="">Tous les responsables</option></select>
       <select class="t" id="fMode"><option value="">Tous les modes</option><option value="salle">🏛️ En salle</option><option value="live">🎥 Live</option><option value="?">❔ Mode inconnu</option></select>
       <button class="btn p" id="go" type="button">▶ Envoi en série</button>
       <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button>
@@ -142,6 +143,18 @@
     <p class="sub" id="count" style="margin:0 0 8px"></p>
     <div class="list" id="list"></div>
 
+    <details class="card tpl" style="margin-top:16px" id="ekBox">
+      <summary>👥 Équipe et groupes de suivi <span class="sub" id="ekSum"></span></summary>
+      <p class="sub">Chaque responsable suit un groupe de participants, dans l’ordre des inscriptions. Indiquez l’e-mail de connexion de chacun : il verra « Mes participants » en ouvrant la page.</p>
+      <div id="ekList"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">
+        <button class="btn sm" type="button" id="ekAdd">＋ Ajouter un responsable</button>
+        <label class="sub">Taille d’un groupe <input class="t" id="ekSize" type="number" min="5" max="500" value="75" style="width:80px;display:inline-block;padding:6px 8px" /></label>
+        <button class="btn sm" type="button" id="ekSave">Enregistrer l’équipe</button>
+        <button class="btn sm p" type="button" id="ekGo">Répartir les participants sans responsable</button>
+      </div>
+      <div id="ekStat" style="margin-top:10px"></div>
+    </details>
     <details class="card tpl" style="margin-top:16px" id="tplBox">
       <summary>✏️ Modifier les modèles de messages (partagés avec toute l’équipe)</summary>
       <p class="sub">Variables : <code>{prenom}</code> <code>{nom}</code> <code>{places}</code> <code>{accompagnants}</code> <code>{n}</code> (étudiants de la même université) <code>{n10}</code> (n + 10) <code>{universite}</code> (« de l’Université … »).</p>
@@ -212,7 +225,7 @@ function deUni(raw) {
 }
 
 /* ---------- Données ---------- */
-let P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
+let RESP = {}, EKIP = [], P = [], MES = [], NOTES = [], MODE = {}, TIP = 'konfimasyon', ETAT = 'reste', SERIE = null, ME = '';
 const pk = (p) => `${p.rid}:${p.idx}`;
 async function load() {
   const [ins, sui, mes, not, mod, cfg] = await Promise.all([
@@ -227,7 +240,12 @@ async function load() {
   if (err) { toast(friendly(err), 6000); return; }
   const SUI = Object.fromEntries((sui.data || []).map((s) => [`${s.inscription_id}:${s.idx}`, s]));
   MES = mes.data || []; NOTES = not.data || [];
-  MODE = Object.fromEntries((mod.data || []).map((m) => [`${m.inscription_id}:${m.idx}`, m.mode]));
+  MODE = Object.fromEntries((mod.data || []).filter((m) => m.mode).map((m) => [`${m.inscription_id}:${m.idx}`, m.mode]));
+  RESP = Object.fromEntries((mod.data || []).filter((m) => m.responsab).map((m) => [`${m.inscription_id}:${m.idx}`, m.responsab]));
+  const ek = (cfg.data || []).find((c) => c.cle === 'crm_ekip');
+  try { EKIP = ek ? JSON.parse(ek.valeur) : null; } catch { EKIP = null; }
+  if (!Array.isArray(EKIP) || !EKIP.length) EKIP = DEF_EKIP.map((x) => ({ ...x }));
+  fillResp();
   TPL = Object.fromEntries((cfg.data || []).filter((c) => c.cle.startsWith('crm_tpl_')).map((c) => [c.cle.replace('crm_tpl_', ''), c.valeur]));
   AF = Object.fromEntries((cfg.data || []).filter((c) => c.cle.startsWith('crm_afich_') && c.valeur).map((c) => [c.cle.replace('crm_afich_', ''), c.valeur]));
   prepAf();
@@ -279,6 +297,7 @@ function filtered() {
     if (q && !plain(`${p.nom} ${p.tel} ${p.uni || ''} ${p.ville} ${p.by || ''}`).includes(q) && !String(p.num).includes(q.replace(/\D/g, '') || '§')) return false;
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
+    const rf = $('fResp').value; if (rf === '?' ? RESP[pk(p)] : rf && RESP[pk(p)] !== rf) return false;
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
   });
@@ -292,12 +311,12 @@ function render() {
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);
     return `<div class="row"><div><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div>
-      <div class="info2">${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
+      <div class="info2">${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
       <div style="display:flex;gap:6px">${el && AF[TIP] ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
   if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
-  renderSerie();
+  renderSerie(); renderEkip();
 }
 const byKey = (k) => P.find((p) => pk(p) === k);
 document.addEventListener('click', (e) => {
@@ -307,7 +326,7 @@ document.addEventListener('click', (e) => {
   const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }
 });
 $('etat').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; ETAT = b.dataset.v; [...$('etat').children].forEach((x) => x.classList.toggle('on', x === b)); render(); });
-['q', 'fKote', 'fMode'].forEach((id) => $(id).addEventListener('input', render));
+['q', 'fKote', 'fMode', 'fResp'].forEach((id) => $(id).addEventListener('input', render));
 
 $('bulk').addEventListener('click', async () => {
   const L = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length), t = TIPS.find((x) => x.k === TIP);
@@ -319,6 +338,54 @@ $('bulk').addEventListener('click', async () => {
   MES.unshift(...(data || [])); toast(`✓ ${L.length} marqué${L.length > 1 ? 's' : ''} comme déjà envoyé${L.length > 1 ? 's' : ''}`); render();
 });
 $('etat').addEventListener('click', () => $('bulk').classList.toggle('hidden', ETAT !== 'reste'));
+
+/* ---------- Équipe et groupes ---------- */
+const DEF_EKIP = [{ non: 'Steve', email: 'filiiasronsteve@gmail.com' }, { non: 'Abenson', email: '' }, { non: 'Stevela', email: '' }, { non: 'Samuel', email: '' }];
+let RESP_INIT = false;
+function fillResp() {
+  const cur = $('fResp').value, mine = EKIP.find((x) => x.email && x.email.toLowerCase() === ME.toLowerCase());
+  $('fResp').innerHTML = `<option value="">Tous les responsables</option>${EKIP.map((x) => `<option value="${esc(x.non)}">👤 ${esc(x.non)}${mine && mine.non === x.non ? ' (moi)' : ''}</option>`).join('')}<option value="?">Sans responsable</option>`;
+  if (!RESP_INIT && mine) { $('fResp').value = mine.non; RESP_INIT = true; } else $('fResp').value = cur;
+  renderEkip();
+}
+function renderEkip() {
+  const act = P.filter((p) => !p.annule), cnt = (n) => act.filter((p) => RESP[pk(p)] === n).length, none = act.filter((p) => !RESP[pk(p)]).length;
+  $('ekSum').textContent = `· ${EKIP.length} responsable${EKIP.length > 1 ? 's' : ''} · ${none} sans responsable`;
+  $('ekList').innerHTML = EKIP.map((x, i) => `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px">
+    <input class="t" data-ekn="${i}" value="${esc(x.non)}" placeholder="Nom" style="width:150px" /><input class="t" data-eke="${i}" value="${esc(x.email || '')}" placeholder="E-mail de connexion (facultatif)" type="email" style="flex:1;min-width:200px" />
+    <button class="btn sm" type="button" data-ekup="${i}" ${i ? '' : 'disabled'} title="Monter">↑</button><button class="btn sm" type="button" data-ekdel="${i}" title="Retirer">✕</button></div>`).join('');
+  $('ekStat').innerHTML = EKIP.map((x) => { const n = cnt(x.non), s = act.filter((p) => RESP[pk(p)] === x.non && sent(p, 'konfimasyon').length).length;
+    return `<div class="sub" style="margin-top:4px">👤 <b style="color:var(--ink)">${esc(x.non)}</b> : ${n} participant${n > 1 ? 's' : ''} · ${s} confirmation${s > 1 ? 's' : ''} envoyée${s > 1 ? 's' : ''}</div>`; }).join('');
+}
+function readEkip() { return EKIP.map((x, i) => ({ non: (document.querySelector(`[data-ekn="${i}"]`)?.value || '').trim(), email: (document.querySelector(`[data-eke="${i}"]`)?.value || '').trim().toLowerCase() })).filter((x) => x.non); }
+async function saveEkip() {
+  EKIP = readEkip(); if (!EKIP.length) { toast('Ajoutez au moins un responsable.'); return false; }
+  const { error } = await sb.from('talks_config').upsert({ cle: 'crm_ekip', valeur: JSON.stringify(EKIP), maj: new Date().toISOString() });
+  if (error) { toast(friendly(error)); return false; } fillResp(); return true;
+}
+$('ekAdd').onclick = () => { EKIP = readEkip(); EKIP.push({ non: '', email: '' }); renderEkip(); };
+$('ekSave').onclick = async () => { if (await saveEkip()) toast('✓ Équipe enregistrée'); };
+$('ekList').addEventListener('click', (e) => {
+  const d = e.target.closest('[data-ekdel]'), u = e.target.closest('[data-ekup]'); EKIP = readEkip().concat([]);
+  if (d) { const i = Number(d.dataset.ekdel); EKIP.splice(i, 1); renderEkip(); }
+  if (u) { const i = Number(u.dataset.ekup); [EKIP[i - 1], EKIP[i]] = [EKIP[i], EKIP[i - 1]]; renderEkip(); }
+});
+$('ekGo').onclick = async () => {
+  if (!(await saveEkip())) return;
+  const size = Math.max(5, Number($('ekSize').value) || 75);
+  const act = P.filter((p) => !p.annule), todo = act.filter((p) => !RESP[pk(p)]);   // ordre des inscriptions
+  if (!todo.length) { toast('Tout le monde a déjà un responsable.'); return; }
+  const load = Object.fromEntries(EKIP.map((x) => [x.non, act.filter((p) => RESP[pk(p)] === x.non).length]));
+  const plan = todo.map((p) => { let who = EKIP.find((x) => load[x.non] < size);                      // remplir les groupes dans l'ordre (75, 75, 75…)
+    if (!who) who = EKIP.reduce((a, b) => (load[b.non] < load[a.non] ? b : a));                      // tous pleins : au moins chargé
+    load[who.non]++; return { p, who: who.non }; });
+  const resume = EKIP.map((x) => `${x.non} : +${plan.filter((y) => y.who === x.non).length}`).join('\n');
+  if (!confirm(`Répartir ${todo.length} participant(s) sans responsable, dans l’ordre des inscriptions (groupes de ${size}) ?\n\n${resume}\n\nLes personnes déjà attribuées ne changent pas.`)) return;
+  const now = new Date().toISOString();
+  const { error } = await sb.from('talks_crm_moun').upsert(plan.map(({ p, who }) => ({ inscription_id: p.rid, idx: p.idx, responsab: who, maj: now, pa: ME })));
+  if (error) { toast(friendly(error)); return; }
+  plan.forEach(({ p, who }) => { RESP[pk(p)] = who; }); toast(`✓ ${plan.length} participant(s) réparti(s)`); render(); renderEkip();
+};
 
 /* ---------- Affiche jointe au message ---------- */
 let AF = {}; const AFFILE = {};
@@ -404,6 +471,7 @@ function openPerson(p) {
   $('dlgIn').innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><h2>${esc(p.nom)}</h2>
       <div class="sub">${esc(p.tel || 'pas de numéro')}${p.ville ? ' · 📍 ' + esc(p.ville) : ''}${p.by ? ' · réservé par ' + esc(p.by) : ''}${p.ukey ? ` · 🎓 ${esc(p.uni)} (${p.nUni} étudiant${p.nUni > 1 ? 's' : ''})` : ''}</div></div>
       <button class="btn sm" type="button" id="dX" aria-label="Fermer">✕</button></div>
+    <div style="margin-top:12px"><b>Responsable du suivi</b> <select class="t" id="pResp" style="width:auto;display:inline-block;margin-left:6px;padding:6px 10px"><option value="">— personne —</option>${EKIP.map((x) => `<option ${RESP[pk(p)] === x.non ? 'selected' : ''}>${esc(x.non)}</option>`).join('')}</select></div>
     <div style="margin-top:12px"><b>Mode de participation</b> <span class="sub">(change les messages Certificat et Conseils)</span>
       <div class="seg" style="margin-top:6px"><button type="button" data-mode="salle" class="${m === 'salle' ? 'on' : ''}">🏛️ En salle</button><button type="button" data-mode="live" class="${m === 'live' ? 'on' : ''}">🎥 Live</button><button type="button" data-mode="" class="${m ? '' : 'on'}">❔ Pas encore</button></div></div>
     <div style="margin-top:14px"><b>Messages</b>${TIPS.map((t) => { const ss = sent(p, t.k); const el = eligible(p, t.k);
@@ -415,6 +483,9 @@ function openPerson(p) {
       <div><button class="btn p" type="button" id="nSave">Enregistrer le suivi</button></div></div></div>
     <div style="margin-top:14px"><b>Historique</b><ul class="tl">${hist.map((h) => `<li><span class="sub">${fmtDate(h.le)}</span> · ${h.h}</li>`).join('') || '<li class="sub">Rien pour le moment.</li>'}</ul></div>`;
   if (!$('dlg').open) $('dlg').showModal();
+  $('pResp').onchange = async () => { const v = $('pResp').value || null;
+    const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, responsab: v, maj: new Date().toISOString(), pa: ME });
+    if (error) { toast(friendly(error)); return; } if (v) RESP[pk(p)] = v; else delete RESP[pk(p)]; toast(v ? `✓ Confié à ${v}` : '✓ Sans responsable'); render(); };
   $('dX').onclick = () => $('dlg').close();
   $('nSave').onclick = async () => {
     const rezilta = $('nRes').value, teks = $('nTxt').value.trim(); if (!rezilta && !teks) { toast('Choisissez un résultat ou écrivez une note.'); return; }
@@ -427,8 +498,7 @@ function openPerson(p) {
   };
 }
 async function setMode(p, mode, quiet) {
-  const { error } = mode ? await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode, maj: new Date().toISOString(), pa: ME })
-    : await sb.from('talks_crm_moun').delete().eq('inscription_id', p.rid).eq('idx', p.idx);
+  const { error } = await sb.from('talks_crm_moun').upsert({ inscription_id: p.rid, idx: p.idx, mode: mode || null, maj: new Date().toISOString(), pa: ME });
   if (error) { toast(friendly(error)); return; }
   if (mode) MODE[pk(p)] = mode; else delete MODE[pk(p)];
   if (!quiet) { toast(mode ? `✓ ${mode === 'live' ? '🎥 Live' : '🏛️ En salle'}` : '✓ Mode effacé'); render(); openPerson(p); }

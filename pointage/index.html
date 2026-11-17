@@ -375,11 +375,8 @@ function people(rows) {
 }
 let ALLP = [], CAPA = 0, ATT = {};
 /* Liste d'attente : réservations non annulées (ordre d'arrivée) qui commencent au-delà de la capacité — même calcul que le compteur du site */
-function calcAtt() {
-  ATT = {}; if (!CAPA) return; let cum = 0, rang = 0;
-  for (const r of [...ROWS].sort((a, b) => String(a.created_at).localeCompare(String(b.created_at)) || a.id - b.id)) { if (r.annule) continue; if (cum >= CAPA) ATT[r.id] = ++rang; cum += 1 + (r.accompagnants || []).length; }
-}
-sb.rpc('talks_compteur').then(({ data }) => { if (data && data.capacite) { CAPA = +data.capacite; if (ROWS.length) { calcAtt(); render(); } } });
+// calculé par la base (talks_attente) : les participants Live n'occupent pas de place en salle
+function calcAtt() { sb.rpc('talks_attente').then(({ data }) => { if (!data) return; CAPA = +(data.capacite || 0); ATT = Object.fromEntries((data.attente || []).map((x) => [x.id, x.rang])); if (ROWS.length) render(); }); }
 async function load(quiet) {
   if (isPin()) {
     const { data, error } = await sb.rpc('talks_akey_done', { p_token: PIN_TOKEN });

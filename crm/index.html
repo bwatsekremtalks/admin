@@ -527,9 +527,10 @@ async function load() {
     sb.from('talks_crm_moun').select('*'),
     sb.from('talks_config').select('cle, valeur').like('cle', 'crm_%'),
     sb.from('talks_presences').select('inscription_id, idx'),
-    sb.rpc('talks_compteur'),
+    sb.rpc('talks_attente'),
   ]);
   CAP = +((cpt && cpt.data && cpt.data.capacite) || 0);
+  const ATTDB = Object.fromEntries(((cpt && cpt.data && cpt.data.attente) || []).map((x) => [x.id, x.rang]));
   PRES = Object.fromEntries(((prs && prs.data) || []).map((x) => [`${x.inscription_id}:${x.idx}`, 1]));
   const err = ins.error || mes.error || not.error || mod.error;
   if (err) { toast(friendly(err), 6000); return; }
@@ -548,8 +549,8 @@ async function load() {
   prepAf();
   P = [];
   // Liste d'attente : réservations (non annulées, par ordre d'arrivée) qui commencent au-delà de la capacité — même calcul que le compteur du site
-  ATT = {}; let cum = 0, rang = 0;
-  for (const r of ins.data || []) { if (r.annule) continue; if (CAP && cum >= CAP) ATT[r.id] = ++rang; cum += 1 + (r.accompagnants || []).length; }
+  // calcul fait par la base (talks_attente) : les participants Live n'occupent pas de place en salle
+  ATT = ATTDB;
   for (const r of ins.data || []) {
     const acc = r.accompagnants || [];
     P.push({ rid: r.id, idx: -1, nom: r.nom, tel: r.telephone, ville: r.ville || '', uni: (r.profils || []).includes('etudiant') ? r.universite : null, profils: r.profils || [],
@@ -559,7 +560,7 @@ async function load() {
   }
   // nombre d'étudiants actifs par université
   const U = {}; for (const p of P) { const k = !p.annule && uniKey(p.uni); if (k) U[k] = (U[k] || 0) + 1; }
-  for (const p of P) { p.att = ATT[p.rid] || 0; p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
+  for (const p of P) { p.att = MODE[pk(p)] === 'live' ? 0 : ATT[p.rid] || 0; p.num = waNumber(p.tel); p.cap = isCap(p.ville); p.ukey = uniKey(p.uni); p.nUni = p.ukey ? U[p.ukey] || 1 : 0; }
   if (WOL === 'crm') { const me = myTeam(); P = P.filter((p) => me && RESP[pk(p)] === me.non); }   // chacun ne voit que son groupe
   // nombre d'étudiants par université compté sur TOUS les inscrits (fonction de la base, même règle que le site)
   const raws = [...new Set(P.filter((p) => p.ukey).map((p) => String(p.uni).trim()))];
@@ -584,7 +585,7 @@ const modeOf = (p) => MODE[pk(p)] || null;
 const ATT_OK = ['atant', 'atant2', 'otm', 'etidyan', 'mesi'];   // messages autorisés pour les personnes sur liste d'attente
 function eligible(p, k) { if (p.annule || !p.num) return false;
   if (k === 'atant' || k === 'atant2') return !!p.att;
-  if (k === 'plas') return !p.att && MES.some((m) => m.tip === 'atant' && m.inscription_id === p.rid && m.idx === p.idx);
+  if (k === 'plas') return !p.att && modeOf(p) !== 'live' && MES.some((m) => m.tip === 'atant' && m.inscription_id === p.rid && m.idx === p.idx);
   if (p.att && !ATT_OK.includes(k)) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)] || modeOf(p) === 'live'; return true; }
 function variant(p, k) {
   const m = modeOf(p) || (p.cap ? 'salle' : null);
@@ -911,13 +912,16 @@ async function saveNote(p, rezilta, teks) {
   const { data, error } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: rezilta || null, teks: teks || null, pa: ME }).select().single();
   if (error) { toast(friendly(error)); return; }
   NOTES.unshift(data);
+  const modeAvant = modeOf(p);
   if (rezilta === 'Présentiel' || rezilta === 'Live') await setMode(p, rezilta === 'Live' ? 'live' : 'salle', true);
+  if ((modeAvant === 'live') !== (modeOf(p) === 'live')) { const k = pk(p); await load(); p = byKey(k) || p;   // Live / salle change les places : on recalcule la liste d'attente
+  }
   if (['Présentiel', 'Live', 'Confirmé(e)'].includes(rezilta) && !p.adminOK) {   // même statut « Confirmée » dans l'espace inscriptions
     const { error: e2 } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'c' });
     if (!e2) p.adminOK = true;
   }
   if (rezilta === 'Ne viendra pas' && !p.annule) { await liberer(p); return; }
-  toast(rezilta === 'Pas de WhatsApp' ? '📵 Noté : pas de WhatsApp sur ce numéro. Utilisez SMS ou appel.' : rezilta === 'WhatsApp OK' ? '✓ WhatsApp rétabli pour ce numéro' : '✓ Réponse enregistrée'); render(); openPerson(p);
+  toast(rezilta === 'Live' ? '🎥 Noté : suivra le Live. Sa place en salle est libérée pour la liste d’attente.' : rezilta === 'Pas de WhatsApp' ? '📵 Noté : pas de WhatsApp sur ce numéro. Utilisez SMS ou appel.' : rezilta === 'WhatsApp OK' ? '✓ WhatsApp rétabli pour ce numéro' : '✓ Réponse enregistrée'); render(); openPerson(p);
 }
 /* « Ne viendra pas » : proposer de libérer la place (annulation dans l'espace inscriptions) */
 async function liberer(p) {

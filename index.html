@@ -987,9 +987,9 @@ async function load(opts = {}) {
     sb.from('talks_inscriptions').select('*').order('created_at', { ascending: true }),
     sb.from('talks_suivi_accompagnants').select('*'),
     sb.from('talks_presences').select('*'),
-    sb.rpc('talks_compteur'),
+    sb.rpc('talks_attente'),
   ]);
-  if (cpt && cpt.data && cpt.data.capacite) CAPA = +cpt.data.capacite;
+  if (cpt && cpt.data) { CAPA = +(cpt.data.capacite || 0); ATTA = Object.fromEntries((cpt.data.attente || []).map((x) => [x.id, x.rang])); }
   $('refresh').disabled = false;
   if (error) {
     // On garde la liste affichée ; on réessaie bientôt sans alarmer.
@@ -1021,13 +1021,8 @@ async function load(opts = {}) {
 
 function rowsForEdition() { return ALL.filter((r) => r.edition === $('edition').value); }
 /* Liste d'attente : réservations non annulées (ordre d'arrivée) qui commencent au-delà de la capacité — même calcul que le compteur du site */
-let CAPA = 0;
-function attRang(r) {
-  if (!CAPA || !r || r.annule || r.edition !== '2026-11-22-cap-haitien') return 0;
-  let cum = 0, rang = 0;
-  for (const x of ALL) { if (x.edition !== r.edition || x.annule) continue; if (cum >= CAPA) rang++; if (x.id === r.id) return cum >= CAPA ? rang : 0; cum += 1 + (x.accompagnants || []).length; }
-  return 0;
-}
+let CAPA = 0, ATTA = {};   // calculé par la base (talks_attente) : les participants Live n'occupent pas de place en salle
+function attRang(r) { return r && !r.annule ? ATTA[r.id] || 0 : 0; }
 const attPill = (r) => { const n = attRang(r); return n ? `<span class="pill att" title="Inscrit(e) après la ${CAPA}e place : ne pas envoyer la confirmation (voir le CRM, message « Liste d’attente »)">⏳ Liste d’attente n° ${n}</span>` : ''; };
 
 function profilsOf(r) { return r.profils && r.profils.length ? r.profils : []; }

@@ -317,6 +317,8 @@ function render() {
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
   if (L.length > 400) $('list').insertAdjacentHTML('beforeend', `<p class="sub">… ${L.length - 400} autres : utilisez la recherche ou l’envoi en série.</p>`);
   renderSerie(); renderEkip();
+  const me = myTeam(), nq = serieList().length;
+  $('go').textContent = me ? `▶ Envoi en série · mon groupe (${nq})` : `▶ Envoi en série (${nq})`;
 }
 const byKey = (k) => P.find((p) => pk(p) === k);
 document.addEventListener('click', (e) => {
@@ -436,9 +438,11 @@ function renderAf() {
 }
 
 /* ---------- Envoi en série ---------- */
+const myTeam = () => EKIP.find((x) => x.email && x.email.toLowerCase() === ME.toLowerCase()) || null;
+const serieList = () => { const me = myTeam(); return filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length && (!me || RESP[pk(p)] === me.non)); };
 $('go').addEventListener('click', () => {
-  const q = filtered().filter((p) => eligible(p, TIP) && !sent(p, TIP).length);
-  if (!q.length) { toast('Personne à qui envoyer ce message dans cette liste.'); return; }
+  const q = serieList(), me = myTeam();
+  if (!q.length) { toast(me ? `Plus personne à qui envoyer ce message dans votre groupe (${me.non}) 🎉` : 'Personne à qui envoyer ce message dans cette liste.', 5000); return; }
   SERIE = { tip: TIP, queue: q.map(pk), i: 0, done: 0 }; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 function renderSerie() {

@@ -97,6 +97,9 @@
   .acts { display: flex; gap: 10px; margin-top: 14px; position: sticky; bottom: calc(-18px - env(safe-area-inset-bottom)); background: #fff; padding: 10px 0 calc(4px + env(safe-area-inset-bottom)); } .acts button { flex: 1; min-height: 54px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
   .b1 { border: 0; background: var(--green); color: #0a1f38; } .b1:disabled { opacity: .55; } .b2 { border: 1.5px solid var(--line); background: #fff; }
   .prog { height: 10px; background: #e7edf4; border-radius: 9px; overflow: hidden; margin-top: 12px; } .prog i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green2), var(--green)); transition: width .3s; }
+  .seg2 { display: flex; background: #eef3f8; border-radius: 14px; padding: 4px; gap: 4px; margin-bottom: 4px; }
+  .seg2 button { flex: 1; border: 0; background: none; border-radius: 11px; padding: 10px 8px; font-weight: 800; font-size: 14.5px; cursor: pointer; color: var(--ink2); }
+  .seg2 button.on { background: #fff; color: var(--ink); box-shadow: 0 2px 8px rgba(13,45,74,.12); }
   .hello { background: #eef9e6; border: 1.5px solid #b9e09a; border-radius: 16px; padding: 12px 14px; font-weight: 700; }
   .toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 700; z-index: 80; max-width: calc(100% - 24px); }
   @media (max-width: 640px) { .heart { padding: 5px 8px; font-size: 12px; } .hero { padding: 24px 18px; border-radius: 24px; } .cta { width: 100%; } .grid { columns: 2 140px; column-gap: 8px; } .ph { margin-bottom: 8px; border-radius: 14px; } .ph .cap { padding: 8px 10px 10px; } .ph .tx { font-size: 13px; } }
@@ -134,9 +137,12 @@
 <dialog id="up"><div class="sheet">
   <div id="st1">
     <h2>📸 Partager mes photos</h2>
-    <p class="sub">Le mur est réservé aux participants, en salle ou en Live. Entrez le numéro WhatsApp donné lors de votre réservation (ou celui de la personne qui vous a inscrit·e).</p>
+    <div class="seg2" id="who2"><button type="button" class="on" data-w="resa">🎟️ J’ai réservé</button><button type="button" data-w="live">🎥 J’ai suivi le Live</button></div>
+    <p class="sub" id="whoTxt">Entrez le numéro WhatsApp donné lors de votre réservation (ou celui de la personne qui vous a inscrit·e).</p>
+    <div id="liveF" class="hidden"><label class="l" for="lnom">Votre nom</label><input class="t" id="lnom" autocomplete="name" placeholder="Prénom et nom" maxlength="80" /></div>
     <label class="l" for="tel">Numéro WhatsApp</label>
     <input class="t" id="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="ex. 4901 2257" maxlength="25" />
+    <div id="liveM" class="hidden"><label class="l" for="lmot">Mot secret du Live</label><input class="t" id="lmot" autocomplete="off" autocapitalize="characters" placeholder="Annoncé pendant le Live" maxlength="40" style="text-transform:uppercase;letter-spacing:.08em;font-weight:800" /></div>
     <p class="err" id="e1" role="alert"></p>
     <div class="acts"><button type="button" class="b2" id="c1">Annuler</button><button type="button" class="b1" id="v1">Continuer</button></div>
   </div>
@@ -267,12 +273,19 @@ function openUp() {
 }
 $('cta').onclick = () => { DEFI = ''; openUp(); };
 $('c1').onclick = () => $('up').close(); $('c2').onclick = () => $('up').close();
+let WHO = 'resa';
+$('who2').addEventListener('click', (e) => { const b = e.target.closest('[data-w]'); if (!b) return; WHO = b.dataset.w;
+  [...$('who2').children].forEach((x) => x.classList.toggle('on', x === b)); $('liveF').classList.toggle('hidden', WHO !== 'live'); $('liveM').classList.toggle('hidden', WHO !== 'live');
+  $('whoTxt').textContent = WHO === 'live' ? 'Vous avez suivi Bwat Sekrèm Talks en Live, même sans réservation ? Bienvenue ! Indiquez votre nom, votre WhatsApp et le mot secret annoncé pendant le Live.' : 'Entrez le numéro WhatsApp donné lors de votre réservation (ou celui de la personne qui vous a inscrit·e).';
+  $('e1').textContent = ''; (WHO === 'live' ? $('lnom') : $('tel')).focus(); });
 $('v1').onclick = async () => {
   const tel = $('tel').value.trim(); if (tel.replace(/\D/g, '').length < 8) { $('e1').textContent = 'Indiquez votre numéro WhatsApp (8 chiffres).'; return; }
+  if (WHO === 'live' && $('lnom').value.trim().length < 2) { $('e1').textContent = 'Indiquez votre nom.'; return; }
+  if (WHO === 'live' && !$('lmot').value.trim()) { $('e1').textContent = 'Indiquez le mot secret annoncé pendant le Live.'; return; }
   $('v1').disabled = true; $('e1').textContent = '';
-  let r = null; try { r = await rpc('talks_mur_kle', { p_tel: tel }); } catch {}
+  let r = null; try { r = WHO === 'live' ? await rpc('talks_mur_kle_live', { p_non: $('lnom').value.trim(), p_tel: tel, p_mot: $('lmot').value.trim() }) : await rpc('talks_mur_kle', { p_tel: tel }); } catch {}
   $('v1').disabled = false;
-  if (!r || !r.ok) { $('e1').textContent = { absent: 'Ce numéro ne figure pas parmi les inscrits. Essayez le numéro donné à la réservation, ou celui de la personne qui vous a inscrit·e.', ferme: 'Le mur s’ouvre le 22 novembre à 14 h 30.', bloque: 'Trop d’essais. Réessayez dans quelques minutes.', numero: 'Numéro invalide.' }[r && r.error] || 'Vérification impossible. Vérifiez votre connexion et réessayez.'; return; }
+  if (!r || !r.ok) { $('e1').textContent = { absent: 'Ce numéro ne figure pas parmi les inscrits. Vous avez suivi le Live sans réserver ? Touchez « 🎥 J’ai suivi le Live ».', mot: 'Mot secret incorrect. Il est annoncé pendant le Live et affiché à l’écran.', nom: 'Indiquez votre nom.', ferme: 'Le mur s’ouvre le 22 novembre à 14 h 30.', bloque: 'Trop d’essais. Réessayez dans quelques minutes.', numero: 'Numéro invalide.' }[r && r.error] || 'Vérification impossible. Vérifiez votre connexion et réessayez.'; return; }
   TOK = r.token; FILES = []; drawThumbs();
   FAIT = await rpc('talks_mur_mwen', { p_token: TOK }).catch(() => []) || []; renderChips(); $('lej').value = ''; $('ok').checked = false; $('e2').textContent = ''; $('prog').classList.add('hidden');
   MODE = r.mode === 'live' ? 'live' : 'salle';
@@ -280,7 +293,7 @@ $('v1').onclick = async () => {
   $('hello').textContent = `Bonjour ${r.non} 👋 ${MODE === 'live' ? 'Merci d’avoir suivi le Live ! 🎥' : 'Merci d’avoir été là !'} ${r.deja ? `(${r.deja} photo${r.deja > 1 ? 's' : ''} déjà publiée${r.deja > 1 ? 's' : ''})` : ''}`;
   $('st1').classList.add('hidden'); $('st2').classList.remove('hidden');
 };
-$('tel').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('v1').click(); });
+['tel', 'lnom', 'lmot'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('v1').click(); }));
 function drawThumbs() {
   $('thumbs').innerHTML = FILES.map((f, i) => `<div><img src="${f.url}" alt="" /><button type="button" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join('');
   $('v2').disabled = !FILES.length || !$('ok').checked; $('v2').textContent = FILES.length > 1 ? `Publier ${FILES.length} photos` : 'Publier';

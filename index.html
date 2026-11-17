@@ -492,6 +492,9 @@
         </div>
         <div class="card" style="margin-top:12px"><h2>Photos publiées <span class="sub" id="uN"></span></h2>
           <div id="uGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px"></div></div>
+        <div class="card" style="margin-top:12px"><h2>🎥 Spectateurs du Live (sans réservation) <span class="sub" id="uLN"></span></h2>
+          <p class="sub" style="margin:0 0 8px">Personnes qui ont suivi le Live sans réserver et se sont identifiées sur le mur avec le mot secret : de nouveaux contacts pour les prochaines éditions.</p>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Nom</th><th>WhatsApp</th></tr></thead><tbody id="uLive"></tbody></table></div></div>
       </div>
       <div id="panelJ" class="hidden">
         <div class="tiles" id="jTiles"></div>
@@ -1806,11 +1809,13 @@ $('tabU').addEventListener('click', () => setTab('U'));
 let UROWS = [];
 const murImg = (path) => `${SUPABASE_URL}/storage/v1/object/public/mur/${path}`;
 async function loadMur() {
-  const [m, c] = await Promise.all([sb.from('talks_mur').select('*').order('kreye_le', { ascending: false }).limit(2000), sb.from('talks_config').select('valeur').eq('cle', 'mur_aktif').maybeSingle()]);
+  const [m, c, lv] = await Promise.all([sb.from('talks_mur').select('*').order('kreye_le', { ascending: false }).limit(2000), sb.from('talks_config').select('valeur').eq('cle', 'mur_aktif').maybeSingle(), sb.from('talks_mur_live_moun').select('*').order('kreye_le', { ascending: false })]);
+  const LV = lv.data || []; $('uLN').textContent = `· ${LV.length}`;
+  $('uLive').innerHTML = LV.map((x) => `<tr><td class="sub">${esc(fmtDate(x.kreye_le))}</td><td><strong>${esc(x.non)}</strong></td><td><a href="https://wa.me/509${esc(x.tel8)}" target="_blank" rel="noopener">${esc(x.tel8.slice(0, 4) + ' ' + x.tel8.slice(4))}</a></td></tr>`).join('') || '<tr><td colspan="3" class="empty">Personne pour le moment.</td></tr>';
   if (m.error) { notify('Mur : ' + friendly(m.error), 'warn'); return; }
   UROWS = m.data || []; if (c.data) $('uMode').value = c.data.valeur || 'auto';
   const vis = UROWS.filter((r) => r.vizib);
-  $('uTiles').innerHTML = [['Photos visibles', vis.length, `${UROWS.length - vis.length} masquée(s)`], ['Participants', new Set(vis.map((r) => `${r.inscription_id}:${r.idx}`)).size, 'ont publié'], ['J’aime', vis.reduce((s, r) => s + (r.renmen || 0), 0), 'au total']]
+  $('uTiles').innerHTML = [['Photos visibles', vis.length, `${UROWS.length - vis.length} masquée(s)`], ['Participants', new Set(vis.map((r) => r.inscription_id ? `${r.inscription_id}:${r.idx}` : 't' + (r.tel8 || r.non))).size, `${vis.filter((r) => r.mode === 'live').length} photo(s) du Live`], ['Contacts Live', LV.length, 'sans réservation'], ['J’aime', vis.reduce((s, r) => s + (r.renmen || 0), 0), 'au total']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('uN').textContent = `· ${UROWS.length}`;
   $('uGrid').innerHTML = UROWS.map((r) => `<div style="border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);${r.vizib ? '' : 'opacity:.5'}">

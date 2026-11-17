@@ -6,7 +6,8 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Inscriptions BST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700;800&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
   :root {
@@ -229,6 +230,72 @@
     .note-in::placeholder { color: transparent; }
     .wrap { max-width: none; padding: 0; }
   }
+
+  /* ===== Refonte : même style que les pages Pointage et Messages & suivi ===== */
+  :root { --navy: #0D2D4A; --navy2: #123d66; --green: #7AC142; --green2: #5DB033; }
+  h1, h2, h3, .brand { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; }
+  .login { background: radial-gradient(circle at 90% 0%, rgba(122,193,66,.3), transparent 45%), linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  .login .card { border: 0; border-radius: 26px; padding: 28px; box-shadow: 0 30px 80px rgba(0,0,0,.3); }
+  .login h1 { font-size: 28px; } .llogo { height: 46px; display: block; margin-bottom: 12px; }
+  header.top.hero { position: relative; z-index: 5; border: 0; backdrop-filter: none; color: #fff; border-radius: 0 0 30px 30px; margin-bottom: 8px;
+    background: radial-gradient(circle at 92% 0%, rgba(122,193,66,.35), transparent 45%), radial-gradient(circle at 0% 100%, rgba(47,143,232,.25), transparent 50%), linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  header.top.hero .wrap { display: block; padding-top: 14px; padding-bottom: 18px; }
+  .hrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .hlogo { height: 34px; }
+  header.top.hero .brand { flex: 1; min-width: 160px; font-size: 21px; color: #fff; }
+  header.top.hero .brand small { color: rgba(255,255,255,.72); font: 500 12.5px "DM Sans", sans-serif; margin-top: 2px; }
+  .hctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .hctl select.t { margin: 0; width: auto; min-height: 40px; padding: 8px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.1); color: #fff; font-weight: 700; }
+  .hctl select.t option { color: #0d2236; }
+  .hauto { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: rgba(255,255,255,.8); }
+  .hauto #lastRef { color: rgba(255,255,255,.6); }
+  .ib { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 17px; }
+  .ib:hover { background: rgba(255,255,255,.16); }
+  header.top.hero .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .hb { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+  .hb:hover { background: rgba(255,255,255,.16); } .hb:disabled { opacity: .6; }
+  .hb.pr { background: var(--green); border-color: var(--green); color: #0a1f38; box-shadow: 0 6px 16px rgba(122,193,66,.35); }
+  .hb.wa { background: #25D366; border-color: #25D366; color: #05331b; }
+  .hb.hl { background: #fff; border-color: #fff; color: var(--navy); }
+  /* Onglets */
+  .tabs { gap: 6px; margin: 22px 0 14px; }
+  .tabs > [id^="panel"], .tabs > .filters { flex: 1 1 100%; min-width: 0; max-width: 100%; }
+  .tab { border: 1px solid var(--line); background: var(--surface); padding: 9px 14px; border-radius: 13px; font-weight: 700; color: var(--ink-2); box-shadow: 0 2px 6px rgba(13,45,74,.04); }
+  .tab:hover { background: var(--surface-2); }
+  .tab[aria-selected="true"] { background: var(--navy); color: #fff; box-shadow: 0 4px 12px rgba(13,45,74,.25); }
+  .tab.pt { color: #1a8f4c; } .tab.pt[aria-selected="true"] { background: #1a8f4c; color: #fff; }
+  /* Cartes, chiffres, boutons, champs */
+  .card { border-radius: 22px; box-shadow: 0 4px 14px rgba(13,45,74,.05); }
+  .tile { border-radius: 20px; box-shadow: 0 6px 18px rgba(13,45,74,.06); }
+  .tile .v { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; letter-spacing: -.01em; }
+  .btn { border-radius: 14px; font-weight: 700; }
+  .btn.primary { background: var(--green); border-color: var(--green); color: #0a1f38; box-shadow: 0 6px 16px rgba(122,193,66,.3); }
+  input.t, select.t, textarea { border-radius: 14px; }
+  .table-wrap { border-radius: 18px; }
+  dialog.ed, dialog.vis { border: 0; border-radius: 26px; box-shadow: 0 30px 80px rgba(8,20,36,.35); }
+  dialog.ed::backdrop, dialog.vis::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
+  /* Fenêtre de confirmation */
+  dialog.ask { width: min(440px, calc(100% - 32px)); border: 0; border-radius: 26px; padding: 0; text-align: center; background: var(--surface); color: var(--ink); box-shadow: 0 30px 80px rgba(8,20,36,.35); }
+  dialog.ask::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
+  dialog.ask[open] { animation: askIn .22s cubic-bezier(.2,1.2,.4,1); } @keyframes askIn { from { transform: translateY(14px) scale(.97); opacity: 0; } }
+  .ask .bx { padding: 28px 22px 20px; }
+  .ask .ic { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 14px; font-size: 34px; background: #e8f1fb; }
+  .ask .ic.red { background: #fdecea; } .ask .ic.warn { background: #fff4dd; } .ask .ic.green { background: #e8f7ec; }
+  .ask h3 { margin: 0; font-size: 22px; } .ask p { margin: 8px 0 0; color: var(--ink-2); white-space: pre-line; }
+  .ask .bb { display: flex; gap: 10px; margin-top: 22px; } .ask .bb button { flex: 1; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .ask .no { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); } .ask .yes { border: 0; background: var(--navy); color: #fff; } .ask .yes.red { background: #c0352b; }
+  @media (max-width: 720px) {
+    header.top.hero { border-radius: 0 0 24px 24px; }
+    header.top.hero .brand { font-size: 19px; } .hlogo { height: 30px; }
+    .hrow { gap: 10px; } .hctl { width: 100%; } .hctl select.t { flex: 1; min-width: 0; }
+    header.top.hero .actions { flex-wrap: nowrap; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 4px; scrollbar-width: none; } header.top.hero .actions::-webkit-scrollbar { display: none; }
+  }
+  .bar-fill { background: linear-gradient(90deg, var(--green2), var(--green)) !important; }
+  @media (max-width: 720px) {
+    .hctl select.t { flex: 1 1 100%; } .hctl .hb { flex: 1; justify-content: center; }
+    .tile { padding: 12px 14px; } .tile .k { font-size: 11px; } .tile .v { font-size: 26px; } .tile .s { font-size: 12px; }
+  }
+  @media print { header.top.hero { display: none !important; } }
 </style>
 </head>
 <body>
@@ -236,6 +303,7 @@
 <!-- Connexion -->
 <section id="login" class="login">
   <form id="loginForm" class="card">
+    <img class="llogo" src="portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" />
     <p class="eyebrow">Bwat Sekrèm Talks</p>
     <h1>Espace inscriptions</h1>
     <label class="f" for="email">E-mail</label>
@@ -263,25 +331,30 @@
 
 <!-- Application -->
 <div id="app" class="hidden">
-  <header class="top">
+  <header class="top hero">
     <div class="wrap">
-      <div class="brand">Bwat Sekrèm Talks <small id="who"></small></div>
+      <div class="hrow">
+        <img class="hlogo" src="portrait/logos/bst-blanc.png" alt="BST" />
+        <div class="brand">Espace inscriptions <small id="who"></small></div>
+        <div class="hctl">
+          <select class="t" id="edition" aria-label="Édition"></select>
+          <button class="hb" id="refresh" type="button" style="font-variant-numeric:tabular-nums">Actualiser</button>
+          <label class="hauto" title="Recharge la liste toutes les 2 minutes"><input type="checkbox" id="autoRef" checked /> Auto <span id="lastRef"></span></label>
+          <button class="ib" id="logout" type="button" title="Déconnexion" aria-label="Déconnexion">⏻</button>
+        </div>
+      </div>
       <div class="actions">
-        <select class="t" id="edition" aria-label="Édition"></select>
-        <button class="btn" id="refresh" type="button" style="min-width:150px;justify-content:center;font-variant-numeric:tabular-nums">Actualiser</button>
-        <label class="sub" style="display:inline-flex;align-items:center;gap:6px" title="Recharge la liste toutes les 2 minutes"><input type="checkbox" id="autoRef" checked /> Auto (2 min) <span id="lastRef"></span></label>
-        <button class="btn" id="printList" type="button">Imprimer la liste</button>
-        <button class="btn" id="printStats" type="button">Imprimer les stats</button>
-        <button class="btn" id="visBtn" type="button">🎨 Visuels réseaux</button>
-        <button class="btn" id="goVisites" type="button">📈 Visites du site</button>
-        <a class="btn" href="./crm/" style="background:#25D366;border-color:#25D366;color:#06301a;font-weight:700">💬 Messages & suivi (CRM)</a>
-        <a class="btn" href="./pointage/" style="background:#0D2D4A;border-color:#0D2D4A;color:#fff;font-weight:700">✅ Pointage (jour J)</a>
-        <button class="btn" id="tplBtn" type="button" aria-expanded="false">Message WhatsApp</button>
-        <button class="btn" id="csv" type="button">Exporter (Excel)</button>
-        <button class="btn" id="vcf" type="button" title="Fichier .vcf : ouvrez-le sur le téléphone pour enregistrer tous les numéros d’un coup">📇 Contacts téléphone</button>
-        <button class="btn" id="newResa" type="button">+ Nouvelle inscription</button>
-        <a class="btn" href="./coupons/" title="Coupons des portraits IA (ventes MonCash) et métiers demandés">🖼️ Coupons portraits</a>
-        <button class="btn" id="logout" type="button">Déconnexion</button>
+        <a class="hb hl" href="./pointage/">✅ Pointage (jour J)</a>
+        <a class="hb wa" href="./crm/">💬 Messages & suivi</a>
+        <button class="hb pr" id="newResa" type="button">＋ Nouvelle inscription</button>
+        <button class="hb" id="tplBtn" type="button" aria-expanded="false">✉️ Message WhatsApp</button>
+        <button class="hb" id="visBtn" type="button">🎨 Visuels réseaux</button>
+        <button class="hb" id="goVisites" type="button">📈 Visites du site</button>
+        <button class="hb" id="printList" type="button">🖨️ Imprimer la liste</button>
+        <button class="hb" id="printStats" type="button">🖨️ Imprimer les stats</button>
+        <button class="hb" id="csv" type="button">📊 Exporter (Excel)</button>
+        <button class="hb" id="vcf" type="button" title="Fichier .vcf : ouvrez-le sur le téléphone pour enregistrer tous les numéros d’un coup">📇 Contacts téléphone</button>
+        <a class="hb" href="./coupons/" title="Coupons des portraits IA (ventes MonCash) et métiers demandés">🖼️ Coupons portraits</a>
       </div>
     </div>
   </header>
@@ -583,6 +656,10 @@
     <p class="sub" style="margin:14px 0 0;font-size:12.5px">Après le téléchargement, ouvrez le fichier sur votre téléphone puis « Importer » / « Ajouter tous les contacts ». Les numéros téléchargés sont mémorisés : la prochaine fois, « Nouveaux » ne donnera que ceux qui se sont ajoutés depuis.</p>
   </div>
 </dialog>
+<dialog class="ask" id="ask" aria-labelledby="askT"><div class="bx">
+  <div class="ic" id="askI"></div><h3 id="askT"></h3><p id="askP"></p>
+  <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
+</div></dialog>
 <dialog class="ed" id="ed" aria-labelledby="edTitle">
   <form id="edForm" novalidate>
     <h2 id="edTitle">Modifier l’inscription</h2>
@@ -656,6 +733,18 @@ function friendly(err) {
   if (/déjà inscrit|propre numéro|une seule réservation/i.test(m)) return m;            // messages déjà rédigés pour l'utilisateur
   if (/violates check constraint|invalid input/i.test(m)) return 'Certaines informations ne sont pas au bon format. Vérifiez les champs et réessayez.';
   return 'Une erreur inattendue est survenue. Réessayez dans un instant ; si cela continue, actualisez la page.';
+}
+/* Fenêtre de confirmation (remplace la boîte grise du navigateur) */
+function ask({ icon = '❔', tone = '', title, text = '', ok = 'Confirmer', okTone = '', cancel = 'Annuler' }) {
+  return new Promise((resolve) => {
+    const d = document.getElementById('ask'), g = (id) => document.getElementById(id);
+    g('askI').className = 'ic ' + tone; g('askI').textContent = icon; g('askT').textContent = title; g('askP').textContent = text; g('askP').classList.toggle('hidden', !text);
+    g('askYes').textContent = ok; g('askYes').className = 'yes ' + okTone; g('askNo').textContent = cancel;
+    const done = (v) => { d.close(); g('askYes').onclick = g('askNo').onclick = d.oncancel = d.onclick = null; resolve(v); };
+    g('askYes').onclick = () => done(true); g('askNo').onclick = () => done(false); d.oncancel = (e) => { e.preventDefault(); done(false); };
+    d.onclick = (e) => { if (e.target === d) done(false); };
+    d.showModal(); setTimeout(() => g('askYes').focus(), 30);
+  });
 }
 let NOTE_T = null;
 function notify(text, kind = 'err', ms = 0) {
@@ -1745,7 +1834,7 @@ $('jSave').addEventListener('click', async () => {
 $('jRows').addEventListener('click', async (e) => {
   const v = e.target.closest('[data-jv]'), d = e.target.closest('[data-jd]');
   if (v) { const r = JROWS.find((x) => x.id === Number(v.dataset.jv)); const { error } = await sb.from('talks_jingle_komante').update({ vizib: !r.vizib }).eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadJingle(); }
-  if (d) { if (!confirm('Supprimer définitivement ce commentaire ?')) return; const { error } = await sb.from('talks_jingle_komante').delete().eq('id', Number(d.dataset.jd)); if (error) notify(friendly(error), 'warn'); loadJingle(); }
+  if (d) { if (!(await ask({ icon: '🗑️', tone: 'red', title: 'Supprimer ce commentaire ?', text: 'Il sera effacé définitivement de la page Theme Music.', ok: 'Supprimer', okTone: 'red' }))) return; const { error } = await sb.from('talks_jingle_komante').delete().eq('id', Number(d.dataset.jd)); if (error) notify(friendly(error), 'warn'); loadJingle(); }
 });
 /* ---------- Certificats payants (550 G = 4 $ US) ---------- */
 let KROWS = [];

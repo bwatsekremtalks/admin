@@ -658,10 +658,10 @@ function render() {
     return `<button type="button" class="tip ${TIP === t.k ? 'on' : ''}" data-tipcard="${t.k}"><div class="n">${t.e} ${esc(t.n)}</div><div class="v">${s}<small> / ${el.length} envoyés</small></div><div class="d">${esc(t.d)}</div><div class="track"><i style="width:${pct}%"></i></div></button>`; }).join('');
   renderAf();
   const L = filtered(), t = TIPS.find((x) => x.k === TIP);
-  const nwPend = P.filter((p) => !p.annule && noWA(p) && eligible(p, TIP) && !sent(p, TIP).length).length;
+  const meNw = myTeam(), nwPend = P.filter((p) => !p.annule && noWA(p) && eligible(p, TIP) && !sent(p, TIP).length && (!meNw || RESP[pk(p)] === meNw.non)).length;   // seulement son propre groupe
   $('nwRem').classList.toggle('hidden', !nwPend || $('fSuivi').value === 'nowa');
-  $('nwRem').innerHTML = `📵 <b>${nwPend}</b> personne${nwPend > 1 ? 's' : ''} sans WhatsApp attend${nwPend > 1 ? 'ent' : ''} encore ce message : SMS ou appel. <button class="btn sm" type="button" id="nwGo">Voir la liste</button>`;
-  if ($('nwGo')) $('nwGo').onclick = () => { $('fSuivi').value = 'nowa'; ETAT = 'reste'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'reste')); render(); };
+  $('nwRem').innerHTML = `<span>📵 <b>${nwPend}</b> personne${nwPend > 1 ? 's' : ''} ${meNw ? 'de votre groupe ' : ''}sans WhatsApp attend${nwPend > 1 ? 'ent' : ''} encore ce message : SMS ou appel.</span><button class="btn sm" type="button" id="nwGo">Voir la liste</button>`;
+  if ($('nwGo')) $('nwGo').onclick = () => { if (meNw) $('fResp').value = meNw.non; $('fSuivi').value = 'nowa'; ETAT = 'reste'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'reste')); render(); };
   $('count').textContent = `${t.e} ${t.n} · ${L.length} personne${L.length > 1 ? 's' : ''} ${ETAT === 'reste' ? 'à qui envoyer ce message' : ETAT === 'voye' ? 'ont déjà reçu ce message' : 'dans la liste'}.`;
   $('list').innerHTML = L.slice(0, 400).map((p) => {
     const m = modeOf(p), s = sent(p, TIP)[0], el = eligible(p, TIP);

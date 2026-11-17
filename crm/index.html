@@ -737,18 +737,21 @@ $('ekBal').onclick = async () => {
     .sort((a, b) => String(b[0].created).localeCompare(String(a[0].created)));
   const plan = [];
   const orphelins = Object.values(resa).filter((L) => L.some((p) => !own(p))).sort((a, b) => String(a[0].created).localeCompare(String(b[0].created)));
-  const act2 = P.filter((p) => !p.annule), cible2 = Math.ceil(act2.length / names.length);
+  // Objectif : la « Taille d'un groupe » (75 par défaut) ; ce qui dépasse va aux responsables qui ont de la place (ex. un nouveau)
+  const act2 = P.filter((p) => !p.annule), cible2 = Math.max(5, Number($('ekSize').value) || 75);
   for (const n of names) load[n] = act2.filter((p) => RESP[pk(p)] === n).length;
-  for (const L of orphelins) { const vers = [...names].sort((a, b) => load[a] - load[b])[0]; L.forEach((p) => { if (!own(p)) { plan.push({ p, de: RESP[pk(p)] || '—', who: vers }); load[vers]++; } }); }
+  const versDe = (de, k) => names.filter((n) => n !== de && load[n] + k <= cible2).sort((a, b) => load[a] - load[b])[0]   // quelqu'un qui a encore de la place
+    || names.filter((n) => n !== de && (de === null || load[n] + k < load[de])).sort((a, b) => load[a] - load[b])[0];      // sinon le moins chargé, si cela équilibre
+  for (const L of orphelins) { const k = L.filter((p) => !own(p)).length, vers = versDe(null, k); L.forEach((p) => { if (!own(p)) { plan.push({ p, de: RESP[pk(p)] || '—', who: vers }); load[vers]++; } }); }
   for (const L of libres) {
     if (L.some((p) => !own(p))) continue;
-    const de = RESP[pk(L[0])]; if (!(de in load) || load[de] - L.length < cible2) continue;
-    const vers = names.filter((n) => n !== de && load[n] + L.length <= cible2).sort((a, b) => load[a] - load[b])[0]; if (!vers) continue;
+    const de = RESP[pk(L[0])]; if (!(de in load) || load[de] <= cible2) continue;   // ce groupe ne dépasse pas : on n'y touche pas
+    const vers = versDe(de, L.length); if (!vers || (load[vers] + L.length > cible2 && load[vers] + L.length >= load[de])) continue;
     load[de] -= L.length; load[vers] += L.length; L.forEach((p) => plan.push({ p, de, who: vers }));
   }
-  if (!plan.length) { toast('Les groupes sont déjà équilibrés (ou il ne reste personne de jamais contacté à déplacer).', 6000); return; }
+  if (!plan.length) { toast(names.every((n) => load[n] > cible2) ? `Tous les groupes dépassent ${cible2} : ajoutez d’abord un responsable (＋ Ajouter un responsable), puis rééquilibrez.` : 'Les groupes sont déjà équilibrés (ou il ne reste personne de jamais contacté à déplacer).', 7000); return; }
   const resume = names.map((n) => { const plus = plan.filter((x) => x.who === n).length, moins = plan.filter((x) => x.de === n).length; return `${n} : ${load[n]} participants${plus ? ` (+${plus})` : ''}${moins ? ` (−${moins})` : ''}`; }).join('\n');
-  if (!(await ask({ icon: '⚖️', title: `Déplacer ${plan.length} participant${plan.length > 1 ? 's' : ''} ?`, text: `Objectif : environ ${cible2} par responsable.\n${resume}\n\nLes personnes attribuées à quelqu’un qui n’est plus dans l’équipe sont réparties. Sinon, seules des personnes jamais contactées changent de groupe (réservations entières).`, ok: 'Rééquilibrer', okTone: 'green' }))) return;
+  if (!(await ask({ icon: '⚖️', title: `Déplacer ${plan.length} participant${plan.length > 1 ? 's' : ''} ?`, text: `Objectif : ${cible2} par responsable (« Taille d’un groupe »). Ce qui dépasse va à ceux qui ont encore de la place.\n${resume}\n\nLes personnes attribuées à quelqu’un qui n’est plus dans l’équipe sont réparties. Sinon, seules des personnes jamais contactées changent de groupe (réservations entières).`, ok: 'Rééquilibrer', okTone: 'green' }))) return;
   const now = new Date().toISOString();
   const { error } = await sb.from('talks_crm_moun').upsert(plan.map(({ p, who }) => ({ inscription_id: p.rid, idx: p.idx, responsab: who, maj: now, pa: `${ME} (rééquilibrage)` })));
   if (error) { toast(friendly(error)); return; }

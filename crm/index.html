@@ -272,15 +272,38 @@ const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.c
 const EDITION = '2026-11-22-cap-haitien';
 const $ = (id) => document.getElementById(id);
 const LIB = [
-  { t: '🎯 Checklists des défis photo (salle / Live)', w: 'À partager la veille et le jour J — une affiche pour la salle, une pour le Live', img: [['Checklist en salle (1080×1920)', './afiches/defis-salle.jpg'], ['Checklist Live (1080×1920)', './afiches/defis-live.jpg']], v: `🎯 Votre checklist photo pour Bwat Sekrèm Talks !
+  { t: '🏛️ Checklist défis photo — En salle', w: 'La veille ou le matin du 22 — pour les participants en salle', img: [['Checklist en salle (1080×1920)', './afiches/defis-salle.jpg']], v: `🎯 Votre checklist photo pour le 22 novembre !
 
-Le 22 novembre, relevez un maximum de défis photo, cochez-les et publiez vos photos sur le Mur des participants 📸
-👉 https://bwatsekremtalks.com/mur
+Pendant Bwat Sekrèm Talks, relevez nos 10 défis photo : à l’entrée, le selfie avec la salle, avec un collègue, avec un intervenant, la photo de groupe… 📸
 
-🏛️ En salle : 10 défis (l’entrée, le selfie, un collègue, un intervenant, un exposant, la photo de groupe…)
-🎥 En Live : 5 défis (votre écran, votre coin Live, entre amis, vos notes, l’idée du jour)
+✅ Enregistrez cette affiche
+✅ Cochez chaque défi relevé
+✅ Publiez vos photos sur 👉 bwatsekremtalks.com/mur (avec le numéro WhatsApp de votre réservation)
 
-Enregistrez l’affiche et relevez-les tous ! 🏅` },
+Combien en ferez-vous ? Relevez-les tous ! 🏅
+
+📅 22 novembre · 14 h 30
+📍 Auditorium Oswald Durand, Cap-Haïtien` },
+  { t: '🎥 Checklist défis photo — En Live', w: 'La veille ou pendant le Live — pour les spectateurs du Live', img: [['Checklist Live (1080×1920)', './afiches/defis-live.jpg']], v: `🎥 Vous suivez Bwat Sekrèm Talks en Live ? Vous aussi, vous avez vos défis photo !
+
+5 défis à relever depuis chez vous : votre écran pendant le Live, votre coin Live, le Live entre amis, vos notes, l’idée du jour 📸
+
+✅ Enregistrez cette affiche
+✅ Cochez chaque défi relevé
+✅ Publiez vos photos sur 👉 bwatsekremtalks.com/mur
+(touchez « 🎥 J’ai suivi le Live » et entrez le mot secret annoncé pendant le Live)
+
+📅 Le 22 novembre dès 14 h 30` },
+  { t: '📲 Les deux checklists ensemble', w: 'Réseaux sociaux, groupes WhatsApp', img: [['Checklist en salle (1080×1920)', './afiches/defis-salle.jpg'], ['Checklist Live (1080×1920)', './afiches/defis-live.jpg']], v: `📸 Le 22 novembre, vos photos font l’événement !
+
+Voici votre checklist des défis photo :
+🏛️ En salle : 10 défis
+🎥 En Live : 5 défis
+
+Enregistrez l’affiche qui vous concerne, cochez vos défis et publiez vos photos sur le Mur des participants 👉 bwatsekremtalks.com/mur
+
+Relevez-les tous ! 🏅
+#BwatSekremTalks #BST2026` },
   { t: '📸 Annonce du Mur des participants + affiches', w: 'Avant le 22 — réseaux sociaux, statut WhatsApp, groupes', img: [['Affiche publication (1080×1350)', './afiches/mur-participants-post.jpg'], ['Affiche story (1080×1920)', './afiches/mur-participants-story.jpg']], v: `📸 NOUVEAU — Le Mur des participants de Bwat Sekrèm Talks !
 
 Le 22 novembre, vos photos font l’événement ✨
@@ -329,20 +352,25 @@ Partagez ce message avec ceux qui ont suivi le Live avec vous !
 Apprendre. Inspirer. Construire ensemble.` },
 ];
 const libTxt = (i) => { const m = (document.getElementById('libMot')?.value || '').trim().toUpperCase(); return m ? LIB[i].v.replaceAll('[MOT SECRET]', m) : LIB[i].v; };
+const LIBF = {};   // affiches préchargées : le partage doit partir tout de suite après le toucher (iPhone)
+async function prepLib() { for (const x of LIB) for (const [, u] of x.img || []) { if (LIBF[u]) continue;
+  try { const bl = await (await fetch(u)).blob(); LIBF[u] = new File([bl], u.split('/').pop(), { type: bl.type || 'image/jpeg' }); } catch {} } }
 function renderLib() {
   $('libList').innerHTML = LIB.map((x, i) => `<div class="lib"><h4>${esc(x.t)}</h4><p class="sub">${esc(x.w)}</p>${x.img ? `<div class="libimg">${x.img.map(([n, u], j) => `<figure><img src="${esc(u)}" alt="${esc(n)}" loading="lazy" /><figcaption>${esc(n)}</figcaption><button class="btn sm" type="button" data-libi="${i}:${j}">⬇️ Enregistrer / partager</button></figure>`).join('')}</div>` : ''}<pre>${esc(libTxt(i))}</pre>
-    <div class="bb"><button class="btn sm p" type="button" data-libc="${i}">📋 Copier</button><button class="btn sm" type="button" data-libs="${i}">↗️ Partager</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(libTxt(i))}">WhatsApp</a></div></div>`).join('');
+    <div class="bb"><button class="btn sm p" type="button" data-libc="${i}">📋 Copier</button><button class="btn sm" type="button" data-libs="${i}">↗️ Partager${x.img ? ' avec ' + (x.img.length > 1 ? 'les affiches' : 'l’affiche') : ''}</button><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(libTxt(i))}">WhatsApp</a></div></div>`).join('');
 }
 document.addEventListener('DOMContentLoaded', () => {
-  renderLib(); $('libMot').addEventListener('input', renderLib);
+  renderLib(); $('libMot').addEventListener('input', renderLib); $('libBox').addEventListener('toggle', () => { if ($('libBox').open) prepLib(); });
   $('libList').addEventListener('click', async (e) => {
     const c = e.target.closest('[data-libc]'), s = e.target.closest('[data-libs]'), im = e.target.closest('[data-libi]');
-    if (im) { const [i, j] = im.dataset.libi.split(':').map(Number), [n, u] = LIB[i].img[j];
-      try { const bl = await (await fetch(u)).blob(), f = new File([bl], u.split('/').pop(), { type: bl.type || 'image/jpeg' });
-        if (canShareFiles(f)) { await navigator.share({ files: [f] }).catch(() => {}); return; } } catch {}
+    if (im) { const [i, j] = im.dataset.libi.split(':').map(Number), [n, u] = LIB[i].img[j], f = LIBF[u];
+      if (f && canShareFiles(f)) { navigator.share({ files: [f] }).catch(() => {}); return; }
       const a = document.createElement('a'); a.href = u; a.download = u.split('/').pop(); a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove(); return; }
     if (c) { const v = libTxt(+c.dataset.libc); if (v.includes('[MOT SECRET]')) toast('⚠️ Pensez à remplacer [MOT SECRET]'); try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch { toast('Copie impossible : sélectionnez le texte.'); } }
-    if (s) { const v = libTxt(+s.dataset.libs); if (navigator.share) { try { await navigator.share({ text: v }); } catch {} } else { try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch {} } }
+    if (s) { const x = LIB[+s.dataset.libs], v = libTxt(+s.dataset.libs), fs = (x.img || []).map(([, u]) => LIBF[u]).filter(Boolean);
+      try { navigator.clipboard?.writeText(v)?.catch(() => {}); } catch {}
+      if (fs.length && fs.length === (x.img || []).length && navigator.canShare && navigator.canShare({ files: fs })) { navigator.share({ files: fs, text: v }).then(() => toast('✓ Partagé avec ' + (fs.length > 1 ? 'les affiches' : 'l’affiche'))).catch(() => {}); return; }
+      if (navigator.share) { try { await navigator.share({ text: v }); } catch {} } else { try { await navigator.clipboard.writeText(v); toast('✓ Texte copié'); } catch {} } }
   });
 });
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

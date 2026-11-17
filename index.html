@@ -563,6 +563,7 @@
       <button class="btn" type="button" id="vcfMark" style="justify-content:center;font-size:13px">✓ J’ai déjà ces numéros sur mon téléphone (ne plus les proposer)</button>
       <button class="btn" type="button" id="vcfClose" style="justify-content:center">Annuler</button>
     </div>
+    <a class="btn hidden" id="vcfOpen" style="background:#7AC142;border-color:#7AC142;color:#0a1f38;font-weight:800;justify-content:center;padding:14px;margin-top:12px;font-size:17px">📲 Ouvrir et ajouter les contacts</a>
     <p class="sub" style="margin:14px 0 0;font-size:12.5px">Après le téléchargement, ouvrez le fichier sur votre téléphone puis « Importer » / « Ajouter tous les contacts ». Les numéros téléchargés sont mémorisés : la prochaine fois, « Nouveaux » ne donnera que ceux qui se sont ajoutés depuis.</p>
   </div>
 </dialog>
@@ -2068,6 +2069,7 @@ $('vcf').addEventListener('click', async () => {
   $('vcfInfo').textContent = VCF.dernier ? `Dernier téléchargement : ${fmtDate(VCF.dernier)}. ${nNew} nouveau${nNew > 1 ? 'x' : ''} numéro${nNew > 1 ? 's' : ''} depuis.` : 'Premier téléchargement : tous les numéros de la liste sont nouveaux.';
   $('vcfNew').textContent = `🆕 Seulement les nouveaux (${nNew})`; $('vcfNew').disabled = !nNew;
   $('vcfAll').textContent = `Tous les numéros (${VCF.all.length})`; $('vcfMark').classList.toggle('hidden', !nNew);
+  $('vcfOpen').classList.add('hidden'); $('vcfNew').classList.remove('hidden'); $('vcfAll').classList.remove('hidden');
   $('vcfDlg').showModal();
 });
 async function vcfDownload(onlyNew, markOnly) {
@@ -2080,11 +2082,26 @@ async function vcfDownload(onlyNew, markOnly) {
     notify(error ? 'Mémorisation impossible : ' + friendly(error) : `✓ ${cards.length} numéro${cards.length > 1 ? 's' : ''} marqué${cards.length > 1 ? 's' : ''} comme déjà enregistré${cards.length > 1 ? 's' : ''}. La prochaine fois, seuls les nouveaux seront proposés.`, error ? 'warn' : 'info', 8000);
     return;
   }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([cards.map((c) => c.txt).join('\r\n') + '\r\n'], { type: 'text/vcard;charset=utf-8' }));
-  a.download = `contacts-BST-${onlyNew ? 'nouveaux-' : ''}${cards.length}-${new Date().toISOString().slice(0, 10)}.vcf`; document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-  $('vcfDlg').close();
+  const blob = new Blob([cards.map((c) => c.txt).join('\r\n') + '\r\n'], { type: 'text/vcard;charset=utf-8' });
+  const fname = `contacts-BST-${onlyNew ? 'nouveaux-' : ''}${cards.length}-${new Date().toISOString().slice(0, 10)}.vcf`;
+  const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (IOS) {
+    // iPhone : Safari n'enregistre pas bien un fichier généré ; on passe par un lien temporaire (10 min) que Safari ouvre comme une carte de contacts → « Ajouter tous les contacts »
+    $('vcfNew').disabled = $('vcfAll').disabled = true; $('vcfInfo').textContent = 'Préparation du fichier…';
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.vcf`;
+    const up = await sb.storage.from('contacts').upload(path, blob, { contentType: 'text/vcard', upsert: true });
+    const sg = up.error ? null : await sb.storage.from('contacts').createSignedUrl(path, 600);
+    $('vcfNew').disabled = $('vcfAll').disabled = false;
+    if (up.error || !sg || sg.error) { notify('Préparation impossible. ' + friendly(up.error || sg?.error), 'warn'); return; }
+    $('vcfOpen').href = sg.data.signedUrl; $('vcfOpen').classList.remove('hidden');
+    ['vcfNew', 'vcfAll', 'vcfMark'].forEach((id) => $(id).classList.add('hidden'));
+    $('vcfInfo').textContent = `✅ ${cards.length} contact${cards.length > 1 ? 's' : ''} prêt${cards.length > 1 ? 's' : ''}. Touchez le bouton vert, puis en bas « Ajouter les ${cards.length} contacts ».`;
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $('vcfDlg').close();
+  }
   cards.forEach((c) => VCF.known.add(c.num));
   const now = new Date().toISOString();
   const { error } = await sb.from('talks_config').upsert([{ cle: 'vcf_exportes', valeur: [...VCF.known].join(','), maj: now }, { cle: 'vcf_dernier', valeur: now, maj: now }]);

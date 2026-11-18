@@ -37,6 +37,24 @@
   document.addEventListener('close', check, true);
   try { parent.postMessage({ bstReady: 1 }, '*'); } catch (x) {}
 
+  // Hauteur réelle du contenu → le site agrandit l'iframe : une seule barre de défilement (celle du site), le pied de page vient après.
+  if (!/[?&]embed=1/.test(location.search)) {   // les pages ?embed=1 envoient déjà leur hauteur
+    var hauteur = function () {
+      var b = document.body, max = 0; if (!b) return 0;
+      for (var i = 0; i < b.children.length; i++) { var c = b.children[i], cs = getComputedStyle(c);
+        if (cs.position === 'fixed' || cs.position === 'absolute' || cs.display === 'none' || c.tagName === 'SCRIPT' || c.tagName === 'DIALOG') continue;
+        var r = c.getBoundingClientRect(); max = Math.max(max, r.bottom + (parseFloat(cs.marginBottom) || 0)); }
+      return Math.ceil(max + (window.scrollY || 0) + (parseFloat(getComputedStyle(b).paddingBottom) || 0) + 2);
+    };
+    var dern = 0, envoyerH = function () { var h = hauteur(); if (h > 80 && Math.abs(h - dern) > 2) { dern = h; try { parent.postMessage({ bstH: h, bstW: location.pathname }, '*'); } catch (x) {} } };
+    root.style.overflowY = 'hidden';   // plus de défilement interne
+    var ro = window.ResizeObserver ? new ResizeObserver(envoyerH) : null;
+    var obs = function () { if (!ro || !document.body) return; ro.observe(document.body); for (var i = 0; i < document.body.children.length; i++) ro.observe(document.body.children[i]); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { obs(); envoyerH(); }); else { obs(); envoyerH(); }
+    addEventListener('load', envoyerH); setInterval(envoyerH, 1500);
+    new MutationObserver(function () { obs(); envoyerH(); }).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   // Défilement : dans une iframe pleine hauteur, c'est la page du site qui doit défiler. On lui demande d'aller à la bonne position.
   var docY = function (el) { return el.getBoundingClientRect().top + (window.scrollY || 0); };
   var aller = function (y, h, block, smooth) { try { parent.postMessage({ bstScroll: { y: Math.max(0, Math.round(y)), h: Math.round(h || 0), block: block || 'start', smooth: smooth !== false } }, '*'); } catch (x) {} };

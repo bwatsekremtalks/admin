@@ -26,7 +26,7 @@
   /* ---- Ajuste la hauteur des iframes BST (compteur, section b\u00e9n\u00e9vole) selon leur contenu r\u00e9el ---- */
   addEventListener('message', function (e) {
     try {
-      if (!/bwatsekremtalks\.github\.io$/.test(new URL(e.origin).hostname) || !e.data || !(e.data.bstH > 50 && e.data.bstH < 3000)) return;
+      if (!/bwatsekremtalks\.github\.io$/.test(new URL(e.origin).hostname) || !e.data || !(e.data.bstH > 50 && e.data.bstH < 30000)) return;
       var fr = [].slice.call(document.querySelectorAll('iframe')).filter(function (f) { return f.contentWindow === e.source; })[0];
       if (fr) { fr.style.setProperty('height', e.data.bstH + 'px', 'important'); fr.style.setProperty('overflow', 'hidden'); }
     } catch (x) {}

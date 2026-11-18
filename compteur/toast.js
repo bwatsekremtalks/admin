@@ -110,13 +110,13 @@
   function paint() {
     if (!sh || !data) return; var L = T[lang()];
     var n = +data.personnes || 0, c = +data.capacite || 0, r = c ? Math.max(0, c - n) : null;
-    var d = +data.aujourdhui || 0, att = c && n > c ? n - c : 0;
+    var d = +data.aujourdhui || 0, att = c && n > c ? n - c : 0, amax = +data.attente_max || 0; if (amax && att > amax) att = amax;
     sh.querySelector('.c').classList.toggle('w', !!att); sh.querySelector('.p').classList.toggle('w', !!att);
     sh.querySelector('.i').textContent = att ? '\u23f3' : '\ud83d\udd25'; sh.querySelector('.p i').textContent = att ? '\u23f3' : '\ud83d\udd25';
     sh.querySelector('.a').textContent = att ? L.wb : L.b;
     if (att) {
       var up = Math.min(att, d);
-      sh.querySelector('.t').innerHTML = L.t('<b class="full">' + c + '</b>', c) + '<span class="wl">' + L.wt(att) + '</span>' + (up > 0 ? '<span class="up">' + L.u(up) + '</span>' : '');
+      sh.querySelector('.t').innerHTML = L.t('<b class="full">' + c + '</b>', c) + '<span class="wl">' + (amax ? L.wt(att).replace('<b>' + att + '</b>', '<b>' + att + '/' + amax + '</b>') : L.wt(att)) + '</span>' + (up > 0 ? '<span class="up">' + L.u(up) + '</span>' : '');
       sh.querySelector('.s').innerHTML = L.ws; sh.querySelector('.p span').textContent = L.wm(att);
       var bar0 = sh.querySelector('.g'), f0 = sh.querySelector('.g i'); bar0.style.display = ''; setTimeout(function () { f0.style.width = '100%'; }, 400); f0.className = 'tres';
       return;

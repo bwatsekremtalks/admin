@@ -52,11 +52,14 @@
   .wait.bump .wn b { animation: bump .6s ease; } @keyframes bump { 40% { transform: scale(1.25); } }
   .sombre .wait { background: rgba(245,166,35,.12); border-color: rgba(245,166,35,.4); } .sombre .wait .tx small, .sombre .wait .wn em { color: #ffd28a; } .sombre .wait .tx span { color: rgba(255,255,255,.8); } .sombre .wait .wn b { color: #ffb36b; } .sombre .wait .ic { background: rgba(255,255,255,.1); }
   .full .num b { color: #e8505b; }
+  .wait .wl { display: block; font-style: normal; margin-top: 4px; font-weight: 700; color: #c2410c; } .wait .wl b { font-size: 1.1em; }
+  .wait .wbar { display: block; height: 6px; border-radius: 6px; background: rgba(194,65,12,.15); margin-top: 6px; overflow: hidden; } .wait .wbar i { display: block; height: 100%; background: linear-gradient(90deg, #F5A623, #e8505b); border-radius: 6px; }
+  .wait.plein { background: #fdecec; border-color: #f3c0ba; } .wait.plein .tx small { color: #b42318; }
   .full .lim { white-space: normal; text-align: center; }
   @media (max-width: 480px) { .wait { display: grid !important; grid-template-columns: auto 1fr auto; gap: 4px 12px; padding: 10px 12px; }
     .wait .ic { width: 40px; height: 40px; font-size: 21px; grid-row: 1; } .wait .tx { display: contents; } .wait .tx small { grid-row: 1; grid-column: 2; align-self: center; }
     .wait .wn { grid-row: 1; grid-column: 3; display: flex; align-items: baseline; gap: 5px; } .wait .wn .up { display: none; }
-    .wait .tx span { grid-column: 1 / -1; font-size: 12px; } }
+    .wait .tx span { grid-column: 1 / -1; font-size: 12px; } .wait .wn b { font-size: 24px; } .wait .wn em { font-size: 11px; } .wait .tx small { font-size: 11px; letter-spacing: .05em; } }
   @media (prefers-reduced-motion: reduce) { .bar i, .bar i::after, .live i { animation: none; transition: none; } }
 </style>
 </head>
@@ -73,10 +76,11 @@
 const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
 const q = new URLSearchParams(location.search);
 const T = {
-  fr: { live: 'En direct', pers: (n, cap) => cap ? 'places réservées' : (n > 1 ? 'personnes ont déjà réservé leur place' : 'personne a déjà réservé sa place'), today: (n) => `▲ +${n} inscrit${n > 1 ? 's' : ''} aujourd’hui`, rest: (r) => `🔥 Plus que <b>${r}</b> place${r > 1 ? 's' : ''} disponible${r > 1 ? 's' : ''}`, full: '🔥 Forte demande : tout n’est pas encore joué !', wT: 'Liste d’attente', wS: 'Nous recevons énormément de demandes et notre équipe logistique travaille déjà pour accueillir plus de monde. Inscrivez-vous sur la liste d’attente pour que nous puissions prévoir votre place !', wP: (n) => n > 1 ? 'personnes' : 'personne', wUp: (n) => `▲ +${n} aujourd’hui`, lim: '⚠️ Places limitées : réservez vite la vôtre', cta: 'Réserver ma place' },
-  ht: { live: 'An dirèk', pers: (n, cap) => cap ? 'plas rezève' : 'moun deja rezève plas yo', today: (n) => `▲ +${n} moun enskri jodi a`, rest: (r) => `🔥 Rete <b>${r}</b> plas sèlman`, full: '🔥 Anpil demann : tout bagay poko fini !', wT: 'Lis datant', wS: 'N ap resevwa anpil demann, e ekip lojistik la deja ap travay pou n ka akeyi plis moun. Enskri sou lis datant lan pou n ka prepare plas pa w !', wP: () => 'moun', wUp: (n) => `▲ +${n} jodi a`, lim: '⚠️ Plas yo limite : rezève pa w vit', cta: 'Rezève plas mwen' },
-  en: { live: 'Live', pers: (n, cap) => cap ? 'seats booked' : (n > 1 ? 'people have already booked their seat' : 'person has already booked a seat'), today: (n) => `▲ +${n} joined today`, rest: (r) => `🔥 Only <b>${r}</b> seat${r > 1 ? 's' : ''} left`, full: '🔥 High demand: it’s not over yet!', wT: 'Waiting list', wS: 'We’re receiving a huge number of requests and our logistics team is already working to welcome more people. Join the waiting list so we can plan a seat for you!', wP: (n) => n > 1 ? 'people' : 'person', wUp: (n) => `▲ +${n} today`, lim: '⚠️ Limited seats: book yours now', cta: 'Book my seat' },
+  fr: { live: 'En direct', pers: (n, cap) => cap ? 'places réservées' : (n > 1 ? 'personnes ont déjà réservé leur place' : 'personne a déjà réservé sa place'), today: (n) => `▲ +${n} inscrit${n > 1 ? 's' : ''} aujourd’hui`, rest: (r) => `🔥 Plus que <b>${r}</b> place${r > 1 ? 's' : ''} disponible${r > 1 ? 's' : ''}`, full: '🔥 Forte demande : tout n’est pas encore joué !', wT: 'Liste d’attente', wS: 'Nous recevons énormément de demandes et notre équipe logistique travaille déjà pour accueillir plus de monde. Inscrivez-vous sur la liste d’attente pour que nous puissions prévoir votre place !', wP: (n) => n > 1 ? 'personnes' : 'personne', wUp: (n) => `▲ +${n} aujourd’hui`, wOf: (m) => `sur ${m} places`, wLeft: (r) => `⚠️ Plus que <b>${r}</b> place${r > 1 ? 's' : ''} sur la liste d’attente : faites vite !`, wFullT: 'Liste d’attente complète', wFullS: 'Toutes les places de la liste d’attente sont prises. Vous pouvez suivre l’événement en Live, ou nous écrire sur WhatsApp.', lim: '⚠️ Places limitées : réservez vite la vôtre', cta: 'Réserver ma place' },
+  ht: { live: 'An dirèk', pers: (n, cap) => cap ? 'plas rezève' : 'moun deja rezève plas yo', today: (n) => `▲ +${n} moun enskri jodi a`, rest: (r) => `🔥 Rete <b>${r}</b> plas sèlman`, full: '🔥 Anpil demann : tout bagay poko fini !', wT: 'Lis datant', wS: 'N ap resevwa anpil demann, e ekip lojistik la deja ap travay pou n ka akeyi plis moun. Enskri sou lis datant lan pou n ka prepare plas pa w !', wP: () => 'moun', wUp: (n) => `▲ +${n} jodi a`, wOf: (m) => `sou ${m} plas`, wLeft: (r) => `⚠️ Rete <b>${r}</b> plas sèlman sou lis datant lan : fè vit !`, wFullT: 'Lis datant lan plen', wFullS: 'Tout plas sou lis datant lan pran. Ou ka swiv evènman an an Live, oswa ekri nou sou WhatsApp.', lim: '⚠️ Plas yo limite : rezève pa w vit', cta: 'Rezève plas mwen' },
+  en: { live: 'Live', pers: (n, cap) => cap ? 'seats booked' : (n > 1 ? 'people have already booked their seat' : 'person has already booked a seat'), today: (n) => `▲ +${n} joined today`, rest: (r) => `🔥 Only <b>${r}</b> seat${r > 1 ? 's' : ''} left`, full: '🔥 High demand: it’s not over yet!', wT: 'Waiting list', wS: 'We’re receiving a huge number of requests and our logistics team is already working to welcome more people. Join the waiting list so we can plan a seat for you!', wP: (n) => n > 1 ? 'people' : 'person', wUp: (n) => `▲ +${n} today`, wOf: (m) => `of ${m} spots`, wLeft: (r) => `⚠️ Only <b>${r}</b> spot${r > 1 ? 's' : ''} left on the waiting list: hurry!`, wFullT: 'Waiting list full', wFullS: 'All waiting-list spots are taken. You can follow the event Live, or message us on WhatsApp.', lim: '⚠️ Limited seats: book yours now', cta: 'Book my seat' },
 };
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L];
 document.documentElement.lang = L;
 if (q.get('style') === 'sombre') document.body.classList.add('sombre');
@@ -102,9 +106,11 @@ async function load() {
     document.getElementById('today').textContent = !att && j.aujourdhui > 0 ? t.today(j.aujourdhui) : '';
     document.getElementById('box').classList.toggle('full', !!att || (cap && n >= cap));
     const w = document.getElementById('wait');
-    if (att) { w.style.display = ''; document.getElementById('wT').textContent = t.wT; document.getElementById('wS').textContent = t.wS;
-      const wn = document.getElementById('wN'), prev = +wn.dataset.v || 0; wn.textContent = att; wn.dataset.v = att; if (prev && att > prev) { w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump'); }
-      document.getElementById('wP').textContent = t.wP(att); const up = Math.min(att, +j.aujourdhui || 0); document.getElementById('wUp').textContent = up > 0 ? t.wUp(up) : ''; sendH(); }
+    const amax = +j.attente_max || 0, attA = amax ? Math.min(att, amax) : att, plein = amax && att >= amax;
+    if (att) { w.style.display = ''; w.classList.toggle('plein', !!plein); document.getElementById('wT').textContent = plein ? t.wFullT : t.wT;
+      document.getElementById('wS').innerHTML = plein ? t.wFullS : esc(t.wS) + (amax ? `<i class="wl">${t.wLeft(amax - attA)}</i><i class="wbar"><i style="width:${Math.round(attA / amax * 100)}%"></i></i>` : '');
+      const wn = document.getElementById('wN'), prev = +wn.dataset.v || 0; wn.textContent = amax ? `${attA}/${amax}` : att; wn.dataset.v = att; if (prev && att > prev) { w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump'); }
+      document.getElementById('wP').textContent = t.wP(amax ? attA : att); const up = Math.min(att, +j.aujourdhui || 0); document.getElementById('wUp').textContent = up > 0 ? t.wUp(up) : ''; sendH(); }
     else w.style.display = 'none';
     const bar = document.getElementById('bar'), fill = document.getElementById('fill');
     if (cap) {

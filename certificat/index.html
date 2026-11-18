@@ -106,7 +106,7 @@
   .dh .x { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(255,255,255,.14); color: #fff; font-size: 20px; cursor: pointer; }
   .db { padding: 20px 22px 22px; }
   .fee { display: flex; align-items: baseline; gap: 10px; justify-content: center; background: var(--soft); border-radius: 16px; padding: 14px; }
-  .fee b { font-size: 36px; font-weight: 800; color: var(--green); } .fee span { color: var(--mute); }
+  .fee b { font-size: 36px; font-weight: 800; color: var(--green); white-space: nowrap; } .fee span { color: var(--mute); } .fee { flex-wrap: wrap; text-align: center; }
   .just { margin: 12px 0 4px; font-size: 14px; color: var(--mute); text-align: center; }
   .pay { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: p; }
   .pay li { counter-increment: p; display: flex; gap: 12px; font-size: 14.5px; }

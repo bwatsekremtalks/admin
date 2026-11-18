@@ -656,5 +656,6 @@ if (CODE_LINK) setTimeout(() => $('buy').scrollIntoView({ behavior: 'smooth', bl
 const FONTS = ['800 50px "Bricolage Grotesque"', '700 50px "DM Sans"', '600 50px "DM Sans"', '500 50px "DM Sans"', 'italic 500 50px "Playfair Display"'];
 Promise.all([...FONTS.map((f) => document.fonts.load(f).catch(() => {})), load('bst', 'logos/bst-blanc.png'), load('zl', 'logos/zero-loss.png'), load('ml', 'logos/mache-lokal-no.png')]).then(() => { if (S.result) drawCard(); else restore(); });
 </script>
+<script src="../compteur/embed-view.js" defer></script>
 </body>
 </html>

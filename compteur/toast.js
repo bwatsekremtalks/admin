@@ -31,6 +31,32 @@
       if (fr) { fr.style.setProperty('height', e.data.bstH + 'px', 'important'); fr.style.setProperty('overflow', 'hidden'); }
     } catch (x) {}
   });
+  /* ---- Popups des pages intégrées (iframes) : on leur indique la partie visible et on bloque le défilement pendant qu'un popup est ouvert ---- */
+  (function () {
+    var bst = function (f) { try { return /bwatsekremtalks\.github\.io$/.test(new URL(f.src).hostname); } catch (e) { return false; } };
+    var headerH = function () { var h = document.querySelector('header'); if (!h) return 0; var cs = getComputedStyle(h), r = h.getBoundingClientRect(); return (cs.position === 'sticky' || cs.position === 'fixed') && r.bottom > 0 ? r.bottom : 0; };
+    var vue = function (f) { var r = f.getBoundingClientRect(), hh = headerH(), top = Math.max(hh, r.top), bot = Math.min(innerHeight, r.bottom); return { top: top - r.top, h: Math.max(0, bot - top) }; };
+    var envoi = function () { [].slice.call(document.querySelectorAll('iframe')).filter(bst).forEach(function (f) { try { f.contentWindow.postMessage({ bstView: vue(f) }, '*'); } catch (e) {} }); };
+    var raf = 0; var plan = function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; envoi(); }); };
+    addEventListener('scroll', plan, { passive: true }); addEventListener('resize', plan); if (window.visualViewport) visualViewport.addEventListener('resize', plan);
+    var lock = null;
+    addEventListener('message', function (e) {
+      try { if (!/bwatsekremtalks\.github\.io$/.test(new URL(e.origin).hostname) || !e.data) return; } catch (x) { return; }
+      var f = [].slice.call(document.querySelectorAll('iframe')).filter(function (x) { return x.contentWindow === e.source; })[0];
+      if (e.data.bstReady && f) { setTimeout(envoi, 50); return; }
+      if (!('bstModal' in e.data) || !f) return;
+      var de = document.documentElement, bd = document.body;
+      if (e.data.bstModal) {
+        // l'iframe doit couvrir l'écran : on fait défiler la page pour que le popup ait toute la hauteur disponible
+        var r = f.getBoundingClientRect(), hh = headerH(), dispo = innerHeight - hh;
+        if (r.height >= dispo) { if (r.top > hh) scrollBy(0, r.top - hh); else if (r.bottom < innerHeight) scrollBy(0, r.bottom - innerHeight); }
+        else if (r.top < hh || r.bottom > innerHeight) scrollBy(0, r.top - hh - (dispo - r.height) / 2);
+        if (!lock) { lock = { o: de.style.overflow, b: de.style.overscrollBehavior }; de.style.overflow = 'hidden'; de.style.overscrollBehavior = 'none'; }   // seulement <html> : sinon l'en-tête collant du site se décroche
+        envoi(); setTimeout(envoi, 120); setTimeout(envoi, 400);
+      } else if (lock) { de.style.overflow = lock.o; de.style.overscrollBehavior = lock.b; lock = null; envoi(); }
+    });
+    setTimeout(envoi, 800);
+  })();
   /* ---- Compteur de visites anonyme : sans cookie, sans IP ; un identifiant al\u00e9atoire par onglet (sessionStorage) ---- */
   (function () {
     try {

@@ -141,7 +141,7 @@
   <div class="empty hidden" id="empty"><div class="e">🖼️</div><b>Aucune photo pour le moment</b><br>Les premières photos des participants apparaîtront ici.</div>
 </div>
 
-<div class="lb hidden" id="lb" role="dialog" aria-modal="true" aria-label="Photo">
+<div class="lb hidden bst-fix" id="lb" role="dialog" aria-modal="true" aria-label="Photo">
   <div class="top"><span id="lbN" style="font-weight:700"></span><div style="display:flex;gap:8px"><a class="ib" id="lbWa" target="_blank" rel="noopener" title="Partager sur WhatsApp" aria-label="Partager">💬</a><button class="ib" type="button" id="lbX" aria-label="Fermer">✕</button></div></div>
   <div class="mid"><img id="lbI" alt="" /><button class="ib nav prev" type="button" id="lbP" aria-label="Précédente">‹</button><button class="ib nav next" type="button" id="lbNx" aria-label="Suivante">›</button></div>
   <div class="bot"><b id="lbW"></b><p id="lbT"></p><button class="heart" type="button" id="lbH"></button></div>
@@ -176,7 +176,7 @@
     <div class="acts"><button type="button" class="b2" id="c2">Fermer</button><button type="button" class="b1" id="v2" disabled>Publier</button></div>
   </div>
 </div></dialog>
-<div class="toast hidden" id="toast" role="status"></div>
+<div class="toast hidden bst-fix-bottom" id="toast" role="status"></div>
 
 <script>
 const SB = 'https://nltlgytehikguydcdhyy.supabase.co', KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
@@ -372,5 +372,6 @@ $('v2').onclick = async () => {
 load();
 setInterval(() => { if (!document.hidden && !$('up').open && $('lb').classList.contains('hidden')) load(); }, 30000);
 </script>
+<script src="../compteur/embed-view.js" defer></script>
 </body>
 </html>

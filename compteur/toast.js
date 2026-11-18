@@ -59,7 +59,9 @@
     } catch (e) {}
   })();
   if (/[?&](reserve|reservation)=(ok|1)/i.test(location.search)) ls.set(DONE, '1');
-  if (ls.get(DONE)) return;
+  var FORCE = /[?&]popup=1/.test(location.search);   // pour vérifier le popup même après avoir réservé : ?popup=1
+  if (FORCE) { try { sessionStorage.removeItem(MINI); } catch (e) {} }
+  if (ls.get(DONE) && !FORCE) return;
 
   var T = {
     fr: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> places r\u00e9serv\u00e9es' : n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' disponible' + (r > 1 ? 's' : '') + '</span>' : '\u26d4 Complet') : '\u26a0\ufe0f Places limit\u00e9es') + ''; }, u: function (d) { return '\u25b2 +' + d + ' inscrit' + (d > 1 ? 's' : '') + ' aujourd\u2019hui'; }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', wt: function (a) { return '<b>' + a + '</b> personne' + (a > 1 ? 's' : '') + ' sur la liste d\u2019attente'; }, ws: 'Tout n\u2019est pas encore jou\u00e9 : notre \u00e9quipe travaille pour accueillir plus de monde !', wgo: function (r) { return '\u26a1 Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' sur la liste d\u2019attente : inscrivez-vous maintenant, \u00e7a prend 1 minute !'; }, wb: 'Rejoindre la liste d\u2019attente', wm: function (a) { return 'Liste d\u2019attente \u00b7 ' + a + ' inscrit' + (a > 1 ? 's' : '') + ' \u00b7 Rejoindre'; }, wm2: function (r) { return 'Plus que ' + r + ' place' + (r > 1 ? 's' : '') + ' en attente \u00b7 Vite, je m\u2019inscris \u2192'; }, m: function (n, r) { return r != null ? 'Plus que ' + r + ' places \u00b7 R\u00e9server' : n + ' inscrits \u00b7 R\u00e9server'; } },
@@ -136,7 +138,7 @@
   }
 
   function show() {
-    if (shown || ls.get(DONE)) return; shown = true;
+    if (shown || (ls.get(DONE) && !FORCE)) return; shown = true;
     var L = T[lang()], reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     host = document.createElement('div');
     host.style.cssText = 'position:fixed;z-index:2147483000;left:16px;bottom:16px;transition:opacity .35s;';

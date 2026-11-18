@@ -36,4 +36,30 @@
   new MutationObserver(check).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['open', 'class', 'style', 'hidden'] });
   document.addEventListener('close', check, true);
   try { parent.postMessage({ bstReady: 1 }, '*'); } catch (x) {}
+
+  // Défilement : dans une iframe pleine hauteur, c'est la page du site qui doit défiler. On lui demande d'aller à la bonne position.
+  var docY = function (el) { return el.getBoundingClientRect().top + (window.scrollY || 0); };
+  var aller = function (y, h, block, smooth) { try { parent.postMessage({ bstScroll: { y: Math.max(0, Math.round(y)), h: Math.round(h || 0), block: block || 'start', smooth: smooth !== false } }, '*'); } catch (x) {} };
+  var dansPopup = function (el) { return !!(el && el.closest && el.closest('dialog[open], .bst-fix')); };
+  var siv = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function (o) {
+    if (dansPopup(this)) return siv.apply(this, arguments);
+    var b = o && typeof o === 'object' ? o.block : (o === false ? 'end' : 'start');
+    aller(docY(this), this.getBoundingClientRect().height, b, !(o && o.behavior === 'auto'));
+  };
+  var wst = window.scrollTo.bind(window);
+  window.scrollTo = window.scroll = function (a, b) {
+    var y = typeof a === 'object' && a ? (a.top != null ? a.top : null) : b;
+    if (y == null) return wst.apply(window, arguments);
+    aller(y, 0, 'start', !(typeof a === 'object' && a && a.behavior === 'auto'));
+  };
+  document.addEventListener('click', function (e) {
+    var l = e.target.closest && e.target.closest('a[href^="#"]'); if (!l || l.getAttribute('href').length < 2) return;
+    var el = document.getElementById(decodeURIComponent(l.getAttribute('href').slice(1))); if (!el || dansPopup(el)) return;
+    e.preventDefault(); aller(docY(el), el.getBoundingClientRect().height, 'start', true);
+    try { history.replaceState(null, '', l.getAttribute('href')); } catch (x) {}
+    var f = el.querySelector && el.querySelector('input, textarea, select'); if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (x) {} }, 700);
+  }, true);
+  // arrivée directe avec une ancre (#codeCard…)
+  if (location.hash && location.hash.length > 1) addEventListener('load', function () { var el = document.getElementById(decodeURIComponent(location.hash.slice(1))); if (el) setTimeout(function () { aller(docY(el), el.getBoundingClientRect().height, 'start', true); }, 600); });
 })();

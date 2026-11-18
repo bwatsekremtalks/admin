@@ -44,6 +44,11 @@
       try { if (!/bwatsekremtalks\.github\.io$/.test(new URL(e.origin).hostname) || !e.data) return; } catch (x) { return; }
       var f = [].slice.call(document.querySelectorAll('iframe')).filter(function (x) { return x.contentWindow === e.source; })[0];
       if (e.data.bstReady && f) { setTimeout(envoi, 50); return; }
+      if (e.data.bstScroll && f && !lock) {   // une page intégrée demande d'aller à une de ses sections
+        var s = e.data.bstScroll, base = f.getBoundingClientRect().top + scrollY, hh = headerH(), y = base + (+s.y || 0);
+        var cible = s.block === 'center' ? y + (+s.h || 0) / 2 - (hh + (innerHeight - hh) / 2) : s.block === 'end' ? y + (+s.h || 0) - innerHeight + 12 : y - hh - 12;
+        scrollTo({ top: Math.max(0, cible), behavior: s.smooth === false ? 'auto' : 'smooth' }); return;
+      }
       if (!('bstModal' in e.data) || !f) return;
       var de = document.documentElement, bd = document.body;
       if (e.data.bstModal) {

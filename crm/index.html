@@ -107,6 +107,8 @@
   @keyframes bkin { from { transform: translate(-50%, 20px); opacity: 0; } }
   .back .bk1 { font-size: 15px; } .back .bk2 { display: flex; gap: 8px; } .back .bk2 .btn { flex: 1; min-height: 46px; } .back .btn.nowa, .btn.nowa { background: #fdecec; color: #b42318; border-color: #f3c0ba; }
   .btn.nowa1 { padding: 0 10px; opacity: .55; } .btn.nowa1:hover { opacity: 1; background: #fdecec; }
+  .pipe { margin-top: 12px; background: #eef9e6; border: 1px solid #b9e09a; color: #24521a; border-radius: 16px; padding: 10px 14px; font-size: 14.5px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .btn.nxt { white-space: nowrap; }
   .nwrem { margin-top: 12px; background: #fdecec; border: 1px solid #f3c0ba; color: #8f1d14; border-radius: 16px; padding: 10px 14px; font-size: 14.5px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
   .btn.att2 { background: #e8762b; border-color: #e8762b; color: #fff; } .bdg.staff { background: #e8f1ff; color: #1f4f99; border: 1px solid #bcd3f5; } .staffrow { margin-top: 12px; } .staffrow .btn { width: 100%; } .btn.staffon { background: #1f4f99; border-color: #1f4f99; color: #fff; }
   .bdg.lib { background: #eef2f7; color: #45556c; border: 1px dashed #b8c4d4; } .libban { margin: 8px 0 4px; background: #f3f6fa; border: 1px dashed #b8c4d4; border-radius: 14px; padding: 10px 12px; font-size: 14px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -191,6 +193,7 @@
     .row .info2 { grid-column: 1 / -1; order: 3; min-width: 0; }
     .row.lib { grid-template-columns: minmax(0, 1fr); } .row.lib > div:last-child { order: 5; } .row.lib > div:last-child .btn { width: 100%; } .row .dots { order: 4; grid-column: 1 / -1; max-width: none; gap: 4px; justify-content: flex-start; } .row .dot { width: 24px; height: 24px; font-size: 12px; }
     .row > div:last-child { order: 2; } .row .btn { min-height: 44px; }
+    .row:has(.nxt) { grid-template-columns: minmax(0, 1fr); } .row:has(.nxt) > div:last-child { order: 5; } .row:has(.nxt) > div:last-child .nxt { flex: 1; justify-content: center; }
     .av { width: 40px; height: 40px; font-size: 14px; }
     .serie { top: 0; margin: 12px -16px 0; border-radius: 0 0 20px 20px; border-width: 0 0 3px; } .serie .btn { flex: 1 1 100%; min-height: 50px; }
     dialog#dlg { width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 26px 26px 0 0; }
@@ -249,6 +252,7 @@
         <button class="btn" id="bulk" type="button" title="Pour les messages déjà envoyés à la main, avant cet outil">✓ Marquer la liste comme déjà envoyée</button></div>
       <div class="card" id="afBar" style="padding:12px"></div>
     </div>
+    <div class="pipe hidden" id="pipe"></div>
     <div class="nwrem hidden" id="nwRem"></div>
     <p class="count" id="count"></p>
     <div class="list" id="list"></div>
@@ -625,6 +629,10 @@ async function retablir(p) {
   await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: 'Place rétablie', teks: null, pa: ME });
   toast(`✓ Place rétablie pour ${String(p.nom || '').split(' ')[0]}`); if ($('dlg').open) $('dlg').close(); await load();
 }
+/* Pipeline de suivi : ordre des messages ; « prochain message » = premier message concerné pas encore envoyé */
+const PIPE = ['konfimasyon', 'etidyan', 'sertifika', 'konsey', 'otm', 'defi', 'mesi', 'atant', 'plas', 'atant2'];
+const nextTip = (p) => PIPE.find((k) => eligible(p, k) && !sent(p, k).length) || null;
+const tipOf = (k) => TIPS.find((x) => x.k === k);
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
 const modeOf = (p) => MODE[pk(p)] || null;
 const isStaff = (p) => MODE[pk(p)] === 'staff';
@@ -702,6 +710,11 @@ function render() {
     return `<button type="button" class="tip ${TIP === t.k ? 'on' : ''}" data-tipcard="${t.k}"><div class="n">${t.e} ${esc(t.n)}</div><div class="v">${s}<small> / ${el.length} envoyés</small></div><div class="d">${esc(t.d)}</div><div class="track"><i style="width:${pct}%"></i></div></button>`; }).join('');
   renderAf();
   const L = filtered(), t = TIPS.find((x) => x.k === TIP);
+  // Étape suivante : dans la liste affichée, combien ont déjà reçu ce message et attendent le suivant ?
+  { const Ld = L.filter((p) => sent(p, TIP).length), cnt = {}; Ld.forEach((p) => { const k = nextTip(p); if (k) cnt[k] = (cnt[k] || 0) + 1; });
+    const best = Object.entries(cnt).sort((a, b) => PIPE.indexOf(a[0]) - PIPE.indexOf(b[0]))[0];
+    $('pipe').classList.toggle('hidden', !best);
+    if (best) { const x = tipOf(best[0]); $('pipe').innerHTML = `<span>➡️ <b>Étape suivante</b> : ${best[1]} personne${best[1] > 1 ? 's' : ''} de cette liste ${best[1] > 1 ? 'ont' : 'a'} reçu « ${esc(t.n)} » et attend${best[1] > 1 ? 'ent' : ''} le message <b>${x.e} ${esc(x.n)}</b>.</span><button class="btn sm p" type="button" data-pipego="${best[0]}">Passer à ${x.e} ${esc(x.n)}</button>`; } }
   const meNw = myTeam(), nwPend = P.filter((p) => !p.annule && noWA(p) && eligible(p, TIP) && !sent(p, TIP).length && (!meNw || RESP[pk(p)] === meNw.non)).length;   // seulement son propre groupe
   $('nwRem').classList.toggle('hidden', !nwPend || $('fSuivi').value === 'nowa');
   $('nwRem').innerHTML = `<span>📵 <b>${nwPend}</b> personne${nwPend > 1 ? 's' : ''} ${meNw ? 'de votre groupe ' : ''}sans WhatsApp attend${nwPend > 1 ? 'ent' : ''} encore ce message : SMS ou appel.</span><button class="btn sm" type="button" id="nwGo">Voir la liste</button>`;
@@ -712,7 +725,7 @@ function render() {
     return `<div class="row ${p.annule ? 'lib' : ''}"><div class="pn"><span class="av" style="background:${avc(p.nom)}">${esc(ini(p.nom))}</span><div style="min-width:0"><div class="nm" data-open="${pk(p)}">${esc(p.nom || '—')}</div><div class="sub">${esc(p.tel || 'pas de numéro')}${p.by ? ` · avec ${esc(p.by)}` : ''}</div></div></div>
       <div class="info2">${isStaff(p) ? '<span class="bdg staff">🧑‍💼 Staff</span>' : ''}${p.annule ? `<span class="bdg lib">🪑 Place libérée${libDate(p) ? ' le ' + esc(libDate(p)) : ''}</span>` : ''}${noWA(p) ? '<span class="bdg nowa">📵 Pas de WhatsApp</span>' : ''}${p.att ? `<span class="bdg att">⏳ Liste d’attente · n° ${p.att}</span>` : ''}${{ vient: '<span class="bdg salle">✅ vient</span>', non: '<span class="bdg hors">❌ ne vient pas</span>', repondu: '<span class="bdg">💬 a répondu</span>', sans: '<span class="bdg">🔇 sans réponse</span>', pas: '' }[suivi(p)]}${RESP[pk(p)] ? `<span class="bdg">👤 ${esc(RESP[pk(p)])}</span>` : ''}${p.ville ? `<span class="bdg ${p.cap ? '' : 'hors'}">📍 ${esc(p.ville)}</span>` : '<span class="bdg hors">📍 ville ?</span>'}${m ? `<span class="bdg ${m}">${m === 'live' ? '🎥 Live' : '🏛️ Salle'}</span>` : ''}${p.ukey ? `<span class="bdg">🎓 ${esc(p.ukey)} · ${p.nUni}</span>` : ''}</div>
       <div class="dots">${TIPS.map((x) => { const ss = sent(p, x.k)[0]; return `<span class="dot ${ss ? 'ok' : ''} ${eligible(p, x.k) ? '' : 'na'}" title="${esc(x.n)} : ${ss ? 'envoyé le ' + fmtDate(ss.voye_le) + (ss.pa ? ' par ' + ss.pa : '') : 'pas encore envoyé'}">${x.e}</span>`; }).join('')}</div>
-      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${p.annule ? `<button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : (p.annule ? '' : p.att && p.num && !noWA(p) ? (() => { const k2 = sent(p, 'atant').length ? 'atant2' : 'atant', d2 = sent(p, k2).length; return `<a class="btn sm ${d2 ? '' : 'att2'}" href="${esc(waLink(p, k2))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${k2}" title="Message « ${k2 === 'atant' ? 'Liste d’attente' : 'Attente : nouvelles'} »">${d2 ? '↻ ' : ''}⏳ ${k2 === 'atant' ? 'Liste d’attente' : 'Nouvelles'}</a>`; })()
+      <div style="display:flex;gap:6px">${el && AF[TIP] && !noWA(p) ? `<button class="btn sm" type="button" data-af="${pk(p)}" data-aftip="${TIP}" title="Envoyer avec l’affiche">🖼️</button>` : ''}${p.annule ? `<button class="btn sm" type="button" data-retab="${pk(p)}">↩️ Rétablir la place</button>` : ''}${el && !noWA(p) && p.num ? `<button class="btn sm nowa1" type="button" data-nowa="${pk(p)}" title="Ce numéro n’a pas WhatsApp" aria-label="Pas de WhatsApp">📵</button>` : ''}${el && noWA(p) ? `<a class="btn sm" href="tel:+${esc(p.num)}" title="Appeler">📞</a><a class="btn sm ${s ? '' : 'wa'}" href="${esc(smsLink(p, TIP))}" data-send="${pk(p)}" data-how="SMS">${s ? '↻ SMS' : '📱 SMS'}</a>` : el && s && nextTip(p) ? `<a class="btn sm wa nxt" href="${esc(waLink(p, nextTip(p)))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${nextTip(p)}" title="Message suivant : ${esc(tipOf(nextTip(p)).n)}">➡️ ${tipOf(nextTip(p)).e} ${esc(tipOf(nextTip(p)).n)}</a><a class="btn sm" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}" title="Renvoyer « ${esc(tipOf(TIP).n)} »">↻</a>` : el ? `<a class="btn sm ${s ? '' : 'wa'}" href="${esc(waLink(p, TIP))}" target="_blank" rel="noopener" data-send="${pk(p)}">${s ? '↻ Renvoyer' : '💬 Envoyer'}</a>` : (p.annule ? '' : p.att && p.num && !noWA(p) ? (() => { const k2 = sent(p, 'atant').length ? 'atant2' : 'atant', d2 = sent(p, k2).length; return `<a class="btn sm ${d2 ? '' : 'att2'}" href="${esc(waLink(p, k2))}" target="_blank" rel="noopener" data-send="${pk(p)}" data-tip="${k2}" title="Message « ${k2 === 'atant' ? 'Liste d’attente' : 'Attente : nouvelles'} »">${d2 ? '↻ ' : ''}⏳ ${k2 === 'atant' ? 'Liste d’attente' : 'Nouvelles'}</a>`; })()
   : p.att && p.num && noWA(p) ? `<a class="btn sm" href="${esc(smsLink(p, sent(p, 'atant').length ? 'atant2' : 'atant'))}" data-send="${pk(p)}" data-tip="${sent(p, 'atant').length ? 'atant2' : 'atant'}" data-how="SMS">📱 SMS attente</a>`
   : `<span class="sub">${p.num ? 'non concerné' : 'pas de numéro'}</span>`)}</div></div>`;
   }).join('') || `<div class="empty">${ETAT === 'reste' ? '🎉 Tout le monde a reçu ce message !' : 'Personne dans cette liste.'}</div>`;
@@ -726,6 +739,7 @@ document.addEventListener('click', (e) => {
   const t = e.target.closest('[data-tipcard]'); if (t) { TIP = t.dataset.tipcard; SERIE = null; render(); return; }
   const af = e.target.closest('[data-af]'); if (af) { const p = byKey(af.dataset.af); if (p) shareAf(p, af.dataset.aftip); return; }
   const s = e.target.closest('[data-send]'); if (s) { const p = byKey(s.dataset.send); if (p) markSent(p, s.dataset.tip || TIP, s.dataset.how); return; }
+  const pg = e.target.closest('[data-pipego]'); if (pg) { TIP = pg.dataset.pipego; SERIE = null; ETAT = 'reste'; [...$('etat').children].forEach((x) => x.classList.toggle('on', x.dataset.v === 'reste')); render(); $('count').scrollIntoView({ behavior: 'smooth', block: 'start' }); toast(`➡️ ${tipOf(TIP).e} ${tipOf(TIP).n} : les filtres sont conservés`); return; }
   const nw = e.target.closest('[data-nowa]'); if (nw) { const p = byKey(nw.dataset.nowa); if (!p) return; const L0 = LAST && LAST.k === pk(p) ? LAST : (() => { const m = sent(p, TIP)[0]; return m ? { id: m.id } : null; })(); hideBack(); LAST = null; marqueNoWA(p, L0); return; }
   const rt = e.target.closest('[data-retab]'); if (rt) { const p = byKey(rt.dataset.retab); if (p) retablir(p); return; }
   const o = e.target.closest('[data-open]'); if (o) { const p = byKey(o.dataset.open); if (p) openPerson(p); }

@@ -58,7 +58,7 @@
   .full .lim { white-space: normal; text-align: center; }
   @media (max-width: 480px) { .wait { display: grid !important; grid-template-columns: auto 1fr auto; gap: 4px 12px; padding: 10px 12px; }
     .wait .ic { width: 40px; height: 40px; font-size: 21px; grid-row: 1; } .wait .tx { display: contents; } .wait .tx small { grid-row: 1; grid-column: 2; align-self: center; }
-    .wait .wn { grid-row: 1; grid-column: 3; display: flex; align-items: baseline; gap: 5px; } .wait .wn .up { display: none; }
+    .wait .wn { grid-row: 1; grid-column: 3; display: flex; align-items: baseline; gap: 5px; } .wait .wn .up { display: none; } .wait .upm { display: inline-block !important; grid-column: 1 / -1; justify-self: start; margin-top: 6px; } .wait .upm:empty { display: none !important; } .wait .tx .upm { color: #3f7f22; font-size: 12.5px; }
     .wait .tx span { grid-column: 1 / -1; font-size: 12px; } .wait .wn b { font-size: 24px; } .wait .wn em { font-size: 11px; } .wait .tx small { font-size: 11px; letter-spacing: .05em; } }
   @media (prefers-reduced-motion: reduce) { .bar i, .bar i::after, .live i { animation: none; transition: none; } }
 </style>
@@ -69,7 +69,7 @@
   <div class="num"><b id="n">—</b><span class="cap" id="cap"></span><span class="lab" id="tPers"></span><span class="today" id="today"></span></div>
   <div class="bar" id="bar" role="progressbar" aria-valuemin="0"><i id="fill"></i></div>
   <div class="row"><span class="lim" id="lim"></span></div>
-  <div class="wait" id="wait" style="display:none"><span class="ic">⏳</span><div class="tx"><small id="wT"></small><span id="wS"></span></div><div class="wn"><b id="wN">0</b><em id="wP"></em><span class="up" id="wUp"></span></div></div>
+  <div class="wait" id="wait" style="display:none"><span class="ic">⏳</span><div class="tx"><small id="wT"></small><span id="wS"></span><span class="up upm" id="wUp2" style="display:none"></span></div><div class="wn"><b id="wN">0</b><em id="wP"></em><span class="up" id="wUp"></span></div></div>
   <a class="cta" id="cta" target="_top" style="display:none"></a>
 </div>
 <script>
@@ -110,7 +110,7 @@ async function load() {
     if (att) { w.style.display = ''; w.classList.toggle('plein', !!plein); document.getElementById('wT').textContent = plein ? t.wFullT : t.wT;
       document.getElementById('wS').innerHTML = plein ? t.wFullS : esc(t.wS) + (amax ? `<i class="wl">${t.wLeft(amax - attA)}</i><i class="wbar"><i style="width:${Math.round(attA / amax * 100)}%"></i></i>` : '');
       const wn = document.getElementById('wN'), prev = +wn.dataset.v || 0; wn.textContent = amax ? `${attA}/${amax}` : att; wn.dataset.v = att; if (prev && att > prev) { w.classList.remove('bump'); void w.offsetWidth; w.classList.add('bump'); }
-      document.getElementById('wP').textContent = t.wP(amax ? attA : att); const up = Math.min(att, +j.aujourdhui || 0); document.getElementById('wUp').textContent = up > 0 ? t.wUp(up) : ''; sendH(); }
+      document.getElementById('wP').textContent = t.wP(amax ? attA : att); const up = Math.min(att, +j.aujourdhui || 0); document.getElementById('wUp').textContent = up > 0 ? t.wUp(up) : ''; document.getElementById('wUp2').textContent = up > 0 ? t.wUp(up) : ''; sendH(); }
     else w.style.display = 'none';
     const bar = document.getElementById('bar'), fill = document.getElementById('fill');
     if (cap) {

@@ -235,6 +235,7 @@
   </div></header>
   <main>
     <div class="tips" id="tips"></div>
+    <div class="card hidden" id="relLib" style="margin-top:12px;border:2px solid #f3c6c2;background:#fff8f7"></div>
     <div class="card a2hs hidden" id="a2hs"><div style="display:flex;gap:10px;align-items:flex-start;justify-content:space-between">
       <div><b>📲 Installez-la comme une application</b><div class="sub" id="a2hsT" style="margin-top:2px"></div></div><button class="btn sm" type="button" id="a2hsX" aria-label="Fermer">✕</button></div></div>
     <div class="card serie hidden" id="serie"></div>
@@ -815,7 +816,55 @@ function filtered() {
     if (ETAT === 'reste') return el && !s; if (ETAT === 'voye') return s; return true;
   });
 }
+/* Relance : libérer d'un coup les places de ceux qui n'ont pas répondu à la relance (délai : vendredi 20 novembre, 16 h, heure d'Haïti) */
+const REL_LIMITE = new Date('2026-11-20T16:00:00-05:00');
+function relCibles() {
+  const rf = $('fResp').value, inRf = (p) => (rf === '?' ? !own(p) : !rf || RESP[pk(p)] === rf);
+  const C = P.filter((p) => !p.annule && !isStaff(p) && !p.att && inRf(p) && sent(p, 'relans').length && suivi(p) === 'sans');
+  const ok = [], verif = [], vu = new Set();
+  for (const p of C) {
+    if (vu.has(pk(p))) continue;
+    if (p.idx === -1) { const autres = P.filter((x) => x.rid === p.rid && x.idx >= 0 && !x.annule);
+      if (autres.some((x) => ['vient', 'repondu'].includes(suivi(x)))) { verif.push(p); continue; }
+      autres.forEach((x) => vu.add(pk(x))); ok.push({ p, n: autres.length + 1 }); }
+    else { if (P.some((x) => x.rid === p.rid && x.idx === -1 && !x.annule && C.includes(x) && !verif.includes(x))) continue; ok.push({ p, n: 1 }); }
+    vu.add(pk(p));
+  }
+  const pasRel = P.filter((p) => !p.annule && !isStaff(p) && !p.att && inRf(p) && eligible(p, 'relans') && !sent(p, 'relans').length).length;
+  return { ok, verif, pasRel };
+}
+function renderRelLib() {
+  const box = $('relLib'); if (TIP !== 'relans') { box.classList.add('hidden'); return; }
+  const { ok, verif, pasRel } = relCibles(), places = ok.reduce((s, x) => s + x.n, 0), avant = Date.now() < REL_LIMITE.getTime();
+  box.classList.remove('hidden');
+  box.innerHTML = `<div style="display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+    <div><b>🪑 Libérer les places sans réponse</b><div class="sub" style="margin-top:2px">${ok.length ? `${ok.length} personne${ok.length > 1 ? 's' : ''} ont reçu la relance et n’ont toujours pas répondu : <b>${places} place${places > 1 ? 's' : ''}</b> à rendre à la liste d’attente.` : 'Personne à libérer pour l’instant : tous ceux qui ont reçu la relance ont répondu, ou la relance n’a pas encore été envoyée.'}
+    ${avant ? '<br>⏰ Délai donné dans le message : <b>vendredi 20 novembre, 16 h</b>. Attendez cette heure avant de libérer.' : ''}
+    ${pasRel ? `<br>✉️ ${pasRel} personne${pasRel > 1 ? 's' : ''} sans réponse n’${pasRel > 1 ? 'ont' : 'a'} pas encore reçu la relance : ${pasRel > 1 ? 'elles ne seront pas libérées' : 'elle ne sera pas libérée'}.` : ''}
+    ${verif.length ? `<br>🔎 ${verif.length} réservation${verif.length > 1 ? 's' : ''} à vérifier à la main (une personne inscrite avec elle a répondu) : ${verif.map((p) => esc(p.nom)).join(', ')}.` : ''}</div></div>
+    ${ok.length ? `<button class="btn" type="button" id="relGo" style="background:#b3261e;color:#fff;border-color:#b3261e">🪑 Libérer ${places} place${places > 1 ? 's' : ''}</button>` : ''}</div>`;
+}
+async function relLiberer() {
+  const { ok } = relCibles(), places = ok.reduce((s, x) => s + x.n, 0); if (!ok.length) return;
+  const avant = Date.now() < REL_LIMITE.getTime();
+  if (!(await ask({ icon: '🪑', tone: 'warn', title: `Libérer ${places} place${places > 1 ? 's' : ''} ?`, text: (avant ? '⚠️ Il n’est pas encore vendredi 16 h, le délai annoncé dans le message.\n\n' : '') + `${ok.length} personne${ok.length > 1 ? 's' : ''} sans réponse à la relance : leur réservation sera annulée dans l’espace inscriptions, et une note « Ne viendra pas » sera ajoutée à leur fiche.\n\nSi l’une d’elles répond ensuite, ouvrez sa fiche et cliquez « Rétablir la place ».`, ok: `Libérer ${places} place${places > 1 ? 's' : ''}`, okTone: 'red', cancel: 'Annuler' }))) return;
+  const b = $('relGo'); if (b) { b.disabled = true; }
+  let fait = 0, nb = 0; const err = [];
+  for (const { p, n } of ok) {
+    if (b) b.textContent = `⏳ ${nb + 1} / ${ok.length}…`;
+    const { error } = await sb.rpc('talks_crm_statut', { p_inscription_id: p.rid, p_idx: p.idx, p_statut: 'x' });
+    if (error) { err.push(p.nom); nb++; continue; }
+    const { data } = await sb.from('talks_crm_not').insert({ inscription_id: p.rid, idx: p.idx, rezilta: 'Ne viendra pas', teks: 'Sans réponse à la relance : place libérée', pa: ME }).select().single();
+    if (data) NOTES.unshift(data);
+    (p.idx === -1 ? P.filter((x) => x.rid === p.rid && !x.annule) : [p]).forEach((x) => { x.annule = true; x.adminOK = false; });
+    fait += n; nb++;
+  }
+  render();
+  toast(`✓ ${fait} place${fait > 1 ? 's' : ''} libérée${fait > 1 ? 's' : ''}` + (err.length ? `. ⚠️ ${err.length} non libérée${err.length > 1 ? 's' : ''} (droits ou connexion) : ${err.join(', ')}` : '. Les personnes de la liste d’attente peuvent maintenant recevoir « Place libérée ».'), 9000);
+}
+document.addEventListener('click', (e) => { if (e.target.closest('#relGo')) relLiberer(); });
 function render() {
+  try { renderRelLib(); } catch (x) { console.error(x); }
   $('tips').innerHTML = TIPS.map((t) => { const el = P.filter((p) => eligible(p, t.k)); const s = el.filter((p) => sent(p, t.k).length).length; const pct = el.length ? Math.round((s / el.length) * 100) : 0;
     return `<button type="button" class="tip ${TIP === t.k ? 'on' : ''}" data-tipcard="${t.k}"><div class="n">${t.e} ${esc(t.n)}</div><div class="v">${s}<small> / ${el.length} envoyés</small></div><div class="d">${esc(t.d)}</div><div class="track"><i style="width:${pct}%"></i></div></button>`; }).join('');
   renderAf();

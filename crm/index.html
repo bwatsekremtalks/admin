@@ -609,6 +609,7 @@ const friendly = (e) => { const m = String(e?.message || e || ''); console.warn(
 /* ---------- Les 5 messages ---------- */
 const TIPS = [
   { k: 'konfimasyon', e: '✅', n: 'Confirmation', d: 'Réservation confirmée · hors Cap : présentiel ou Live ?' },
+  { k: 'relans', e: '⏰', n: 'Relance confirmation', d: 'Pas de réponse à la confirmation : confirmer avant vendredi 16 h' },
   { k: 'etidyan', e: '🎓', n: 'Étudiants', d: 'Combien d’étudiants de son université · partager' },
   { k: 'sertifika', e: '📜', n: 'Certificat', d: 'Certificat de participation (salle ou Live)' },
   { k: 'konsey', e: '💡', n: 'Conseils', d: 'Ambiance, préparation, en tirer le maximum' },
@@ -623,6 +624,7 @@ const SIGN = '\nL’équipe Bwat Sekrèm Talks\nApprendre. Inspirer. Construire 
 const QUAND = '📅 Dimanche 22 novembre 2026, de 14 h 30 à 17 h 30\n📍 Auditorium Oswald Durand, 31, Rue 18 i, Cap-Haïtien (Collège Bell Angelot)';
 const DEF = {
   konfimasyon: { t: 'Confirmation — Cap-Haïtien', v: `Bonjour {prenom} 👋\n\nC’est l’équipe de Bwat Sekrèm Talks. Votre réservation est bien confirmée ✅ ({places}).\n\n${QUAND}\n{accompagnants}\nMerci de répondre « OUI » pour confirmer votre présence. En cas d’empêchement, prévenez-nous afin que nous puissions libérer votre place.\n\nÀ très bientôt !${SIGN}` },
+  relans: { t: 'Relance — pas de réponse à la confirmation (avant vendredi 20 novembre, 16 h)', v: `Bonjour {prenom} 👋\n\nNous vous avons écrit pour confirmer votre place à Bwat Sekrèm Talks ({places}), mais nous n’avons pas encore reçu votre réponse.\n\n⏰ Merci de confirmer avant vendredi 20 novembre à 16 h, en répondant simplement :\n✅ « OUI » : je viens à l’auditorium\n🎥 « LIVE » : je suivrai l’événement en ligne\n❌ « NON » : je ne pourrai pas venir\n\nSans réponse à 16 h, votre place sera libérée et proposée à une personne de la liste d’attente. La demande est très forte : cela nous permet de bien organiser l’accueil et la salle, pour que chaque place soit occupée 🙏\n\n${QUAND}\n{accompagnants}\nMerci de votre compréhension, et à dimanche !${SIGN}` },
   konfimasyon_hors: { t: 'Confirmation — hors Cap-Haïtien (demande présentiel / Live)', v: `Bonjour {prenom} 👋\n\nC’est l’équipe de Bwat Sekrèm Talks. Votre réservation est bien confirmée ✅ ({places}).\n\n${QUAND}\n{accompagnants}\nPour bien nous organiser, dites-nous comment vous souhaitez participer :\n1️⃣ En présentiel, à l’auditorium\n2️⃣ En ligne, en suivant le Live\n\nRépondez simplement 1 ou 2 : cela nous aide à bien préparer la salle, ou à vous envoyer le lien du Live le jour J.\n\nÀ très bientôt !${SIGN}` },
   etidyan: { t: 'Étudiants — déjà plusieurs inscrits', v: `Bonjour {prenom} 👋\n\n🎓 Bonne nouvelle : vous êtes déjà {n} étudiant(e)s {universite} inscrit(e)s à Bwat Sekrèm Talks !\n\nAidez-nous à réunir encore plus d’étudiants : partagez ce lien avec vos camarades pour que vous soyez {n10} le 22 novembre 👇\nhttps://bwatsekremtalks.com/reserver\n\nPlus vous serez nombreux, plus la conversation sera riche !${SIGN}` },
   etidyan_premye: { t: 'Étudiants — premier inscrit de son université', v: `Bonjour {prenom} 👋\n\n🎓 Vous êtes le premier ou la première étudiant(e) {universite} à vous inscrire à Bwat Sekrèm Talks !\n\nInvitez vos camarades à vous rejoindre : partagez ce lien pour venir à 10 au moins le 22 novembre 👇\nhttps://bwatsekremtalks.com/reserver${SIGN}` },
@@ -736,7 +738,7 @@ async function retablir(p) {
 }
 /* Pipeline de suivi : ordre des messages ; « prochain message » = premier message concerné pas encore envoyé */
 const isEtu = (p) => !!p.ukey || (p.profils || []).includes('etudiant');
-const PIPE = ['konfimasyon', 'etidyan', 'sertifika', 'konsey', 'otm', 'defi', 'mesi', 'atant', 'plas', 'atant2'];
+const PIPE = ['konfimasyon', 'relans', 'etidyan', 'sertifika', 'konsey', 'otm', 'defi', 'mesi', 'atant', 'plas', 'atant2'];
 const nextTip = (p) => PIPE.find((k) => eligible(p, k) && !sent(p, k).length) || null;
 const tipOf = (k) => TIPS.find((x) => x.k === k);
 const sent = (p, k) => MES.filter((m) => m.inscription_id === p.rid && m.idx === p.idx && m.tip === k);
@@ -745,6 +747,7 @@ const isStaff = (p) => MODE[pk(p)] === 'staff';
 const ATT_OK = ['atant', 'atant2', 'otm', 'etidyan', 'mesi'];   // messages autorisés pour les personnes sur liste d'attente
 function eligible(p, k) { if (p.annule || !p.num || isStaff(p)) return false;
   if (k === 'atant' || k === 'atant2') return !!p.att;
+  if (k === 'relans') return !p.att && sent(p, 'konfimasyon').length > 0 && (suivi(p) === 'sans' || sent(p, 'relans').length > 0);   // confirmation envoyée, aucune réponse
   if (k === 'plas') return !p.att && modeOf(p) !== 'live' && MES.some((m) => m.tip === 'atant' && m.inscription_id === p.rid && m.idx === p.idx);
   if (p.att && !ATT_OK.includes(k)) return false; if (k === 'etidyan') return !!p.ukey; if (k === 'mesi') return !!PRES[pk(p)] || modeOf(p) === 'live'; return true; }
 function variant(p, k) {
@@ -754,7 +757,7 @@ function variant(p, k) {
   if (k === 'sertifika') return m === 'live' ? 'sertifika_live' : m === 'salle' ? 'sertifika_salle' : 'sertifika_inconnu';
   if (k === 'konsey') return m === 'live' ? 'konsey_live' : m === 'salle' ? 'konsey_salle' : 'konsey_inconnu';
   if (k === 'defi' || k === 'mesi') return m === 'live' ? k + '_live' : k;   // salle (ou mode inconnu) / Live : défis différents
-  if (['atant', 'plas', 'atant2'].includes(k)) return k;
+  if (['atant', 'plas', 'atant2', 'relans'].includes(k)) return k;
   return 'otm';
 }
 function text(p, k) {

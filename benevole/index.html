@@ -43,6 +43,17 @@
   .hs { display: flex; gap: 8px; flex-wrap: wrap; list-style: none; padding: 0; margin: 0; }
   .hs li { font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.9); background: rgba(255,255,255,.08); border-radius: 999px; padding: 6px 12px; }
   .hs li.w { color: #ffd28a; }
+  /* Compteur : combien de bénévoles on recrute, et combien de places il reste (mis à jour depuis l'admin) */
+  .cnt { margin-top: 20px; max-width: 540px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 14px 16px 16px; text-align: left; }
+  .cnt .lv { display: inline-flex; align-items: center; gap: 7px; font: 700 11.5px "DM Sans", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #dff3d0; }
+  .cnt .lv i { width: 8px; height: 8px; border-radius: 50%; background: var(--green2); box-shadow: 0 0 0 0 rgba(122,193,66,.7); animation: pulse 1.8s infinite; }
+  .cnt .n { display: flex; align-items: baseline; gap: 10px; margin-top: 4px; }
+  .cnt .n b { font: 800 46px/1 "Bricolage Grotesque", sans-serif; color: #fff; font-variant-numeric: tabular-nums; }
+  .cnt .n span { font-size: 16.5px; font-weight: 700; color: rgba(255,255,255,.94); }
+  .cnt .bar { height: 10px; border-radius: 999px; background: rgba(255,255,255,.16); overflow: hidden; margin-top: 10px; }
+  .cnt .bar i { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, var(--green), #b6f08a); transition: width .8s ease; }
+  .cnt .r { margin-top: 9px; font-size: 14.5px; font-weight: 600; color: #ffd28a; min-height: 1.3em; }
+  .cnt .r b { color: #fff; }
   /* Badge « Équipe BST » */
   .badge { justify-self: center; width: 230px; background: #fff; color: var(--navy); border-radius: 22px; box-shadow: 0 30px 60px rgba(0,0,0,.35); transform: rotate(4deg); animation: float 5s ease-in-out infinite; position: relative; overflow: hidden; }
   @keyframes float { 50% { transform: rotate(2deg) translateY(-8px); } }
@@ -56,8 +67,10 @@
   .badge .role { font: 800 22px "Bricolage Grotesque", sans-serif; letter-spacing: .04em; }
   .badge .nm { margin: 6px auto 10px; width: 80%; border-bottom: 2px dashed #c9d6e6; padding-bottom: 4px; color: #8aa0bb; font-size: 13px; font-style: italic; }
   .badge .dt { font-size: 12px; font-weight: 700; color: #1E8CF0; letter-spacing: .06em; }
-  @media (max-width: 760px) { .hin { grid-template-columns: 1fr; gap: 26px; text-align: center; } .hero { padding: 54px 16px 86px; } .hero p { margin: 0 auto; } .hc, .hs { justify-content: center; } .hc { flex-direction: column; } .hbtn { width: 100%; justify-content: center; } .badge { display: none; } }
-  @media (prefers-reduced-motion: reduce) { .badge, .hero .k .dot { animation: none; } }
+  @media (max-width: 760px) { .hin { grid-template-columns: 1fr; gap: 26px; text-align: center; } .hero { padding: 54px 16px 86px; } .hero p { margin: 0 auto; } .cnt { margin-left: auto; margin-right: auto; text-align: center; } .cnt .n { justify-content: center; } .hc, .hs { justify-content: center; } .hc { flex-direction: column; } .hbtn { width: 100%; justify-content: center; } .badge { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .badge, .hero .k .dot, .cnt .lv i { animation: none; } .cnt .bar i { transition: none; } }
+  .hin > div { min-width: 0; }
+  @media (max-width: 350px) { .hero h1 { font-size: 29px; } .cnt .n b { font-size: 40px; } .cnt .n span { font-size: 15px; } }
   .wrap { max-width: 860px; margin: -54px auto 40px; position: relative; padding: 0 16px; display: grid; gap: 16px; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: 20px; box-shadow: 0 10px 30px rgba(13,45,74,.06); }
   .card h2 { font: 800 21px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; }
@@ -73,6 +86,8 @@
   .kom { text-align: left; border: 2px solid var(--line); background: #fff; border-radius: 16px; padding: 12px 14px; cursor: pointer; font: inherit; color: inherit; position: relative; }
   .kom b { display: block; font-size: 16px; } .kom span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 2px; }
   .kom[aria-pressed="true"] { border-color: var(--green); background: #f4fbef; box-shadow: 0 0 0 3px rgba(93,176,51,.18); }
+  .kom small { display: inline-block; margin-top: 8px; font: 700 12.5px "DM Sans", sans-serif; color: #2f6f15; background: #e9f6df; border-radius: 999px; padding: 3px 10px; }
+  .kom small.full { color: #8a5a00; background: #fff1d6; }
   .kom i { position: absolute; top: 10px; right: 12px; font-style: normal; font: 800 12px "DM Sans", sans-serif; background: var(--green); color: #fff; border-radius: 999px; padding: 2px 9px; }
   label.f { display: block; font-weight: 700; font-size: 14px; margin: 14px 0 5px; }
   label.f small { font-weight: 400; color: var(--muted); }
@@ -111,6 +126,10 @@
       <div class="k"><span class="dot"></span><span data-t="kick"></span></div>
       <h1 data-th="title"></h1>
       <p data-t="lead"></p>
+      <div class="cnt" id="cnt" aria-live="polite"><span class="lv"><i></i><span data-t="cLive"></span></span>
+        <div class="n"><b id="cN">—</b><span data-t="cLab"></span></div>
+        <div class="bar" id="cBar" role="progressbar" aria-valuemin="0"><i id="cFill"></i></div>
+        <div class="r" id="cR"></div></div>
       <div class="hc"><a class="hbtn" href="#komCard">✍️ <span data-t="go"></span></a>
         <ul class="hs"><li data-t="sKom"></li><li data-t="sTime"></li><li class="w" data-t="sLim"></li></ul></div>
     </div>
@@ -163,9 +182,12 @@ const SB_URL = 'https://nltlgytehikguydcdhyy.supabase.co', SB_KEY = 'sb_publisha
 const WA = '50948722671';
 const $ = (id) => document.getElementById(id);
 const KOMS = ['akey', 'medya', 'lojistik', 'pwogram', 'kominikasyon'];
+const NEED = { akey: 7, medya: 3, lojistik: 4, pwogram: 3, kominikasyon: 2 };   // bénévoles recherchés par commission : mêmes chiffres que la colonne « Besoin » de l'admin (BKOM dans ../index.html)
+let ACC = null;   // bénévoles déjà acceptés par commission (null tant que le compteur n'a pas répondu)
 const T = {
   fr: {
     kick: 'On recrute · 22 nov. 2026 · Cap-Haïtien', title: 'Rejoins l’équipe <em>Bwat\u00a0Sekrèm\u00a0Talks</em>', lead: 'Accueil, médias, logistique, communication : mets tes talents au service d’un événement qui fait grandir les professionnels de demain.', go: 'Je postule', sKom: '5 commissions', sTime: '⏱ 2 minutes', sLim: '⚠️ Places limitées', bTeam: 'ÉQUIPE BST', bRole: 'BÉNÉVOLE', bName: 'Ton nom ici', bDate: '22.11.2026 · CAP-HAÏTIEN',
+    cLive: 'En direct', cLab: 'bénévoles recherchés', cRest: (r) => r > 1 ? `🔥 Il reste <b>${r}</b> places dans l’équipe` : '🔥 Plus qu’<b>1</b> place dans l’équipe', cFull: '✅ L’équipe est au complet : postule pour la liste d’attente.', kPl: (n) => `${n} place${n > 1 ? 's' : ''}`, kRest: (r, n) => `reste ${r} sur ${n}`, kFull: 'Complet · liste d’attente',
     gainsT: 'Ce que tu gagnes', gains: [['🎓', 'Certificat', 'de bénévolat BST'], ['💼', 'Expérience', 'à mettre sur ton CV'], ['🪪', 'Badge', '« Équipe BST »'], ['⭐', 'Accès premium', 'aux événements BST']],
     komT: 'Choisis ta commission', komS: 'Clique sur 1 ou 2 commissions, par ordre de préférence.',
     k: { akey: ['🙋 Accueil', 'Recevoir les participants, la liste de présence, orienter et accompagner les invités.'], medya: ['📸 Médias', 'Photos, vidéos et témoignages pendant l’événement (avec ton propre appareil si possible).'], lojistik: ['📦 Logistique', 'Transport du matériel, eau, installation et rangement.'], dekorasyon: ['🎨 Décoration', 'Préparer la scène et la salle aux couleurs de BST.'], pwogram: ['🎤 Programme & intervenants', 'Gérer le temps, passer le micro au public, accompagner les intervenants.'], kominikasyon: ['📣 Communication', 'Publier en direct sur les réseaux sociaux avec l’équipe BST.'], live: ['🎥 Live', 'Assister le technicien de la retransmission en direct.'], sekirite: ['🛡️ Circulation & sécurité', 'Gérer les entrées et la circulation, en appui aux agents de sécurité.'] },
@@ -178,6 +200,7 @@ const T = {
     okT: 'Merci, candidature reçue !', okP: (n) => `${n ? n + ', l' : 'L'}’équipe Bwat Sekrèm Talks te contactera très vite sur WhatsApp pour te confirmer ta commission et la réunion de préparation.`, okWa: 'Écrire à l’équipe sur WhatsApp', waTxt: 'Bonjour, je viens d’envoyer ma candidature de bénévole pour Bwat Sekrèm Talks.' },
   ht: {
     kick: 'Nou bezwen w · 22 nov. 2026 · Okap', title: 'Vin nan ekip <em>Bwat\u00a0Sekrèm\u00a0Talks</em> la', lead: 'Akèy, medya, lojistik, kominikasyon : mete talan w nan sèvis yon evènman k ap fè pwofesyonèl demen yo grandi.', go: 'Mwen aplike', sKom: '5 komisyon', sTime: '⏱ 2 minit', sLim: '⚠️ Plas limite', bTeam: 'EKIP BST', bRole: 'VOLONTÈ', bName: 'Non w isit la', bDate: '22.11.2026 · OKAP',
+    cLive: 'An dirèk', cLab: 'volontè n ap chèche', cRest: (r) => `🔥 Rete <b>${r}</b> plas nan ekip la`, cFull: '✅ Ekip la konplè : aplike pou lis datant lan.', kPl: (n) => `${n} plas`, kRest: (r, n) => `rete ${r} sou ${n}`, kFull: 'Konplè · lis datant',
     gainsT: 'Sa w ap jwenn', gains: [['🎓', 'Sètifika', 'volontè BST'], ['💼', 'Eksperyans', 'pou mete sou CV w'], ['🪪', 'Badj', '« Ekip BST »'], ['⭐', 'Aksè premium', 'nan evènman BST yo']],
     komT: 'Chwazi komisyon w', komS: 'Klike sou 1 oswa 2 komisyon, nan lòd ou prefere yo.',
     k: { akey: ['🙋 Akèy', 'Resevwa patisipan yo, lis prezans lan, oryante ak akonpaye envite yo.'], medya: ['📸 Medya', 'Foto, videyo ak temwayaj pandan evènman an (ak pwòp aparèy ou si posib).'], lojistik: ['📦 Lojistik', 'Transpò materyèl, dlo, enstalasyon ak ranje.'], dekorasyon: ['🎨 Dekorasyon', 'Prepare sèn nan ak sal la ak koulè BST yo.'], pwogram: ['🎤 Pwogram ak entèvenan', 'Jere tan an, pase mikwo bay piblik la, akonpaye entèvenan yo.'], kominikasyon: ['📣 Kominikasyon', 'Pibliye an dirèk sou rezo sosyal yo ak ekip BST a.'], live: ['🎥 Live', 'Ede teknisyen ki fè retransmisyon an dirèk la.'], sekirite: ['🛡️ Sikilasyon ak sekirite', 'Jere antre yo ak sikilasyon an, pou sipòte ajan sekirite yo.'] },
@@ -190,6 +213,7 @@ const T = {
     okT: 'Mèsi, nou resevwa kandidati w !', okP: (n) => `${n ? n + ', e' : 'E'}kip Bwat Sekrèm Talks la ap kontakte w byento sou WhatsApp pou konfime komisyon w ak reyinyon preparasyon an.`, okWa: 'Ekri ekip la sou WhatsApp', waTxt: 'Bonjou, mwen fèk voye kandidati volontè m pou Bwat Sekrèm Talks.' },
   en: {
     kick: 'We’re recruiting · Nov 22, 2026 · Cap-Haïtien', title: 'Join the <em>Bwat\u00a0Sekrèm\u00a0Talks</em> team', lead: 'Welcome, media, logistics, communication: put your talents to work for an event that helps tomorrow’s professionals grow.', go: 'Apply now', sKom: '5 committees', sTime: '⏱ 2 minutes', sLim: '⚠️ Limited spots', bTeam: 'BST TEAM', bRole: 'VOLUNTEER', bName: 'Your name here', bDate: '22.11.2026 · CAP-HAÏTIEN',
+    cLive: 'Live', cLab: 'volunteers wanted', cRest: (r) => r > 1 ? `🔥 <b>${r}</b> spots left on the team` : '🔥 Only <b>1</b> spot left on the team', cFull: '✅ The team is complete: apply for the waiting list.', kPl: (n) => `${n} spot${n > 1 ? 's' : ''}`, kRest: (r, n) => `${r} of ${n} left`, kFull: 'Full · waiting list',
     gainsT: 'What you get', gains: [['🎓', 'Certificate', 'BST volunteer'], ['💼', 'Experience', 'for your CV'], ['🪪', 'Badge', '“BST Team”'], ['⭐', 'Premium access', 'to BST events']],
     komT: 'Choose your committee', komS: 'Click 1 or 2 committees, in order of preference.',
     k: { akey: ['🙋 Welcome', 'Greet participants, check-in list, guide and accompany guests.'], medya: ['📸 Media', 'Photos, videos and testimonials during the event (with your own device if possible).'], lojistik: ['📦 Logistics', 'Equipment transport, water, setup and teardown.'], dekorasyon: ['🎨 Decoration', 'Prepare the stage and room in BST colors.'], pwogram: ['🎤 Program & speakers', 'Timekeeping, passing the mic to the audience, accompanying speakers.'], kominikasyon: ['📣 Communication', 'Post live on social media with the BST team.'], live: ['🎥 Live stream', 'Assist the live-stream technician.'], sekirite: ['🛡️ Flow & safety', 'Manage entrances and crowd flow, supporting security staff.'] },
@@ -207,7 +231,21 @@ function renderPh() { $('phG').innerHTML = PH.map((p, i) => `<div><img src="${p}
 function shrink(f) { return new Promise((ok) => { const img = new Image(); img.onload = () => { const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src); ok(c.toDataURL('image/jpeg', 0.82)); }; img.onerror = () => ok(null); img.src = URL.createObjectURL(f); }); }
 const t = () => T[L];
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-function renderKoms() { $('koms').innerHTML = KOMS.map((k) => { const i = SEL.indexOf(k), [n, d] = t().k[k]; return `<button type="button" class="kom" data-k="${k}" aria-pressed="${i >= 0}">${i >= 0 ? `<i>${t().choix(i + 1)}</i>` : ''}<b>${n}</b><span>${d}</span></button>`; }).join(''); }
+const pris = (k) => Math.min(NEED[k], Math.max(0, +(ACC && ACC[k]) || 0));   // places déjà pourvues dans une commission
+function renderKoms() { $('koms').innerHTML = KOMS.map((k) => { const i = SEL.indexOf(k), [n, d] = t().k[k], a = pris(k), full = a >= NEED[k];
+  return `<button type="button" class="kom" data-k="${k}" aria-pressed="${i >= 0}">${i >= 0 ? `<i>${t().choix(i + 1)}</i>` : ''}<b>${n}</b><span>${d}</span><small class="${full ? 'full' : ''}">${full ? '✅ ' + t().kFull : '👥 ' + (a ? t().kRest(NEED[k] - a, NEED[k]) : t().kPl(NEED[k]))}</small></button>`; }).join(''); }
+let cShown = 0;
+function renderCnt() {   // le compteur de l'en-tête : total recherché, barre des places pourvues, places restantes
+  const total = KOMS.reduce((s, k) => s + NEED[k], 0), fait = KOMS.reduce((s, k) => s + pris(k), 0), rest = total - fait, el = $('cN');
+  if (cShown !== total) { const d0 = cShown, t0 = performance.now(), calme = matchMedia('(prefers-reduced-motion: reduce)').matches; cShown = total;
+    const pas = (now) => { const u = calme ? 1 : Math.min(1, (now - t0) / 1100), e = 1 - Math.pow(1 - u, 3); el.textContent = Math.round(d0 + (total - d0) * e); if (u < 1) requestAnimationFrame(pas); }; requestAnimationFrame(pas); }
+  $('cFill').style.width = (100 * fait / total).toFixed(1) + '%'; $('cBar').setAttribute('aria-valuemax', total); $('cBar').setAttribute('aria-valuenow', fait);
+  $('cR').innerHTML = ACC ? (rest > 0 ? t().cRest(rest) : t().cFull) : '';
+}
+async function loadCnt() {
+  try { const r = await fetch(`${SB_URL}/rest/v1/rpc/talks_benevoles_compteur`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: '{}' }); if (!r.ok) return;
+    const j = await r.json(); ACC = (j && j.acceptes) || {}; renderCnt(); renderKoms(); } catch {}
+}
 function setLang(l) {
   L = T[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
   document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
@@ -215,7 +253,7 @@ function setLang(l) {
   document.querySelectorAll('[data-th]').forEach((el) => { el.innerHTML = t()[el.dataset.th]; });
   $('gains').innerHTML = t().gains.map(([e, s, d]) => `<div><b>${e}</b><strong>${esc(s)}</strong><small>${esc(d)}</small></div>`).join('');
   const occ = $('occ').value; $('occ').innerHTML = t().occs.map(([v, n]) => `<option value="${v}">${esc(n)}</option>`).join(''); $('occ').value = occ;
-  renderKoms();
+  renderKoms(); renderCnt();
 }
 $('phF').addEventListener('change', async () => {
   const fs = [...$('phF').files]; $('phF').value = '';
@@ -266,6 +304,7 @@ $('send').addEventListener('click', async () => {
 const q = new URLSearchParams(location.search);
 let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
 setLang(l0 || 'fr');
+loadCnt(); setInterval(loadCnt, 60000);
 if (q.get('tel')) $('tel').value = q.get('tel').slice(0, 25);
 if (q.get('nom')) $('nom').value = q.get('nom').slice(0, 120);
 </script>

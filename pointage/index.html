@@ -237,6 +237,7 @@
     <div class="top">
       <img src="../portrait/logos/bst-blanc.png" alt="BST" />
       <div class="t"><b>Pointage</b><small><span class="live" id="live"><i></i> <span id="liveT">En direct</span></span> · <span id="clock"></span><span id="whoPin"></span></small></div>
+      <a class="ib" href="../remise/" title="Remise des certificats" aria-label="Remise des certificats">🎓</a>
       <button class="ib adminonly" type="button" id="teamBtn" title="Équipe d’accueil (codes PIN)" aria-label="Équipe d’accueil">👥</button>
       <a class="ib adminonly" href="../" title="Espace inscriptions" aria-label="Espace inscriptions">↩</a>
       <button class="ib" type="button" id="logout" title="Déconnexion" aria-label="Déconnexion">⏻</button>
@@ -267,7 +268,7 @@
 
 <dialog id="teamDlg"><div class="sheet team">
   <h2>👥 Équipe d’accueil</h2>
-  <p class="sub">Chaque membre se connecte avec son code PIN à 6 chiffres sur cette page. Il peut seulement chercher une personne, la marquer présente ou annuler sa présence.</p>
+  <p class="sub">Chaque membre se connecte avec son code PIN à 6 chiffres sur cette page. Il peut seulement chercher une personne, la marquer présente ou annuler sa présence. Le même PIN ouvre aussi la page <a href="../remise/" target="_blank" rel="noopener">🎓 Remise des certificats</a>. Avec « 🎟️ Codes », le membre peut en plus créer des codes certificat sur la page <a href="../codes/" target="_blank" rel="noopener">Codes certificat</a>.</p>
   <ul id="teamList" style="list-style:none;margin:0;padding:0"></ul>
   <label class="l" for="tmNom">Ajouter un membre</label>
   <div style="display:flex;gap:8px;flex-wrap:wrap"><input class="t" id="tmNom" placeholder="Nom (ex. Abenson)" maxlength="60" style="flex:1 1 180px" /><input class="t" id="tmPin" inputmode="numeric" maxlength="6" placeholder="PIN" style="width:120px;letter-spacing:.2em;font-weight:800" /></div>
@@ -638,10 +639,10 @@ $('toPin').addEventListener('click', () => screen('pinLogin'));
 /* Admin : gérer l'équipe d'accueil */
 const randPin = () => String(Math.floor(100000 + Math.random() * 900000));
 async function loadTeam() {
-  const { data, error } = await sb.from('talks_akey').select('id, non, aktif, kreye_le').order('kreye_le');
+  const { data, error } = await sb.from('talks_akey').select('id, non, aktif, kreye_le, kod').order('kreye_le');
   if (error) { toast(friendly(error)); return; }
-  $('teamList').innerHTML = (data || []).map((m) => `<li class="${m.aktif ? '' : 'off'}"><div><b>${esc(m.non)}</b> <span class="sub">${m.aktif ? '· actif' : '· désactivé'}</span></div>
-    <div class="bx2"><button type="button" data-tpin="${m.id}" data-tnon="${esc(m.non)}">🔑 Nouveau PIN</button><button type="button" data-tact="${m.id}" data-on="${m.aktif ? 0 : 1}">${m.aktif ? 'Désactiver' : 'Réactiver'}</button><button type="button" data-tdel="${m.id}" data-tnon="${esc(m.non)}">🗑️</button></div></li>`).join('')
+  $('teamList').innerHTML = (data || []).map((m) => `<li class="${m.aktif ? '' : 'off'}"><div><b>${esc(m.non)}</b> <span class="sub">${m.aktif ? '· actif' : '· désactivé'}${m.kod ? ' · 🎟️ codes certificat' : ''}</span></div>
+    <div class="bx2"><button type="button" data-tkod="${m.id}" data-on="${m.kod ? 0 : 1}" title="Autoriser ou non ce membre à créer des codes certificat">🎟️ Codes : ${m.kod ? 'oui' : 'non'}</button><button type="button" data-tpin="${m.id}" data-tnon="${esc(m.non)}">🔑 Nouveau PIN</button><button type="button" data-tact="${m.id}" data-on="${m.aktif ? 0 : 1}">${m.aktif ? 'Désactiver' : 'Réactiver'}</button><button type="button" data-tdel="${m.id}" data-tnon="${esc(m.non)}">🗑️</button></div></li>`).join('')
     || '<li style="display:block" class="sub">Aucun membre pour le moment.</li>';
 }
 function showPin(nom, pin) { $('tmOut').innerHTML = `<div class="newpin"><span>PIN de <b style="display:inline;font-size:inherit;letter-spacing:0;color:inherit">${esc(nom)}</b></span><b>${esc(pin)}</b><span class="sub">À donner à ${esc(nom)} — il ne sera plus affiché.</span></div>`; }
@@ -657,7 +658,8 @@ $('tmAdd').addEventListener('click', async () => {
   showPin(non, pin); $('tmNom').value = ''; $('tmPin').value = randPin(); loadTeam();
 });
 $('teamList').addEventListener('click', async (e) => {
-  const np = e.target.closest('[data-tpin]'), ac = e.target.closest('[data-tact]'), dl = e.target.closest('[data-tdel]');
+  const np = e.target.closest('[data-tpin]'), ac = e.target.closest('[data-tact]'), dl = e.target.closest('[data-tdel]'), kd = e.target.closest('[data-tkod]');
+  if (kd) { const { error } = await sb.from('talks_akey').update({ kod: kd.dataset.on === '1' }).eq('id', Number(kd.dataset.tkod)); if (error) toast(friendly(error)); loadTeam(); }
   if (np) { const pin = randPin(); const { error } = await sb.rpc('talks_akey_mete', { p_non: np.dataset.tnon, p_pin: pin, p_id: Number(np.dataset.tpin) });
     if (error) { toast(friendly(error)); return; } showPin(np.dataset.tnon, pin); loadTeam(); }
   if (ac) { const { error } = await sb.from('talks_akey').update({ aktif: ac.dataset.on === '1' }).eq('id', Number(ac.dataset.tact)); if (error) toast(friendly(error)); loadTeam(); }

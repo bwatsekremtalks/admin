@@ -540,7 +540,8 @@
             <button class="btn" type="button" id="kMotB">Enregistrer</button><span class="sub" id="kMotS"></span></div></div>
         <div class="card" style="margin-top:12px"><h2>Codes vendus <span class="sub" id="kN"></span></h2>
           <div class="table-wrap" style="border:0"><table><thead><tr><th>Créé</th><th>Code</th><th>Nom</th><th>Téléphone</th><th>Mode · présence</th><th>Ouvertures</th><th></th></tr></thead><tbody id="kRows"></tbody></table></div>
-          <p class="note">Page publique : <a href="certificat/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/certificat/</a>. Le certificat ne s’affiche qu’après le début de l’événement (22 nov., 14 h 30) et seulement si la présence est pointée (onglet ✅ Pointage).</p></div>
+          <p class="note">Page publique : <a href="certificat/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/certificat/</a>. Le certificat ne s’affiche qu’après le début de l’événement (22 nov., 14 h 30) et seulement si la présence est pointée (onglet ✅ Pointage).</p>
+          <p class="note">Tableaux de l’équipe (accès par code PIN, à gérer dans <a href="pointage/" target="_blank" rel="noopener">Pointage → 👥</a>) : <a href="codes/" target="_blank" rel="noopener">🎟️ Codes certificat</a> pour créer les codes après paiement, et <a href="remise/" target="_blank" rel="noopener">🎓 Remise des certificats</a> pour cocher les certificats remis le jour J.</p></div>
       </div>
       <div id="panelW" class="hidden">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
@@ -1924,7 +1925,7 @@ function renderCerts() {
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('kN').textContent = `· ${KROWS.length}`;
   $('kRows').innerHTML = KROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(r.code)}</strong></td><td>${esc(r.nom)}</td>
-    <td>${r.tel ? `<a href="https://wa.me/509${esc(String(r.tel).slice(-8))}" target="_blank" rel="noopener">${esc(r.tel)}</a>` : '—'}</td><td>${r.mode === 'live' ? (pres(r) ? '🎥 Live · ✅ mot validé' : '🎥 Live · <span class="sub">mot pas encore entré</span>') : (pres(r) ? '🏛️ Salle · ✅ Présent' : '🏛️ Salle · <span class="sub">pas encore pointé</span>')}</td>
+    <td>${r.tel ? `<a href="https://wa.me/509${esc(String(r.tel).slice(-8))}" target="_blank" rel="noopener">${esc(r.tel)}</a>` : '—'}</td><td>${r.mode === 'live' ? (pres(r) ? '🎥 Live · ✅ mot validé' : '🎥 Live · <span class="sub">mot pas encore entré</span>') : (pres(r) ? '🏛️ Salle · ✅ Présent' : '🏛️ Salle · <span class="sub">pas encore pointé</span>')}${r.remis_le ? ` · 🎓 remis${r.remis_par ? ` <span class="sub">(${esc(r.remis_par)})</span>` : ''}` : ''}${r.cree_par && !String(r.cree_par).includes('@') ? ` <span class="sub">· créé par ${esc(r.cree_par)}</span>` : ''}</td>
     <td class="sub">${r.nb_ouvertures || 0}</td><td><a class="btn" href="${kWa(r)}" target="_blank" rel="noopener" title="Renvoyer le code sur WhatsApp">💬</a></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Aucun code pour le moment.</td></tr>';
 }
 function kWa(r) {

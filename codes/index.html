@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#0D2D4A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="BST Codes" />
+<link rel="apple-touch-icon" href="../crm/apple-touch-icon.png" />
+<link rel="icon" href="../crm/icon-192.png" />
+<title>Codes certificat — Bwat Sekrèm Talks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<!--
+  Codes certificat : création des codes payants (1 000 G) pour les personnes inscrites ou pour le Live, sans passer par l'espace administrateur.
+  Accès : membres de l'équipe autorisés (talks_akey.kod), par code PIN, ou compte administrateur.
+  Données lues et écrites uniquement par les fonctions talks_sert_kod_done / talks_sert_cheche / talks_sert_kreye / talks_sert_kreye_live.
+-->
+<style>
+  :root { --navy: #0D2D4A; --navy2: #123d66; --green: #7AC142; --green2: #5DB033; --ink: #0d2236; --ink2: #3d5577; --mute: #6b7f99; --line: #dfe7f0;
+    --bg: #f2f6fb; --card: #fff; --ok: #1f8a43; --okbg: #e8f7ec; --warn: #b26b00; --warnbg: #fff4dd; --red: #c0352b; --redbg: #fdecea; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 "DM Sans", system-ui, sans-serif; }
+  button, input, select { font: inherit; color: inherit; }
+  .hidden { display: none !important; }
+  h1, h2, .big { font-family: "Bricolage Grotesque", "DM Sans", sans-serif; }
+
+  /* ---------- En-tête ---------- */
+  .hero { color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 44px; border-radius: 0 0 28px 28px;
+    background: radial-gradient(circle at 92% 0%, rgba(122,193,66,.35), transparent 45%), radial-gradient(circle at 0% 100%, rgba(47,143,232,.25), transparent 50%), linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  .in { max-width: 1100px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 10px; }
+  .top img { height: 34px; }
+  .top .t { flex: 1; min-width: 0; }
+  .top .t b { display: block; font: 800 20px "Bricolage Grotesque", sans-serif; letter-spacing: -.01em; }
+  .top .t small { color: rgba(255,255,255,.72); font-size: 13px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #bff09a; }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: #7AC142; box-shadow: 0 0 0 0 rgba(122,193,66,.7); animation: pulse 1.8s infinite; }
+  .live.off { color: #ffd0c9; } .live.off i { background: #ff7a6b; animation: none; }
+  @keyframes pulse { to { box-shadow: 0 0 0 10px rgba(122,193,66,0); } }
+  .ib { flex: none; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; display: grid; place-items: center; cursor: pointer; font-size: 18px; text-decoration: none; }
+  .ib:hover { background: rgba(255,255,255,.16); }
+  .stats { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; margin-top: 18px; }
+  .ring { position: relative; width: 132px; height: 132px; }
+  .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .ring .c { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .ring .c b { display: block; font: 800 36px/1 "Bricolage Grotesque", sans-serif; }
+  .ring .c small { font-size: 12px; color: rgba(255,255,255,.75); }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpi { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 16px; padding: 10px 12px; }
+  .kpi b { display: block; font: 800 22px/1.1 "Bricolage Grotesque", sans-serif; font-variant-numeric: tabular-nums; }
+  .kpi span { display: block; font-size: 12px; line-height: 1.25; color: rgba(255,255,255,.78); }
+
+  /* ---------- Recherche et filtres ---------- */
+  main { max-width: 1100px; margin: 0 auto; padding: 0 16px calc(60px + env(safe-area-inset-bottom)); }
+  .sbar { position: sticky; top: 0; z-index: 10; padding: 10px 0 6px; margin-top: -32px; }
+  input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+  .search { display: flex; align-items: center; gap: 10px; background: var(--card); border: 2px solid transparent; border-radius: 20px; padding: 6px 8px 6px 16px; box-shadow: 0 12px 30px rgba(13,45,74,.14); }
+  .search:focus-within { border-color: var(--green); }
+  .search svg { flex: none; width: 22px; height: 22px; color: var(--mute); }
+  .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font-size: 19px; padding: 12px 0; }
+  .search input::placeholder { color: #9aabbf; }
+  .clr { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #eef3f8; cursor: pointer; font-size: 16px; }
+  .chips { display: flex; gap: 8px; margin: 10px 0 2px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 9px 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .chip b { font-variant-numeric: tabular-nums; opacity: .7; margin-left: 4px; }
+  .chip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+  /* ---------- Liste ---------- */
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 8px; }
+  .who { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 4px 14px rgba(13,45,74,.05); }
+  .who.in { background: linear-gradient(90deg, var(--okbg), #fff 70%); border-color: #c9ead2; }
+  .av { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font: 800 17px "Bricolage Grotesque", sans-serif; color: #fff; }
+  .who .nm { font-weight: 800; font-size: 18px; line-height: 1.2; overflow-wrap: anywhere; }
+  .who .ds { font-size: 13.5px; color: var(--mute); margin-top: 2px; overflow-wrap: anywhere; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; margin-top: 6px; }
+  .pill.c { background: var(--okbg); color: var(--ok); } .pill.a { background: var(--warnbg); color: var(--warn); }
+  .go { min-width: 148px; min-height: 52px; border: 0; border-radius: 16px; background: var(--green); color: #0a1f38; font-weight: 800; font-size: 17px; cursor: pointer; box-shadow: 0 6px 16px rgba(122,193,66,.4); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+  .go.wait { background: #fff; border: 2px solid var(--line); box-shadow: none; color: var(--ink2); }
+  .go:active { transform: scale(.97); } .go:disabled { opacity: .6; }
+  .done { text-align: right; } .done b { display: block; color: var(--ok); font-size: 15px; } .done span { display: block; font-size: 12.5px; color: var(--mute); }
+  .done button { margin-top: 2px; border: 0; background: none; color: var(--mute); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 4px; }
+  .empty { text-align: center; padding: 40px 16px; color: var(--mute); }
+  .empty .e { font-size: 44px; }
+
+  /* ---------- Colonne de droite ---------- */
+  .feed h2 { font-size: 19px; margin: 22px 4px 10px; display: flex; justify-content: space-between; align-items: baseline; }
+  .feed h2 small { font: 600 13px "DM Sans", sans-serif; color: var(--mute); }
+  .fl { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .fl li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; }
+  .fl .av { width: 40px; height: 40px; font-size: 14px; }
+  .fl .tm { font-weight: 800; color: var(--ok); font-variant-numeric: tabular-nums; }
+  .fl small { color: var(--mute); }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 14px 16px; margin-top: 16px; }
+  .box summary { cursor: pointer; font-weight: 800; }
+  .box p { margin: 8px 0 0; font-size: 14px; color: var(--ink2); }
+  .box ul { margin: 8px 0 0; padding-left: 18px; font-size: 14.5px; }
+
+  /* ---------- Succès ---------- */
+  .flash { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(31,138,67,.92); color: #fff; text-align: center; padding: 24px; animation: fl .9s ease forwards; pointer-events: none; }
+  .flash .ck { width: 96px; height: 96px; border-radius: 50%; background: #fff; color: var(--ok); display: grid; place-items: center; font-size: 50px; margin: 0 auto 14px; animation: pop .35s cubic-bezier(.2,1.6,.4,1); }
+  .flash b { display: block; font: 800 28px "Bricolage Grotesque", sans-serif; } .flash span { opacity: .9; }
+  @keyframes fl { 0%, 70% { opacity: 1; } 100% { opacity: 0; } } @keyframes pop { from { transform: scale(.4); } }
+
+  /* ---------- Connexion ---------- */
+  .login { min-height: 100dvh; display: grid; place-items: center; padding: 20px; background: linear-gradient(140deg, #0a1f38, var(--navy2)); }
+  .login form { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 26px; }
+  .login img { height: 44px; } .login h1 { margin: 12px 0 4px; font-size: 26px; }
+  .login label { display: block; font-weight: 800; font-size: 14px; margin: 14px 0 6px; }
+  .login input { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; background: #f7fafd; font-size: 17px; }
+  .login form > button[type=submit] { width: 100%; margin-top: 18px; min-height: 52px; border: 0; border-radius: 16px; background: var(--green); font-weight: 800; font-size: 17px; cursor: pointer; }
+  .pinbox { width: 100%; max-width: 380px; background: #fff; border-radius: 26px; padding: 26px 22px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.3); }
+  .pinbox img { height: 44px; } .pinbox h1 { margin: 12px 0 2px; font-size: 26px; } .pinbox p { margin: 0; color: var(--mute); }
+  .dots { display: flex; justify-content: center; gap: 12px; margin: 22px 0 6px; }
+  .dots i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #b8c6d6; transition: all .15s; }
+  .dots i.on { background: var(--navy); border-color: var(--navy); transform: scale(1.1); }
+  .dots.bad { animation: shake .35s; } .dots.bad i { border-color: var(--red); }
+  @keyframes shake { 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+  .pad button { min-height: 64px; border: 0; border-radius: 18px; background: #f2f6fb; font: 800 26px "Bricolage Grotesque", sans-serif; color: var(--ink); cursor: pointer; }
+  .pad button:active { background: #e2eaf3; transform: scale(.97); } .pad .fn { font-size: 20px; background: transparent; }
+  .err { color: var(--red); font-size: 14px; min-height: 1.3em; margin-top: 8px; }
+  .swap { margin-top: 16px; border: 0; background: none; color: var(--mute); text-decoration: underline; cursor: pointer; font-size: 14px; font-weight: 600; }
+  body.pin .adminonly { display: none !important; }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 70; background: var(--navy); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 700; max-width: calc(100% - 24px); box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+  /* Fenêtre de confirmation */
+  dialog { border: 0; padding: 0; background: var(--card); color: var(--ink); }
+  dialog.ask { width: min(420px, calc(100% - 32px)); border-radius: 26px; text-align: center; box-shadow: 0 30px 80px rgba(8,20,36,.35); }
+  dialog.ask[open] { animation: askIn .22s cubic-bezier(.2,1.2,.4,1); }
+  @keyframes askIn { from { transform: translateY(14px) scale(.96); opacity: 0; } }
+  dialog.ask::backdrop { background: rgba(8,20,36,.5); backdrop-filter: blur(3px); }
+  .ask .bx { padding: 28px 22px 20px; }
+  .ask .ic { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 14px; font-size: 34px; }
+  .ask .ic.warn { background: var(--warnbg); } .ask .ic.red { background: var(--redbg); } .ask .ic.blue { background: #e8f1fb; }
+  .ask h3 { margin: 0; font: 800 22px/1.2 "Bricolage Grotesque", sans-serif; color: var(--ink); }
+  .ask p { margin: 8px 0 0; color: var(--ink2); font-size: 15.5px; }
+  .ask .who2 { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; padding: 8px 14px 8px 8px; border-radius: 999px; background: #f2f6fb; font-weight: 800; }
+  .ask .who2 .av { width: 34px; height: 34px; font-size: 13px; }
+  .ask .bb { display: flex; gap: 10px; margin-top: 22px; }
+  .ask .bb button { flex: 1; min-height: 52px; border-radius: 16px; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .ask .no { border: 1.5px solid var(--line); background: #fff; color: var(--ink); }
+  .ask .yes { border: 0; background: var(--navy); color: #fff; } .ask .yes.red { background: var(--red); } .ask .yes.green { background: var(--green); color: #0a1f38; }
+  @media (min-width: 900px) {
+    .hero { padding-bottom: 34px; } .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr); gap: 20px; align-items: start; }
+    .feed { position: sticky; top: 96px; } .feed h2 { margin-top: 14px; } .ring { width: 150px; height: 150px; }
+  }
+  @media (max-width: 480px) {
+    .who { grid-template-columns: 42px minmax(0, 1fr); } .who .act { grid-column: 1 / -1; } .who .act .go { width: 100%; }
+    .done { text-align: left; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .av { width: 42px; height: 42px; } .ring { width: 116px; height: 116px; } .ring .c b { font-size: 30px; } .top .t b { font-size: 18px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .flash, .flash .ck, .live i { animation: none; } }
+
+  /* ---------- Page « Codes certificat » ---------- */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 18px; box-shadow: 0 4px 14px rgba(13,45,74,.05); margin-top: 14px; }
+  .card:first-child { margin-top: -30px; position: relative; z-index: 2; box-shadow: 0 12px 30px rgba(13,45,74,.14); }
+  .card h2 { margin: 0 0 6px; font-size: 20px; } .card .sub, .sub { color: var(--mute); font-size: 14px; }
+  .search.flat { box-shadow: none; border-color: var(--line); background: #f7fafd; } .search.flat:focus-within { border-color: var(--green); background: #fff; }
+  .steps { margin: 8px 0 14px; padding-left: 20px; font-size: 14.5px; color: var(--ink2); } .steps li { margin: 4px 0; } .steps b { color: var(--ink); }
+  .fld { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 14px; background: #f7fafd; font-size: 17px; outline: none; }
+  .fld:focus { border-color: var(--green); background: #fff; }
+  .rowf { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; } .rowf .fld { flex: 1 1 200px; width: auto; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px; padding: 0 16px; border-radius: 14px; border: 1.5px solid var(--line); background: #fff; font-weight: 800; cursor: pointer; white-space: nowrap; text-decoration: none; color: var(--ink); }
+  .btn.p { background: var(--green); border-color: var(--green); color: #0a1f38; box-shadow: 0 6px 16px rgba(122,193,66,.35); }
+  .btn.wa { background: #25d366; border-color: #25d366; color: #05331b; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .found { margin-top: 10px; display: grid; gap: 8px; }
+  .fr { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .fr .av { width: 44px; height: 44px; font-size: 15px; } .fr .nm { font-weight: 800; font-size: 16.5px; line-height: 1.2; overflow-wrap: anywhere; } .fr .ds { font-size: 13px; color: var(--mute); margin-top: 2px; }
+  .fr .has { text-align: right; font-size: 13px; color: var(--mute); } .fr .has b { display: block; font: 800 15px ui-monospace, monospace; letter-spacing: .04em; color: var(--ok); }
+  .out { margin-top: 12px; background: var(--okbg); border: 1.5px solid #b7e2c2; border-radius: 18px; padding: 16px; text-align: center; }
+  .out .cd { display: block; font: 800 30px ui-monospace, monospace; letter-spacing: .08em; color: var(--ok); overflow-wrap: anywhere; }
+  .out .who3 { display: block; font-weight: 800; margin-top: 4px; } .out .bts { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  .list { display: grid; gap: 8px; margin-top: 12px; }
+  .cr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .cr .cd { font: 800 16px ui-monospace, monospace; letter-spacing: .05em; } .cr .nm { font-weight: 800; margin-top: 2px; overflow-wrap: anywhere; } .cr .ds { font-size: 13px; color: var(--mute); margin-top: 2px; overflow-wrap: anywhere; }
+  .cr .tg { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; } .cr .pill { margin-top: 0; } .pill.n { background: #eef3f8; color: var(--ink2); } .pill.l { background: #efe9ff; color: #5b34c9; }
+  .cr .bx3 { display: flex; gap: 6px; } .cr .bx3 .btn { min-height: 42px; padding: 0 12px; }
+  .noright { width: 100%; max-width: 420px; background: #fff; border-radius: 26px; padding: 28px 24px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.3); }
+  .noright .e { font-size: 46px; } .noright h1 { margin: 8px 0 6px; font-size: 24px; } .noright p { margin: 0 0 16px; color: var(--ink2); } .noright .btn { width: 100%; margin-top: 8px; }
+  @media (max-width: 480px) { .fr { grid-template-columns: 40px minmax(0, 1fr); } .fr .act { grid-column: 1 / -1; } .fr .act .btn { width: 100%; } .fr .has { text-align: left; }
+    .cr { grid-template-columns: minmax(0, 1fr); } .cr .bx3 .btn { flex: 1; } .out .cd { font-size: 25px; } }
+</style>
+</head>
+<body>
+<section class="login hidden" id="pinLogin">
+  <div class="pinbox">
+    <img src="../portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" />
+    <h1>Codes certificat</h1>
+    <p>Entrez votre code PIN à 6 chiffres</p>
+    <div class="dots" id="pinDots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <p class="err" id="pinMsg" role="alert"></p>
+    <div class="pad" id="pad"><button type="button">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button><button type="button">5</button><button type="button">6</button><button type="button">7</button><button type="button">8</button><button type="button">9</button><button type="button" class="fn" data-k="c" aria-label="Effacer tout">✕</button><button type="button">0</button><button type="button" class="fn" data-k="b" aria-label="Effacer">⌫</button></div>
+    <button class="swap" type="button" id="toAdmin">Connexion administrateur (e-mail)</button>
+  </div>
+</section>
+<section class="login hidden" id="login">
+  <form id="loginForm">
+    <img src="../portrait/logos/bst-couleur.png" alt="Bwat Sekrèm Talks" />
+    <h1>Codes certificat</h1>
+    <p style="margin:0;color:var(--mute)">Compte administrateur</p>
+    <label for="email">E-mail</label><input id="email" type="email" autocomplete="username" required />
+    <label for="password">Mot de passe</label><input id="password" type="password" autocomplete="current-password" required />
+    <button type="submit" id="loginBtn">Se connecter</button>
+    <p class="err" id="loginMsg" role="alert"></p>
+    <button class="swap" type="button" id="toPin">← Équipe : connexion par PIN</button>
+  </form>
+</section>
+<section class="login hidden" id="noRight">
+  <div class="noright">
+    <div class="e">🔒</div>
+    <h1>Accès réservé</h1>
+    <p><b id="nrNon"></b>, votre code PIN ne permet pas de créer des codes certificat. Demandez l’accès à Steve.</p>
+    <a class="btn p" href="../remise/">🎓 Aller à la remise des certificats</a>
+    <button class="btn" type="button" id="nrOut">Utiliser un autre code PIN</button>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+  <header class="hero"><div class="in">
+    <div class="top">
+      <img src="../portrait/logos/bst-blanc.png" alt="BST" />
+      <div class="t"><b>Codes certificat</b><small><span class="live" id="live"><i></i> <span id="liveT">En direct</span></span><span id="whoPin"></span></small></div>
+      <a class="ib" href="../remise/" title="Remise des certificats" aria-label="Remise des certificats">🎓</a>
+      <a class="ib adminonly" href="../" title="Espace inscriptions" aria-label="Espace inscriptions">↩</a>
+      <button class="ib" type="button" id="logout" title="Déconnexion" aria-label="Déconnexion">⏻</button>
+    </div>
+    <div class="kpis" id="kpis" style="margin-top:16px"></div>
+  </div></header>
+
+  <main>
+    <div class="card">
+      <h2>🎟️ Créer un code certificat</h2>
+      <p class="sub" style="margin:0">1 000 G (7,50 $ US) par certificat · le code est lié à une personne.</p>
+      <ol class="steps">
+        <li>La personne paie <b>1 000 G</b> par <b>MonCash au +509 4872-2671</b> ou par <b>NatCash au +509 4049-2115</b>, puis envoie la capture sur WhatsApp avec son nom et son numéro.</li>
+        <li><b>Vérifiez que le paiement est bien reçu.</b></li>
+        <li>Cherchez la personne ci-dessous, touchez <b>« Créer le code »</b>, puis envoyez-lui le code sur WhatsApp.</li>
+      </ol>
+      <div class="search flat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Nom ou numéro de la personne…" aria-label="Rechercher une personne inscrite" />
+        <button class="clr hidden" type="button" id="clr" aria-label="Effacer">✕</button></div>
+      <div class="found" id="found"></div>
+      <div id="out"></div>
+    </div>
+
+    <div class="card">
+      <h2>🎥 Code pour quelqu’un qui suit le Live</h2>
+      <p class="sub" style="margin:0">Pour une personne sans réservation en salle. Elle débloquera son certificat avec le mot secret annoncé pendant le Live.</p>
+      <div class="rowf"><input class="fld" id="lNom" maxlength="100" placeholder="Nom complet sur le certificat" autocomplete="off" /><input class="fld" id="lTel" maxlength="25" inputmode="tel" placeholder="WhatsApp (ex. 3727 4672)" autocomplete="off" style="flex:0 1 220px" /></div>
+      <div class="rowf"><button class="btn p" type="button" id="lB" style="flex:1">Créer le code Live</button></div>
+      <div id="outL"></div>
+    </div>
+
+    <div class="card">
+      <h2>Codes créés <span class="sub" id="nCodes"></span></h2>
+      <input class="fld" id="fq" type="search" placeholder="Filtrer : nom, code ou numéro…" autocomplete="off" style="margin-top:6px" />
+      <div class="list" id="list"></div>
+    </div>
+  </main>
+</div>
+
+<dialog class="ask" id="ask" aria-labelledby="askT"><div class="bx">
+  <div class="ic" id="askI"></div><h3 id="askT"></h3><p id="askP"></p><div id="askW"></div>
+  <div class="bb"><button type="button" class="no" id="askNo">Annuler</button><button type="button" class="yes" id="askYes">Confirmer</button></div>
+</div></dialog>
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script>
+const sb = window.supabase.createClient('https://nltlgytehikguydcdhyy.supabase.co', 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly');
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const plain = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const digits = (v) => String(v || '').replace(/\D/g, '');
+const dh = (d) => new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const fmtTel = (t) => { const d = digits(t); return d.length === 8 ? d.slice(0, 4) + ' ' + d.slice(4) : d; };
+const COL = ['#2f8fe8', '#5DB033', '#7c4dff', '#ff8a00', '#e8436b', '#0D2D4A', '#0aa3a3'];
+const avc = (n) => COL[[...String(n || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % COL.length];
+const ini = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+let TT = null; const toast = (m, ms = 3500) => { $('toast').textContent = m; $('toast').classList.remove('hidden'); clearTimeout(TT); TT = setTimeout(() => $('toast').classList.add('hidden'), ms); };
+const friendly = (e) => { const m = String(e?.message || e || ''); console.warn(e);
+  if (/fetch|network|load failed/i.test(m)) return 'Pas de connexion internet. Réessayez dans un instant.';
+  if (/jwt|session|expired/i.test(m)) return 'Session expirée : reconnectez-vous.';
+  return 'Erreur inattendue, réessayez.'; };
+const ERR = { introuvable: 'Personne introuvable dans les réservations.', annule: 'Cette réservation est annulée : pas de code possible.', nom: 'Écrivez le nom complet (3 lettres au moins).' };
+function ask({ icon = '❔', tone = 'blue', title, text = '', person = null, ok = 'Confirmer', okTone = '', cancel = 'Annuler' }) {
+  return new Promise((resolve) => {
+    const d = $('ask');
+    $('askI').className = 'ic ' + tone; $('askI').textContent = icon; $('askT').textContent = title; $('askP').textContent = text; $('askP').classList.toggle('hidden', !text);
+    $('askW').innerHTML = person ? `<span class="who2"><span class="av" style="background:${avc(person)}">${esc(ini(person))}</span>${esc(person)}</span>` : '';
+    $('askYes').textContent = ok; $('askYes').className = 'yes ' + okTone; $('askNo').textContent = cancel;
+    const done = (v) => { d.close(); $('askYes').onclick = $('askNo').onclick = d.oncancel = null; resolve(v); };
+    $('askYes').onclick = () => done(true); $('askNo').onclick = () => done(false); d.oncancel = (e) => { e.preventDefault(); done(false); };
+    d.onclick = (e) => { if (e.target === d) done(false); };
+    d.showModal(); setTimeout(() => $('askYes').focus(), 30);
+  });
+}
+
+/* ---------- Session : PIN (membres autorisés à créer des codes) ou compte administrateur ---------- */
+const LS = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+let PIN_TOKEN = LS.get('bst_akey_token'), PIN_NON = LS.get('bst_akey_non') || '';
+const isPin = () => !!PIN_TOKEN;
+const tok = () => PIN_TOKEN || null;
+
+/* ---------- Données ---------- */
+let CODES = [], NON = '', FOUND = [], QSEQ = 0;
+const setOnline = (on) => { $('live').classList.toggle('off', !on); $('liveT').textContent = on ? 'En direct' : 'Hors connexion'; };
+/* Réponse refusée par la base : session expirée ou droit « codes » retiré */
+function denied(d) {
+  if (!d || d.ok !== false) return false;
+  if (d.error === 'dwa') { $('nrNon').textContent = PIN_NON || 'Bonjour'; screen('noRight'); return true; }
+  if (d.error === 'session') { if (isPin()) pinOut('Votre session a expiré. Entrez à nouveau votre PIN.'); else sb.auth.signOut().then(() => show(null)); return true; }
+  return false;
+}
+async function load(quiet) {
+  const { data, error } = await sb.rpc('talks_sert_kod_done', { p_token: tok() });
+  if (error || !data) { setOnline(false); if (!quiet) toast(friendly(error || 'vide'), 6000); return false; }
+  if (denied(data)) return false;
+  setOnline(true); CODES = data.codes || []; NON = data.non || ''; renderCodes(); return true;
+}
+/* Message WhatsApp qui accompagne le code (le même que dans l'espace administrateur) */
+function waLink(r) {
+  const quand = r.mode === 'live' ? 'Le 22 novembre, suivez le Live jusqu’au bout : un mot secret sera annoncé. Entrez-le avec votre code sur' : 'Le 22 novembre, dès que votre présence est enregistrée à l’entrée, ouvrez';
+  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 Merci, votre paiement est bien reçu. Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\n${quand} https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
+  const d = digits(r.tel), num = d.length === 8 ? '509' + d : d.length > 8 ? d : '';
+  return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+}
+const copy = (t) => { try { navigator.clipboard.writeText(t).then(() => toast('Code copié ✓'), () => toast(t, 8000)); } catch { toast(t, 8000); } };
+function renderCodes() {
+  const mine = CODES.filter((c) => c.cree_par === NON).length, live = CODES.filter((c) => c.mode === 'live').length, tot = CODES.reduce((a, c) => a + (c.prix || 1000), 0);
+  $('kpis').innerHTML = [[CODES.length, 'codes créés'], [tot.toLocaleString('fr-FR') + ' G', 'encaissés (1 000 G par code)'], [`${CODES.length - live} · ${live}`, 'en salle · Live'], [mine, 'créés par moi']]
+    .map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  $('nCodes').textContent = `· ${CODES.length}`;
+  const q = plain($('fq').value.trim()), qd = digits($('fq').value);
+  const L = CODES.filter((c) => !q || plain(c.nom).includes(q) || plain(c.code).includes(q.replace(/[^a-z0-9]/g, '')) || plain(c.code).replace(/-/g, '').includes(q.replace(/[^a-z0-9]/g, '')) || (qd.length >= 3 && digits(c.tel).includes(qd)));
+  $('list').innerHTML = L.map((c) => `<div class="cr"><div>
+      <div class="cd">${esc(c.code)}</div><div class="nm">${esc(c.nom)}</div>
+      <div class="ds">${[c.tel ? fmtTel(c.tel) : '', `créé le ${dh(c.cree_le)}${c.cree_par ? ` par ${c.cree_par}` : ''}`].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="tg">${c.mode === 'live' ? '<span class="pill l">🎥 Live</span>' : '<span class="pill n">🏛️ Salle</span>'}${c.present ? `<span class="pill c">${c.mode === 'live' ? '✅ mot validé' : '✅ présent'}</span>` : ''}${c.remis_le ? '<span class="pill c">🎓 remis</span>' : ''}${c.ouvertures ? `<span class="pill n">ouvert ${c.ouvertures}×</span>` : ''}</div></div>
+    <div class="bx3"><button class="btn" type="button" data-cp="${esc(c.code)}" title="Copier le code">📋</button><a class="btn wa" href="${esc(waLink(c))}" target="_blank" rel="noopener">💬 Envoyer</a></div></div>`).join('')
+    || `<p class="sub" style="text-align:center;margin:14px 0 4px">${CODES.length ? 'Aucun code ne correspond.' : 'Aucun code créé pour le moment.'}</p>`;
+}
+$('fq').addEventListener('input', renderCodes);
+$('list').addEventListener('click', (e) => { const b = e.target.closest('[data-cp]'); if (b) copy(b.dataset.cp); });
+
+/* ---------- Recherche d'une personne inscrite (faite par la base : les numéros restent masqués) ---------- */
+let QT = null;
+function renderFound() {
+  const q = $('q').value.trim(); $('clr').classList.toggle('hidden', !q);
+  if (q.length < 2) { $('found').innerHTML = ''; return; }
+  $('found').innerHTML = FOUND.map((m) => `<div class="fr"><div class="av" style="background:${avc(m.nom)}">${esc(ini(m.nom))}</div>
+    <div><div class="nm">${esc(m.nom)}</div><div class="ds">${[m.tel, m.par ? `avec ${m.par}` : '', m.present ? '✅ présent' : ''].filter(Boolean).map(esc).join(' · ')}</div></div>
+    <div class="act">${m.code ? `<div class="has">Déjà un code<b>${esc(m.code)}</b></div>` : `<button class="btn p" type="button" data-kc="${m.iid}:${m.idx}">Créer le code</button>`}</div></div>`).join('')
+    || '<p class="sub" style="margin:6px 4px">Aucune personne trouvée dans les réservations. Vérifiez l’orthographe, ou essayez avec le numéro.</p>';
+}
+async function search() {
+  const q = $('q').value.trim(), seq = ++QSEQ;
+  if (q.length < 2) { FOUND = []; renderFound(); return; }
+  const { data, error } = await sb.rpc('talks_sert_cheche', { p_token: tok(), p_q: q });
+  if (seq !== QSEQ) return;
+  if (error || !data) { toast(friendly(error || 'vide')); return; }
+  if (denied(data)) return;
+  FOUND = data.moun || []; renderFound();
+}
+$('q').addEventListener('input', () => { $('clr').classList.toggle('hidden', !$('q').value); clearTimeout(QT); QT = setTimeout(search, 280); });
+$('clr').addEventListener('click', () => { $('q').value = ''; FOUND = []; renderFound(); $('q').focus(); });
+function showCode(where, r, deja) {
+  $(where).innerHTML = `<div class="out"><span class="sub">${deja ? 'Cette personne avait déjà un code' : 'Code créé ✓'}</span><span class="cd">${esc(r.code)}</span><span class="who3">${esc(r.nom)}${r.mode === 'live' ? ' · 🎥 Live' : ''}</span>
+    <div class="bts"><button class="btn" type="button" data-cp="${esc(r.code)}">📋 Copier</button><a class="btn wa" href="${esc(waLink(r))}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a></div></div>`;
+  $(where).querySelector('[data-cp]').onclick = () => copy(r.code);
+  $(where).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+$('found').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-kc]'); if (!b) return;
+  const [iid, idx] = b.dataset.kc.split(':').map(Number), m = FOUND.find((x) => x.iid === iid && x.idx === idx); if (!m) return;
+  if (!(await ask({ icon: '🎟️', tone: 'blue', title: 'Créer le code certificat ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu. Le code sera lié à cette personne.', person: m.nom, ok: 'Créer le code', okTone: 'green' }))) return;
+  b.disabled = true;
+  const { data, error } = await sb.rpc('talks_sert_kreye', { p_token: tok(), p_inscription_id: iid, p_idx: idx, p_note: null });
+  b.disabled = false;
+  if (error || !data) { toast('Impossible de créer le code. ' + friendly(error || 'vide'), 6000); return; }
+  if (denied(data)) return;
+  if (!data.ok) { toast(ERR[data.error] || 'Impossible de créer le code.', 6000); return; }
+  m.code = data.code; renderFound(); showCode('out', { code: data.code, nom: data.nom, tel: data.tel, mode: 'salle' }, data.deja); load(true);
+});
+$('lB').addEventListener('click', async () => {
+  const nom = $('lNom').value.trim(), tel = $('lTel').value.trim();
+  if (nom.length < 3) { toast(ERR.nom); $('lNom').focus(); return; }
+  if (!(await ask({ icon: '🎥', tone: 'blue', title: 'Créer un code Live ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu.', person: nom, ok: 'Créer le code', okTone: 'green' }))) return;
+  $('lB').disabled = true;
+  const { data, error } = await sb.rpc('talks_sert_kreye_live', { p_token: tok(), p_nom: nom, p_tel: tel || null, p_note: null });
+  $('lB').disabled = false;
+  if (error || !data) { toast('Impossible de créer le code. ' + friendly(error || 'vide'), 6000); return; }
+  if (denied(data)) return;
+  if (!data.ok) { toast(ERR[data.error] || 'Impossible de créer le code.', 6000); return; }
+  showCode('outL', { code: data.code, nom: data.nom, tel: data.tel, mode: 'live' }, false); $('lNom').value = ''; $('lTel').value = ''; load(true);
+});
+
+/* ---------- Synchro et connexion ---------- */
+setInterval(() => { if (!document.hidden && !$('app').classList.contains('hidden') && !$('ask').open) load(true); }, 20000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('app').classList.contains('hidden')) load(true); });
+addEventListener('online', () => { if (!$('app').classList.contains('hidden')) load(true); }); addEventListener('offline', () => setOnline(false));
+function screen(which) {
+  ['pinLogin', 'login', 'noRight', 'app'].forEach((id) => $(id).classList.toggle('hidden', id !== which));
+  document.body.classList.toggle('pin', isPin());
+  $('whoPin').textContent = isPin() ? ` · ${PIN_NON}` : '';
+}
+async function startApp() { screen('app'); if (await load()) $('q').focus(); }
+function pinOut(msg) { PIN_TOKEN = null; PIN_NON = ''; LS.set('bst_akey_token', null); LS.set('bst_akey_non', null); PIN = ''; dots(); screen('pinLogin'); $('pinMsg').textContent = msg || ''; }
+let PIN = '';
+const dots = () => [...$('pinDots').children].forEach((d, i) => d.classList.toggle('on', i < PIN.length));
+async function tryPin() {
+  $('pinMsg').textContent = 'Vérification…';
+  const { data, error } = await sb.rpc('talks_akey_konekte', { p_pin: PIN });
+  if (error || !data || !data.ok) {
+    PIN = ''; dots(); $('pinDots').classList.add('bad'); setTimeout(() => $('pinDots').classList.remove('bad'), 400);
+    try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch {}
+    $('pinMsg').textContent = data && data.error === 'bloque' ? 'Trop d’essais. Patientez 10 minutes.' : error ? friendly(error) : 'Code incorrect. Réessayez.'; return;
+  }
+  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); PIN = ''; dots(); $('pinMsg').textContent = '';
+  startApp(); if (data.kod) toast(`Bienvenue ${PIN_NON} 👋`);
+}
+$('pad').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.k === 'b') PIN = PIN.slice(0, -1); else if (b.dataset.k === 'c') PIN = ''; else if (PIN.length < 6) PIN += b.textContent.trim();
+  $('pinMsg').textContent = ''; dots(); if (PIN.length === 6) tryPin();
+});
+addEventListener('keydown', (e) => { if ($('pinLogin').classList.contains('hidden')) return; if (/^[0-9]$/.test(e.key) && PIN.length < 6) { PIN += e.key; dots(); if (PIN.length === 6) tryPin(); } else if (e.key === 'Backspace') { PIN = PIN.slice(0, -1); dots(); } });
+$('toAdmin').addEventListener('click', () => { screen('login'); $('email').focus(); });
+$('toPin').addEventListener('click', () => screen('pinLogin'));
+$('nrOut').addEventListener('click', () => { sb.rpc('talks_akey_dekonekte', { p_token: PIN_TOKEN }).then(() => {}, () => {}); pinOut(); });
+
+async function show(session) {
+  if (isPin()) { startApp(); return; }
+  if (!session) { screen('pinLogin'); return; }
+  const { data: wol } = await sb.rpc('talks_mon_wol');
+  if (wol !== 'admin') { screen('pinLogin'); return; }   // compte du suivi (CRM) : on reste connecté ailleurs, ici il faut le PIN
+  startApp();
+}
+$('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('loginBtn').disabled = true; $('loginMsg').textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('password').value });
+  $('loginBtn').disabled = false; if (error) { $('loginMsg').textContent = 'E-mail ou mot de passe incorrect.'; return; }
+  const { data: wol } = await sb.rpc('talks_mon_wol');
+  if (wol !== 'admin') { $('loginMsg').textContent = 'Ce compte n’est pas administrateur : utilisez votre code PIN.'; return; }
+  show(data.session);
+});
+$('logout').addEventListener('click', async () => { if (!(await ask({ icon: '👋', title: 'Se déconnecter ?', text: 'Vous devrez entrer à nouveau votre code pour continuer.', ok: 'Se déconnecter' }))) return;
+  if (isPin()) { sb.rpc('talks_akey_dekonekte', { p_token: PIN_TOKEN }).then(() => {}, () => {}); pinOut(); return; }
+  await sb.auth.signOut(); show(null); });
+sb.auth.getSession().then(({ data }) => show(data.session));
+</script>
+</body>
+</html>

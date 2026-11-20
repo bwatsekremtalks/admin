@@ -819,10 +819,10 @@ function filtered() {
     const LIB_ = $('fSuivi').value === 'libre';
     if (LIB_ ? !p.annule : p.annule) return false;
     if (q && !plain(`${p.nom} ${p.tel} ${p.uni || ''} ${p.ville} ${p.by || ''}`).includes(q) && !String(p.num).includes(q.replace(/\D/g, '') || '§')) return false;
+    if (q && !LIB_) return true;   // recherche : on montre la personne quels que soient l'onglet, les filtres et le responsable (pour noter sa réponse)
     if (kote === 'cap' && !p.cap) return false; if (kote === 'hors' && p.cap) return false;
     const m = modeOf(p); if (mo === '?' ? m : mo && m !== mo) return false;
     const rf = $('fResp').value; if (rf === '?' ? own(p) : rf && RESP[pk(p)] !== rf) return false;
-    if (q && !LIB_) return true;   // recherche : on montre la personne quel que soit l'onglet ou le filtre (pour noter sa réponse)
     const fs = $('fSuivi').value; if (fs === 'etu') { if (!isEtu(p)) return false; } else if (fs === 'staff') { if (!isStaff(p)) return false; return true; } if (fs === 'libre' || fs === 'etu') { /* déjà filtré */ } else if (fs === 'plasl') { if (!(eligible(p, 'plas') || sent(p, 'plas').length)) return false; } else if (fs === 'nowa') { if (!noWA(p)) return false; } else if (fs === 'relans') { if (!(eligible(p, 'relans') && !sent(p, 'relans').length)) return false; } else if (fs === 'relansatt') { if (!(sent(p, 'relans').length && suivi(p) === 'sans')) return false; return true; } else if (fs === 'att' || fs === 'inscrit') { if ((fs === 'att') !== !!p.att) return false; } else if (fs) { const s = suivi(p); if (fs === 'repondu' ? !['vient', 'non', 'repondu'].includes(s) : fs === 'salle' || fs === 'live' ? !(s === 'vient' && modeOf(p) === fs) : s !== fs) return false; }
     const el = eligible(p, TIP), s = sent(p, TIP).length > 0;
     if (LIB_) return true;

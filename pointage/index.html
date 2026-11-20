@@ -613,7 +613,7 @@ function screen(which) {
   $('whoPin').textContent = isPin() ? ` · Accueil : ${PIN_NON}` : '';
 }
 async function startPin() { screen('app'); await load(); $('q').focus(); }
-function pinOut(msg) { PIN_TOKEN = null; PIN_NON = ''; LS.set('bst_akey_token', null); LS.set('bst_akey_non', null); PIN = ''; dots(); screen('pinLogin'); $('pinMsg').textContent = msg || ''; }
+function pinOut(msg) { PIN_TOKEN = null; PIN_NON = ''; LS.set('bst_akey_token', null); LS.set('bst_akey_non', null); LS.set('bst_akey_remiz', null); PIN = ''; dots(); screen('pinLogin'); $('pinMsg').textContent = msg || ''; }
 let PIN = '';
 const dots = () => [...$('pinDots').children].forEach((d, i) => d.classList.toggle('on', i < PIN.length));
 async function tryPin() {
@@ -624,7 +624,8 @@ async function tryPin() {
     try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch {}
     $('pinMsg').textContent = data && data.error === 'bloque' ? 'Trop d’essais. Patientez 10 minutes.' : error ? friendly(error) : 'Code incorrect. Réessayez.'; return;
   }
-  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); PIN = ''; dots(); $('pinMsg').textContent = '';
+  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); LS.set('bst_akey_remiz', data.remiz ? '1' : null);
+  if (data.remiz) { location.href = '../remise/'; return; } PIN = ''; dots(); $('pinMsg').textContent = '';
   startPin(); toast(`Bienvenue ${PIN_NON} 👋`);
 }
 $('pad').addEventListener('click', (e) => {
@@ -639,9 +640,9 @@ $('toPin').addEventListener('click', () => screen('pinLogin'));
 /* Admin : gérer l'équipe d'accueil */
 const randPin = () => String(Math.floor(100000 + Math.random() * 900000));
 async function loadTeam() {
-  const { data, error } = await sb.from('talks_akey').select('id, non, aktif, kreye_le, kod').order('kreye_le');
+  const { data, error } = await sb.from('talks_akey').select('id, non, aktif, kreye_le, kod, remiz_selman').order('kreye_le');
   if (error) { toast(friendly(error)); return; }
-  $('teamList').innerHTML = (data || []).map((m) => `<li class="${m.aktif ? '' : 'off'}"><div><b>${esc(m.non)}</b> <span class="sub">${m.aktif ? '· actif' : '· désactivé'}${m.kod ? ' · 🎟️ codes certificat' : ''}</span></div>
+  $('teamList').innerHTML = (data || []).map((m) => `<li class="${m.aktif ? '' : 'off'}"><div><b>${esc(m.non)}</b> <span class="sub">${m.aktif ? '· actif' : '· désactivé'}${m.kod ? ' · 🎟️ codes certificat' : ''}${m.remiz_selman ? ' · 🎓 remise seulement' : ''}</span></div>
     <div class="bx2"><button type="button" data-tkod="${m.id}" data-on="${m.kod ? 0 : 1}" title="Autoriser ou non ce membre à créer des codes certificat">🎟️ Codes : ${m.kod ? 'oui' : 'non'}</button><button type="button" data-tpin="${m.id}" data-tnon="${esc(m.non)}">🔑 Nouveau PIN</button><button type="button" data-tact="${m.id}" data-on="${m.aktif ? 0 : 1}">${m.aktif ? 'Désactiver' : 'Réactiver'}</button><button type="button" data-tdel="${m.id}" data-tnon="${esc(m.non)}">🗑️</button></div></li>`).join('')
     || '<li style="display:block" class="sub">Aucun membre pour le moment.</li>';
 }
@@ -670,6 +671,7 @@ $('teamList').addEventListener('click', async (e) => {
 });
 
 async function show(session) {
+  if (isPin() && LS.get('bst_akey_remiz') === '1') { location.href = '../remise/'; return; }
   if (isPin()) { startPin(); return; }
   if (!session) { screen('pinLogin'); return; }
   const { data: wol } = await sb.rpc('talks_mon_wol');

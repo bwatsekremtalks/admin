@@ -438,7 +438,7 @@ async function tryPin() {
     try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch {}
     $('pinMsg').textContent = data && data.error === 'bloque' ? 'Trop d’essais. Patientez 10 minutes.' : error ? friendly(error) : 'Code incorrect. Réessayez.'; return;
   }
-  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); PIN = ''; dots(); $('pinMsg').textContent = '';
+  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); LS.set('bst_akey_remiz', data.remiz ? '1' : null); PIN = ''; dots(); $('pinMsg').textContent = '';
   startApp(); if (data.kod) toast(`Bienvenue ${PIN_NON} 👋`);
 }
 $('pad').addEventListener('click', (e) => {

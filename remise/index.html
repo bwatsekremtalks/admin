@@ -216,7 +216,7 @@
         <div class="box"><b>Comment ça marche ?</b>
           <p>1. Cherchez la personne par son nom. 2. Vérifiez qu’elle est bien <b>présente</b> (pointée à l’entrée). 3. Donnez-lui son certificat, puis touchez <b>« Remettre »</b>.</p>
           <p>Seules les personnes qui ont payé leur certificat apparaissent ici. Une personne absente de la liste ? Envoyez-la voir un responsable.</p>
-          <p><a href="../pointage/" style="font-weight:800;color:var(--navy)">✅ Aller au pointage (présences)</a></p></div>
+          <p id="toPointage"><a href="../pointage/" style="font-weight:800;color:var(--navy)">✅ Aller au pointage (présences)</a></p></div>
       </section>
     </div>
   </main>
@@ -271,6 +271,7 @@ async function load(quiet) {
   if (!data.ok) { if (isPin()) pinOut('Votre session a expiré. Entrez à nouveau votre PIN.'); else { await sb.auth.signOut(); show(null); } return; }
   setOnline(true); CERTS = data.certs || [];
   $('toCodes').classList.toggle('hidden', !data.kod);
+  $('toPointage').classList.toggle('hidden', LS.get('bst_akey_remiz') === '1');
   render();
 }
 const salle = () => CERTS.filter((c) => c.mode !== 'live');
@@ -342,7 +343,7 @@ function screen(which) {
   $('whoPin').textContent = isPin() ? ` · ${PIN_NON}` : '';
 }
 async function startApp() { screen('app'); await load(); }
-function pinOut(msg) { PIN_TOKEN = null; PIN_NON = ''; LS.set('bst_akey_token', null); LS.set('bst_akey_non', null); PIN = ''; dots(); screen('pinLogin'); $('pinMsg').textContent = msg || ''; }
+function pinOut(msg) { PIN_TOKEN = null; PIN_NON = ''; LS.set('bst_akey_token', null); LS.set('bst_akey_non', null); LS.set('bst_akey_remiz', null); PIN = ''; dots(); screen('pinLogin'); $('pinMsg').textContent = msg || ''; }
 let PIN = '';
 const dots = () => [...$('pinDots').children].forEach((d, i) => d.classList.toggle('on', i < PIN.length));
 async function tryPin() {
@@ -353,7 +354,7 @@ async function tryPin() {
     try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch {}
     $('pinMsg').textContent = data && data.error === 'bloque' ? 'Trop d’essais. Patientez 10 minutes.' : error ? friendly(error) : 'Code incorrect. Réessayez.'; return;
   }
-  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); PIN = ''; dots(); $('pinMsg').textContent = '';
+  PIN_TOKEN = data.token; PIN_NON = data.non; LS.set('bst_akey_token', PIN_TOKEN); LS.set('bst_akey_non', PIN_NON); LS.set('bst_akey_remiz', data.remiz ? '1' : null); PIN = ''; dots(); $('pinMsg').textContent = '';
   startApp(); toast(`Bienvenue ${PIN_NON} 👋`);
 }
 $('pad').addEventListener('click', (e) => {

@@ -189,6 +189,7 @@
     <div class="top">
       <img src="../portrait/logos/bst-blanc.png" alt="BST" />
       <div class="t"><b>Remise des certificats</b><small><span class="live" id="live"><i></i> <span id="liveT">En direct</span></span> · <span id="clock"></span><span id="whoPin"></span></small></div>
+      <button class="ib" type="button" id="reload" title="Actualiser" aria-label="Actualiser">↻</button>
       <a class="ib hidden" id="toCodes" href="../codes/" title="Codes certificat" aria-label="Codes certificat">🎟️</a>
       <a class="ib adminonly" href="../" title="Espace inscriptions" aria-label="Espace inscriptions">↩</a>
       <button class="ib" type="button" id="logout" title="Déconnexion" aria-label="Déconnexion">⏻</button>
@@ -325,6 +326,8 @@ async function setRemis(id, on) {
 $('res').addEventListener('click', (e) => { const g = e.target.closest('[data-go]'), u = e.target.closest('[data-undo]'); if (g) setRemis(Number(g.dataset.go), true); if (u) setRemis(Number(u.dataset.undo), false); });
 $('flt').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (!b) return; FLT = b.dataset.f; render(); });
 $('q').addEventListener('input', renderRes);
+$('reload').addEventListener('click', async () => { $('reload').disabled = true; await load(); $('reload').disabled = false; toast('Liste à jour ✓', 1500); });
+
 $('clr').addEventListener('click', () => { $('q').value = ''; renderRes(); $('q').focus(); });
 
 /* ---------- Horloge, synchro, connexion ---------- */

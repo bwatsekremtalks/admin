@@ -1921,7 +1921,7 @@ async function loadCerts() {
 function renderCerts() {
   const pres = (r) => (r.mode === 'live' ? !!r.live_valide : !!PRES[`${r.inscription_id}:${r.idx}`]);
   const nPres = people(rowsForEdition().filter((r) => !r.annule)).filter(isPres).length;
-  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${KROWS.reduce((a, r) => a + (r.prix_htg || 1000), 0).toLocaleString('fr-FR')} G encaissés`], ['Débloqués', KROWS.filter(pres).length, `${KROWS.filter((r) => r.mode === 'live').length} code(s) Live`], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
+  $('kTiles').innerHTML = [['Codes vendus', KROWS.length, `${KROWS.reduce((a, r) => a + (r.prix_htg ?? 1000), 0).toLocaleString('fr-FR')} G encaissés`], ['Débloqués', KROWS.filter(pres).length, `${KROWS.filter((r) => r.mode === 'live').length} code(s) Live`], ['Ouverts', KROWS.filter((r) => r.premier_usage).length, 'codes déjà utilisés'], ['Présents sans certificat', Math.max(0, nPres - KROWS.filter(pres).length), 'à relancer après l’événement']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('kN').textContent = `· ${KROWS.length}`;
   $('kRows').innerHTML = KROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong style="letter-spacing:.05em">${esc(r.code)}</strong></td><td>${esc(r.nom)}</td>

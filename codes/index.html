@@ -183,6 +183,10 @@
   .cr .cd { font: 800 16px ui-monospace, monospace; letter-spacing: .05em; } .cr .nm { font-weight: 800; margin-top: 2px; overflow-wrap: anywhere; } .cr .ds { font-size: 13px; color: var(--mute); margin-top: 2px; overflow-wrap: anywhere; }
   .cr .tg { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; } .cr .pill { margin-top: 0; } .pill.n { background: #eef3f8; color: var(--ink2); } .pill.l { background: #efe9ff; color: #5b34c9; }
   .cr .bx3 { display: flex; gap: 6px; } .cr .bx3 .btn { min-height: 42px; padding: 0 12px; }
+  .free { display: flex; gap: 10px; align-items: flex-start; margin: 12px 0 2px; padding: 12px 14px; border: 1.5px dashed #e6c86e; background: #fffaf0; border-radius: 14px; cursor: pointer; font-size: 14.5px; line-height: 1.35; }
+  .free input { width: 22px; height: 22px; flex: none; margin: 0; accent-color: #b07d00; }
+  .free:has(input:checked) { border-style: solid; background: #fff4d6; }
+  .pill.g { background: #fff1c7; color: #8a6400; }
   .noright { width: 100%; max-width: 420px; background: #fff; border-radius: 26px; padding: 28px 24px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.3); }
   .noright .e { font-size: 46px; } .noright h1 { margin: 8px 0 6px; font-size: 24px; } .noright p { margin: 0 0 16px; color: var(--ink2); } .noright .btn { width: 100%; margin-top: 8px; }
   @media (max-width: 480px) { .fr { grid-template-columns: 40px minmax(0, 1fr); } .fr .act { grid-column: 1 / -1; } .fr .act .btn { width: 100%; } .fr .has { text-align: left; }
@@ -228,6 +232,7 @@
     <div class="top">
       <img src="../portrait/logos/bst-blanc.png" alt="BST" />
       <div class="t"><b>Codes certificat</b><small><span class="live" id="live"><i></i> <span id="liveT">En direct</span></span><span id="whoPin"></span></small></div>
+      <button class="ib" type="button" id="reload" title="Actualiser" aria-label="Actualiser">↻</button>
       <a class="ib" href="../remise/" title="Remise des certificats" aria-label="Remise des certificats">🎓</a>
       <a class="ib adminonly" href="../" title="Espace inscriptions" aria-label="Espace inscriptions">↩</a>
       <button class="ib" type="button" id="logout" title="Déconnexion" aria-label="Déconnexion">⏻</button>
@@ -247,6 +252,7 @@
       <div class="search flat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
         <input id="q" type="search" inputmode="search" autocomplete="off" enterkeyhint="search" placeholder="Nom ou numéro de la personne…" aria-label="Rechercher une personne inscrite" />
         <button class="clr hidden" type="button" id="clr" aria-label="Effacer">✕</button></div>
+      <label class="free"><input type="checkbox" id="gr" /> <span>🎁 <b>Certificat offert (gratuit)</b> — pas de paiement, ne compte pas dans l’argent encaissé</span></label>
       <div class="found" id="found"></div>
       <div id="out"></div>
     </div>
@@ -255,6 +261,7 @@
       <h2>🎥 Code pour quelqu’un qui suit le Live</h2>
       <p class="sub" style="margin:0">Pour une personne sans réservation en salle. Elle débloquera son certificat avec le mot secret annoncé pendant le Live.</p>
       <div class="rowf"><input class="fld" id="lNom" maxlength="100" placeholder="Nom complet sur le certificat" autocomplete="off" /><input class="fld" id="lTel" maxlength="25" inputmode="tel" placeholder="WhatsApp (ex. 3727 4672)" autocomplete="off" style="flex:0 1 220px" /></div>
+      <label class="free"><input type="checkbox" id="lGr" /> <span>🎁 <b>Certificat offert (gratuit)</b></span></label>
       <div class="rowf"><button class="btn p" type="button" id="lB" style="flex:1">Créer le code Live</button></div>
       <div id="outL"></div>
     </div>
@@ -328,14 +335,14 @@ async function load(quiet) {
 /* Message WhatsApp qui accompagne le code (le même que dans l'espace administrateur) */
 function waLink(r) {
   const quand = r.mode === 'live' ? 'Le 22 novembre, suivez le Live jusqu’au bout : un mot secret sera annoncé. Entrez-le avec votre code sur' : 'Le 22 novembre, dès que votre présence est enregistrée à l’entrée, ouvrez';
-  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 Merci, votre paiement est bien reçu. Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\n${quand} https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
+  const msg = `Bonjour ${String(r.nom).split(' ')[0]} ! 🎓 ${r.gratuit || r.prix === 0 ? 'Bwat Sekrèm Talks vous offre votre certificat.' : 'Merci, votre paiement est bien reçu.'} Voici votre code certificat Bwat Sekrèm Talks : ${r.code}\n${quand} https://bwatsekremtalks.github.io/admin/certificat/?code=${r.code} pour télécharger votre certificat (autant de fois que vous voulez). Gardez bien ce code !`;
   const d = digits(r.tel), num = d.length === 8 ? '509' + d : d.length > 8 ? d : '';
   return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
 }
 const copy = (t) => { try { navigator.clipboard.writeText(t).then(() => toast('Code copié ✓'), () => toast(t, 8000)); } catch { toast(t, 8000); } };
 function renderCodes() {
-  const mine = CODES.filter((c) => c.cree_par === NON).length, live = CODES.filter((c) => c.mode === 'live').length, tot = CODES.reduce((a, c) => a + (c.prix || 1000), 0);
-  $('kpis').innerHTML = [[CODES.length, 'codes créés'], [tot.toLocaleString('fr-FR') + ' G', 'encaissés (1 000 G par code)'], [`${CODES.length - live} · ${live}`, 'en salle · Live'], [mine, 'créés par moi']]
+  const mine = CODES.filter((c) => c.cree_par === NON).length, live = CODES.filter((c) => c.mode === 'live').length, nGr = CODES.filter((c) => c.prix === 0).length, tot = CODES.reduce((a, c) => a + (c.prix ?? 1000), 0);
+  $('kpis').innerHTML = [[CODES.length, 'codes créés'], [tot.toLocaleString('fr-FR') + ' G', `encaissés${nGr ? ` · ${nGr} offert${nGr > 1 ? 's' : ''}` : ''}`], [`${CODES.length - live} · ${live}`, 'en salle · Live'], [mine, 'créés par moi']]
     .map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
   $('nCodes').textContent = `· ${CODES.length}`;
   const q = plain($('fq').value.trim()), qd = digits($('fq').value);
@@ -343,12 +350,19 @@ function renderCodes() {
   $('list').innerHTML = L.map((c) => `<div class="cr"><div>
       <div class="cd">${esc(c.code)}</div><div class="nm">${esc(c.nom)}</div>
       <div class="ds">${[c.tel ? fmtTel(c.tel) : '', `créé le ${dh(c.cree_le)}${c.cree_par ? ` par ${c.cree_par}` : ''}`].filter(Boolean).map(esc).join(' · ')}</div>
-      <div class="tg">${c.mode === 'live' ? '<span class="pill l">🎥 Live</span>' : '<span class="pill n">🏛️ Salle</span>'}${c.present ? `<span class="pill c">${c.mode === 'live' ? '✅ mot validé' : '✅ présent'}</span>` : ''}${c.remis_le ? '<span class="pill c">🎓 remis</span>' : ''}${c.ouvertures ? `<span class="pill n">ouvert ${c.ouvertures}×</span>` : ''}</div></div>
-    <div class="bx3"><button class="btn" type="button" data-cp="${esc(c.code)}" title="Copier le code">📋</button><a class="btn wa" href="${esc(waLink(c))}" target="_blank" rel="noopener">💬 Envoyer</a></div></div>`).join('')
+      <div class="tg">${c.mode === 'live' ? '<span class="pill l">🎥 Live</span>' : '<span class="pill n">🏛️ Salle</span>'}${c.present ? `<span class="pill c">${c.mode === 'live' ? '✅ mot validé' : '✅ présent'}</span>` : ''}${c.remis_le ? '<span class="pill c">🎓 remis</span>' : ''}${c.prix === 0 ? '<span class="pill g">🎁 offert</span>' : ''}${c.ouvertures ? `<span class="pill n">ouvert ${c.ouvertures}×</span>` : ''}</div></div>
+    <div class="bx3"><button class="btn" type="button" data-gr="${c.id}" data-on="${c.prix === 0 ? 0 : 1}" title="${c.prix === 0 ? 'Repasser en payant (1 000 G)' : 'Marquer comme offert (gratuit)'}">${c.prix === 0 ? '💰' : '🎁'}</button><button class="btn" type="button" data-cp="${esc(c.code)}" title="Copier le code">📋</button><a class="btn wa" href="${esc(waLink(c))}" target="_blank" rel="noopener">💬 Envoyer</a></div></div>`).join('')
     || `<p class="sub" style="text-align:center;margin:14px 0 4px">${CODES.length ? 'Aucun code ne correspond.' : 'Aucun code créé pour le moment.'}</p>`;
 }
 $('fq').addEventListener('input', renderCodes);
-$('list').addEventListener('click', (e) => { const b = e.target.closest('[data-cp]'); if (b) copy(b.dataset.cp); });
+$('reload').addEventListener('click', async () => { $('reload').disabled = true; await load(); $('reload').disabled = false; toast('Liste à jour ✓', 1500); });
+
+$('list').addEventListener('click', async (e) => { const b = e.target.closest('[data-cp]'); if (b) copy(b.dataset.cp);
+  const g = e.target.closest('[data-gr]'); if (!g) return; const c = CODES.find((x) => x.id === Number(g.dataset.gr)), on = g.dataset.on === '1';
+  if (!(await ask(on ? { icon: '🎁', tone: 'warn', title: 'Marquer comme offert ?', text: 'Ce certificat ne comptera plus dans l’argent encaissé.', person: c.nom, ok: 'Oui, offert' } : { icon: '💰', tone: 'blue', title: 'Repasser en payant ?', text: 'Ce certificat comptera de nouveau 1 000 G encaissés.', person: c.nom, ok: 'Oui, payant' }))) return;
+  const { data, error } = await sb.rpc('talks_sert_gratis', { p_token: tok(), p_id: c.id, p_on: on });
+  if (error || !data) { toast(friendly(error || 'vide')); return; } if (denied(data)) return; if (!data.ok) { toast('Modification impossible.'); return; }
+  c.prix = data.prix; renderCodes(); toast(on ? '🎁 Marqué comme offert' : '💰 Repassé en payant'); });
 
 /* ---------- Recherche d'une personne inscrite (faite par la base : les numéros restent masqués) ---------- */
 let QT = null;
@@ -372,7 +386,7 @@ async function search() {
 $('q').addEventListener('input', () => { $('clr').classList.toggle('hidden', !$('q').value); clearTimeout(QT); QT = setTimeout(search, 280); });
 $('clr').addEventListener('click', () => { $('q').value = ''; FOUND = []; renderFound(); $('q').focus(); });
 function showCode(where, r, deja) {
-  $(where).innerHTML = `<div class="out"><span class="sub">${deja ? 'Cette personne avait déjà un code' : 'Code créé ✓'}</span><span class="cd">${esc(r.code)}</span><span class="who3">${esc(r.nom)}${r.mode === 'live' ? ' · 🎥 Live' : ''}</span>
+  $(where).innerHTML = `<div class="out"><span class="sub">${deja ? 'Cette personne avait déjà un code' : 'Code créé ✓'}</span><span class="cd">${esc(r.code)}</span><span class="who3">${esc(r.nom)}${r.mode === 'live' ? ' · 🎥 Live' : ''}${r.gratuit ? ' · 🎁 offert' : ''}</span>
     <div class="bts"><button class="btn" type="button" data-cp="${esc(r.code)}">📋 Copier</button><a class="btn wa" href="${esc(waLink(r))}" target="_blank" rel="noopener">💬 Envoyer sur WhatsApp</a></div></div>`;
   $(where).querySelector('[data-cp]').onclick = () => copy(r.code);
   $(where).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -380,26 +394,27 @@ function showCode(where, r, deja) {
 $('found').addEventListener('click', async (e) => {
   const b = e.target.closest('[data-kc]'); if (!b) return;
   const [iid, idx] = b.dataset.kc.split(':').map(Number), m = FOUND.find((x) => x.iid === iid && x.idx === idx); if (!m) return;
-  if (!(await ask({ icon: '🎟️', tone: 'blue', title: 'Créer le code certificat ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu. Le code sera lié à cette personne.', person: m.nom, ok: 'Créer le code', okTone: 'green' }))) return;
+  if (!(await ask($('gr').checked ? { icon: '🎁', tone: 'warn', title: 'Créer un certificat offert ?', text: 'Code GRATUIT : il ne compte pas dans l’argent encaissé. Le code sera lié à cette personne.', person: m.nom, ok: 'Créer le code gratuit', okTone: 'green' } : { icon: '🎟️', tone: 'blue', title: 'Créer le code certificat ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu. Le code sera lié à cette personne.', person: m.nom, ok: 'Créer le code', okTone: 'green' }))) return;
   b.disabled = true;
-  const { data, error } = await sb.rpc('talks_sert_kreye', { p_token: tok(), p_inscription_id: iid, p_idx: idx, p_note: null });
+  const gr = $('gr').checked;
+  const { data, error } = await sb.rpc('talks_sert_kreye', { p_token: tok(), p_inscription_id: iid, p_idx: idx, p_note: null, p_gratuit: gr });
   b.disabled = false;
   if (error || !data) { toast('Impossible de créer le code. ' + friendly(error || 'vide'), 6000); return; }
   if (denied(data)) return;
   if (!data.ok) { toast(ERR[data.error] || 'Impossible de créer le code.', 6000); return; }
-  m.code = data.code; renderFound(); showCode('out', { code: data.code, nom: data.nom, tel: data.tel, mode: 'salle' }, data.deja); load(true);
+  m.code = data.code; $('gr').checked = false; renderFound(); showCode('out', { code: data.code, nom: data.nom, tel: data.tel, mode: 'salle', gratuit: data.gratuit }, data.deja); load(true);
 });
 $('lB').addEventListener('click', async () => {
   const nom = $('lNom').value.trim(), tel = $('lTel').value.trim();
   if (nom.length < 3) { toast(ERR.nom); $('lNom').focus(); return; }
-  if (!(await ask({ icon: '🎥', tone: 'blue', title: 'Créer un code Live ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu.', person: nom, ok: 'Créer le code', okTone: 'green' }))) return;
+  if (!(await ask($('lGr').checked ? { icon: '🎁', tone: 'warn', title: 'Créer un code Live offert ?', text: 'Code GRATUIT : il ne compte pas dans l’argent encaissé.', person: nom, ok: 'Créer le code gratuit', okTone: 'green' } : { icon: '🎥', tone: 'blue', title: 'Créer un code Live ?', text: 'Vérifiez d’abord que le paiement de 1 000 G est bien reçu.', person: nom, ok: 'Créer le code', okTone: 'green' }))) return;
   $('lB').disabled = true;
-  const { data, error } = await sb.rpc('talks_sert_kreye_live', { p_token: tok(), p_nom: nom, p_tel: tel || null, p_note: null });
+  const { data, error } = await sb.rpc('talks_sert_kreye_live', { p_token: tok(), p_nom: nom, p_tel: tel || null, p_note: null, p_gratuit: $('lGr').checked });
   $('lB').disabled = false;
   if (error || !data) { toast('Impossible de créer le code. ' + friendly(error || 'vide'), 6000); return; }
   if (denied(data)) return;
   if (!data.ok) { toast(ERR[data.error] || 'Impossible de créer le code.', 6000); return; }
-  showCode('outL', { code: data.code, nom: data.nom, tel: data.tel, mode: 'live' }, false); $('lNom').value = ''; $('lTel').value = ''; load(true);
+  showCode('outL', { code: data.code, nom: data.nom, tel: data.tel, mode: 'live', gratuit: data.gratuit }, false); $('lNom').value = ''; $('lTel').value = ''; $('lGr').checked = false; load(true);
 });
 
 /* ---------- Synchro et connexion ---------- */

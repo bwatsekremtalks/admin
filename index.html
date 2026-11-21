@@ -403,6 +403,7 @@
         <button class="tab" role="tab" id="tabW" aria-selected="false" type="button">📈 Visites</button>
         <button class="tab" role="tab" id="tabK" aria-selected="false" type="button">🎓 Certificats</button>
         <button class="tab" role="tab" id="tabJ" aria-selected="false" type="button">🎵 Theme Music</button>
+        <button class="tab" role="tab" id="tabO" aria-selected="false" type="button">💬 Avis</button>
         <button class="tab" role="tab" id="tabU" aria-selected="false" type="button">📸 Mur photos</button>
         <button class="tab" role="tab" id="tabB" aria-selected="false" type="button">🙋 Bénévoles</button>
         <button class="tab" role="tab" id="tabI" aria-selected="false" type="button">🖼️ Portraits</button>
@@ -496,6 +497,13 @@
         <div class="card" style="margin-top:12px"><h2>🎥 Spectateurs du Live (sans réservation) <span class="sub" id="uLN"></span></h2>
           <p class="sub" style="margin:0 0 8px">Personnes qui ont suivi le Live sans réserver et se sont identifiées sur le mur avec le mot secret : de nouveaux contacts pour les prochaines éditions.</p>
           <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Nom</th><th>WhatsApp</th></tr></thead><tbody id="uLive"></tbody></table></div></div>
+      </div>
+      <div id="panelO" class="hidden">
+        <div class="tiles" id="oTiles"></div>
+        <div class="card" style="margin-top:12px"><h2>💬 Avis des participants <span class="sub" id="oN"></span></h2>
+          <p class="sub" style="margin:0 0 8px">Page publique : <a href="avis/" target="_blank" rel="noopener">bwatsekremtalks.github.io/admin/avis/</a> (à intégrer sur le site avec <code>?embed=1</code>). Les avis sont affichés tout de suite si la personne l’accepte : masquez ceux qui ne conviennent pas.</p>
+          <div class="table-wrap" style="border:0"><table><thead><tr><th>Date</th><th>Nom</th><th>Note</th><th>Avis</th><th>Sur le site</th><th></th></tr></thead><tbody id="oRows"></tbody></table></div>
+        </div>
       </div>
       <div id="panelJ" class="hidden">
         <div class="tiles" id="jTiles"></div>
@@ -1814,9 +1822,9 @@ $('edition').addEventListener('change', render);
 $('refresh').addEventListener('click', () => { load(); if (tab === 'Q') loadQuiz(); });
 function setTab(t) {
   tab = t;
-  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K', 'J', 'U']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
-  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K' || t === 'J' || t === 'U');
-  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'J') loadJingle(); if (t === 'U') loadMur(); if (t === 'K') loadCerts();
+  for (const k of ['P', 'R', 'A', 'C', 'Q', 'V', 'M', 'I', 'B', 'W', 'K', 'J', 'U', 'O']) { $('tab' + k).setAttribute('aria-selected', t === k); $('panel' + k).classList.toggle('hidden', t !== k); }
+  document.querySelector('.filters').classList.toggle('hidden', t === 'A' || t === 'Q' || t === 'C' || t === 'V' || t === 'M' || t === 'I' || t === 'B' || t === 'W' || t === 'K' || t === 'J' || t === 'U' || t === 'O');
+  if (t === 'Q') loadQuiz(); if (t === 'V') loadCV(); if (t === 'M') loadRant(); if (t === 'I') loadPortraits(); if (t === 'B') loadBenevoles(); if (t === 'W') loadVisites(); if (t === 'J') loadJingle(); if (t === 'O') loadAvis(); if (t === 'U') loadMur(); if (t === 'K') loadCerts();
   if (t === 'A') { renderAnswers(); $('aq').focus(); }
   if (t === 'C') { renderPointage(); $('cq').focus(); }
 }
@@ -1827,6 +1835,25 @@ $('tabB').addEventListener('click', () => setTab('B'));
 $('tabW').addEventListener('click', () => setTab('W'));
 $('tabK').addEventListener('click', () => setTab('K'));
 $('tabJ').addEventListener('click', () => setTab('J'));
+$('tabO').addEventListener('click', () => setTab('O'));
+/* ---------- Avis des participants ---------- */
+let OROWS = [];
+async function loadAvis() {
+  const { data, error } = await sb.from('talks_avis').select('*').order('cree_le', { ascending: false }).limit(2000);
+  if (error) { notify('Avis : ' + friendly(error), 'warn'); return; }
+  OROWS = data || []; const notes = OROWS.filter((r) => r.note), moy = notes.length ? (notes.reduce((a, r) => a + r.note, 0) / notes.length).toFixed(1).replace('.', ',') : '—';
+  $('oTiles').innerHTML = [['Avis reçus', OROWS.length, `${OROWS.filter((r) => new Date(r.cree_le) > new Date(Date.now() - 864e5)).length} ces dernières 24 h`], ['Note moyenne', moy + (notes.length ? ' ★' : ''), `${notes.length} avis notés`], ['Sur le site', OROWS.filter((r) => r.vizib && r.public).length, 'avis affichés'], ['Privés', OROWS.filter((r) => !r.public).length, 'pour l’équipe seulement']]
+    .map(([k, v, x]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(x)}</div></div>`).join('');
+  $('oN').textContent = `· ${OROWS.length}`;
+  $('oRows').innerHTML = OROWS.map((r) => `<tr><td class="sub">${esc(fmtDate(r.cree_le))}</td><td><strong>${esc(r.nom)}</strong>${r.profil ? `<br><span class="sub">${esc(r.profil)}</span>` : ''}</td><td style="color:#f5b700;white-space:nowrap">${r.note ? '★'.repeat(r.note) : '<span class="sub">—</span>'}</td>
+    <td style="max-width:520px;white-space:pre-line">${esc(r.message)}</td><td>${!r.public ? '<span class="sub">🔒 privé (refus d’affichage)</span>' : r.vizib ? '✅ affiché' : '<span class="sub">masqué</span>'}</td>
+    <td style="white-space:nowrap">${r.public ? `<button class="btn" type="button" data-ov="${r.id}">${r.vizib ? 'Masquer' : 'Afficher'}</button>` : ''} <button class="btn" type="button" data-od="${r.id}" title="Supprimer">🗑️</button></td></tr>`).join('') || '<tr><td colspan="6" class="empty">Aucun avis pour le moment.</td></tr>';
+}
+$('oRows').addEventListener('click', async (e) => {
+  const v = e.target.closest('[data-ov]'), d = e.target.closest('[data-od]');
+  if (v) { const r = OROWS.find((x) => x.id === Number(v.dataset.ov)); const { error } = await sb.from('talks_avis').update({ vizib: !r.vizib }).eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadAvis(); }
+  if (d) { if (!(await ask({ icon: '🗑️', tone: 'red', title: 'Supprimer cet avis ?', text: 'Il sera effacé définitivement.', ok: 'Supprimer', okTone: 'red' }))) return; const { error } = await sb.from('talks_avis').delete().eq('id', Number(d.dataset.od)); if (error) notify(friendly(error), 'warn'); loadAvis(); }
+});
 $('tabU').addEventListener('click', () => setTab('U'));
 /* ---------- Mur photos ---------- */
 let UROWS = [];

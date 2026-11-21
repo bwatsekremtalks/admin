@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vos avis — Bwat Sekrèm Talks</title>
+<meta name="description" content="Partagez votre avis sur Bwat Sekrèm Talks et lisez ceux des participants." />
+<meta property="og:title" content="Vos avis — Bwat Sekrèm Talks" />
+<meta property="og:description" content="Partagez votre avis, vos encouragements et vos suggestions avec l’équipe." />
+<link rel="icon" href="../crm/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<!--
+  Avis et appréciations des participants (avant, pendant et après l'événement). À intégrer sur bwatsekremtalks.com en iframe.
+  Paramètres : ?lang=fr|ht|en   &embed=1 (fond transparent, hauteur envoyée au site)
+  Données : talks_avis (écriture par talks_avis_voye, lecture par talks_avis_lis). Modération : onglet 💬 Avis de l'espace inscriptions.
+-->
+<style>
+  :root { --navy: #0D2D4A; --green: #5DB033; --green2: #7AC142; --ink: #0a1f38; --mute: #5b6b7f; --line: #dfe7f0; --gold: #f5b700; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; font-family: "DM Sans", system-ui, sans-serif; color: var(--ink); background: #f4f7fb; }
+  body.embed { background: transparent; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 40px; }
+  body.embed .wrap { padding: 0; }
+  .hero { position: relative; overflow: hidden; border-radius: 28px; color: #fff; padding: 34px 32px;
+    background: radial-gradient(circle at 92% 8%, rgba(122,193,66,.32), transparent 42%), radial-gradient(circle at 0% 100%, rgba(30,140,240,.22), transparent 45%), linear-gradient(135deg, #0a1f38, #123d66); }
+  .k { display: inline-flex; align-items: center; gap: 8px; font: 700 12px "DM Sans", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--green2); }
+  h1 { font: 800 clamp(28px, 5vw, 44px)/1.06 "Bricolage Grotesque", sans-serif; margin: 12px 0 10px; letter-spacing: -.01em; }
+  h1 em { font-style: normal; color: var(--green2); }
+  .hero p { margin: 0; color: rgba(255,255,255,.86); font-size: 16.5px; line-height: 1.55; max-width: 620px; }
+  .score { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .score div { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 10px 16px; }
+  .score b { display: block; font: 800 26px "Bricolage Grotesque", sans-serif; } .score span { font-size: 13px; color: rgba(255,255,255,.78); }
+  .card { background: #fff; border-radius: 24px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(13,45,74,.08); }
+  .card h2 { font: 800 22px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; color: var(--navy); }
+  .card .sub { color: var(--mute); font-size: 14.5px; margin: 0 0 16px; }
+  form { display: grid; gap: 12px; }
+  label.l { font-weight: 800; font-size: 14px; color: var(--navy); display: block; margin-bottom: 6px; }
+  input.t, textarea, select { width: 100%; border: 1.5px solid #d8e1ec; border-radius: 14px; padding: 12px 14px; font: 16px "DM Sans", sans-serif; color: var(--ink); background: #f8fafc; }
+  input.t:focus, textarea:focus, select:focus { outline: none; border-color: var(--green2); background: #fff; }
+  textarea { min-height: 120px; resize: vertical; line-height: 1.45; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stars { display: flex; gap: 6px; }
+  .stars button { border: 0; background: none; padding: 2px; cursor: pointer; font-size: 34px; line-height: 1; color: #d4dbe5; transition: transform .1s; }
+  .stars button.on { color: var(--gold); } .stars button:hover { transform: scale(1.12); }
+  .stars button:focus-visible { outline: 2px solid var(--green2); border-radius: 8px; }
+  .chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; color: #33475f; cursor: pointer; }
+  .chk input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--green); flex: none; }
+  .send { justify-self: start; border: 0; border-radius: 999px; padding: 14px 26px; font: 800 16px "DM Sans", sans-serif; background: var(--green2); color: var(--ink); cursor: pointer; box-shadow: 0 8px 22px rgba(122,193,66,.4); }
+  .send:disabled { opacity: .6; cursor: default; }
+  .msg { font-size: 14.5px; font-weight: 700; min-height: 1.2em; } .msg.ok { color: #1f8a43; } .msg.err { color: #c0352b; }
+  .thanks { text-align: center; padding: 18px 6px; } .thanks .e { font-size: 46px; } .thanks b { display: block; font: 800 22px "Bricolage Grotesque", sans-serif; color: var(--navy); margin-top: 6px; }
+  .thanks p { color: var(--mute); margin: 6px 0 14px; } .thanks button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+  .list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .av { border: 1px solid var(--line); border-radius: 20px; padding: 18px; background: linear-gradient(180deg, #fff, #f8fbff); position: relative; }
+  .av .q { position: absolute; right: 16px; top: 6px; font: 800 64px/1 "Bricolage Grotesque", serif; color: #e7f3dc; }
+  .av .st { color: var(--gold); letter-spacing: 2px; font-size: 16px; }
+  .av p { margin: 8px 0 12px; font-size: 15.5px; line-height: 1.55; color: #22364d; white-space: pre-line; position: relative; }
+  .av .who { display: flex; align-items: center; gap: 10px; }
+  .av .ini { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.25); font: 800 14px "Bricolage Grotesque", sans-serif; flex: none; }
+  .av .who b { display: block; font-size: 15px; color: var(--navy); } .av .who span { font-size: 13px; color: var(--mute); }
+  .empty { text-align: center; color: var(--mute); padding: 18px; grid-column: 1 / -1; }
+  .more[hidden] { display: none; }
+  .more { display: block; margin: 16px auto 0; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 11px 20px; font-weight: 700; cursor: pointer; }
+  @media (max-width: 700px) { .hero { padding: 26px 20px; } .card { padding: 20px 16px; } .two, .list { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="s">
+  <section class="hero">
+    <span class="k" id="kick"></span>
+    <h1 id="title"></h1>
+    <p id="lead"></p>
+    <div class="score" id="score"></div>
+  </section>
+
+  <section class="card" id="formCard">
+    <h2 id="fT"></h2><p class="sub" id="fS"></p>
+    <form id="f" novalidate>
+      <div class="two">
+        <div><label class="l" for="nom" id="lNom"></label><input class="t" id="nom" maxlength="80" autocomplete="name" /></div>
+        <div><label class="l" for="profil" id="lProfil"></label><select id="profil"></select></div>
+      </div>
+      <div><label class="l" id="lNote"></label><div class="stars" id="stars"></div></div>
+      <div><label class="l" for="message" id="lMsg"></label><textarea id="message" maxlength="1200"></textarea></div>
+      <label class="chk"><input type="checkbox" id="pub" checked /> <span id="lPub"></span></label>
+      <button class="send" type="submit" id="send"></button>
+      <div class="msg" id="msg" role="status"></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2 id="lT"></h2><p class="sub" id="lS"></p>
+    <div class="list" id="list"></div>
+    <button class="more" type="button" id="more" hidden></button>
+  </section>
+</div>
+<script>
+const SB = 'https://nltlgytehikguydcdhyy.supabase.co', KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
+const rpc = (fn, body = {}) => fetch(`${SB}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then((r) => r.json());
+const T = {
+  fr: { kick: '💬 Vos avis', title: 'Votre avis <em>compte</em> pour nous', lead: 'Pas besoin d’attendre le jour J : partagez dès maintenant votre appréciation, vos encouragements ou vos suggestions avec l’équipe de Bwat Sekrèm Talks.',
+    avis: ['avis', 'avis'], moy: 'note moyenne', fT: 'Partager mon avis', fS: 'Quelques mots suffisent. Votre message est lu par toute l’équipe.',
+    nom: 'Votre nom', profil: 'Vous êtes', note: 'Votre note', msg: 'Votre message', msgPh: 'Ce que vous avez apprécié, ce que vous attendez de l’événement, une suggestion…',
+    pub: 'J’accepte que mon avis (prénom et nom) soit affiché sur le site de Bwat Sekrèm Talks.', send: 'Envoyer mon avis', sending: 'Envoi…',
+    P: ['Étudiant(e)', 'Professionnel(le)', 'Entrepreneur(e)', 'Partenaire', 'Bénévole', 'Autre'], choose: '— Choisir —',
+    lT: 'Ce qu’ils en disent', lS: 'Les avis partagés par les participants et notre communauté.', empty: 'Soyez la première personne à partager votre avis !', more: 'Voir plus d’avis',
+    ok: 'Merci pour votre avis !', okS: 'Il a bien été envoyé à l’équipe.', okPriv: 'Il a bien été envoyé à l’équipe (il ne sera pas affiché sur le site).', again: 'Écrire un autre avis',
+    err: { nom: 'Indiquez votre nom (2 caractères minimum).', message: 'Écrivez votre message (5 caractères minimum).', lien: 'Les liens ne sont pas autorisés.', vit: 'Patientez quelques secondes avant d’envoyer à nouveau.', double: 'Cet avis a déjà été envoyé.', note: 'Note invalide.', x: 'L’envoi n’a pas abouti. Réessayez.' },
+    ago: (m) => (m < 1 ? 'à l’instant' : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `il y a ${Math.floor(m / 1440)} j`) },
+  ht: { kick: '💬 Avi nou', title: 'Avi w <em>enpòtan</em> pou nou', lead: 'Pa bezwen tann jou J a : pataje apresyasyon w, ankourajman w oswa sijesyon w ak ekip Bwat Sekrèm Talks la depi kounye a.',
+    avis: ['avi', 'avi'], moy: 'nòt mwayèn', fT: 'Pataje avi m', fS: 'Kèk mo ase. Tout ekip la ap li mesaj ou.',
+    nom: 'Non w', profil: 'Ou se', note: 'Nòt ou', msg: 'Mesaj ou', msgPh: 'Sa w renmen, sa w ap tann nan evènman an, yon sijesyon…',
+    pub: 'Mwen dakò pou yo afiche avi m (non ak siyati) sou sit Bwat Sekrèm Talks la.', send: 'Voye avi m', sending: 'N ap voye…',
+    P: ['Etidyan', 'Pwofesyonèl', 'Antreprenè', 'Patnè', 'Volontè', 'Lòt'], choose: '— Chwazi —',
+    lT: 'Sa yo di', lS: 'Avi patisipan yo ak kominote nou an pataje.', empty: 'Se ou ki ka premye moun ki pataje avi l !', more: 'Wè plis avi',
+    ok: 'Mèsi pou avi w !', okS: 'Ekip la resevwa l.', okPriv: 'Ekip la resevwa l (li p ap parèt sou sit la).', again: 'Ekri yon lòt avi',
+    err: { nom: 'Ekri non w (omwen 2 karaktè).', message: 'Ekri mesaj ou (omwen 5 karaktè).', lien: 'Lyen pa otorize.', vit: 'Tann kèk segonn anvan w voye ankò.', double: 'Avi sa a deja voye.', note: 'Nòt la pa bon.', x: 'Li pa t ka ale. Eseye ankò.' },
+    ago: (m) => (m < 1 ? 'kounye a' : m < 60 ? `sa gen ${m} min` : m < 1440 ? `sa gen ${Math.floor(m / 60)} è` : `sa gen ${Math.floor(m / 1440)} jou`) },
+  en: { kick: '💬 Your feedback', title: 'Your opinion <em>matters</em> to us', lead: 'No need to wait for the big day: share your appreciation, encouragement or suggestions with the Bwat Sekrèm Talks team right now.',
+    avis: ['review', 'reviews'], moy: 'average rating', fT: 'Share my feedback', fS: 'A few words are enough. The whole team reads your message.',
+    nom: 'Your name', profil: 'You are', note: 'Your rating', msg: 'Your message', msgPh: 'What you liked, what you expect from the event, a suggestion…',
+    pub: 'I agree that my feedback (first and last name) may be shown on the Bwat Sekrèm Talks website.', send: 'Send my feedback', sending: 'Sending…',
+    P: ['Student', 'Professional', 'Entrepreneur', 'Partner', 'Volunteer', 'Other'], choose: '— Choose —',
+    lT: 'What they say', lS: 'Feedback shared by participants and our community.', empty: 'Be the first to share your feedback!', more: 'See more feedback',
+    ok: 'Thank you for your feedback!', okS: 'It was sent to the team.', okPriv: 'It was sent to the team (it will not be shown on the website).', again: 'Write another one',
+    err: { nom: 'Enter your name (at least 2 characters).', message: 'Write your message (at least 5 characters).', lien: 'Links are not allowed.', vit: 'Please wait a few seconds before sending again.', double: 'This feedback was already sent.', note: 'Invalid rating.', x: 'Sending failed. Please try again.' },
+    ago: (m) => (m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m / 60)} h ago` : `${Math.floor(m / 1440)} d ago`) },
+};
+const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L], EMBED = q.get('embed') === '1';
+document.documentElement.lang = L; if (EMBED) document.body.classList.add('embed');
+const $ = (id) => document.getElementById(id), esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ls = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
+let SID = ls.get('bst_avis_sid'); if (!SID) { SID = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); ls.set('bst_avis_sid', SID); }
+const COL = ['#2f8fe8', '#5DB033', '#7c4dff', '#ff8a00', '#e8436b', '#0D2D4A', '#0aa3a3'];
+const avc = (n) => COL[[...String(n || '')].reduce((a, c) => a + c.charCodeAt(0), 0) % COL.length];
+const ini = (n) => String(n || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+const sendH = () => { if (!EMBED) return; try { parent.postMessage({ bstH: Math.ceil($('s').getBoundingClientRect().height) + 2, bstW: 'avis' }, '*'); } catch {} };
+addEventListener('load', sendH); addEventListener('resize', sendH); document.fonts && document.fonts.ready.then(sendH); new ResizeObserver(sendH).observe($('s'));
+
+/* Textes */
+$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead;
+$('fT').textContent = t.fT; $('fS').textContent = t.fS; $('lNom').textContent = t.nom; $('lProfil').textContent = t.profil; $('lNote').textContent = t.note; $('lMsg').textContent = t.msg;
+$('message').placeholder = t.msgPh; $('lPub').textContent = t.pub; $('send').textContent = t.send; $('lT').textContent = t.lT; $('lS').textContent = t.lS; $('more').textContent = t.more;
+$('profil').innerHTML = `<option value="">${esc(t.choose)}</option>` + t.P.map((p) => `<option>${esc(p)}</option>`).join('');
+let NOTE = 0;
+const drawStars = () => { $('stars').innerHTML = [1, 2, 3, 4, 5].map((n) => `<button type="button" data-n="${n}" class="${n <= NOTE ? 'on' : ''}" aria-label="${n} / 5" aria-pressed="${n <= NOTE}">★</button>`).join(''); };
+drawStars(); $('stars').addEventListener('click', (e) => { const b = e.target.closest('[data-n]'); if (!b) return; NOTE = +b.dataset.n === NOTE ? 0 : +b.dataset.n; drawStars(); });
+
+/* Liste */
+let ALL = [], SHOWN = 8;
+function render(d) {
+  if (d) ALL = d.avis || [];
+  const n = d ? d.total : ALL.length;
+  if (d) $('score').innerHTML = `<div><b>${n}</b><span>${n > 1 ? t.avis[1] : t.avis[0]}</span></div>` + (d.moyenne ? `<div><b>${String(d.moyenne).replace('.', L === 'en' ? '.' : ',')} ★</b><span>${t.moy}</span></div>` : '');
+  const now = Date.now();
+  $('list').innerHTML = ALL.slice(0, SHOWN).map((a) => `<article class="av"><span class="q">”</span>${a.note ? `<div class="st">${'★'.repeat(a.note)}<span style="color:#d4dbe5">${'★'.repeat(5 - a.note)}</span></div>` : ''}
+    <p>${esc(a.message)}</p><div class="who"><span class="ini" style="background:${avc(a.nom)}">${esc(ini(a.nom))}</span><div><b>${esc(a.nom)}</b><span>${[a.profil, t.ago(Math.floor((now - new Date(a.cree_le)) / 60000))].filter(Boolean).map(esc).join(' · ')}</span></div></div></article>`).join('')
+    || `<div class="empty">${esc(t.empty)}</div>`;
+  $('more').hidden = ALL.length <= SHOWN; sendH();
+}
+const load = () => rpc('talks_avis_lis', { p_limit: 200 }).then(render).catch(() => {});
+$('more').addEventListener('click', () => { SHOWN += 8; render(); });
+load();
+
+/* Envoi */
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault(); $('msg').className = 'msg'; $('msg').textContent = '';
+  const nom = $('nom').value.trim(), message = $('message').value.trim();
+  if (nom.length < 2) { $('msg').className = 'msg err'; $('msg').textContent = t.err.nom; $('nom').focus(); return; }
+  if (message.length < 5) { $('msg').className = 'msg err'; $('msg').textContent = t.err.message; $('message').focus(); return; }
+  $('send').disabled = true; $('send').textContent = t.sending;
+  let r = null; try { r = await rpc('talks_avis_voye', { p_nom: nom, p_profil: $('profil').value || null, p_note: NOTE || null, p_message: message, p_public: $('pub').checked, p_sid: SID }); } catch {}
+  $('send').disabled = false; $('send').textContent = t.send;
+  if (!r || !r.ok) { $('msg').className = 'msg err'; $('msg').textContent = (r && t.err[r.error]) || t.err.x; return; }
+  try { (window.top.gtag || window.gtag)?.('event', 'avis_envoye', { note: NOTE || 0 }); } catch {}
+  const pub = $('pub').checked;
+  $('formCard').innerHTML = `<div class="thanks"><div class="e">💚</div><b>${esc(t.ok)}</b><p>${esc(pub ? t.okS : t.okPriv)}</p><button type="button" onclick="location.reload()">${esc(t.again)}</button></div>`;
+  load(); sendH();
+});
+</script>
+</body>
+</html>

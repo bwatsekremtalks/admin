@@ -13,123 +13,212 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet" />
 <!--
   Avis et appréciations des participants (avant, pendant et après l'événement). À intégrer sur bwatsekremtalks.com en iframe.
-  Paramètres : ?lang=fr|ht|en   &embed=1 (fond transparent, hauteur envoyée au site)
+  Paramètres : ?lang=fr|ht|en   &embed=1 (fond transparent, hauteur envoyée au site)   &titre=1 (en iframe : affiche aussi le titre « Dites-nous ce que vous en pensez. » dans la colonne de droite ;
+               à ajouter quand la page du site n'a plus son propre titre au-dessus du bloc)
+  Mise en page : deux colonnes à partir de 860 px (formulaire à gauche, informations et avis publiés à droite) ; une seule colonne en dessous
+  (titre, puis formulaire, puis avis).
   Données : talks_avis (écriture par talks_avis_voye, lecture par talks_avis_lis). Modération : onglet 💬 Avis de l'espace inscriptions.
 -->
 <style>
-  :root { --navy: #0D2D4A; --green: #5DB033; --green2: #7AC142; --ink: #0a1f38; --mute: #5b6b7f; --line: #dfe7f0; --gold: #f5b700; }
+  :root { --navy: #0D2D4A; --green: #5DB033; --green2: #7AC142; --gd: #3d7d1f; --ink: #0a1f38; --mute: #5b6b7f; --line: #dfe7f0; --gold: #f5b700; --soft: #eaf6e2; }
   * { box-sizing: border-box; }
-  html, body { margin: 0; font-family: "DM Sans", system-ui, sans-serif; color: var(--ink); background: #f4f7fb; }
+  html, body { margin: 0; font-family: "DM Sans", system-ui, sans-serif; color: var(--ink); background: #eef3f8; }
   body.embed { background: transparent; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 40px; }
-  body.embed .wrap { padding: 0; }
-  .hero { position: relative; overflow: hidden; border-radius: 28px; color: #fff; padding: 34px 32px;
-    background: radial-gradient(circle at 92% 8%, rgba(122,193,66,.32), transparent 42%), radial-gradient(circle at 0% 100%, rgba(30,140,240,.22), transparent 45%), linear-gradient(135deg, #0a1f38, #123d66); }
-  .k { display: inline-flex; align-items: center; gap: 8px; font: 700 12px "DM Sans", sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--green2); }
-  h1 { font: 800 clamp(28px, 5vw, 44px)/1.06 "Bricolage Grotesque", sans-serif; margin: 12px 0 10px; letter-spacing: -.01em; }
-  h1 em { font-style: normal; color: var(--green2); }
-  .hero p { margin: 0; color: rgba(255,255,255,.86); font-size: 16.5px; line-height: 1.55; max-width: 620px; }
-  .score { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-  .score div { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 10px 16px; }
-  .score b { display: block; font: 800 26px "Bricolage Grotesque", sans-serif; } .score span { font-size: 13px; color: rgba(255,255,255,.78); }
-  .card { background: #fff; border-radius: 24px; padding: 24px; margin-top: 16px; box-shadow: 0 10px 30px rgba(13,45,74,.08); }
-  .card h2 { font: 800 22px "Bricolage Grotesque", sans-serif; margin: 0 0 4px; color: var(--navy); }
-  .card .sub { color: var(--mute); font-size: 14.5px; margin: 0 0 16px; }
-  form { display: grid; gap: 12px; }
-  label.l { font-weight: 800; font-size: 14px; color: var(--navy); display: block; margin-bottom: 6px; }
-  input.t, textarea, select { width: 100%; border: 1.5px solid #d8e1ec; border-radius: 14px; padding: 12px 14px; font: 16px "DM Sans", sans-serif; color: var(--ink); background: #f8fafc; }
-  input.t:focus, textarea:focus, select:focus { outline: none; border-color: var(--green2); background: #fff; }
-  textarea { min-height: 120px; resize: vertical; line-height: 1.45; }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .stars { display: flex; gap: 6px; }
-  .stars button { border: 0; background: none; padding: 2px; cursor: pointer; font-size: 34px; line-height: 1; color: #d4dbe5; transition: transform .1s; }
-  .stars button.on { color: var(--gold); } .stars button:hover { transform: scale(1.12); }
-  .stars button:focus-visible { outline: 2px solid var(--green2); border-radius: 8px; }
-  .chk { display: flex; gap: 10px; align-items: flex-start; font-size: 14.5px; color: #33475f; cursor: pointer; }
-  .chk input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--green); flex: none; }
-  .send { justify-self: start; border: 0; border-radius: 999px; padding: 14px 26px; font: 800 16px "DM Sans", sans-serif; background: var(--green2); color: var(--ink); cursor: pointer; box-shadow: 0 8px 22px rgba(122,193,66,.4); }
-  .send:disabled { opacity: .6; cursor: default; }
-  .msg { font-size: 14.5px; font-weight: 700; min-height: 1.2em; } .msg.ok { color: #1f8a43; } .msg.err { color: #c0352b; }
-  .thanks { text-align: center; padding: 18px 6px; } .thanks .e { font-size: 46px; } .thanks b { display: block; font: 800 22px "Bricolage Grotesque", sans-serif; color: var(--navy); margin-top: 6px; }
-  .thanks p { color: var(--mute); margin: 6px 0 14px; } .thanks button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
-  .list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .av { border: 1px solid var(--line); border-radius: 20px; padding: 18px; background: linear-gradient(180deg, #fff, #f8fbff); position: relative; }
-  .av .q { position: absolute; right: 16px; top: 6px; font: 800 64px/1 "Bricolage Grotesque", serif; color: #e7f3dc; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 18px 44px; }
+  body.embed .wrap { padding: 6px 14px 20px; }
+  .grid { display: flex; flex-direction: column; gap: 22px; }
+  .left, .right { display: contents; }
+  .hero { order: 1; } .card { order: 2; } .listB { order: 3; } .wall { order: 4; }
+
+  /* ---- colonne d'informations ---- */
+  .k { display: inline-flex; align-items: center; gap: 12px; font: 800 12.5px "DM Sans", sans-serif; letter-spacing: .26em; text-transform: uppercase; color: var(--gd); }
+  .k i { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: #dcefd0; font-style: normal; font-size: 22px; letter-spacing: 0; }
+  h1 { font: 800 clamp(34px, 6.2vw, 56px)/1.02 "Bricolage Grotesque", sans-serif; margin: 16px 0 14px; letter-spacing: -.025em; color: var(--navy); text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--gd); }
+  .lead { margin: 0; color: #44566d; font-size: 17.5px; line-height: 1.6; max-width: 560px; }
+  body.sanstitre .hero .k, body.sanstitre .hero h1, body.sanstitre .hero .lead { display: none; } body.sanstitre .stats { margin-top: 0; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+  .stat { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 16px 16px 15px; box-shadow: 0 8px 22px rgba(13,45,74,.06); animation: up .5s both; }
+  .stat:nth-child(2) { animation-delay: .07s; } .stat:nth-child(3) { animation-delay: .14s; }
+  .stat .ic { font-size: 22px; line-height: 1; }
+  .stat b { display: block; font: 800 24px/1.1 "Bricolage Grotesque", sans-serif; color: var(--navy); margin-top: 8px; letter-spacing: -.01em; }
+  .stat b .s { color: var(--gold); font-size: .78em; margin-left: 4px; }
+  .stat small { display: block; margin-top: 4px; font-size: 13.5px; line-height: 1.35; color: var(--mute); }
+  .stat.hi { background: linear-gradient(150deg, #123d66, #0a1f38); border-color: transparent; }
+  .stat.hi b { color: #fff; } .stat.hi small { color: rgba(255,255,255,.78); }
+  @keyframes up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .who2 { display: flex; align-items: center; gap: 12px; margin-top: 16px; font-size: 14.5px; line-height: 1.4; color: #33475f; font-weight: 500; }
+  .who2[hidden] { display: none; }
+  .who2 .stk { display: flex; flex: none; } .who2 .stk i { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: #fff; font: 800 12px "Bricolage Grotesque", sans-serif; font-style: normal; border: 2.5px solid #eef3f8; margin-left: -10px; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .who2 .stk i:first-child { margin-left: 0; } .who2 b { color: var(--navy); }
+  .bt { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 12px; }
+  .bt h2 { font: 800 23px "Bricolage Grotesque", sans-serif; margin: 0; color: var(--navy); letter-spacing: -.01em; }
+  .bt span { font-size: 13.5px; font-weight: 700; color: var(--gd); background: #dcefd0; border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+  .list { display: grid; gap: 12px; }
+  .av { border: 1px solid var(--line); border-radius: 22px; padding: 18px 20px; background: #fff; position: relative; box-shadow: 0 8px 22px rgba(13,45,74,.06); overflow: hidden; }
+  .av::before { content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 4px; border-radius: 0 4px 4px 0; background: var(--green2); }
+  .av .q { position: absolute; right: 16px; top: 4px; font: 800 66px/1 "Bricolage Grotesque", serif; color: #e7f3dc; }
   .av .st { color: var(--gold); letter-spacing: 2px; font-size: 16px; }
-  .av p { margin: 8px 0 12px; font-size: 15.5px; line-height: 1.55; color: #22364d; white-space: pre-line; position: relative; }
+  .av p { margin: 8px 0 13px; font-size: 15.5px; line-height: 1.58; color: #22364d; white-space: pre-line; position: relative; overflow-wrap: anywhere; }
   .av .who { display: flex; align-items: center; gap: 10px; }
-  .av .ini { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.25); font: 800 14px "Bricolage Grotesque", sans-serif; flex: none; }
+  .av .ini { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,.25); font: 800 14px "Bricolage Grotesque", sans-serif; flex: none; }
   .av .who b { display: block; font-size: 15px; color: var(--navy); } .av .who span { font-size: 13px; color: var(--mute); }
-  .empty { text-align: center; color: var(--mute); padding: 18px; grid-column: 1 / -1; }
+  .empty { text-align: center; color: #33475f; padding: 22px 18px; background: #fff; border: 1.5px dashed #c5d6e6; border-radius: 22px; font-weight: 500; }
+  .empty b { display: block; font: 800 19px "Bricolage Grotesque", sans-serif; color: var(--navy); margin-bottom: 4px; }
   .more[hidden] { display: none; }
-  .more { display: block; margin: 16px auto 0; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 11px 20px; font-weight: 700; cursor: pointer; }
-  @media (max-width: 700px) { .hero { padding: 26px 20px; } .card { padding: 20px 16px; } .two, .list { grid-template-columns: 1fr; } }
+  .more { display: block; margin: 14px auto 0; border: 1.5px solid #c9d7e6; background: #fff; border-radius: 999px; padding: 11px 22px; font: 700 15px "DM Sans", sans-serif; color: var(--navy); cursor: pointer; }
+  .wall h3 { font: 800 12.5px "DM Sans", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); margin: 0 0 12px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .chips span { background: rgba(255,255,255,.86); border: 1px solid var(--line); border-radius: 18px 18px 18px 6px; padding: 9px 14px; font-size: 14.5px; line-height: 1.4; color: #2c4058; }
+
+  /* ---- colonne du formulaire ---- */
+  .card { background: #fff; border-radius: 28px; padding: 26px 26px 24px; box-shadow: 0 22px 50px rgba(13,45,74,.13), 0 2px 6px rgba(13,45,74,.05); position: relative; overflow: hidden; }
+  .card::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: linear-gradient(90deg, var(--gd), var(--green2) 60%, #b8e986); }
+  .fh { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .fh i { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 17px; background: var(--soft); font-style: normal; font-size: 26px; flex: none; }
+  .fh h2 { font: 800 25px/1.1 "Bricolage Grotesque", sans-serif; margin: 0; color: var(--navy); letter-spacing: -.01em; }
+  .fh p { margin: 4px 0 0; color: var(--mute); font-size: 14.5px; }
+  form { display: grid; gap: 16px; }
+  label.l { font-weight: 800; font-size: 14px; color: var(--navy); display: block; margin-bottom: 7px; }
+  label.l small { font-weight: 500; color: var(--mute); margin-left: 4px; }
+  input.t, textarea, select { width: 100%; border: 1.5px solid #d8e1ec; border-radius: 14px; padding: 13px 14px; font: 16px "DM Sans", sans-serif; color: var(--ink); background: #f8fafc; transition: border-color .15s, box-shadow .15s, background .15s; }
+  input.t:focus, textarea:focus, select:focus { outline: none; border-color: var(--green2); background: #fff; box-shadow: 0 0 0 4px rgba(122,193,66,.18); }
+  textarea { min-height: 132px; resize: vertical; line-height: 1.5; display: block; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rate { background: linear-gradient(180deg, #f6fbf1, #f8fafc); border: 1px solid #e3efd9; border-radius: 20px; padding: 14px 16px 13px; text-align: center; }
+  .rate label.l { margin-bottom: 4px; }
+  .stars { display: flex; justify-content: center; gap: 4px; }
+  .stars button { border: 0; background: none; padding: 2px 3px; cursor: pointer; font-size: 44px; line-height: 1; color: #d4dbe5; transition: transform .12s, color .12s; -webkit-tap-highlight-color: transparent; }
+  .stars button.on { color: var(--gold); } .stars button:hover { transform: scale(1.14); }
+  .stars button:focus-visible { outline: 2px solid var(--green2); border-radius: 10px; }
+  .rl { min-height: 22px; margin-top: 2px; font-size: 14.5px; font-weight: 700; color: var(--mute); }
+  .rl.on { color: var(--gd); }
+  .ideas { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 9px; }
+  .ideas button { border: 1.5px solid #d5e6c7; background: #f6fbf1; color: #2f5d18; border-radius: 999px; padding: 7px 12px; font: 700 13.5px "DM Sans", sans-serif; cursor: pointer; transition: background .12s, transform .12s; }
+  .ideas button:hover { background: #e6f4d9; transform: translateY(-1px); }
+  .cnt { text-align: right; font-size: 12.5px; color: #8696a8; margin-top: 5px; }
+  .chk { display: flex; gap: 11px; align-items: flex-start; font-size: 14.5px; line-height: 1.4; color: #33475f; cursor: pointer; }
+  .chk input { width: 21px; height: 21px; margin: 1px 0 0; accent-color: var(--green); flex: none; }
+  .chk small { display: block; color: var(--mute); font-size: 13px; margin-top: 2px; }
+  .send { position: relative; overflow: hidden; width: 100%; border: 0; border-radius: 999px; padding: 16px 26px; font: 800 17px "DM Sans", sans-serif; background: linear-gradient(135deg, var(--gd), #55a52b); color: #fff; cursor: pointer; box-shadow: 0 12px 26px rgba(61,125,31,.34); transition: transform .12s, box-shadow .12s; }
+  .send::after { content: ""; position: absolute; top: 0; left: -60%; width: 40%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); transform: skewX(-20deg); animation: shine 4.5s 1.2s infinite; }
+  @keyframes shine { 0% { left: -60%; } 30%, 100% { left: 130%; } }
+  .send:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(61,125,31,.4); }
+  .send:disabled { opacity: .65; cursor: default; transform: none; }
+  .msg { font-size: 14.5px; font-weight: 700; min-height: 0; } .msg:empty { display: none; } .msg.ok { color: #1f8a43; } .msg.err { color: #c0352b; background: #fdf0ee; border-radius: 12px; padding: 10px 12px; }
+  .safe { margin: 0; text-align: center; font-size: 13px; color: var(--mute); }
+  .thanks { text-align: center; padding: 22px 4px 8px; }
+  .thanks .e { width: 86px; height: 86px; margin: 0 auto; border-radius: 50%; background: var(--soft); display: grid; place-items: center; font-size: 44px; animation: pop .5s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .thanks b { display: block; font: 800 26px "Bricolage Grotesque", sans-serif; color: var(--navy); margin-top: 14px; }
+  .thanks p { color: #44566d; margin: 8px auto 18px; max-width: 360px; line-height: 1.5; }
+  .thanks .acts { display: grid; gap: 10px; max-width: 340px; margin: 0 auto; }
+  .thanks a.wa { display: block; text-decoration: none; background: #25D366; color: #06371c; border-radius: 999px; padding: 14px 18px; font-weight: 800; }
+  .thanks button { border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 12px 18px; font: 700 15px "DM Sans", sans-serif; color: var(--navy); cursor: pointer; }
+
+  @media (max-width: 520px) { .card { padding: 22px 18px 20px; border-radius: 24px; } .two { grid-template-columns: 1fr; } .stats { gap: 8px; margin-top: 18px; } .stat { padding: 12px 11px 11px; border-radius: 16px; } .stat .ic { display: none; } .stat b { font-size: 20px; margin-top: 0; } .stat small { font-size: 12px; }
+    .stars button { font-size: 42px; } .lead { font-size: 16px; line-height: 1.55; } h1 { margin: 12px 0 10px; } .k i { width: 40px; height: 40px; font-size: 19px; } }
+  @media (min-width: 860px) {
+    .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr); column-gap: clamp(28px, 4.4vw, 60px); align-items: start; }
+    .left, .right { display: flex; flex-direction: column; gap: 26px; min-width: 0; grid-row: 1; }
+    .left { grid-column: 1; } .right { grid-column: 2; padding-top: 6px; }
+    body.embed .wrap { padding: 10px 16px 26px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap" id="s">
-  <section class="hero">
-    <span class="k" id="kick"></span>
-    <h1 id="title"></h1>
-    <p id="lead"></p>
-    <div class="score" id="score"></div>
-  </section>
-
-  <section class="card" id="formCard">
-    <h2 id="fT"></h2><p class="sub" id="fS"></p>
-    <form id="f" novalidate>
-      <div class="two">
-        <div><label class="l" for="nom" id="lNom"></label><input class="t" id="nom" maxlength="80" autocomplete="name" /></div>
-        <div><label class="l" for="profil" id="lProfil"></label><select id="profil"></select></div>
-      </div>
-      <div><label class="l" id="lNote"></label><div class="stars" id="stars"></div></div>
-      <div><label class="l" for="message" id="lMsg"></label><textarea id="message" maxlength="1200"></textarea></div>
-      <label class="chk"><input type="checkbox" id="pub" checked /> <span id="lPub"></span></label>
-      <button class="send" type="submit" id="send"></button>
-      <div class="msg" id="msg" role="status"></div>
-    </form>
-  </section>
-
-  <section class="card">
-    <h2 id="lT"></h2><p class="sub" id="lS"></p>
-    <div class="list" id="list"></div>
-    <button class="more" type="button" id="more" hidden></button>
-  </section>
+  <div class="grid">
+    <div class="left">
+      <section class="card" id="formCard">
+        <div class="fh"><i>✍️</i><div><h2 id="fT"></h2><p id="fS"></p></div></div>
+        <form id="f" novalidate>
+          <div class="rate"><label class="l" id="lNote"></label><div class="stars" id="stars"></div><div class="rl" id="rl"></div></div>
+          <div class="two">
+            <div><label class="l" for="nom" id="lNom"></label><input class="t" id="nom" maxlength="80" autocomplete="name" /></div>
+            <div><label class="l" for="profil" id="lProfil"></label><select id="profil"></select></div>
+          </div>
+          <div><label class="l" for="message" id="lMsg"></label><div class="ideas" id="ideas"></div><textarea id="message" maxlength="1200"></textarea><div class="cnt"><span id="cnt">0</span> / 1200</div></div>
+          <label class="chk"><input type="checkbox" id="pub" checked /> <span><span id="lPub"></span><small id="lPub2"></small></span></label>
+          <div class="msg" id="msg" role="status"></div>
+          <button class="send" type="submit" id="send"></button>
+          <p class="safe" id="safe"></p>
+        </form>
+      </section>
+      <section class="wall"><h3 id="wT"></h3><div class="chips" id="chips"></div></section>
+    </div>
+    <div class="right">
+      <section class="hero">
+        <span class="k"><i>💬</i><span id="kick"></span></span>
+        <h1 id="title"></h1>
+        <p class="lead" id="lead"></p>
+        <div class="stats" id="stats"></div>
+        <div class="who2" id="who2" hidden></div>
+      </section>
+      <section class="listB">
+        <div class="bt"><h2 id="lT"></h2><span id="lN" hidden></span></div>
+        <div class="list" id="list"></div>
+        <button class="more" type="button" id="more" hidden></button>
+      </section>
+    </div>
+  </div>
 </div>
 <script>
 const SB = 'https://nltlgytehikguydcdhyy.supabase.co', KEY = 'sb_publishable_ncDXEDbAodI2yxhwlTrnwg_M4SvBqly';
 const rpc = (fn, body = {}) => fetch(`${SB}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then((r) => r.json());
 const T = {
-  fr: { kick: '💬 Vos avis', title: 'Votre avis <em>compte</em> pour nous', lead: 'Pas besoin d’attendre le jour J : partagez dès maintenant votre appréciation, vos encouragements ou vos suggestions avec l’équipe de Bwat Sekrèm Talks.',
-    avis: ['avis', 'avis'], moy: 'note moyenne', fT: 'Partager mon avis', fS: 'Quelques mots suffisent. Votre message est lu par toute l’équipe.',
-    nom: 'Votre nom', profil: 'Vous êtes', note: 'Votre note', msg: 'Votre message', msgPh: 'Ce que vous avez apprécié, ce que vous attendez de l’événement, une suggestion…',
-    pub: 'J’accepte que mon avis (prénom et nom) soit affiché sur le site de Bwat Sekrèm Talks.', send: 'Envoyer mon avis', sending: 'Envoi…',
+  fr: { kick: 'Vos avis', title: 'Dites-nous ce que vous en <em>pensez.</em>', lead: 'Vos retours nourrissent les conversations à venir. Appréciation, encouragement ou suggestion : partagez votre avis sur Bwat Sekrèm Talks en toute liberté.',
+    avis: ['avis reçu', 'avis reçus'], first: 'À vous !', firstS: 'Soyez la première personne à donner votre avis', s2: '2 min', s2s: 'suffisent pour donner le vôtre', s3: '100 %', s3s: 'des messages lus par l’équipe',
+    who: (a, b, n) => (!b ? `${a} a déjà donné son avis.` : !n ? `${a} et ${b} ont déjà donné leur avis.` : `${a}, ${b} et ${n} autre${n > 1 ? 's' : ''} personne${n > 1 ? 's' : ''} ont déjà donné leur avis.`) + ' À vous !',
+    fT: 'Partagez votre avis', fS: 'En 2 minutes · sans inscription',
+    nom: 'Votre nom', profil: 'Vous êtes', note: 'Votre note', opt: '(facultatif)', msg: 'Votre message', msgPh: 'Ce que vous avez apprécié, ce que vous attendez de l’événement, une suggestion…',
+    rate0: 'Touchez une étoile', rates: ['', 'Peut mieux faire 😕', 'Moyen 😐', 'Bien 🙂', 'Très bien 😃', 'Excellent ! 🤩'],
+    ideas: [['👍', 'Ce que j’ai aimé', 'Ce que j’ai aimé : '], ['🎤', 'Les intervenants', 'À propos des intervenants : '], ['🗂️', 'L’organisation', 'Côté organisation : '], ['💡', 'Une suggestion', 'Ma suggestion : '], ['🙏', 'Un encouragement', 'Un mot pour l’équipe : ']],
+    pub: 'J’accepte que mon avis (prénom et nom) soit affiché sur le site de Bwat Sekrèm Talks.', pub2: 'Décochez la case pour qu’il reste réservé à l’équipe.', send: 'Envoyer mon avis  →', sending: 'Envoi…', safe: '🔒 Aucun compte, aucun e-mail demandé.',
     P: ['Étudiant(e)', 'Professionnel(le)', 'Entrepreneur(e)', 'Partenaire', 'Bénévole', 'Autre'], choose: '— Choisir —',
-    lT: 'Ce qu’ils en disent', lS: 'Les avis partagés par les participants et notre communauté.', empty: 'Soyez la première personne à partager votre avis !', more: 'Voir plus d’avis',
-    ok: 'Merci pour votre avis !', okS: 'Il a bien été envoyé à l’équipe.', okPriv: 'Il a bien été envoyé à l’équipe (il ne sera pas affiché sur le site).', again: 'Écrire un autre avis',
+    lT: 'Ce qu’ils en disent', pubN: ['avis publié', 'avis publiés'], emptyT: 'Votre avis peut être le premier ici.', empty: 'Quelques mots suffisent pour ouvrir la conversation.', more: 'Voir plus d’avis',
+    wT: 'Ils nous écrivent aussi',
+    ok: 'Merci pour votre avis !', okS: 'Il a bien été envoyé à l’équipe et apparaît maintenant sur cette page.', okPriv: 'Il a bien été envoyé à l’équipe. Il ne sera pas affiché sur le site.', again: 'Écrire un autre avis',
+    share: 'Inviter un proche à donner le sien', shareTxt: 'Je viens de donner mon avis sur Bwat Sekrèm Talks. Donnez le vôtre ici : https://bwatsekremtalks.com/avis',
     err: { nom: 'Indiquez votre nom (2 caractères minimum).', message: 'Écrivez votre message (5 caractères minimum).', lien: 'Les liens ne sont pas autorisés.', vit: 'Patientez quelques secondes avant d’envoyer à nouveau.', double: 'Cet avis a déjà été envoyé.', note: 'Note invalide.', x: 'L’envoi n’a pas abouti. Réessayez.' },
     ago: (m) => (m < 1 ? 'à l’instant' : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `il y a ${Math.floor(m / 1440)} j`) },
-  ht: { kick: '💬 Avi nou', title: 'Avi w <em>enpòtan</em> pou nou', lead: 'Pa bezwen tann jou J a : pataje apresyasyon w, ankourajman w oswa sijesyon w ak ekip Bwat Sekrèm Talks la depi kounye a.',
-    avis: ['avi', 'avi'], moy: 'nòt mwayèn', fT: 'Pataje avi m', fS: 'Kèk mo ase. Tout ekip la ap li mesaj ou.',
-    nom: 'Non w', profil: 'Ou se', note: 'Nòt ou', msg: 'Mesaj ou', msgPh: 'Sa w renmen, sa w ap tann nan evènman an, yon sijesyon…',
-    pub: 'Mwen dakò pou yo afiche avi m (non ak siyati) sou sit Bwat Sekrèm Talks la.', send: 'Voye avi m', sending: 'N ap voye…',
+  ht: { kick: 'Avi nou', title: 'Di nou sa w <em>panse.</em>', lead: 'Sa w di nou ede n prepare pwochen konvèsasyon yo. Apresyasyon, ankourajman oswa sijesyon : pataje avi w sou Bwat Sekrèm Talks jan w vle.',
+    avis: ['avi nou resevwa', 'avi nou resevwa'], first: 'Se tou pa w !', firstS: 'Se ou ki ka premye moun ki bay avi l', s2: '2 minit', s2s: 'ase pou bay pa w la', s3: '100 %', s3s: 'mesaj yo, ekip la li yo',
+    who: (a, b, n) => (!b ? `${a} deja bay avi l.` : !n ? `${a} ak ${b} deja bay avi yo.` : `${a}, ${b} ak ${n} lòt moun deja bay avi yo.`) + ' Se tou pa w !',
+    fT: 'Pataje avi w', fS: 'Nan 2 minit · san enskripsyon',
+    nom: 'Non w', profil: 'Ou se', note: 'Nòt ou', opt: '(pa obligatwa)', msg: 'Mesaj ou', msgPh: 'Sa w renmen, sa w ap tann nan evènman an, yon sijesyon…',
+    rate0: 'Peze yon zetwal', rates: ['', 'Ka pi bon 😕', 'Mwayen 😐', 'Bon 🙂', 'Trè bon 😃', 'Ekselan ! 🤩'],
+    ideas: [['👍', 'Sa m renmen', 'Sa m renmen : '], ['🎤', 'Entèvenan yo', 'Sou entèvenan yo : '], ['🗂️', 'Òganizasyon an', 'Sou òganizasyon an : '], ['💡', 'Yon sijesyon', 'Sijesyon m : '], ['🙏', 'Yon ankourajman', 'Yon mo pou ekip la : ']],
+    pub: 'Mwen dakò pou yo afiche avi m (non ak siyati) sou sit Bwat Sekrèm Talks la.', pub2: 'Dekoche kaz la si w vle se ekip la sèlman ki wè l.', send: 'Voye avi m  →', sending: 'N ap voye…', safe: '🔒 Pa gen kont, pa gen imèl pou w bay.',
     P: ['Etidyan', 'Pwofesyonèl', 'Antreprenè', 'Patnè', 'Volontè', 'Lòt'], choose: '— Chwazi —',
-    lT: 'Sa yo di', lS: 'Avi patisipan yo ak kominote nou an pataje.', empty: 'Se ou ki ka premye moun ki pataje avi l !', more: 'Wè plis avi',
-    ok: 'Mèsi pou avi w !', okS: 'Ekip la resevwa l.', okPriv: 'Ekip la resevwa l (li p ap parèt sou sit la).', again: 'Ekri yon lòt avi',
+    lT: 'Sa yo di', pubN: ['avi pibliye', 'avi pibliye'], emptyT: 'Avi pa w la ka premye a isit la.', empty: 'Kèk mo ase pou konvèsasyon an kòmanse.', more: 'Wè plis avi',
+    wT: 'Yo ekri nou tou',
+    ok: 'Mèsi pou avi w !', okS: 'Ekip la resevwa l, epi li parèt kounye a sou paj sa a.', okPriv: 'Ekip la resevwa l. Li p ap parèt sou sit la.', again: 'Ekri yon lòt avi',
+    share: 'Envite yon moun bay pa l la', shareTxt: 'Mwen fèk bay avi m sou Bwat Sekrèm Talks. Bay pa w la isit la : https://bwatsekremtalks.com/avis',
     err: { nom: 'Ekri non w (omwen 2 karaktè).', message: 'Ekri mesaj ou (omwen 5 karaktè).', lien: 'Lyen pa otorize.', vit: 'Tann kèk segonn anvan w voye ankò.', double: 'Avi sa a deja voye.', note: 'Nòt la pa bon.', x: 'Li pa t ka ale. Eseye ankò.' },
     ago: (m) => (m < 1 ? 'kounye a' : m < 60 ? `sa gen ${m} min` : m < 1440 ? `sa gen ${Math.floor(m / 60)} è` : `sa gen ${Math.floor(m / 1440)} jou`) },
-  en: { kick: '💬 Your feedback', title: 'Your opinion <em>matters</em> to us', lead: 'No need to wait for the big day: share your appreciation, encouragement or suggestions with the Bwat Sekrèm Talks team right now.',
-    avis: ['review', 'reviews'], moy: 'average rating', fT: 'Share my feedback', fS: 'A few words are enough. The whole team reads your message.',
-    nom: 'Your name', profil: 'You are', note: 'Your rating', msg: 'Your message', msgPh: 'What you liked, what you expect from the event, a suggestion…',
-    pub: 'I agree that my feedback (first and last name) may be shown on the Bwat Sekrèm Talks website.', send: 'Send my feedback', sending: 'Sending…',
+  en: { kick: 'Your feedback', title: 'Tell us what you <em>think.</em>', lead: 'Your feedback shapes the conversations to come. Appreciation, encouragement or suggestion: share your opinion on Bwat Sekrèm Talks freely.',
+    avis: ['review received', 'reviews received'], first: 'Your turn!', firstS: 'Be the first to share your feedback', s2: '2 min', s2s: 'are enough to share yours', s3: '100%', s3s: 'of messages read by the team',
+    who: (a, b, n) => (!b ? `${a} has already shared feedback.` : !n ? `${a} and ${b} have already shared theirs.` : `${a}, ${b} and ${n} other${n > 1 ? 's' : ''} have already shared theirs.`) + ' Your turn!',
+    fT: 'Share your feedback', fS: 'In 2 minutes · no sign-up',
+    nom: 'Your name', profil: 'You are', note: 'Your rating', opt: '(optional)', msg: 'Your message', msgPh: 'What you liked, what you expect from the event, a suggestion…',
+    rate0: 'Tap a star', rates: ['', 'Could be better 😕', 'Average 😐', 'Good 🙂', 'Very good 😃', 'Excellent! 🤩'],
+    ideas: [['👍', 'What I liked', 'What I liked: '], ['🎤', 'The speakers', 'About the speakers: '], ['🗂️', 'The organisation', 'About the organisation: '], ['💡', 'A suggestion', 'My suggestion: '], ['🙏', 'An encouragement', 'A word for the team: ']],
+    pub: 'I agree that my feedback (first and last name) may be shown on the Bwat Sekrèm Talks website.', pub2: 'Untick the box to keep it for the team only.', send: 'Send my feedback  →', sending: 'Sending…', safe: '🔒 No account, no e-mail required.',
     P: ['Student', 'Professional', 'Entrepreneur', 'Partner', 'Volunteer', 'Other'], choose: '— Choose —',
-    lT: 'What they say', lS: 'Feedback shared by participants and our community.', empty: 'Be the first to share your feedback!', more: 'See more feedback',
-    ok: 'Thank you for your feedback!', okS: 'It was sent to the team.', okPriv: 'It was sent to the team (it will not be shown on the website).', again: 'Write another one',
+    lT: 'What they say', pubN: ['published review', 'published reviews'], emptyT: 'Yours can be the first one here.', empty: 'A few words are enough to start the conversation.', more: 'See more feedback',
+    wT: 'They also write to us',
+    ok: 'Thank you for your feedback!', okS: 'It was sent to the team and now appears on this page.', okPriv: 'It was sent to the team. It will not be shown on the website.', again: 'Write another one',
+    share: 'Invite someone to share theirs', shareTxt: 'I just shared my feedback on Bwat Sekrèm Talks. Share yours here: https://bwatsekremtalks.com/avis',
     err: { nom: 'Enter your name (at least 2 characters).', message: 'Write your message (at least 5 characters).', lien: 'Links are not allowed.', vit: 'Please wait a few seconds before sending again.', double: 'This feedback was already sent.', note: 'Invalid rating.', x: 'Sending failed. Please try again.' },
     ago: (m) => (m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.floor(m / 60)} h ago` : `${Math.floor(m / 1440)} d ago`) },
 };
-const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L], EMBED = q.get('embed') === '1';
-document.documentElement.lang = L; if (EMBED) document.body.classList.add('embed');
+/* Quelques messages reçus par l'équipe (WhatsApp, réseaux), anonymes, dans leur langue d'origine. */
+const WALL = ['Sa fè lontan nou t ap tann jan de aktivite sa yo.', 'Entèvenan yo enspiran anpil.', 'Je tiens à saluer votre professionnalisme et l’organisation.', 'Mwen renmen nivo òganizasyon ak swivi ki genyen sou evènman sa a.', 'Nou anvi nou òganize youn Pòtoprens tou.', 'Mwen renmen jan n ap vann imaj nou yo, nou pwòp anpil.'];
+const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L], EMBED = q.get('embed') === '1', TITRE = !EMBED || q.get('titre') === '1';
+document.documentElement.lang = L; if (EMBED) document.body.classList.add('embed'); if (!TITRE) document.body.classList.add('sanstitre');
 const $ = (id) => document.getElementById(id), esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ls = { get: (k) => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
 let SID = ls.get('bst_avis_sid'); if (!SID) { SID = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); ls.set('bst_avis_sid', SID); }
@@ -141,42 +230,55 @@ addEventListener('load', sendH); addEventListener('resize', sendH); document.fon
 
 /* Textes */
 $('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead;
-$('fT').textContent = t.fT; $('fS').textContent = t.fS; $('lNom').textContent = t.nom; $('lProfil').textContent = t.profil; $('lNote').textContent = t.note; $('lMsg').textContent = t.msg;
-$('message').placeholder = t.msgPh; $('lPub').textContent = t.pub; $('send').textContent = t.send; $('lT').textContent = t.lT; $('lS').textContent = t.lS; $('more').textContent = t.more;
+$('fT').textContent = t.fT; $('fS').textContent = t.fS; $('lNom').textContent = t.nom; $('lProfil').textContent = t.profil; $('lNote').innerHTML = `${esc(t.note)} <small>${esc(t.opt)}</small>`; $('lMsg').textContent = t.msg;
+$('message').placeholder = t.msgPh; $('lPub').textContent = t.pub; $('lPub2').textContent = t.pub2; $('send').textContent = t.send; $('safe').textContent = t.safe; $('lT').textContent = t.lT; $('more').textContent = t.more;
+$('wT').textContent = t.wT; $('chips').innerHTML = WALL.map((w) => `<span>« ${esc(w)} »</span>`).join('');
 $('profil').innerHTML = `<option value="">${esc(t.choose)}</option>` + t.P.map((p) => `<option>${esc(p)}</option>`).join('');
 let NOTE = 0;
-const drawStars = () => { $('stars').innerHTML = [1, 2, 3, 4, 5].map((n) => `<button type="button" data-n="${n}" class="${n <= NOTE ? 'on' : ''}" aria-label="${n} / 5" aria-pressed="${n <= NOTE}">★</button>`).join(''); };
+const drawStars = () => { $('stars').innerHTML = [1, 2, 3, 4, 5].map((n) => `<button type="button" data-n="${n}" class="${n <= NOTE ? 'on' : ''}" aria-label="${n} / 5" aria-pressed="${n <= NOTE}">★</button>`).join('');
+  $('rl').textContent = NOTE ? t.rates[NOTE] : t.rate0; $('rl').className = 'rl' + (NOTE ? ' on' : ''); };
 drawStars(); $('stars').addEventListener('click', (e) => { const b = e.target.closest('[data-n]'); if (!b) return; NOTE = +b.dataset.n === NOTE ? 0 : +b.dataset.n; drawStars(); });
+/* Idées pour commencer : un clic place un début de phrase dans le message */
+$('ideas').innerHTML = t.ideas.map(([e, l], i) => `<button type="button" data-i="${i}">${e} ${esc(l)}</button>`).join('');
+const count = () => { $('cnt').textContent = $('message').value.length; };
+$('ideas').addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (!b) return; const m = $('message'), s = t.ideas[+b.dataset.i][2], v = m.value.replace(/\s+$/, '');
+  m.value = (v ? v + '\n' : '') + s; count(); m.focus(); m.setSelectionRange(m.value.length, m.value.length); });
+$('message').addEventListener('input', count);
 
-/* Liste */
-let ALL = [], SHOWN = 8;
+/* Chiffres et liste */
+let ALL = [], SHOWN = 3;
 function render(d) {
   if (d) ALL = d.avis || [];
-  const n = d ? d.total : ALL.length;
-  if (d) $('score').innerHTML = `<div><b>${n}</b><span>${n > 1 ? t.avis[1] : t.avis[0]}</span></div>` + (d.moyenne ? `<div><b>${String(d.moyenne).replace('.', L === 'en' ? '.' : ',')} ★</b><span>${t.moy}</span></div>` : '');
+  if (d) { const n = d.total || 0, moy = d.moyenne ? String(d.moyenne).replace('.', L === 'en' ? '.' : ',') : null;
+    $('stats').innerHTML = (n ? `<div class="stat hi"><div class="ic">⭐</div><b>${moy ? `${esc(moy)}<span class="s">★</span>` : n}</b><small>${moy ? `${n} ` : ''}${n > 1 ? t.avis[1] : t.avis[0]}</small></div>` : `<div class="stat hi"><div class="ic">✨</div><b>${esc(t.first)}</b><small>${esc(t.firstS)}</small></div>`)
+      + `<div class="stat"><div class="ic">⏱️</div><b>${esc(t.s2)}</b><small>${esc(t.s2s)}</small></div><div class="stat wide"><div class="ic">👀</div><b>${esc(t.s3)}</b><small>${esc(t.s3s)}</small></div>`; }
   const now = Date.now();
+  if (d) { const pre = (n) => String(n || '').trim().split(/\s+/)[0], a = ALL[0], b = ALL[1], w = $('who2'); w.hidden = !a;
+    if (a) w.innerHTML = `<span class="stk">${ALL.slice(0, 4).map((x) => `<i style="background:${avc(x.nom)}">${esc(ini(x.nom))}</i>`).join('')}</span><span>${esc(t.who(pre(a.nom), b ? pre(b.nom) : '', b ? Math.max(0, (d.total || 0) - 2) : 0))}</span>`; }
+  $('lN').hidden = !ALL.length; $('lN').textContent = `${ALL.length} ${ALL.length > 1 ? t.pubN[1] : t.pubN[0]}`;
   $('list').innerHTML = ALL.slice(0, SHOWN).map((a) => `<article class="av"><span class="q">”</span>${a.note ? `<div class="st">${'★'.repeat(a.note)}<span style="color:#d4dbe5">${'★'.repeat(5 - a.note)}</span></div>` : ''}
     <p>${esc(a.message)}</p><div class="who"><span class="ini" style="background:${avc(a.nom)}">${esc(ini(a.nom))}</span><div><b>${esc(a.nom)}</b><span>${[a.profil, t.ago(Math.floor((now - new Date(a.cree_le)) / 60000))].filter(Boolean).map(esc).join(' · ')}</span></div></div></article>`).join('')
-    || `<div class="empty">${esc(t.empty)}</div>`;
+    || `<div class="empty"><b>${esc(t.emptyT)}</b>${esc(t.empty)}</div>`;
   $('more').hidden = ALL.length <= SHOWN; sendH();
 }
-const load = () => rpc('talks_avis_lis', { p_limit: 200 }).then(render).catch(() => {});
-$('more').addEventListener('click', () => { SHOWN += 8; render(); });
+render({ avis: [], total: 0, moyenne: null });
+const load = () => rpc('talks_avis_lis', { p_limit: 200 }).then((d) => { if (d && Array.isArray(d.avis)) render(d); }).catch(() => {});
+$('more').addEventListener('click', () => { SHOWN += 6; render(); });
 load();
 
 /* Envoi */
 $('f').addEventListener('submit', async (e) => {
   e.preventDefault(); $('msg').className = 'msg'; $('msg').textContent = '';
   const nom = $('nom').value.trim(), message = $('message').value.trim();
-  if (nom.length < 2) { $('msg').className = 'msg err'; $('msg').textContent = t.err.nom; $('nom').focus(); return; }
-  if (message.length < 5) { $('msg').className = 'msg err'; $('msg').textContent = t.err.message; $('message').focus(); return; }
+  if (nom.length < 2) { $('msg').className = 'msg err'; $('msg').textContent = t.err.nom; $('nom').focus(); sendH(); return; }
+  if (message.length < 5) { $('msg').className = 'msg err'; $('msg').textContent = t.err.message; $('message').focus(); sendH(); return; }
   $('send').disabled = true; $('send').textContent = t.sending;
   let r = null; try { r = await rpc('talks_avis_voye', { p_nom: nom, p_profil: $('profil').value || null, p_note: NOTE || null, p_message: message, p_public: $('pub').checked, p_sid: SID }); } catch {}
   $('send').disabled = false; $('send').textContent = t.send;
-  if (!r || !r.ok) { $('msg').className = 'msg err'; $('msg').textContent = (r && t.err[r.error]) || t.err.x; return; }
+  if (!r || !r.ok) { $('msg').className = 'msg err'; $('msg').textContent = (r && t.err[r.error]) || t.err.x; sendH(); return; }
   try { (window.top.gtag || window.gtag)?.('event', 'avis_envoye', { note: NOTE || 0 }); } catch {}
   const pub = $('pub').checked;
-  $('formCard').innerHTML = `<div class="thanks"><div class="e">💚</div><b>${esc(t.ok)}</b><p>${esc(pub ? t.okS : t.okPriv)}</p><button type="button" onclick="location.reload()">${esc(t.again)}</button></div>`;
+  $('formCard').innerHTML = `<div class="thanks"><div class="e">💚</div><b>${esc(t.ok)}</b><p>${esc(pub ? t.okS : t.okPriv)}</p><div class="acts"><a class="wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(t.shareTxt)}">${esc(t.share)}</a><button type="button" onclick="location.reload()">${esc(t.again)}</button></div></div>`;
   load(); sendH();
 });
 </script>

@@ -1,4 +1,4 @@
-/* Bwat Sekrem Talks - popup "X personnes ont deja reserve" pour bwatsekremtalks.com
+/* Bwat Sekrem Talks - popup "Obtenez votre certificat de participation" pour bwatsekremtalks.com (avant : compteur de reservations ; reservations closes le 21 nov.)
  *
  * A ajouter une seule fois sur le site :
  *   <script src="https://bwatsekremtalks.github.io/admin/compteur/toast.js" defer></script>
@@ -89,21 +89,17 @@
       addEventListener('popstate', function () { setTimeout(hit, 50); });
     } catch (e) {}
   })();
-  if (/[?&](reserve|reservation)=(ok|1)/i.test(location.search)) ls.set(DONE, '1');
-  var FORCE = /[?&]popup=1/.test(location.search);   // pour vérifier le popup même après avoir réservé : ?popup=1
-  if (FORCE) { try { sessionStorage.removeItem(MINI); } catch (e) {} }
-  if (ls.get(DONE) && !FORCE) return;
-
-  var T = {
-    fr: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> places r\u00e9serv\u00e9es' : n + ' personnes ont d\u00e9j\u00e0 r\u00e9serv\u00e9 leur place'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' disponible' + (r > 1 ? 's' : '') + '</span>' : '\u26d4 Complet') : '\u26a0\ufe0f Places limit\u00e9es') + ''; }, u: function (d) { return '\u25b2 +' + d + ' inscrit' + (d > 1 ? 's' : '') + ' aujourd\u2019hui'; }, b: 'R\u00e9server ma place', x: 'R\u00e9duire', wt: function (a) { return '<b>' + a + '</b> personne' + (a > 1 ? 's' : '') + ' sur la liste d\u2019attente'; }, ws: 'Tout n\u2019est pas encore jou\u00e9 : notre \u00e9quipe travaille pour accueillir plus de monde !', wgo: function (r) { return '\u26a1 Plus que <b>' + r + '</b> place' + (r > 1 ? 's' : '') + ' sur la liste d\u2019attente : inscrivez-vous maintenant, \u00e7a prend 1 minute !'; }, wb: 'Rejoindre la liste d\u2019attente', wm: function (a) { return 'Liste d\u2019attente \u00b7 ' + a + ' inscrit' + (a > 1 ? 's' : '') + ' \u00b7 Rejoindre'; }, wm2: function (r) { return 'Plus que ' + r + ' place' + (r > 1 ? 's' : '') + ' en attente \u00b7 Vite, je m\u2019inscris \u2192'; }, m: function (n, r) { return r != null ? 'Plus que ' + r + ' places \u00b7 R\u00e9server' : n + ' inscrits \u00b7 R\u00e9server'; } },
-    ht: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> plas rez\u00e8ve' : n + ' moun deja rez\u00e8ve plas yo'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Rete <b>' + r + '</b> plas s\u00e8lman</span>' : '\u26d4 Plen') : '\u26a0\ufe0f Plas yo limite') + ''; }, u: function (d) { return '\u25b2 +' + d + ' moun enskri jodi a'; }, b: 'Rez\u00e8ve plas mwen', x: 'F\u00e8 l piti', wt: function (a) { return '<b>' + a + '</b> moun sou lis datant lan'; }, ws: 'Tout bagay poko fini : ekip la ap travay pou n ka akeyi plis moun !', wgo: function (r) { return '\u26a1 Rete <b>' + r + '</b> plas s\u00e8lman sou lis datant lan : enskri kounya, sa pran 1 minit !'; }, wb: 'Enskri sou lis datant lan', wm: function (a) { return 'Lis datant \u00b7 ' + a + ' moun \u00b7 Enskri'; }, wm2: function (r) { return 'Rete ' + r + ' plas sou lis datant \u00b7 Enskri vit \u2192'; }, m: function (n, r) { return r != null ? 'Rete ' + r + ' plas \u00b7 Rez\u00e8ve' : n + ' enskri \u00b7 Rez\u00e8ve'; } },
-    en: { t: function (n, c) { return c ? n + '<em>/' + c + '</em> seats booked' : n + ' people have already booked their seat'; }, s: function (d, r) { return (r != null ? (r > 0 ? '<span class="nw">Only <b>' + r + '</b> seat' + (r > 1 ? 's' : '') + ' left</span>' : '\u26d4 Full') : '\u26a0\ufe0f Limited seats') + ''; }, u: function (d) { return '\u25b2 +' + d + ' joined today'; }, b: 'Book my seat', x: 'Minimize', wt: function (a) { return '<b>' + a + '</b> ' + (a > 1 ? 'people' : 'person') + ' on the waiting list'; }, ws: 'It\u2019s not over yet: our team is working to welcome more people!', wgo: function (r) { return '\u26a1 Only <b>' + r + '</b> spot' + (r > 1 ? 's' : '') + ' left on the waiting list: sign up now, it takes 1 minute!'; }, wb: 'Join the waiting list', wm: function (a) { return 'Waiting list \u00b7 ' + a + ' \u00b7 Join'; }, wm2: function (r) { return 'Only ' + r + ' waiting-list spot' + (r > 1 ? 's' : '') + ' left \u00b7 Join now \u2192'; }, m: function (n, r) { return r != null ? 'Only ' + r + ' seats left \u00b7 Book' : n + ' booked \u00b7 Book now'; } },
+  /* ---- Popup « Obtenir mon certificat de participation » (les réservations sont closes) ---- */
+  if (/^\/certificat/i.test(location.pathname)) return;           // pas sur la page du certificat elle-même
+  var CMINI = 'bst_cert_mini', FORCE = /[?&]popup=1/.test(location.search);
+  if (FORCE) { try { sessionStorage.removeItem(CMINI); } catch (e) {} }
+  var CT = {
+    fr: { t: 'Obtenez votre <b>certificat de participation</b>', s: 'À votre nom · vérifiable par QR code · remis le jour même', b: 'Obtenir mon certificat', m: 'Mon certificat', x: 'Réduire' },
+    ht: { t: 'Jwenn <b>sètifika patisipasyon</b> ou', s: 'Ak non w · ou ka verifye l ak QR code · w ap resevwa l jou a menm', b: 'Mwen vle sètifika m', m: 'Sètifika m', x: 'Redwi' },
+    en: { t: 'Get your <b>certificate of participation</b>', s: 'In your name · verifiable by QR code · handed out on the day', b: 'Get my certificate', m: 'My certificate', x: 'Minimize' }
   };
-  function lang() { var l = (opt('lang') || document.documentElement.lang || 'fr').slice(0, 2).toLowerCase(); if (l === 'kr') l = 'ht'; return T[l] ? l : 'fr'; }
-
-  var data = null, scrolled = !!ss.get(MINI) || scrollY > 250, shown = false, host = null, sh = null;
-
-  // La banniere des cookies est-elle encore a l'ecran ? (element fixe visible qui parle de cookies)
+  function lang() { var l = (opt('lang') || document.documentElement.lang || 'fr').slice(0, 2).toLowerCase(); if (l === 'kr') l = 'ht'; return CT[l] ? l : 'fr'; }
+  var URLC = opt('certificat') || 'https://bwatsekremtalks.com/certificat', scrolled = !!ss.get(CMINI) || scrollY > 250 || FORCE, shown = false, host = null;
   function cookieVisible() {
     var els = document.querySelectorAll('body *');
     for (var i = 0; i < els.length; i++) {
@@ -115,103 +111,44 @@
     }
     return false;
   }
-  function target() {
-    var c = opt('cible'); if (c) { try { var e = document.querySelector(c); if (e) return e; } catch (e2) {} }
-    var tel = document.querySelector('form input[type="tel"], form input[name*="tel" i], form input[name*="phone" i]');
-    return tel ? tel.closest('form') : (document.getElementById('reservation') || document.getElementById('inscription'));
-  }
-  function isResaForm(f) {
-    if (!f || f.tagName !== 'FORM') return false;
-    if (f.querySelector('input[type="tel"], input[name*="tel" i], input[name*="phone" i]')) return true;
-    var c = opt('cible'); try { return !!(c && (f.matches(c) || f.closest(c))); } catch (e) { return false; }
-  }
-
-  // La personne envoie le formulaire de reservation -> on ne montre plus jamais le popup
-  document.addEventListener('submit', function (e) { if (isResaForm(e.target)) { ls.set(DONE, '1'); bye(); } }, true);
-
-  function getData() { return fetch(SB + '/rest/v1/rpc/talks_compteur', { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: '{}' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j) { data = j; paint(); } }).catch(function () {}); }
-  getData(); setInterval(getData, 90000);
   function onScroll() { if (scrollY > 250) { scrolled = true; removeEventListener('scroll', onScroll); } }
   addEventListener('scroll', onScroll, { passive: true });
-
-  var timer = setInterval(function () {
-    if (shown || !scrolled || !data || !(data.personnes >= 10)) return;
-    if (cookieVisible()) return;
-    clearInterval(timer); setTimeout(show, 1500);
-  }, 1000);
-
-  function paint() {
-    if (!sh || !data) return; var L = T[lang()];
-    var n = +data.personnes || 0, c = +data.capacite || 0, r = c ? Math.max(0, c - n) : null;
-    var d = +data.aujourdhui || 0, att = c && n > c ? n - c : 0, amax = +data.attente_max || 0; if (amax && att > amax) att = amax;
-    sh.querySelector('.c').classList.toggle('w', !!att); sh.querySelector('.p').classList.toggle('w', !!att);
-    sh.querySelector('.i').textContent = att ? '\u23f3' : '\ud83d\udd25'; sh.querySelector('.p i').textContent = att ? '\u23f3' : '\ud83d\udd25';
-    sh.querySelector('.a').textContent = att ? L.wb : L.b;
-    if (att) {
-      var up = Math.min(att, d);
-      sh.querySelector('.t').innerHTML = L.t('<b class="full">' + c + '</b>', c) + '<span class="wl">' + (amax ? L.wt(att).replace('<b>' + att + '</b>', '<b>' + att + '/' + amax + '</b>') : L.wt(att)) + '</span>' + (up > 0 ? '<span class="up">' + L.u(up) + '</span>' : '');
-      sh.querySelector('.s').innerHTML = amax && att < amax ? '<span class="go">' + L.wgo(amax - att) + '</span>' + L.ws : L.ws; sh.querySelector('.p span').textContent = amax && att < amax ? L.wm2(amax - att) : L.wm(att);
-      var bar0 = sh.querySelector('.g'), f0 = sh.querySelector('.g i'); bar0.style.display = ''; setTimeout(function () { f0.style.width = '100%'; }, 400); f0.className = 'tres';
-      return;
-    }
-    sh.querySelector('.t').innerHTML = L.t('<b>' + n + '</b>', c || 0) + (d > 0 ? '<span class="up">' + L.u(d) + '</span>' : '');
-    sh.querySelector('.s').innerHTML = L.s(+data.aujourdhui || 0, r);
-    sh.querySelector('.p span').textContent = L.m(n, r);
-    var bar = sh.querySelector('.g'), f = sh.querySelector('.g i');
-    if (c) { var pct = Math.min(100, n / c * 100); bar.style.display = ''; setTimeout(function () { f.style.width = Math.max(4, pct) + '%'; }, 400); f.className = pct >= 90 ? 'tres' : pct >= 70 ? 'chaud' : ''; } else bar.style.display = 'none';
-  }
-  function bye() { clearInterval(timer); if (host) { var h = host; host = null; h.style.opacity = '0'; setTimeout(function () { h.remove(); }, 450); } }
-  function go() {
-    try { if (window.gtag) gtag('event', 'popup_reserver'); } catch (e) {}
-    var el = target(), lien = opt('lien');
-    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); var f = el.querySelector && el.querySelector('input,select,textarea'); if (f) setTimeout(function () { f.focus({ preventScroll: true }); }, 700); }
-    else location.href = lien || 'https://bwatsekremtalks.com/';
-  }
-
+  var timer = setInterval(function () { if (shown || !scrolled || cookieVisible()) return; clearInterval(timer); setTimeout(show, 1500); }, 1000);
+  function go() { try { if (window.gtag) gtag('event', 'popup_certificat'); } catch (e) {} location.href = URLC; }
   function show() {
-    if (shown || (ls.get(DONE) && !FORCE)) return; shown = true;
-    var L = T[lang()], reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shown) return; shown = true;
+    var L = CT[lang()], reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     host = document.createElement('div');
     host.style.cssText = 'position:fixed;z-index:2147483000;left:16px;bottom:16px;transition:opacity .35s;';
-    sh = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
+    var sh = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
     sh.innerHTML = '<style>@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap");' +
-      '.c{box-sizing:border-box;font-family:Lexend,system-ui,sans-serif;width:min(360px,calc(100vw - 32px));background:#fff;color:#0D2D4A;border:2px solid rgba(93,176,51,.55);border-radius:20px;box-shadow:0 18px 50px rgba(13,45,74,.22);padding:14px 16px 14px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;position:relative;' +
+      '.c{position:relative;box-sizing:border-box;font-family:Lexend,system-ui,sans-serif;width:min(360px,calc(100vw - 32px));background:#fff;color:#0D2D4A;border:2px solid rgba(30,140,240,.45);border-radius:20px;box-shadow:0 18px 50px rgba(13,45,74,.22);padding:14px 16px 14px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:center;' +
       (reduce ? '' : 'transform:translateY(140%);opacity:0;transition:transform .55s cubic-bezier(.2,.9,.3,1.2),opacity .35s;') + '}' +
       '.c.on{transform:none;opacity:1}.c.hide,.p.hide{display:none}' +
-      (reduce ? '' : '@keyframes bob{0%,55%,100%{transform:translateY(0) scale(1)}8%{transform:translateY(-16px) scale(1.02)}16%{transform:translateY(0) scale(.99,1.01)}23%{transform:translateY(-8px)}30%{transform:translateY(0)}36%{transform:translateY(-3px)}42%{transform:translateY(0)}}' +
-      '@keyframes glow{0%,100%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 0 rgba(93,176,51,.45)}50%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 10px rgba(93,176,51,0)}}' +
-      '.c.on.bob,.p{animation:bob 2.6s cubic-bezier(.3,.7,.4,1) infinite,glow 2.6s ease-out infinite}.c.on.bob:hover,.p:hover{animation-play-state:paused}' +
-      '@keyframes wig{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-14deg) scale(1.15)}40%{transform:rotate(12deg) scale(1.15)}60%{transform:rotate(-6deg) scale(1.05)}80%{transform:rotate(3deg)}}.c.on .i,.p i{animation:wig 1.3s ease-in-out infinite}' +
-      '@keyframes shine{0%{left:-60%}55%,100%{left:130%}}.a:after,.p:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 2.2s ease-in-out infinite}') +
-      '.i{grid-row:span 2;width:44px;height:44px;border-radius:14px;background:#EAF6E2;display:grid;place-items:center;font-size:22px}' +
-      '.t{font-weight:600;font-size:15px;line-height:1.25;padding-right:18px}.t b{color:#5DB033;font-weight:700;font-size:18px}' +
-      '.s{font-size:12.5px;color:#8a4b00;font-weight:600}.s b{color:#c2410c;font-size:14px}.s .nw{white-space:nowrap}.t .up{display:table;margin-top:4px;font-size:12px;font-weight:600;color:#3f7f22;background:#eaf6e2;border-radius:999px;padding:2px 9px}.t em{font-style:normal;color:#6b7f96;font-weight:600;font-size:15px;margin-right:4px}' +
-      '.g{grid-column:1/-1;height:10px;border-radius:999px;background:rgba(13,45,74,.08);overflow:hidden;position:relative;margin-top:6px}.g i{position:absolute;inset:0 auto 0 0;width:0;border-radius:999px;background:linear-gradient(90deg,#5DB033,#8fd14f);transition:width 1.3s cubic-bezier(.2,.8,.2,1)}.g i.chaud{background:linear-gradient(90deg,#5DB033,#F5A623)}.g i.tres{background:linear-gradient(90deg,#F5A623,#e8505b)}' +
-      '.a{position:relative;overflow:hidden;grid-column:1/-1;margin-top:8px;display:block;text-align:center;background:#5DB033;color:#fff;font-weight:600;font-size:14px;border-radius:999px;padding:10px 14px;cursor:pointer;border:0;font-family:inherit}' +
-      '.a:hover,.p:hover{filter:brightness(1.06)}.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:24px;line-height:1;color:#6b7f96;cursor:pointer;padding:4px 6px}' +
-      '.p{position:relative;overflow:hidden;box-sizing:border-box;max-width:calc(100vw - 32px);text-align:left;line-height:1.25;font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;background:#5DB033;color:#fff;border:0;border-radius:999px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 12px 30px rgba(13,45,74,.25)}' +
-      '.p i{font-style:normal;display:inline-block}' +
-      '.s .go{display:block;margin-bottom:4px;font-size:13.5px;font-weight:700;color:#c2410c;background:#fff4e0;border-radius:10px;padding:6px 9px}.s .go b{font-size:15px}' +
-      '.c.w{border-color:rgba(232,80,91,.55)}.t b.full{color:#e8505b}.t .wl{display:block;margin-top:5px;font-size:13.5px;font-weight:600;color:#a3580b;background:#fff4e0;border:1px solid #f5d9a8;border-radius:12px;padding:5px 10px}.t .wl b{color:#c2410c;font-size:17px}.c.w .i{background:#fff1e0}.c.w .a,.p.w{background:#e8762b}' +
-      (reduce ? '' : '@keyframes glow2{0%,100%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 0 rgba(232,118,43,.45)}50%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 10px rgba(232,118,43,0)}}.c.on.bob.w,.p.w{animation:bob 2.6s cubic-bezier(.3,.7,.4,1) infinite,glow2 2.6s ease-out infinite}') +
-      '</style>' +
-      '<div class="c" role="status" aria-live="polite"><button class="x" type="button" aria-label="' + L.x + '" title="' + L.x + '">\u2013</button>' +
-      '<div class="i">\ud83d\udd25</div><div class="t"></div><div class="s"></div><div class="g"><i></i></div><button class="a" type="button">' + L.b + '</button></div>' +
-      '<button class="p hide" type="button"><i>\ud83d\udd25</i><span></span></button>';
+      (reduce ? '' : '@keyframes bob{0%,55%,100%{transform:translateY(0)}8%{transform:translateY(-14px)}16%{transform:translateY(0)}23%{transform:translateY(-6px)}30%{transform:translateY(0)}}' +
+      '@keyframes glow{0%,100%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 0 rgba(30,140,240,.4)}50%{box-shadow:0 18px 50px rgba(13,45,74,.22),0 0 0 10px rgba(30,140,240,0)}}' +
+      '.c.on.bob,.p{animation:bob 3.2s cubic-bezier(.3,.7,.4,1) infinite,glow 3.2s ease-out infinite}.c.on.bob:hover,.p:hover{animation-play-state:paused}' +
+      '@keyframes wig{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-12deg) scale(1.12)}40%{transform:rotate(10deg) scale(1.12)}60%{transform:rotate(-5deg)}80%{transform:rotate(2deg)}}.c.on .i,.p i{animation:wig 1.6s ease-in-out infinite}' +
+      '@keyframes shine{0%{left:-60%}55%,100%{left:130%}}.a:after,.p:after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);transform:skewX(-20deg);animation:shine 2.4s ease-in-out infinite}') +
+      '.i{grid-row:span 2;width:46px;height:46px;border-radius:14px;background:#e6f1ff;display:grid;place-items:center;font-size:24px}' +
+      '.t{font-weight:600;font-size:15px;line-height:1.3;padding-right:18px}.t b{color:#1a5cc0;font-weight:700}' +
+      '.s{font-size:12.5px;line-height:1.35;color:#5b6f8a;font-weight:500}' +
+      '.a{position:relative;overflow:hidden;grid-column:1/-1;margin-top:8px;display:block;text-align:center;background:#1a5cc0;color:#fff;font-weight:600;font-size:14px;border-radius:999px;padding:10px 14px;cursor:pointer;border:0;font-family:inherit}' +
+      '.a:hover,.p:hover{filter:brightness(1.08)}.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:24px;line-height:1;color:#6b7f96;cursor:pointer;padding:4px 6px}' +
+      '.p{position:relative;overflow:hidden;box-sizing:border-box;max-width:calc(100vw - 32px);font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;gap:8px;background:#1a5cc0;color:#fff;border:0;border-radius:999px;padding:11px 18px;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 12px 30px rgba(13,45,74,.3)}' +
+      '.p i{font-style:normal;display:inline-block}</style>' +
+      '<div class="c" role="status" aria-live="polite"><button class="x" type="button" aria-label="' + L.x + '" title="' + L.x + '">–</button>' +
+      '<div class="i">🎓</div><div class="t">' + L.t + '</div><div class="s">' + L.s + '</div><button class="a" type="button">' + L.b + ' →</button></div>' +
+      '<button class="p hide" type="button"><i>🎓</i><span>' + L.m + '</span></button>';
     var c = sh.querySelector('.c'), pill = sh.querySelector('.p');
-    document.body.appendChild(host); paint();
-    function mini(on) { c.classList.toggle('hide', on); pill.classList.toggle('hide', !on); if (on) ss.set(MINI, '1'); }
-    if (ss.get(MINI)) mini(true);
+    document.body.appendChild(host);
+    function mini(on) { c.classList.toggle('hide', on); pill.classList.toggle('hide', !on); if (on) ss.set(CMINI, '1'); }
+    if (ss.get(CMINI)) mini(true);
     else requestAnimationFrame(function () { requestAnimationFrame(function () { c.classList.add('on'); setTimeout(function () { c.classList.add('bob'); }, 650); }); });
     sh.querySelector('.x').addEventListener('click', function () { mini(true); });
-    sh.querySelector('.a').addEventListener('click', go);
-    pill.addEventListener('click', go);
-    // Pendant que le formulaire est visible a l'ecran, le popup s'efface pour ne pas le couvrir
-    var sect = document.querySelector('iframe[src*="benevole"]');
+    sh.querySelector('.a').addEventListener('click', go); pill.addEventListener('click', go);
+    // le popup s'efface pendant qu'un formulaire intégré (bénévoles, certificat) est à l'écran
+    var sect = document.querySelector('iframe[src*="benevole"], iframe[src*="certificat"]');
     if (sect && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { if (!host) return; var v = es[0].isIntersecting; host.style.opacity = v ? '0' : '1'; host.style.pointerEvents = v ? 'none' : ''; }, { threshold: 0.2 }).observe(sect);
-    var f = target();
-    if (f && 'IntersectionObserver' in window) new IntersectionObserver(function (es) {
-      if (!host) return; var vis = es[0].isIntersecting; host.style.opacity = vis ? '0' : '1'; host.style.pointerEvents = vis ? 'none' : '';
-    }, { threshold: 0.15 }).observe(f);
   }
 })();

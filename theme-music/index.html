@@ -72,6 +72,28 @@
   .txt { margin-top: 3px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
   .more { margin-top: 12px; background: none; border: 0; color: var(--navy); font: 700 14px "DM Sans", sans-serif; cursor: pointer; text-decoration: underline; }
   .empty { color: var(--mute); text-align: center; padding: 14px; }
+  /* Paroles synchronisées */
+  .lyr { background: #fff; border-radius: 24px; padding: 22px 24px 18px; margin-top: 16px; box-shadow: 0 10px 30px rgba(13,45,74,.08); }
+  .lyr .lh { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .lyr h3 { font: 800 22px "Bricolage Grotesque", sans-serif; margin: 0; color: var(--navy); }
+  .lyr .lh span { font-size: 13px; font-weight: 700; color: #3f7f22; background: #eaf6e2; border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
+  .lbox { position: relative; height: 300px; overflow: hidden; -webkit-mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); mask-image: linear-gradient(transparent, #000 18%, #000 82%, transparent); }
+  .lin { position: absolute; left: 0; right: 0; top: 0; transition: transform .55s cubic-bezier(.2,.8,.2,1); padding: 120px 0; }
+  .ll { display: block; width: 100%; text-align: center; border: 0; background: none; cursor: pointer; padding: 7px 10px; font: 700 21px/1.3 "DM Sans", sans-serif; color: #9aa9ba; transition: color .3s, transform .3s; }
+  .ll:hover { color: #5b6b7f; }
+  .ll.past { color: #c3cdd8; }
+  .ll.on { color: var(--navy); transform: scale(1.08); }
+  .ll.on b { background: linear-gradient(transparent 62%, #cdeeb4 62%); }
+  .ll b { font-weight: inherit; }
+  .ls { display: block; text-align: center; margin: 14px 0 2px; font: 800 11px "DM Sans", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--green2); }
+  .lyr.idle .lbox { height: auto; -webkit-mask-image: none; mask-image: none; }
+  .lyr.idle .lin { position: static; padding: 0; transform: none !important; }
+  .lyr.idle .ll { color: #33475f; font-size: 18px; padding: 4px 10px; }
+  .lyr .lf { margin: 10px 0 0; text-align: center; font-size: 13px; color: var(--mute); }
+  .cal { margin-top: 12px; display: grid; gap: 8px; }
+  .cal button { border: 0; border-radius: 999px; padding: 12px 18px; font: 800 15px "DM Sans", sans-serif; background: #ff8a00; color: #fff; cursor: pointer; }
+  .cal textarea { min-height: 120px; font: 13px ui-monospace, monospace; }
+  @media (max-width: 760px) { .lyr { padding: 20px 14px 16px; } .ll { font-size: 19px; } .lbox { height: 260px; } }
   .hidden { display: none !important; }
   @media (max-width: 760px) {
     .card { padding: 26px 20px; border-radius: 24px; } .grid { grid-template-columns: 1fr; gap: 10px; }
@@ -106,6 +128,13 @@
     </div>
   </div>
 
+  <div class="lyr idle hidden" id="lyr">
+    <div class="lh"><h3 id="lyT"></h3><span id="lyS"></span></div>
+    <div class="lbox" id="lbox"><div class="lin" id="lin"></div></div>
+    <p class="lf" id="lyF"></p>
+    <div class="cal hidden" id="cal"><button type="button" id="calB"></button><textarea id="calO" readonly></textarea></div>
+  </div>
+
   <div class="kom hidden" id="kom">
     <h3 id="kT"></h3>
     <p class="sub" id="kS"></p>
@@ -125,7 +154,7 @@ const SB = 'https://nltlgytehikguydcdhyy.supabase.co', KEY = 'sb_publishable_ncD
 const rpc = (fn, body = {}) => fetch(`${SB}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   .then((r) => (r.status === 204 ? null : r.json()));
 const T = {
-  fr: { kickL: 'Official Theme Music', kickS: 'Bientôt disponible', titleL: 'Écoutez notre <em>Official Theme Music</em>', titleS: 'Notre <em>Official Theme Music</em> arrive bientôt',
+  fr: { lyT: 'Paroles', lyS: '🎵 Suivez en chantant', lyF: 'Lancez la musique : les paroles défilent avec la chanson. Touchez une ligne pour y aller.', kickL: 'Official Theme Music', kickS: 'Bientôt disponible', titleL: 'Écoutez notre <em>Official Theme Music</em>', titleS: 'Notre <em>Official Theme Music</em> arrive bientôt',
     leadL: 'Montez le son ! Voici la musique officielle de Bwat Sekrèm Talks, le son qui porte notre événement. Écoutez-la, partagez-la et dites-nous ce que vous en pensez.',
     leadS: 'Nous préparons la musique officielle de Bwat Sekrèm Talks. Restez à l’écoute : elle sera dévoilée très bientôt, ici même.',
     notify: '🔔 Me prévenir sur WhatsApp', notifyMsg: 'Bonjour Bwat Sekrèm Talks ! Prévenez-moi dès que l’Official Theme Music sera disponible 🎵',
@@ -135,7 +164,7 @@ const T = {
     empty: 'Soyez la première personne à commenter !', play: 'Lecture', pause: 'Pause',
     err: { non: 'Indiquez votre nom (2 caractères minimum).', mesaj: 'Écrivez un commentaire (2 à 500 caractères).', lien: 'Les liens ne sont pas autorisés dans les commentaires.', 'twòvit': 'Patientez quelques secondes avant de commenter à nouveau.', double: 'Ce commentaire a déjà été publié.', 'fèmen': 'Les commentaires sont fermés pour le moment.', x: 'Le commentaire n’a pas pu être envoyé. Réessayez.' },
     ago: (m) => (m < 1 ? 'à l’instant' : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `il y a ${Math.floor(m / 1440)} j`) },
-  ht: { kickL: 'Official Theme Music', kickS: 'Talè konsa', titleL: 'Koute <em>Official Theme Music</em> nou an', titleS: '<em>Official Theme Music</em> nou an ap vini talè',
+  ht: { lyT: 'Pawòl yo', lyS: '🎵 Chante avè l', lyF: 'Lanse mizik la : pawòl yo ap defile ak chante a. Peze sou yon liy pou w ale la.', kickL: 'Official Theme Music', kickS: 'Talè konsa', titleL: 'Koute <em>Official Theme Music</em> nou an', titleS: '<em>Official Theme Music</em> nou an ap vini talè',
     leadL: 'Monte volim nan ! Men mizik ofisyèl Bwat Sekrèm Talks, son ki pote evènman nou an. Koute l, pataje l epi di nou sa w panse.',
     leadS: 'N ap prepare mizik ofisyèl Bwat Sekrèm Talks. Rete branche : n ap lage l byento, isit la menm.',
     notify: '🔔 Fè m konnen sou WhatsApp', notifyMsg: 'Bonjou Bwat Sekrèm Talks ! Fè m konnen lè Official Theme Music la soti 🎵',
@@ -145,7 +174,7 @@ const T = {
     empty: 'Se ou ki ka premye moun ki kòmante !', play: 'Jwe', pause: 'Poz',
     err: { non: 'Ekri non w (omwen 2 karaktè).', mesaj: 'Ekri yon kòmantè (2 a 500 karaktè).', lien: 'Lyen pa otorize nan kòmantè yo.', 'twòvit': 'Tann kèk segonn anvan w kòmante ankò.', double: 'Kòmantè sa a deja pibliye.', 'fèmen': 'Kòmantè yo fèmen pou kounye a.', x: 'Kòmantè a pa t ka ale. Eseye ankò.' },
     ago: (m) => (m < 1 ? 'kounye a' : m < 60 ? `sa gen ${m} min` : m < 1440 ? `sa gen ${Math.floor(m / 60)} è` : `sa gen ${Math.floor(m / 1440)} jou`) },
-  en: { kickL: 'Official Theme Music', kickS: 'Coming soon', titleL: 'Listen to our <em>Official Theme Music</em>', titleS: 'Our <em>Official Theme Music</em> is coming soon',
+  en: { lyT: 'Lyrics', lyS: '🎵 Sing along', lyF: 'Play the song: the lyrics scroll along with it. Tap a line to jump to it.', kickL: 'Official Theme Music', kickS: 'Coming soon', titleL: 'Listen to our <em>Official Theme Music</em>', titleS: 'Our <em>Official Theme Music</em> is coming soon',
     leadL: 'Turn it up! Here is the official theme music of Bwat Sekrèm Talks, the sound of our event. Listen, share it and tell us what you think.',
     leadS: 'We are preparing the official theme music of Bwat Sekrèm Talks. Stay tuned: it will be revealed very soon, right here.',
     notify: '🔔 Notify me on WhatsApp', notifyMsg: 'Hello Bwat Sekrèm Talks! Let me know as soon as the Official Theme Music is out 🎵',
@@ -185,6 +214,7 @@ function render() {
   $('kick').textContent = on ? t.kickL : t.kickS;
   $('title').innerHTML = on ? t.titleL : t.titleS;
   $('lead').textContent = on ? t.leadL : t.leadS;
+  $('lyr').classList.toggle('hidden', !on || !LY.length);
   $('live').classList.toggle('hidden', !on); $('soon').classList.toggle('hidden', on); $('kom').classList.toggle('hidden', !on);
   $('notify').textContent = t.notify; $('notify').href = `https://wa.me/50948722671?text=${encodeURIComponent(t.notifyMsg)}`;
   if (!on) { sendH(); return; }
@@ -234,6 +264,33 @@ $('play').addEventListener('click', async () => {
     await au.play().catch(() => {});
   } else au.pause();
 });
+/* ---------- Paroles synchronisées (paroles.json) ---------- */
+let LY = [], CUR = -1;
+const CAL = new URLSearchParams(location.search).get('calage') === '1';
+fetch('paroles.json?v=' + Date.now()).then((r) => r.json()).then((d) => { LY = (d.lignes || []).filter((l) => l && l.x); drawLy(); render && DATA && render(); }).catch(() => {});
+function drawLy() {
+  $('lyT').textContent = t.lyT; $('lyS').textContent = t.lyS; $('lyF').textContent = t.lyF;
+  $('lin').innerHTML = LY.map((l, i) => (l.s ? `<span class="ls">${esc(l.s)}</span>` : '') + `<button class="ll" type="button" data-i="${i}"><b>${esc(l.x)}</b></button>`).join('');
+  if (CAL) { $('cal').classList.remove('hidden'); calOut(); }
+  sendH();
+}
+function lyAt(tm) { let k = -1; for (let i = 0; i < LY.length; i++) if (tm + 0.15 >= LY[i].t) k = i; return k; }
+function lySync(force) {
+  if (!LY.length) return; const playing = !au.paused && !au.ended;
+  $('lyr').classList.toggle('idle', !playing && au.currentTime < 0.5);
+  const k = lyAt(au.currentTime); if (k === CUR && !force) return; CUR = k;
+  const els = [...$('lin').querySelectorAll('.ll')]; els.forEach((e, i) => { e.classList.toggle('on', i === k); e.classList.toggle('past', i < k); });
+  if (!$('lyr').classList.contains('idle') && k >= 0) { const e = els[k], box = $('lbox'); $('lin').style.transform = `translateY(${Math.round(box.clientHeight / 2 - (e.offsetTop + e.offsetHeight / 2))}px)`; }
+}
+$('lin').addEventListener('click', (e) => { const b = e.target.closest('[data-i]'); if (!b || !au.src) return; au.currentTime = Math.max(0, LY[+b.dataset.i].t); if (au.paused) au.play().catch(() => {}); lySync(true); });
+/* Mode calage (?calage=1) : on touche « Marquer » au début de chaque ligne pendant l'écoute ; les temps s'affichent pour être recopiés dans paroles.json */
+let CALI = 1;
+function calOut() { $('calB').textContent = CALI < LY.length ? `⏱ Marquer : « ${LY[CALI].x} »` : '✅ Terminé — copiez le texte ci-dessous'; $('calO').value = JSON.stringify(LY.map((l) => ({ t: l.t, x: l.x })), null, 0).replace(/},{/g, '},\n{'); }
+$('calB').addEventListener('click', () => { if (CALI >= LY.length) return; LY[CALI].t = Math.round(au.currentTime * 10) / 10; CALI++; calOut(); });
+au.addEventListener('timeupdate', () => lySync());
+au.addEventListener('seeked', () => lySync(true));
+au.addEventListener('pause', () => lySync(true));
+au.addEventListener('play', () => { lySync(true); });
 au.addEventListener('play', () => {
   setPlayIcon();
   if (an) { $('eq').classList.add('hidden'); $('cv').classList.remove('hidden'); viz(); } else $('eq').classList.remove('idle');

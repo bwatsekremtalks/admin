@@ -148,7 +148,12 @@
   </div>
 </section>
 <main class="wrap">
-  <div id="formView">
+  <div class="card ok" id="closedView">
+    <div class="big">💚</div>
+    <h2 id="clT"></h2>
+    <p id="clP"></p>
+  </div>
+  <div id="formView" class="hidden">
     <div class="card">
       <h2 data-t="gainsT"></h2>
       <div class="gains" id="gains"></div>
@@ -256,7 +261,7 @@ async function loadCnt() {
   try { const r = await fetch(`${SB_URL}/rest/v1/rpc/talks_benevoles_compteur`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: '{}' }); if (!r.ok) return;
     const j = await r.json(); ACC = (j && j.acceptes) || {}; CAND = (j && j.candidats) || {}; TOTC = Math.max(0, +(j && j.total_candidats) || 0); AUJ = Math.max(0, +(j && j.aujourdhui) || 0); renderCnt(); renderKoms(); } catch {}
 }
-function setLang(l) {
+let setLang = function (l) {
   L = T[l] ? l : 'fr'; document.documentElement.lang = L; try { localStorage.setItem('bst_lang', L); } catch {}
   document.querySelectorAll('[data-l]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.l === L));
   document.querySelectorAll('[data-t]').forEach((el) => { const v = t()[el.dataset.t]; if (typeof v === 'string') el.textContent = v; });
@@ -311,6 +316,17 @@ $('send').addEventListener('click', async () => {
   } catch (e) { err(e.message === 'photo' ? t().ePh : e.message === 'tel' ? t().eTel : e.message === 'nom' ? t().eNom : t().eApi); }
   $('send').disabled = false;
 });
+/* Candidatures fermées depuis la fin de la 1re édition (fermeture aussi côté base : talks_config « benevoles_fermes »). */
+const CLOSED = { fr: ['Les candidatures sont closes', 'Merci à toutes celles et ceux qui ont rejoint l’équipe de la 1re édition ! Restez connectés : nous vous ferons signe pour les prochaines éditions.'],
+  ht: ['Enskripsyon volontè yo fèmen', 'Mèsi a tout moun ki te vin nan ekip premye edisyon an ! Rete branche : n ap fè nou konnen pou pwochen edisyon yo.'],
+  en: ['Applications are closed', 'Thank you to everyone who joined the team for the 1st edition! Stay tuned: we will reach out for the next editions.'] };
+function renderClosed() { const c = CLOSED[L] || CLOSED.fr; $('clT').textContent = c[0]; $('clP').textContent = c[1]; document.querySelectorAll('.hbtn,.hs,#cnt').forEach((e) => e.classList.add('hidden'));
+  const K = { fr: 'Merci à notre équipe · 1re édition', ht: 'Mèsi ekip nou an · 1ye edisyon', en: 'Thank you, team · 1st edition' }; const kk = document.querySelector('[data-t="kick"]'); if (kk) kk.textContent = K[L] || K.fr;
+  const H = { fr: ['Merci à nos <em>bénévoles</em>', 'Accueil, médias, logistique, communication : vous avez fait vivre la 1re édition en coulisses.'],
+    ht: ['Mèsi a <em>volontè</em> nou yo', 'Akèy, medya, lojistik, kominikasyon : nou te fè premye edisyon an mache dèyè sèn nan.'],
+    en: ['Thank you, <em>volunteers</em>', 'Welcome, media, logistics, communication: you brought the 1st edition to life behind the scenes.'] }[L] || null;
+  const h1 = document.querySelector('h1[data-th="title"]'), ld = document.querySelector('.hero [data-t="lead"]'); if (H && h1) h1.innerHTML = H[0]; if (H && ld) ld.textContent = H[1]; }
+const _setLang = setLang; setLang = (l) => { _setLang(l); renderClosed(); };
 const q = new URLSearchParams(location.search);
 let l0 = q.get('lang'); try { l0 = l0 || localStorage.getItem('bst_lang'); } catch {}
 setLang(l0 || 'fr');

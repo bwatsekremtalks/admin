@@ -106,7 +106,12 @@ const T = {
 const q = new URLSearchParams(location.search), L = T[q.get('lang')] ? q.get('lang') : 'fr', t = T[L];
 document.documentElement.lang = L;
 const $ = (id) => document.getElementById(id), esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead; $('ctaT').textContent = t.cta; $('lim').textContent = t.lim; 
+$('kick').textContent = t.kick; $('title').innerHTML = t.title; $('lead').textContent = t.lead; $('ctaT').textContent = t.cta; $('lim').textContent = t.lim;
+/* Candidatures closes : la section devient un remerciement */
+{ const C = { fr: ['Merci à nos bénévoles', 'Merci à <em>notre équipe</em> de bénévoles', 'Ils ont fait vivre la 1re édition de Bwat Sekrèm Talks en coulisses. Les candidatures sont closes ; rendez-vous pour les prochaines éditions !', 'Candidatures closes'],
+  ht: ['Mèsi volontè nou yo', 'Mèsi a <em>ekip volontè</em> nou an', 'Se yo ki te fè premye edisyon Bwat Sekrèm Talks la mache dèyè sèn nan. Enskripsyon yo fèmen ; n ap kontre pou pwochen edisyon yo !', 'Enskripsyon fèmen'],
+  en: ['Thank you, volunteers', 'Thank you to <em>our volunteer</em> team', 'They brought the 1st edition of Bwat Sekrèm Talks to life behind the scenes. Applications are closed; see you at the next editions!', 'Applications closed'] }[L] || null;
+  if (C) { $('kick').textContent = C[0]; $('title').innerHTML = C[1]; $('lead').textContent = C[2]; $('ctaT').textContent = C[3]; $('lim').textContent = ''; $('cta').removeAttribute('href'); $('cta').style.pointerEvents = 'none'; $('cta').style.opacity = '.75'; $('cta').lastElementChild.textContent = '✓'; } } 
 $('gains').innerHTML = t.gains.map((g) => `<li>${esc(g)}</li>`).join('');
 $('chips').innerHTML = t.koms.map(([e, n]) => `<span class="chip"><b>${e}</b><span>${esc(n)}</span></span>`).join('');
 $('bTeam').textContent = t.bTeam; $('bRole').textContent = t.bRole; $('bName').textContent = t.bName; $('bDate').textContent = t.bDate;

@@ -207,7 +207,7 @@ const TES = new URLSearchParams(location.search).has('tes') && !!adminTok();
 let TES_N = 0, TES_USD = 0;
 function tesBar(extra) { const b = document.getElementById('tesBar'); b.classList.remove('hidden'); b.textContent = TES ? `🧪 Mode test admin : sans quota ni numéro. Les coûts sont notés « test » dans la rentabilité.${extra || ''}` : '⚠️ Mode test : connecte-toi d’abord à l’admin BST sur ce navigateur, puis recharge cette page.'; }
 // Paiement manuel : MonCash + capture sur WhatsApp, puis code coupon (même numéro que sur le site).
-const MONCASH = { num: '+509 4785-2221', nom: 'Bwat Sekrèm Talks' };
+const MONCASH = { num: '+509 4832-1944', nom: 'Bwat Sekrèm Talks' };
 const WA_PAIEMENT = '50948722671';
 const PACKS = [{ n: 1, p: 100, usd: 0.75 }, { n: 3, p: 250, usd: 1.85, tag: 'save' }, { n: 5, p: 350, usd: 2.6, tag: 'best' }];   // prix en gourdes (MonCash) ; affichage en dollars US au taux de 135 G
 const usd = (v) => S.lang === 'en' ? `US$${v.toFixed(2)}` : `${v.toFixed(2).replace('.', ',')} $ US`;

@@ -1865,11 +1865,11 @@ async function loadMur() {
   if (m.error) { notify('Mur : ' + friendly(m.error), 'warn'); return; }
   UROWS = m.data || []; if (c.data) $('uMode').value = c.data.valeur || 'auto';
   const vis = UROWS.filter((r) => r.vizib);
-  $('uTiles').innerHTML = [['Photos visibles', vis.length, `${UROWS.length - vis.length} masquée(s)`], ['Participants', new Set(vis.map((r) => r.inscription_id ? `${r.inscription_id}:${r.idx}` : 't' + (r.tel8 || r.non))).size, `${vis.filter((r) => r.mode === 'live').length} photo(s) du Live`], ['Contacts Live', LV.length, 'sans réservation'], ['J’aime', vis.reduce((s, r) => s + (r.renmen || 0), 0), 'au total']]
+  $('uTiles').innerHTML = [['Publications visibles', vis.length, `${vis.filter((r) => r.kind === 'video').length} vidéo(s) · ${UROWS.length - vis.length} masquée(s)`], ['Participants', new Set(vis.map((r) => r.inscription_id ? `${r.inscription_id}:${r.idx}` : 't' + (r.tel8 || r.non))).size, `${vis.filter((r) => r.mode === 'live').length} photo(s) du Live`], ['Contacts Live', LV.length, 'sans réservation'], ['J’aime', vis.reduce((s, r) => s + (r.renmen || 0), 0), 'au total']]
     .map(([k, v, s]) => `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div><div class="s">${esc(s)}</div></div>`).join('');
   $('uN').textContent = `· ${UROWS.length}`;
   $('uGrid').innerHTML = UROWS.map((r) => `<div style="border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--surface);${r.vizib ? '' : 'opacity:.5'}">
-      <a href="${esc(murImg(r.path))}" target="_blank" rel="noopener"><img src="${esc(murImg(r.path))}" alt="" loading="lazy" style="display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#e6edf5" /></a>
+      <a href="${esc(murImg(r.path))}" target="_blank" rel="noopener" style="position:relative;display:block"><img src="${esc(murImg(r.kind === 'video' ? r.poster : r.path))}" alt="" loading="lazy" style="display:block;width:100%;aspect-ratio:1;object-fit:cover;background:#e6edf5" />${r.kind === 'video' ? `<span style="position:absolute;left:8px;top:8px;background:rgba(8,20,36,.75);color:#fff;font-size:12px;font-weight:800;padding:3px 8px;border-radius:10px">🎥 Vidéo · ${Math.round(r.dur || 0)} s</span>` : ''}</a>
       <div style="padding:8px 10px"><b>${esc(r.non)}</b> <span class="sub">· ❤️ ${r.renmen || 0}</span><div class="sub">${esc(fmtDate(r.kreye_le))}</div>${r.lejand ? `<div style="font-size:13px;margin-top:2px;overflow-wrap:anywhere">${esc(r.lejand)}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:8px"><button class="btn" type="button" data-uv="${r.id}" style="flex:1;min-height:34px;padding:0 8px">${r.vizib ? 'Masquer' : 'Afficher'}</button><button class="btn" type="button" data-ud="${r.id}" title="Supprimer" style="min-height:34px;padding:0 10px">🗑️</button></div></div></div>`).join('')
     || '<p class="sub">Aucune photo pour le moment.</p>';
@@ -1882,8 +1882,8 @@ $('uGrid').addEventListener('click', async (e) => {
   const v = e.target.closest('[data-uv]'), d = e.target.closest('[data-ud]');
   if (v) { const r = UROWS.find((x) => x.id === Number(v.dataset.uv)); const { error } = await sb.from('talks_mur').update({ vizib: !r.vizib }).eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadMur(); }
   if (d) { const r = UROWS.find((x) => x.id === Number(d.dataset.ud));
-    if (!(await ask({ icon: '🗑️', tone: 'red', title: 'Supprimer cette photo ?', text: `Photo de ${r.non}. Elle sera effacée définitivement du mur.`, ok: 'Supprimer', okTone: 'red' }))) return;
-    await sb.storage.from('mur').remove([r.path]);
+    if (!(await ask({ icon: '🗑️', tone: 'red', title: r.kind === 'video' ? 'Supprimer cette vidéo ?' : 'Supprimer cette photo ?', text: `${r.kind === 'video' ? 'Vidéo' : 'Photo'} de ${r.non}. Elle sera effacée définitivement du mur.`, ok: 'Supprimer', okTone: 'red' }))) return;
+    await sb.storage.from('mur').remove([r.path, r.poster].filter(Boolean));
     const { error } = await sb.from('talks_mur').delete().eq('id', r.id); if (error) notify(friendly(error), 'warn'); loadMur(); }
 });
 /* ---------- Official Theme Music (tables talks_jingle_*) ---------- */

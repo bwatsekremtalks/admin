@@ -74,6 +74,11 @@
   .grid { columns: 4 240px; column-gap: 12px; margin-top: 16px; }
   .ph { break-inside: avoid; margin: 0 0 12px; background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 6px 18px rgba(13,45,74,.08); cursor: zoom-in; position: relative; }
   .ph img { display: block; width: 100%; height: auto; background: #e6edf5; }
+  .ph .play { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: rgba(8,20,36,.62); border: 2px solid rgba(255,255,255,.85); display: grid; place-items: center; pointer-events: none; }
+  .ph .play::after { content: ''; margin-left: 5px; border-left: 20px solid #fff; border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+  .ph .dur { position: absolute; right: 10px; top: 10px; background: rgba(8,20,36,.7); color: #fff; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 10px; pointer-events: none; }
+  .lb .mid video { max-width: 100%; max-height: calc(100dvh - 210px); border-radius: 10px; background: #000; }
+  .thumbs .vb { position: absolute; left: 6px; bottom: 6px; background: rgba(0,0,0,.65); color: #fff; font-size: 11px; font-weight: 800; padding: 2px 6px; border-radius: 8px; }
   .ph .cap { padding: 10px 12px 12px; }
   .ph .who { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .ph .who b { font-size: 14.5px; display: block; line-height: 1.2; } .ph .who small { color: var(--mute); font-size: 12px; display: block; }
@@ -125,10 +130,10 @@
       <div>
         <span class="k">📸 Bwat Sekrèm Talks · 22 novembre 2026</span>
         <h1>Le mur des <em>participants</em></h1>
-        <p>Vous étiez dans la salle ou devant le Live ? Relevez nos défis photo, partagez vos meilleurs moments de la 1re édition et revivez-les avec toute la communauté.</p>
-        <div class="stats"><div class="st"><b id="nPh">0</b><span>photos</span></div><div class="st"><b id="nMo">0</b><span>participants</span></div><div class="st"><b id="nLi">0</b><span>photos du Live</span></div></div>
+        <p>Vous étiez dans la salle ou devant le Live ? Relevez nos défis photo, partagez vos meilleurs moments de la 1re édition en photo ou en vidéo et revivez-les avec toute la communauté.</p>
+        <div class="stats"><div class="st"><b id="nPh">0</b><span>photos et vidéos</span></div><div class="st"><b id="nMo">0</b><span>participants</span></div><div class="st"><b id="nLi">0</b><span>publications du Live</span></div></div>
       </div>
-      <div><button class="cta" type="button" id="cta">📸 Partager mes photos</button></div>
+      <div><button class="cta" type="button" id="cta">📸🎥 Partager mes photos et vidéos</button></div>
     </div>
     <div class="soon hidden" id="soon">🔒 Le mur s’ouvre le 22 novembre à 14 h 30, dès le début de l’événement.</div>
   </section>
@@ -143,13 +148,13 @@
 
 <div class="lb hidden bst-fix" id="lb" role="dialog" aria-modal="true" aria-label="Photo">
   <div class="top"><span id="lbN" style="font-weight:700"></span><div style="display:flex;gap:8px"><a class="ib" id="lbWa" target="_blank" rel="noopener" title="Partager sur WhatsApp" aria-label="Partager">💬</a><button class="ib" type="button" id="lbX" aria-label="Fermer">✕</button></div></div>
-  <div class="mid"><img id="lbI" alt="" /><button class="ib nav prev" type="button" id="lbP" aria-label="Précédente">‹</button><button class="ib nav next" type="button" id="lbNx" aria-label="Suivante">›</button></div>
+  <div class="mid"><img id="lbI" alt="" /><video id="lbV" class="hidden" controls playsinline preload="metadata"></video><button class="ib nav prev" type="button" id="lbP" aria-label="Précédente">‹</button><button class="ib nav next" type="button" id="lbNx" aria-label="Suivante">›</button></div>
   <div class="bot"><b id="lbW"></b><p id="lbT"></p><button class="heart" type="button" id="lbH"></button></div>
 </div>
 
 <dialog id="up"><div class="sheet">
   <div id="st1">
-    <h2>📸 Partager mes photos</h2>
+    <h2>📸🎥 Partager mes photos et vidéos</h2>
     <div class="seg2" id="who2"><button type="button" class="on" data-w="resa">🎟️ J’ai réservé</button><button type="button" data-w="live">🎥 J’ai suivi le Live</button></div>
     <p class="sub" id="whoTxt">Entrez le numéro WhatsApp donné lors de votre réservation (ou celui de la personne qui vous a inscrit·e).</p>
     <div id="liveF" class="hidden"><label class="l" for="lnom">Votre nom</label><input class="t" id="lnom" autocomplete="name" placeholder="Prénom et nom" maxlength="80" /></div>
@@ -161,16 +166,16 @@
   </div>
   <div id="st2" class="hidden">
     <div class="hello" id="hello"></div>
-    <label class="l">Vos photos <span style="font-weight:500;color:var(--mute)">(5 maximum à la fois)</span></label>
-    <label class="pick" for="files">📷 Choisir des photos<small>depuis votre galerie ou l’appareil photo</small></label>
-    <input id="files" type="file" accept="image/*" multiple hidden />
+    <label class="l">Vos photos et vidéos <span style="font-weight:500;color:var(--mute)">(5 fichiers à la fois · vidéos : 60 s et 50 Mo max)</span></label>
+    <label class="pick" for="files">📷🎥 Choisir des photos ou des vidéos<small>depuis votre galerie ou l’appareil photo</small></label>
+    <input id="files" type="file" accept="image/*,video/mp4,video/quicktime,video/webm,video/*" multiple hidden />
     <div class="thumbs" id="thumbs"></div>
     <label class="l">🎯 Quel défi relevez-vous ? <span style="font-weight:500;color:var(--mute)">(facultatif)</span></label>
     <div class="dchips" id="dchips"></div>
     <div class="score" id="score"></div>
     <label class="l" for="lej">Légende <span style="font-weight:500;color:var(--mute)">(facultatif)</span></label>
     <textarea id="lej" rows="2" maxlength="280" placeholder="ex. Quelle énergie dans la salle ! 🔥"></textarea>
-    <label class="ok2"><input type="checkbox" id="ok" /> <span>J’accepte que ces photos soient publiées sur le mur de Bwat Sekrèm Talks. Je confirme avoir l’accord des personnes reconnaissables.</span></label>
+    <label class="ok2"><input type="checkbox" id="ok" /> <span>J’accepte que ces photos et vidéos soient publiées sur le mur de Bwat Sekrèm Talks. Je confirme avoir l’accord des personnes reconnaissables.</span></label>
     <div class="prog hidden" id="prog"><i id="progI"></i></div>
     <p class="err" id="e2" role="alert"></p>
     <div class="acts"><button type="button" class="b2" id="c2">Fermer</button><button type="button" class="b1" id="v2" disabled>Publier</button></div>
@@ -183,6 +188,7 @@ const SB = 'https://nltlgytehikguydcdhyy.supabase.co', KEY = 'sb_publishable_ncD
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}` };
 const rpc = (fn, body = {}) => fetch(`${SB}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { ...H, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then((r) => (r.status === 204 ? null : r.json()));
 const img = (path) => `${SB}/storage/v1/object/public/mur/${path}`;
+const fmtDur = (d) => { d = Math.round(+d || 0); return `${Math.floor(d / 60)}:${String(d % 60).padStart(2, '0')}`; };
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const EMBED = new URLSearchParams(location.search).get('embed') === '1'; if (EMBED) document.body.classList.add('embed');
@@ -258,8 +264,8 @@ function render() {
   renderDefis();
   const V = FILTER ? P.map((p, i) => [p, i]).filter(([p]) => p.defi === FILTER) : P.map((p, i) => [p, i]);
   $('empty').classList.toggle('hidden', V.length > 0);
-  $('grid').innerHTML = (D.ouvert && !FILTER ? `<button class="addt" type="button" data-add="1"><span class="e">📸</span>Ajouter mes photos<small>Jusqu’à 12 photos par personne</small></button>` : '') + V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
-      <img src="${esc(img(p.path))}" alt="Photo de ${esc(p.non)}" loading="lazy" ${p.w && p.h ? `width="${p.w}" height="${p.h}"` : ''} />
+  $('grid').innerHTML = (D.ouvert && !FILTER ? `<button class="addt" type="button" data-add="1"><span class="e">📸</span>Ajouter mes photos ou vidéos<small>Jusqu’à 12 publications par personne, dont 3 vidéos</small></button>` : '') + V.map(([p, i]) => `<figure class="ph" data-i="${i}" style="margin:0 0 ${matchMedia('(max-width:640px)').matches ? 8 : 12}px">
+      <img src="${esc(img(p.kind === 'video' ? p.poster : p.path))}" alt="${p.kind === 'video' ? 'Vidéo' : 'Photo'} de ${esc(p.non)}" loading="lazy" ${p.w && p.h ? `width="${p.w}" height="${p.h}"` : ''} />${p.kind === 'video' ? `<span class="play"></span><span class="dur">🎥 ${fmtDur(p.dur)}</span>` : ''}
       <figcaption class="cap"><div class="who"><div><b>${esc(p.non)}</b> <small>${esc(ago(p.le))}</small></div><button class="heart ${LIKED.has(p.id) ? 'on' : ''}" type="button" data-like="${p.id}">❤️ ${p.renmen || 0}</button></div>
       ${p.lejand ? `<div class="tx">${esc(p.lejand)}</div>` : ''}${p.mode === 'live' ? '<span class="tag live">🎥 En Live</span> ' : ''}${p.defi && DF[p.defi] ? `<span class="tag">🎯 ${DF[p.defi].e} ${esc(DF[p.defi].t)}</span>` : ''}</figcaption></figure>`).join('');
   sendH(); nudge();
@@ -281,13 +287,13 @@ document.addEventListener('click', (e) => {
 });
 function showLb(i) {
   const P = D.photos || []; if (!P.length) return; CUR = (i + P.length) % P.length; const p = P[CUR];
-  $('lbI').src = img(p.path); $('lbI').alt = `Photo de ${p.non}`; $('lbN').textContent = `${CUR + 1} / ${P.length}`;
+  const vd = $('lbV'); if (p.kind === 'video') { $('lbI').classList.add('hidden'); vd.classList.remove('hidden'); vd.poster = img(p.poster); vd.src = img(p.path); } else { vd.pause(); vd.removeAttribute('src'); vd.load(); vd.classList.add('hidden'); $('lbI').classList.remove('hidden'); $('lbI').src = img(p.path); $('lbI').alt = `Photo de ${p.non}`; } $('lbN').textContent = `${CUR + 1} / ${P.length}`;
   $('lbW').textContent = `${p.non} · ${ago(p.le)}`; $('lbT').textContent = [p.defi && DF[p.defi] ? `🎯 ${DF[p.defi].e} ${DF[p.defi].t}` : '', p.lejand || ''].filter(Boolean).join(' — ');
   $('lbH').className = 'heart' + (LIKED.has(p.id) ? ' on' : ''); $('lbH').textContent = `❤️ ${p.renmen || 0}`; $('lbH').dataset.id = p.id;
-  $('lbWa').href = `https://wa.me/?text=${encodeURIComponent('📸 Les photos de Bwat Sekrèm Talks, partagées par les participants : ' + PAGE)}`;
+  $('lbWa').href = `https://wa.me/?text=${encodeURIComponent('📸🎥 Les photos et vidéos de Bwat Sekrèm Talks, partagées par les participants : ' + PAGE)}`;
   $('lb').classList.remove('hidden');
 }
-$('lbX').onclick = () => { $('lb').classList.add('hidden'); CUR = -1; };
+$('lbX').onclick = () => { $('lb').classList.add('hidden'); CUR = -1; try { $('lbV').pause(); } catch {} };
 $('lbP').onclick = () => showLb(CUR - 1); $('lbNx').onclick = () => showLb(CUR + 1);
 $('lbH').onclick = () => like(Number($('lbH').dataset.id));
 addEventListener('keydown', (e) => { if ($('lb').classList.contains('hidden')) return; if (e.key === 'Escape') $('lbX').click(); if (e.key === 'ArrowLeft') $('lbP').click(); if (e.key === 'ArrowRight') $('lbNx').click(); });
@@ -326,15 +332,50 @@ $('v1').onclick = async () => {
 };
 ['tel', 'lnom', 'lmot'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('v1').click(); }));
 function drawThumbs() {
-  $('thumbs').innerHTML = FILES.map((f, i) => `<div><img src="${f.url}" alt="" /><button type="button" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join('');
-  $('v2').disabled = !FILES.length || !$('ok').checked; $('v2').textContent = FILES.length > 1 ? `Publier ${FILES.length} photos` : 'Publier';
+  $('thumbs').innerHTML = FILES.map((f, i) => `<div><img src="${f.video ? f.video.thumb : f.url}" alt="" />${f.video ? `<span class="vb">🎥 ${fmtDur(f.video.dur)}</span>` : ''}<button type="button" data-rm="${i}" aria-label="Retirer">✕</button></div>`).join('');
+  $('v2').disabled = !FILES.length || !$('ok').checked; $('v2').textContent = FILES.length > 1 ? `Publier ${FILES.length} fichiers` : 'Publier';
 }
 $('thumbs').addEventListener('click', (e) => { const b = e.target.closest('[data-rm]'); if (!b) return; URL.revokeObjectURL(FILES[+b.dataset.rm].url); FILES.splice(+b.dataset.rm, 1); drawThumbs(); });
 $('ok').addEventListener('change', drawThumbs);
-$('files').addEventListener('change', () => {
-  for (const f of $('files').files) { if (FILES.length >= 5) { toast('5 photos maximum à la fois.'); break; } if (/^image\//.test(f.type)) FILES.push({ f, url: URL.createObjectURL(f) }); }
-  $('files').value = ''; drawThumbs();
+$('files').addEventListener('change', async () => {
+  const fs = [...$('files').files]; $('files').value = ''; $('e2').textContent = '';
+  for (const f of fs) {
+    if (FILES.length >= 5) { toast('5 fichiers maximum à la fois.'); break; }
+    if (/^image\//.test(f.type)) { FILES.push({ f, url: URL.createObjectURL(f) }); continue; }
+    if (/^video\//.test(f.type) || /\.(mp4|mov|webm)$/i.test(f.name)) {
+      if (f.size > 50 * 1024 * 1024) { $('e2').textContent = `« ${f.name} » dépasse 50 Mo : raccourcissez la vidéo ou exportez-la en qualité réduite.`; continue; }
+      const v = await vidInfo(f);
+      if (!v) { $('e2').textContent = `« ${f.name} » ne peut pas être lue par ce navigateur. Essayez une vidéo MP4.`; continue; }
+      if (v.dur > 61) { $('e2').textContent = `« ${f.name} » dure ${Math.round(v.dur)} s : 60 secondes maximum.`; URL.revokeObjectURL(v.url); continue; }
+      FILES.push({ f, url: v.url, video: v });
+    }
+  }
+  drawThumbs();
 });
+/* Vidéo : durée, dimensions et image d’aperçu (prise à 0,5 s) calculées dans le navigateur */
+function vidInfo(file) {
+  return new Promise((ok) => {
+    const url = URL.createObjectURL(file), v = document.createElement('video'); let done = false;
+    const fin = (r) => { if (done) return; done = true; if (!r) URL.revokeObjectURL(url); ok(r); };
+    v.preload = 'auto'; v.muted = true; v.playsInline = true; v.src = url;
+    v.onerror = () => fin(null); setTimeout(() => fin(null), 20000);
+    v.onloadedmetadata = () => { v.currentTime = Math.min(.5, (v.duration || 1) / 2); };
+    v.onseeked = async () => {
+      const s = Math.min(1, 1280 / Math.max(v.videoWidth || 1, v.videoHeight || 1)), w = Math.round((v.videoWidth || 720) * s), h = Math.round((v.videoHeight || 1280) * s);
+      const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(v, 0, 0, w, h);
+      const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.82));
+      fin(blob ? { url, dur: v.duration, w, h, poster: blob, thumb: URL.createObjectURL(blob) } : null);
+    };
+  });
+}
+function putFile(path, blob, type, onp) {
+  return new Promise((ok, ko) => {
+    const x = new XMLHttpRequest(); x.open('POST', `${SB}/storage/v1/object/mur/${path}`);
+    Object.entries(H).forEach(([k, v]) => x.setRequestHeader(k, v)); x.setRequestHeader('Content-Type', type); x.setRequestHeader('x-upsert', 'false');
+    x.upload.onprogress = (e) => { if (e.lengthComputable && onp) onp(e.loaded / e.total); };
+    x.onload = () => (x.status < 300 ? ok() : ko(new Error('upload ' + x.status))); x.onerror = () => ko(new Error('réseau')); x.send(blob);
+  });
+}
 /* Photo réduite (1600 px max, JPEG) : envoi rapide même avec une petite connexion */
 async function shrink(file) {
   let bmp; try { bmp = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch { bmp = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(file); }); }
@@ -348,22 +389,32 @@ $('v2').onclick = async () => {
   let n = 0;
   for (const [i, x] of FILES.entries()) {
     try {
-      const { blob, w, h } = await shrink(x.f);
-      const path = `${TOK}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}.jpg`;
-      const up = await fetch(`${SB}/storage/v1/object/mur/${path}`, { method: 'POST', headers: { ...H, 'Content-Type': 'image/jpeg', 'x-upsert': 'false' }, body: blob });
-      if (!up.ok) throw new Error('upload ' + up.status);
-      const r = await rpc('talks_mur_poste', { p_token: TOK, p_path: path, p_lejand: $('lej').value.trim(), p_w: w, p_h: h, p_defi: DEFI || null });
-      if (!r || !r.ok) { if (r && r.error === 'max') { $('e2').textContent = 'Vous avez atteint 12 photos : merci pour votre partage !'; break; } if (r && r.error === 'session') { $('e2').textContent = 'Session expirée : recommencez avec votre numéro.'; break; } throw new Error(r && r.error); }
+      const base = `${TOK}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`, part = (q) => { $('progI').style.width = `${Math.round(((i + q) / FILES.length) * 100)}%`; };
+      let r;
+      if (x.video) {
+        const ext = /webm/.test(x.f.type) || /\.webm$/i.test(x.f.name) ? 'webm' : /quicktime/.test(x.f.type) || /\.mov$/i.test(x.f.name) ? 'mov' : 'mp4';
+        const type = { webm: 'video/webm', mov: 'video/quicktime', mp4: 'video/mp4' }[ext];
+        await putFile(`${base}p.jpg`, x.video.poster, 'image/jpeg');
+        await putFile(`${base}.${ext}`, x.f, type, (q) => part(q * .97));
+        r = await rpc('talks_mur_poste_video', { p_token: TOK, p_path: `${base}.${ext}`, p_poster: `${base}p.jpg`, p_lejand: $('lej').value.trim(), p_w: x.video.w, p_h: x.video.h, p_dur: x.video.dur, p_defi: DEFI || null });
+      } else {
+        const { blob, w, h } = await shrink(x.f);
+        await putFile(`${base}.jpg`, blob, 'image/jpeg', (q) => part(q * .97));
+        r = await rpc('talks_mur_poste', { p_token: TOK, p_path: `${base}.jpg`, p_lejand: $('lej').value.trim(), p_w: w, p_h: h, p_defi: DEFI || null });
+      }
+      if (!r || !r.ok) { if (r && r.error === 'max') { $('e2').textContent = 'Vous avez atteint 12 publications : merci pour votre partage !'; break; }
+        if (r && r.error === 'maxvideo') { $('e2').textContent = '3 vidéos maximum par personne : les autres fichiers continuent.'; continue; }
+        if (r && r.error === 'duree') { $('e2').textContent = 'Une vidéo dépasse 60 secondes.'; continue; } if (r && r.error === 'session') { $('e2').textContent = 'Session expirée : recommencez avec votre numéro.'; break; } throw new Error(r && r.error); }
       n++;
-    } catch (err) { console.warn(err); $('e2').textContent = 'Une photo n’a pas pu être envoyée. Vérifiez votre connexion et réessayez.'; }
+    } catch (err) { console.warn(err); $('e2').textContent = x.video ? 'Une vidéo n’a pas pu être envoyée (connexion trop lente ou fichier trop lourd). Réessayez en Wi-Fi.' : 'Une photo n’a pas pu être envoyée. Vérifiez votre connexion et réessayez.'; }
     $('progI').style.width = `${Math.round(((i + 1) / FILES.length) * 100)}%`;
   }
   $('c2').disabled = false;
   if (n) {
-    ga('mur_publier', { n, defi: DEFI || 'aucun' }); FILES.forEach((x) => URL.revokeObjectURL(x.url)); FILES = []; drawThumbs(); $('up').close();
+    ga('mur_publier', { n, defi: DEFI || 'aucun' }); FILES.forEach((x) => { URL.revokeObjectURL(x.url); if (x.video) URL.revokeObjectURL(x.video.thumb); }); FILES = []; drawThumbs(); $('up').close();
     if (DEFI && !FAIT.includes(DEFI)) FAIT.push(DEFI);
     const reste = defisDe(MODE).filter((d) => !FAIT.includes(d.k));
-    toast(DEFI ? `🎯 Défi « ${DF[DEFI].t} » relevé ! ${reste.length ? `Prochain défi : ${reste[0].e} ${reste[0].t}` : 'Vous avez relevé tous les défis 🏆'}` : `🎉 ${n} photo${n > 1 ? 's' : ''} publiée${n > 1 ? 's' : ''} sur le mur. Merci !`, 6000);
+    toast(DEFI ? `🎯 Défi « ${DF[DEFI].t} » relevé ! ${reste.length ? `Prochain défi : ${reste[0].e} ${reste[0].t}` : 'Vous avez relevé tous les défis 🏆'}` : `🎉 ${n} publication${n > 1 ? 's' : ''} sur le mur. Merci !`, 6000);
     DEFI = ''; $('lej').value = ''; await load(); window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   else $('v2').disabled = false;
